@@ -3,7 +3,7 @@ import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
 import prettier from 'eslint-config-prettier/flat';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
-import { flatConfigs as importXConfigs } from 'eslint-plugin-import-x';
+import { createNodeResolver, flatConfigs as importXConfigs } from 'eslint-plugin-import-x';
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -17,6 +17,9 @@ const eslintConfig = defineConfig([
         createTypeScriptImportResolver({
           alwaysTryTypes: true,
           project: './tsconfig.json',
+        }),
+        createNodeResolver({
+          extensions: ['.mjs', '.cjs', '.js', '.jsx', '.ts', '.tsx', '.json', '.node', '.css'],
         }),
       ],
     },
