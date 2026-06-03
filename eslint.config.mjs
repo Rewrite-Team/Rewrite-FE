@@ -1,3 +1,4 @@
+import tanstackQuery from '@tanstack/eslint-plugin-query';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
@@ -12,6 +13,9 @@ const eslintConfig = defineConfig([
   importXConfigs.typescript,
   {
     files: ['**/*.{ts,tsx,js,jsx,mjs}'],
+    plugins: {
+      '@tanstack/query': tanstackQuery,
+    },
     settings: {
       'import-x/resolver-next': [
         createTypeScriptImportResolver({
@@ -25,6 +29,9 @@ const eslintConfig = defineConfig([
     },
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_' }],
+      '@tanstack/query/exhaustive-deps': 'error',
+      '@tanstack/query/no-rest-destructuring': 'warn',
+      '@tanstack/query/stable-query-client': 'error',
       'react/jsx-uses-react': 'off',
       'react/jsx-uses-vars': 'error',
       'react/jsx-key': 'error',
