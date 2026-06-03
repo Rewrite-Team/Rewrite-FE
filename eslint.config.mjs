@@ -4,6 +4,7 @@ import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
 import prettier from 'eslint-config-prettier/flat';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
+import boundaries from 'eslint-plugin-boundaries';
 import { createNodeResolver, flatConfigs as importXConfigs } from 'eslint-plugin-import-x';
 
 const eslintConfig = defineConfig([
@@ -14,9 +15,33 @@ const eslintConfig = defineConfig([
   {
     files: ['**/*.{ts,tsx,js,jsx,mjs}'],
     plugins: {
+      boundaries,
       '@tanstack/query': tanstackQuery,
     },
     settings: {
+      'boundaries/include': ['src/**/*'],
+      'boundaries/elements': [
+        {
+          type: 'app',
+          pattern: 'src/app/**/*',
+        },
+        {
+          type: 'widgets',
+          pattern: 'src/widgets/**/*',
+        },
+        {
+          type: 'features',
+          pattern: 'src/features/**/*',
+        },
+        {
+          type: 'entities',
+          pattern: 'src/entities/**/*',
+        },
+        {
+          type: 'shared',
+          pattern: 'src/shared/**/*',
+        },
+      ],
       'import-x/resolver-next': [
         createTypeScriptImportResolver({
           alwaysTryTypes: true,
@@ -32,6 +57,42 @@ const eslintConfig = defineConfig([
       '@tanstack/query/exhaustive-deps': 'error',
       '@tanstack/query/no-rest-destructuring': 'warn',
       '@tanstack/query/stable-query-client': 'error',
+      'boundaries/dependencies': [
+        'error',
+        {
+          default: 'disallow',
+          rules: [
+            {
+              from: { type: 'app' },
+              allow: {
+                to: [
+                  { type: 'app' },
+                  { type: 'widgets' },
+                  { type: 'features' },
+                  { type: 'entities' },
+                  { type: 'shared' },
+                ],
+              },
+            },
+            {
+              from: { type: 'widgets' },
+              allow: { to: [{ type: 'features' }, { type: 'entities' }, { type: 'shared' }] },
+            },
+            {
+              from: { type: 'features' },
+              allow: { to: [{ type: 'entities' }, { type: 'shared' }] },
+            },
+            {
+              from: { type: 'entities' },
+              allow: { to: [{ type: 'shared' }] },
+            },
+            {
+              from: { type: 'shared' },
+              allow: { to: [{ type: 'shared' }] },
+            },
+          ],
+        },
+      ],
       'react/jsx-uses-react': 'off',
       'react/jsx-uses-vars': 'error',
       'react/jsx-key': 'error',
