@@ -18,7 +18,9 @@ const eslintConfig = defineConfig([
           alwaysTryTypes: true,
           project: './tsconfig.json',
         }),
-        createNodeResolver(),
+        createNodeResolver({
+          extensions: ['.mjs', '.cjs', '.js', '.jsx', '.ts', '.tsx', '.json', '.node', '.css'],
+        }),
       ],
     },
     rules: {
