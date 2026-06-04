@@ -6,6 +6,7 @@ import prettier from 'eslint-config-prettier/flat';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
 import boundaries from 'eslint-plugin-boundaries';
 import { createNodeResolver, flatConfigs as importXConfigs } from 'eslint-plugin-import-x';
+import { configs as storybookConfigs } from 'eslint-plugin-storybook';
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -150,6 +151,8 @@ const eslintConfig = defineConfig([
     'next-env.d.ts',
   ]),
   prettier,
+  ...storybookConfigs['flat/recommended'],
+  globalIgnores(['node_modules/**', '.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
 ]);
 
 export default eslintConfig;
