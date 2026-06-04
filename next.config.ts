@@ -31,17 +31,7 @@ const nextConfig: NextConfig = {
               options: {
                 svgo: true,
                 svgoConfig: {
-                  plugins: [
-                    {
-                      name: 'preset-default',
-                      params: {
-                        overrides: {
-                          removeViewBox: false,
-                        },
-                      },
-                    },
-                    'removeDimensions',
-                  ],
+                  plugins: ['preset-default', 'removeDimensions'],
                 },
               },
             },
