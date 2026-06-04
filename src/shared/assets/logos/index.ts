@@ -1,4 +1,4 @@
-import symbolLogo from './symbol-logo.svg';
-import textLogo from './text-logo.svg';
+import SymbolLogo from './symbol-logo.svg';
+import TextLogo from './text-logo.svg';
 
-export { symbolLogo, textLogo };
+export { SymbolLogo, TextLogo };
