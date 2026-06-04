@@ -1,7 +1,46 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  turbopack: {
+    rules: {
+      '*.svg': [
+        {
+          condition: {
+            all: [
+              {
+                any: [
+                  { path: /^src\/shared\/assets\/icons\/.*\.svg$/ },
+                  { path: /^src\/shared\/assets\/logos\/.*\.svg$/ },
+                ],
+              },
+              { query: '?url' },
+            ],
+          },
+          type: 'asset',
+        },
+        {
+          condition: {
+            any: [
+              { path: /^src\/shared\/assets\/icons\/.*\.svg$/ },
+              { path: /^src\/shared\/assets\/logos\/.*\.svg$/ },
+            ],
+          },
+          loaders: [
+            {
+              loader: '@svgr/webpack',
+              options: {
+                svgo: true,
+                svgoConfig: {
+                  plugins: ['preset-default', 'removeDimensions'],
+                },
+              },
+            },
+          ],
+          as: '*.js',
+        },
+      ],
+    },
+  },
 };
 
 export default nextConfig;
