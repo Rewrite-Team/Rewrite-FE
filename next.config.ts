@@ -25,7 +25,27 @@ const nextConfig: NextConfig = {
               { path: /^src\/shared\/assets\/logos\/.*\.svg$/ },
             ],
           },
-          loaders: ['@svgr/webpack'],
+          loaders: [
+            {
+              loader: '@svgr/webpack',
+              options: {
+                svgo: true,
+                svgoConfig: {
+                  plugins: [
+                    {
+                      name: 'preset-default',
+                      params: {
+                        overrides: {
+                          removeViewBox: false,
+                        },
+                      },
+                    },
+                    'removeDimensions',
+                  ],
+                },
+              },
+            },
+          ],
           as: '*.js',
         },
       ],
