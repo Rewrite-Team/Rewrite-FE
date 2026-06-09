@@ -19,3 +19,6 @@ node_modules
 # 기타 자주 제외하는 파일
 *.log
 .vscode
+
+# 문서 파일
+*.md
