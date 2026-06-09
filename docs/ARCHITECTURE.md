@@ -246,7 +246,6 @@ shared/
 
 - `shared/ui`는 도메인 문구나 도메인 로직을 알지 않는다.
 - `shared/api`는 HTTP 클라이언트, 공통 에러 처리, 인증 헤더 주입만 담당한다.
-- `shared/constants/queryKey.ts`는 도메인별 query key factory로 확장한다.
 - `shared/hooks`는 특정 entity나 feature를 모르는 hook만 둔다.
 - `shared/stores`는 앱 전체에서 필요한 상태에만 사용하고, 도메인 상태는 entity 또는 feature에 둔다.
 - `shared/lib`는 라이브러리 연결과 adapter를 담당하고, 단순 순수 함수는 `shared/utils`에 둔다.
@@ -287,152 +286,9 @@ import { DeleteCoverLetterButton } from '@/features/cover-letter/delete-cover-le
 
 서버 상태는 TanStack Query를 기준으로 관리한다.
 
-```txt
-Page
--> Widget
--> Feature
--> Entity API
--> shared/api
--> Backend
-```
+API 상세 구조, query key, request/response 정책은 백엔드 API 스펙이 확정된 뒤 별도 문서에서 정의한다.
 
-조회:
-
-```txt
-widget 또는 entity ui
--> entity api query option
--> shared api client
-```
-
-변경:
-
-```txt
-feature
--> mutation
--> entity api
--> query invalidation
-```
-
-권장 query key 구조:
-
-```ts
-export const queryKey = {
-  coverLetter: {
-    all: ['cover-letter'] as const,
-    list: (params: CoverLetterListParams) => ['cover-letter', 'list', params] as const,
-    detail: (coverLetterId: string) => ['cover-letter', 'detail', coverLetterId] as const,
-  },
-  reviewVersion: {
-    list: (coverLetterId: string) => ['review-version', coverLetterId, 'list'] as const,
-    detail: (coverLetterId: string, versionId: string) =>
-      ['review-version', coverLetterId, 'detail', versionId] as const,
-  },
-  keywordAnalysis: {
-    latest: (coverLetterId: string) => ['keyword-analysis', coverLetterId, 'latest'] as const,
-  },
-  interview: {
-    current: (coverLetterId: string) => ['interview', coverLetterId, 'current'] as const,
-    questions: (interviewSessionId: string) =>
-      ['interview', interviewSessionId, 'questions'] as const,
-    messages: (threadId: string) => ['interview-thread', threadId, 'messages'] as const,
-  },
-  llmJob: {
-    detail: (jobId: string) => ['llm-job', jobId] as const,
-  },
-};
-```
-
-## 7. Main Screen Composition
-
-### Landing
-
-```txt
-app/(public)/page.tsx
--> widgets/landing/landing-page
--> shared/ui/button, shared/assets/logos
-```
-
-### Writing List
-
-```txt
-app/(private)/writing/page.tsx
--> widgets/cover-letter/cover-letter-list
--> entities/cover-letter/ui/CoverLetterCard
--> features/cover-letter/create-cover-letter
-```
-
-### Writing Create
-
-```txt
-app/(private)/writing/create/step*/page.tsx
--> widgets/cover-letter/cover-letter-create-step
--> features/cover-letter/update-basic-info
--> features/cover-letter/update-preferences
--> features/cover-letter/update-questions
--> features/cover-letter/submit-cover-letter
--> entities/cover-letter/model
--> shared/ui/input, shared/ui/textarea, shared/ui/button
-```
-
-### Writing Detail
-
-```txt
-app/(private)/writing/[id]/page.tsx
--> widgets/cover-letter/cover-letter-detail
--> widgets/cover-letter/cover-letter-side-menu
--> entities/cover-letter
--> entities/review-version
--> features/review-version/save-final-version
--> features/review-version/request-ai-review
--> features/cover-letter/delete-cover-letter
-```
-
-### Keyword Analysis
-
-```txt
-app/(private)/writing/[id]/keyword-analysis/page.tsx
--> widgets/keyword-analysis/keyword-analysis-dashboard
--> entities/keyword-analysis
--> features/keyword-analysis/request-keyword-analysis
-```
-
-### Interview
-
-```txt
-app/(private)/writing/[id]/interview/session/page.tsx
--> widgets/interview/interview-room
--> entities/interview
--> features/interview/send-interview-message
--> features/interview/voice-answer-input
-```
-
-## 8. Component Policy
-
-공통 컴포넌트는 `shared/ui`에 둔다.
-
-PRD 기준 우선순위:
-
-```txt
-shared/ui/
-├── badge/
-├── button/
-├── input/
-├── link-button/
-├── modal/
-├── page-header/
-├── textarea/
-└── title/
-```
-
-도메인 컴포넌트는 entity 또는 widget에 둔다.
-
-```txt
-entities/cover-letter/ui/CoverLetterCard
-entities/cover-letter/ui/CoverLetterStatusBadge
-entities/review-version/ui/ReviewVersionList
-entities/keyword-analysis/ui/KeywordBarChart
-entities/interview/ui/InterviewMessage
-```
+## 7. Component Policy
 
 기준:
 
@@ -441,7 +297,7 @@ entities/interview/ui/InterviewMessage
 - 여러 feature/entity를 조립하면 `widgets`
 - 사용자 액션이 중심이면 `features`
 
-## 9. State Policy
+## 8. State Policy
 
 상태는 성격별로 분리한다.
 
@@ -455,32 +311,10 @@ entities/interview/ui/InterviewMessage
 
 작성 Step 데이터는 페이지 이동 사이에 유지되어야 하므로 다음 중 하나로 결정한다.
 
-- 서버 임시 저장이 있으면 draft API와 query cache 사용
+- 서버 임시 저장이 있으면 백엔드 연동 방식 확정 후 서버 상태로 관리
 - 서버 임시 저장이 없으면 create flow 전용 store 또는 storage adapter 사용
 
-## 10. API Policy
-
-API 함수는 도메인 entity에 둔다.
-
-```txt
-entities/cover-letter/api/
-├── getCoverLetterList.ts
-├── getCoverLetterDetail.ts
-├── createCoverLetter.ts
-├── updateCoverLetterQuestions.ts
-└── deleteCoverLetter.ts
-```
-
-`features`는 API를 직접 정의하지 않고 entity API를 사용해 사용자 액션을 완성한다.
-
-```txt
-features/cover-letter/delete-cover-letter/
-├── ui/DeleteCoverLetterButton.tsx
-├── model/useDeleteCoverLetter.ts
-└── index.ts
-```
-
-## 11. Testing Policy
+## 9. Testing Policy
 
 현재 Jest, Testing Library, Storybook이 설정되어 있다.
 
@@ -500,39 +334,3 @@ features/cover-letter/delete-cover-letter/
 shared/styles/utils/cn.ts
 shared/styles/utils/cn.test.ts
 ```
-
-## 12. Naming Convention
-
-권장 규칙:
-
-- 컴포넌트: `PascalCase`
-- 훅: `usePascalCase`
-- API 함수: 동사 + 도메인명
-- 폴더명: kebab-case
-- 타입: `PascalCase`
-- query key: 도메인 기준 factory
-
-예시:
-
-```txt
-CoverLetterCard.tsx
-useDeleteCoverLetter.ts
-getCoverLetterDetail.ts
-cover-letter-detail/
-CoverLetterStatus
-```
-
-## 13. Implementation Order
-
-PRD 기준 구현 순서는 다음이 적절하다.
-
-1. `shared/ui` 기본 컴포넌트
-2. `entities/cover-letter` 모델, 타입, 카드 UI
-3. `widgets` 기본 구조 정리
-4. `/writing` 목록 화면
-5. `/writing/create/step1~4` 작성 플로우
-6. `/writing/[id]` 상세, 첨삭 버전 관리, 삭제
-7. `/writing/[id]/keyword-analysis`
-8. `/writing/[id]/interview`
-
-이 순서는 공통 기반을 먼저 만들고, 자기소개서 도메인을 중심으로 AI 기능을 확장하기 위한 순서다.
