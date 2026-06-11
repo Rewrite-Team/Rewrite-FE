@@ -33,12 +33,6 @@
 🔥 Remove
 ```
 
-초기 프로젝트 생성 커밋이 필요하고 commitlint에도 허용하려면 `🎉 Init`을 commitlint 설정에 추가한다.
-
-```txt
-🎉 Init: 프로젝트 초기 설정
-```
-
 ## 2. Commit Type
 
 | 타입 | 사용 시점 |
