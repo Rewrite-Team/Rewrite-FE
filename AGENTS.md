@@ -27,6 +27,18 @@ Apply those skills together with this repository's architecture and conventions.
 Repository documents take precedence when a skill recommendation conflicts with
 `docs/ARCHITECTURE.md` or `docs/CONVENTIONS.md`.
 
+## Frontend Quality
+
+When implementing UI, follow semantic HTML and web accessibility by default.
+
+- Use semantic elements such as `header`, `nav`, `main`, `section`, `article`,
+  `aside`, `footer`, `button`, and `a` according to their meaning.
+- Prefer `button` and `a` over clickable `div` or `span` elements.
+- Provide `aria-label` for icon-only buttons.
+- Use heading levels in order according to the document structure.
+- Connect form controls with `label`, and consider keyboard navigation and
+  focus states.
+
 ## Git Policy
 
 Codex may draft commit messages and PR descriptions, but must not run
