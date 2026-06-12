@@ -1,3 +1,5 @@
+import { ROUTES } from '@/shared/constants/routes';
+
 import TextLogo from './TextLogo';
 
 import type { Meta, StoryObj } from '@storybook/nextjs';
@@ -6,16 +8,14 @@ const meta = {
   title: 'Shared/TextLogo',
   component: TextLogo,
   args: {
+    'aria-label': '랜딩 페이지로 이동',
     as: 'div',
-    isLoggedIn: false,
+    href: ROUTES.LANDING,
   },
   argTypes: {
     as: {
       control: 'inline-radio',
       options: ['h1', 'div'],
-    },
-    isLoggedIn: {
-      control: 'boolean',
     },
   },
   decorators: [
@@ -31,11 +31,12 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Guest: Story = {};
+export const LandingLink: Story = {};
 
-export const LoggedIn: Story = {
+export const WritingLink: Story = {
   args: {
-    isLoggedIn: true,
+    'aria-label': '자기소개서 목록으로 이동',
+    href: ROUTES.WRITING,
   },
 };
 
