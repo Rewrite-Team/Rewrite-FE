@@ -3,7 +3,9 @@ import type { ComponentPropsWithoutRef } from 'react';
 import { SymbolLogo as SymbolLogoAsset } from '@/shared/assets/logos';
 import { cn } from '@/shared/styles/utils/cn';
 
-type SymbolLogoProps = Omit<ComponentPropsWithoutRef<'svg'>, 'children'>;
+interface SymbolLogoProps extends Omit<ComponentPropsWithoutRef<'svg'>, 'children' | 'className'> {
+  className?: string;
+}
 
 /**
  * 서비스 전반에서 장식 또는 브랜드 표시 용도로 사용하는 심볼 로고 컴포넌트입니다.
