@@ -23,8 +23,6 @@ interface TitleProps extends ComponentPropsWithoutRef<'h1'> {
  * ### 접근성
  *
  * 페이지와 섹션 구조에 맞는 heading level을 상위에서 선택해야 합니다.
- * Next.js route announcer는 페이지 전환 안내 시 `document.title` 다음으로 `h1`을 참조하므로,
- * 각 페이지에는 고유하고 설명적인 `h1`을 두는 것을 권장합니다.
  *
  * @param as - 렌더링할 heading 태그와 기본 스타일 레벨
  * @param className - 기본 제목 스타일을 확장할 때 사용하는 클래스 이름
