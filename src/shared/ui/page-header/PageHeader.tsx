@@ -5,7 +5,7 @@ import { Title } from '@/shared/ui/title';
 
 interface PageHeaderProps extends Omit<ComponentPropsWithoutRef<'header'>, 'title'> {
   title: ReactNode;
-  description: ReactNode;
+  description: string;
   titleClassName?: string;
   descriptionClassName?: string;
 }
