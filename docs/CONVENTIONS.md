@@ -227,27 +227,108 @@ feature는 entity API를 사용해 사용자 액션을 완성한다.
 
 ## 8. Comment
 
-주석은 설명보다 이유를 작성한다.
+주석은 단순 설명보다 **작성 이유와 의도**를 중심으로 작성한다.
 
-TSDoc은 컴포넌트 단위에서 활용한다. 컴포넌트 설명과 간단한 사용 예시를 포함한다.
+공통 훅과 공통 컴포넌트에는 되도록 TSDoc을 작성한다.
+TSDoc에는 컴포넌트 또는 훅의 역할, 사용하는 상황, 주요 props, 사용 시 주의사항, 간단한 사용 예시를 포함한다.
+
+TSDoc은 다음 구조를 기준으로 작성한다.
+
+- 첫 줄에는 `## 컴포넌트명` 또는 `## 훅 이름`처럼 문서에서 식별하기 쉬운 제목을 작성한다.
+- `@description` 아래에 역할과 사용 상황을 작성한다.
+- 설명량이 많거나 내용 성격이 나뉘는 경우 `### 주요 내용`, `### 주의할 점`, `### 접근성`처럼 하위 제목으로 구분한다.
+- `@param`은 타입만으로 알기 어려운 의도, 접근성 연결, 제어 방식이 있을 때 작성한다.
+- `@example`에는 실제 사용 흐름에 가까운 예시를 작성한다.
+
+단, 타입만으로 충분히 알 수 있는 내용을 반복해서 길게 작성하지 않는다.
 
 ````tsx
+interface ModalProps {
+  open: boolean;
+  title: string;
+  description?: string;
+  closeOnOverlayClick?: boolean;
+  children: React.ReactNode;
+  onClose: () => void;
+}
+
 /**
- * 자기소개서 목록에서 단일 작성물을 표시하는 카드 컴포넌트입니다.
+ * ## Modal
  *
- * 카드 클릭 시 자기소개서 상세 페이지로 이동할 수 있습니다.
+ * @description
+ * 사용자의 확인이나 추가 행동이 필요한 상황에서 사용하는 공통 Modal 컴포넌트입니다.
+ *
+ * ### 주요 내용
+ *
+ * 삭제 확인, AI 첨삭 재요청, 작성 취소 확인처럼 사용자의 선택이 필요한 흐름에서 사용합니다.
+ * 단순 안내 메시지만 필요한 경우에는 Modal보다 Toast 또는 Inline Message 사용을 우선합니다.
+ *
+ * `open` 값으로 표시 여부를 제어하는 controlled 컴포넌트입니다.
+ * 닫기 버튼 클릭 시 `onClose`를 실행하며, `closeOnOverlayClick`이 true이면 오버레이 클릭 시에도 닫을 수 있습니다.
+ *
+ * ### 주의할 점
+ *
+ * 접근성을 위해 `title`은 필수로 전달합니다.
+ * Modal 내부에는 사용자가 다음 행동을 선택할 수 있는 버튼을 최소 1개 이상 제공하는 것을 권장합니다.
+ *
+ * @param open - Modal 표시 여부
+ * @param title - Modal의 제목. 접근성 이름으로 사용됩니다.
+ * @param description - 제목 아래에 표시되는 보조 설명
+ * @param closeOnOverlayClick - 오버레이 클릭으로 닫을 수 있는지 여부
+ * @param children - Modal 본문에 표시할 콘텐츠
+ * @param onClose - Modal 닫기 요청 시 실행되는 함수
  *
  * @example
  * ```tsx
- * <WritingCard
- *   title="프론트엔드 지원 자기소개서"
- *   companyName="Re:write"
- *   onClick={handleClick}
- * />
+ * <Modal
+ *   open={isOpen}
+ *   title="AI 첨삭을 다시 받을까요?"
+ *   description="기존 첨삭 결과는 새 결과로 대체됩니다."
+ *   closeOnOverlayClick={false}
+ *   onClose={closeModal}
+ * >
+ *   <Button onClick={requestFeedback}>다시 받기</Button>
+ *   <Button variant="secondary" onClick={closeModal}>
+ *     취소
+ *   </Button>
+ * </Modal>
  * ```
  */
-export function WritingCard() {
-  return null;
+export function Modal({
+  open,
+  title,
+  description,
+  closeOnOverlayClick = true,
+  children,
+  onClose,
+}: ModalProps) {
+  if (!open) return null;
+
+  const handleOverlayClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (closeOnOverlayClick && event.target === event.currentTarget) {
+      onClose();
+    }
+  };
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      onClick={handleOverlayClick}
+    >
+      <div>
+        <h2 id="modal-title">{title}</h2>
+        {description && <p>{description}</p>}
+
+        <div>{children}</div>
+
+        <button type="button" onClick={onClose}>
+          닫기
+        </button>
+      </div>
+    </div>
+  );
 }
 ````
 
@@ -260,6 +341,7 @@ export function WritingCard() {
 // OPTIMIZE: 목록 렌더링 최적화 필요
 // INFO: 이 값은 백엔드에서 내려줌
 ```
+
 
 ## 9. Code Style
 

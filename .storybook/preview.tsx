@@ -1,4 +1,5 @@
 import type { Preview } from '@storybook/nextjs';
+import '@/shared/styles/globals.css';
 
 const preview: Preview = {
   tags: ['autodocs'],
@@ -6,8 +7,9 @@ const preview: Preview = {
     layout: 'centered',
 
     backgrounds: {
-      default: 'black',
-      values: [{ name: 'black', value: '#000000' }],
+      options: {
+        black: { name: 'black', value: '#000000' },
+      },
     },
 
     controls: {
@@ -23,6 +25,9 @@ const preview: Preview = {
       // 'off' - skip a11y checks entirely
       test: 'todo',
     },
+  },
+  initialGlobals: {
+    backgrounds: { value: 'black' },
   },
 };
 
