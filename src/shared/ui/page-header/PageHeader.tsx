@@ -3,7 +3,7 @@ import type { ComponentPropsWithoutRef } from 'react';
 import { cn } from '@/shared/styles/utils/cn';
 import { Title } from '@/shared/ui/title';
 
-interface PageHeaderProps extends Omit<ComponentPropsWithoutRef<'header'>, 'title'> {
+interface PageHeaderProps extends Omit<ComponentPropsWithoutRef<'div'>, 'title'> {
   title: string;
   description: string;
   titleClassName?: string;
@@ -44,11 +44,11 @@ export default function PageHeader({
   ...props
 }: PageHeaderProps) {
   return (
-    <header className={cn('flex flex-col gap-2', className)} {...props}>
+    <div className={cn('flex flex-col gap-2', className)} {...props}>
       <Title className={cn('heading-24', titleClassName)}>{title}</Title>
       <p className={cn('m-0 wrap-break-word body-16 font-normal text-white', descriptionClassName)}>
         {description}
       </p>
-    </header>
+    </div>
   );
 }
