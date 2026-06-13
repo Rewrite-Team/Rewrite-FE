@@ -1,10 +1,10 @@
-import type { ComponentPropsWithoutRef, ReactNode } from 'react';
+import type { ComponentPropsWithoutRef } from 'react';
 
 import { cn } from '@/shared/styles/utils/cn';
 import { Title } from '@/shared/ui/title';
 
 interface PageHeaderProps extends Omit<ComponentPropsWithoutRef<'header'>, 'title'> {
-  title: ReactNode;
+  title: string;
   description: string;
   titleClassName?: string;
   descriptionClassName?: string;
