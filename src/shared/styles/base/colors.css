@@ -30,6 +30,10 @@
   --color-gray-800: #222222;
   --color-gray-900: #1a1a1a;
 
+  /* Yellow Colors */
+  --color-yellow-50: #fff0ce;
+  --color-yellow-500: #ffc642;
+
   --color-black: #000000;
   --color-white: #ffffff;
 }
