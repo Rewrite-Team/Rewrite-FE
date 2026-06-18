@@ -9,11 +9,3 @@ button {
 button:disabled {
   cursor: not-allowed;
 }
-
-button[data-disabled='true'] {
-  cursor: not-allowed;
-}
-
-button[data-loading='true'] {
-  cursor: wait;
-}
