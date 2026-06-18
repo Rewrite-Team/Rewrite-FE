@@ -2,7 +2,7 @@ import type { HTMLAttributes } from 'react';
 
 import { cn } from '@/shared/styles/utils/cn';
 
-type SpinnerProps = HTMLAttributes<HTMLSpanElement>;
+type SpinnerProps = Omit<HTMLAttributes<HTMLSpanElement>, 'aria-hidden' | 'children'>;
 
 /**
  * ## Spinner
