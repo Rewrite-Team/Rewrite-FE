@@ -37,5 +37,3 @@ export default function Spinner({ className, ...props }: SpinnerProps) {
     />
   );
 }
-
-export type { SpinnerProps };
