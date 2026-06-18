@@ -30,6 +30,12 @@ type LinkButtonProps = ButtonVariantProps &
   ButtonAccessibilityProps &
   (InternalLinkProps | ExternalLinkProps);
 
+const mergeSecurityRel = (rel?: string) => {
+  const relTokens = rel?.split(/\s+/).filter(Boolean) ?? [];
+
+  return [...new Set([...relTokens, 'noopener', 'noreferrer'])].join(' ');
+};
+
 /**
  * ## LinkButton
  *
@@ -82,7 +88,7 @@ export default function LinkButton({
   const isDisabled = disabled || isLoading;
   const resolvedSize = iconOnly ? 'icon' : size;
   const classNames = cn(buttonVariants({ variant, size: resolvedSize }), className);
-  const safeRel = target === '_blank' ? 'noopener noreferrer' : rel;
+  const safeRel = target === '_blank' ? mergeSecurityRel(rel) : rel;
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     if (isDisabled) {
       event.preventDefault();
