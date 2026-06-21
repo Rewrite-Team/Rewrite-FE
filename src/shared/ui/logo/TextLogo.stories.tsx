@@ -1,6 +1,6 @@
 import { ROUTES } from '@/shared/constants/routes';
 
-import TextLogo from './TextLogo';
+import { TextLogo } from './TextLogo';
 
 import type { Meta, StoryObj } from '@storybook/nextjs';
 

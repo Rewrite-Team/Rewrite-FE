@@ -24,11 +24,7 @@ import type { InputErrorMessageProps } from './Input.types';
  * <Input.ErrorMessage>올바른 URL을 입력해 주세요.</Input.ErrorMessage>
  * ```
  */
-export default function InputErrorMessage({
-  children,
-  className,
-  ...props
-}: InputErrorMessageProps) {
+export function InputErrorMessage({ children, className, ...props }: InputErrorMessageProps) {
   const { errorMessageId, invalid } = useInputContext();
 
   if (!invalid || !children) {

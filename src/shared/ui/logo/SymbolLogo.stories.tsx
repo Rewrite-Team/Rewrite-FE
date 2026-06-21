@@ -1,4 +1,4 @@
-import SymbolLogo from './SymbolLogo';
+import { SymbolLogo } from './SymbolLogo';
 
 import type { Meta, StoryObj } from '@storybook/nextjs';
 

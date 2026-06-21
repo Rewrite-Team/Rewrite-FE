@@ -7,7 +7,7 @@ interface ButtonContentProps {
   isLoading: boolean;
 }
 
-export default function ButtonContent({ children, isLoading }: ButtonContentProps) {
+export function ButtonContent({ children, isLoading }: ButtonContentProps) {
   if (isLoading) {
     return (
       <>

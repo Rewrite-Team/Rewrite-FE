@@ -20,7 +20,7 @@ import type { InputControlProps } from './Input.types';
  * </Input.Control>
  * ```
  */
-export default function InputControl({ children, className, ...props }: InputControlProps) {
+export function InputControl({ children, className, ...props }: InputControlProps) {
   return (
     <div
       {...props}

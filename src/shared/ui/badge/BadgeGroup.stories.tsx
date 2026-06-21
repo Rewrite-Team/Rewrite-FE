@@ -1,4 +1,4 @@
-import BadgeGroup from './BadgeGroup';
+import { BadgeGroup } from './BadgeGroup';
 
 import type { Meta, StoryObj } from '@storybook/nextjs';
 

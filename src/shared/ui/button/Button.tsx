@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes } from 'react';
 
 import { cn } from '@/shared/styles/utils/cn';
 
-import ButtonContent from './ButtonContent';
+import { ButtonContent } from './ButtonContent';
 import { buttonVariants, type ButtonVariantProps } from './buttonVariants';
 
 import type { ButtonAccessibilityProps, ButtonStateProps } from './Button.types';
@@ -38,7 +38,7 @@ type ButtonProps = ButtonVariantProps &
  * </Button>
  * ```
  */
-export default function Button({
+export function Button({
   children,
   className,
   disabled = false,

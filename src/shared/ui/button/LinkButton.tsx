@@ -6,7 +6,7 @@ import Link, { type LinkProps } from 'next/link';
 
 import { cn } from '@/shared/styles/utils/cn';
 
-import ButtonContent from './ButtonContent';
+import { ButtonContent } from './ButtonContent';
 import { buttonVariants, type ButtonVariantProps } from './buttonVariants';
 
 import type { ButtonAccessibilityProps, ButtonStateProps } from './Button.types';
@@ -67,7 +67,7 @@ const mergeSecurityRel = (rel?: string) => {
  * </LinkButton>
  * ```
  */
-export default function LinkButton({
+export function LinkButton({
   children,
   className,
   disabled = false,

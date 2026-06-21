@@ -42,10 +42,10 @@ import type { FormFieldProps } from './FormField.types';
  * />
  * ```
  */
-export default function FormField<
-  TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>,
->({ render, ...controllerProps }: FormFieldProps<TFieldValues, TName>) {
+export function FormField<TFieldValues extends FieldValues, TName extends FieldPath<TFieldValues>>({
+  render,
+  ...controllerProps
+}: FormFieldProps<TFieldValues, TName>) {
   return (
     <Controller
       {...controllerProps}

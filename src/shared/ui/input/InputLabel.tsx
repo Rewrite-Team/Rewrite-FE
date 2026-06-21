@@ -24,7 +24,7 @@ import type { InputLabelProps } from './Input.types';
  * <Input.Label>자기소개서 제목</Input.Label>
  * ```
  */
-export default function InputLabel({ children, className, ...props }: InputLabelProps) {
+export function InputLabel({ children, className, ...props }: InputLabelProps) {
   const { fieldId, required } = useInputContext();
 
   return (

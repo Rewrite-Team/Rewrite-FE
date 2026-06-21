@@ -35,7 +35,7 @@ interface PageHeaderProps extends Omit<ComponentPropsWithoutRef<'div'>, 'title'>
  * />
  * ```
  */
-export default function PageHeader({
+export function PageHeader({
   title,
   description,
   className,

@@ -2,7 +2,7 @@ import type { ComponentPropsWithoutRef } from 'react';
 
 import { cn } from '@/shared/styles/utils/cn';
 
-import Badge from './Badge';
+import { Badge } from './Badge';
 
 interface BadgeGroupProps extends ComponentPropsWithoutRef<'ul'> {
   companyName: string;
@@ -38,7 +38,7 @@ interface BadgeGroupProps extends ComponentPropsWithoutRef<'ul'> {
  * <BadgeGroup companyName="회사명" jobName="직무" />
  * ```
  */
-export default function BadgeGroup({
+export function BadgeGroup({
   companyName,
   jobName,
   className,

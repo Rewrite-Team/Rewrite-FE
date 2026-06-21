@@ -50,7 +50,7 @@ interface BadgeProps
  * <Badge variant="job">직무</Badge>
  * ```
  */
-export default function Badge({ variant, className, children, ...props }: BadgeProps) {
+export function Badge({ variant, className, children, ...props }: BadgeProps) {
   return (
     <span className={cn(badgeVariants({ variant }), className)} {...props}>
       {children}

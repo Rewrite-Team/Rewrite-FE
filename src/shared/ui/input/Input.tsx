@@ -5,10 +5,10 @@ import { useId } from 'react';
 import { cn } from '@/shared/styles/utils/cn';
 
 import { InputContext } from './InputContext';
-import InputControl from './InputControl';
-import InputErrorMessage from './InputErrorMessage';
-import InputField from './InputField';
-import InputLabel from './InputLabel';
+import { InputControl } from './InputControl';
+import { InputErrorMessage } from './InputErrorMessage';
+import { InputField } from './InputField';
+import { InputLabel } from './InputLabel';
 
 import type { InputContextValue, InputProps } from './Input.types';
 
@@ -118,4 +118,4 @@ const Input = Object.assign(InputRoot, {
   Label: InputLabel,
 });
 
-export default Input;
+export { Input };

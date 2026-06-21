@@ -30,7 +30,7 @@ import type { InputFieldProps } from './Input.types';
  * <Input.Field type="url" placeholder="https://example.com" />
  * ```
  */
-export default function InputField({ className, ref, type = 'text', ...props }: InputFieldProps) {
+export function InputField({ className, ref, type = 'text', ...props }: InputFieldProps) {
   const { disabled, errorMessageId, fieldId, invalid, required } = useInputContext();
 
   return (

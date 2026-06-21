@@ -1,2 +1,2 @@
-export { default as SymbolLogo } from './SymbolLogo';
-export { default as TextLogo } from './TextLogo';
+export { SymbolLogo } from './SymbolLogo';
+export { TextLogo } from './TextLogo';
