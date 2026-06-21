@@ -19,7 +19,6 @@ interface InputProps extends Omit<ComponentPropsWithoutRef<'div'>, 'id'> {
   disabled?: boolean;
   id?: string;
   invalid?: boolean;
-  readOnly?: boolean;
   required?: boolean;
 }
 
@@ -57,7 +56,6 @@ interface InputContextValue {
   errorMessageId: string;
   fieldId: string;
   invalid: boolean;
-  readOnly: boolean;
   required: boolean;
 }
 

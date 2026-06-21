@@ -21,7 +21,7 @@ import type { InputContextValue, InputProps } from './Input.types';
  *
  * ### 주요 내용
  *
- * `required`, `disabled`, `readOnly`, `invalid` 상태를 하위 컴포넌트에 Context로 전달합니다.
+ * `required`, `disabled`, `invalid` 상태를 하위 컴포넌트에 Context로 전달합니다.
  * `id`를 생략하면 고유한 Field id를 생성하며 Label과 보조 문구의 접근성 연결에도 사용합니다.
  * Field 내부 오른쪽에 버튼이 필요하면 `Input.Control` 안에서 함께 구성합니다.
  *
@@ -34,7 +34,6 @@ import type { InputContextValue, InputProps } from './Input.types';
  * @param containerId - Field가 아닌 최상위 wrapper에 적용하는 id
  * @param required - 필수 입력 여부와 Label의 필수 표시를 제어하는 값
  * @param disabled - Field의 입력 및 포커스를 차단하는 값
- * @param readOnly - Field의 값 수정을 막되 포커스와 값 복사는 허용하는 값
  * @param invalid - 유효성 오류 스타일과 접근성 상태를 제어하는 값
  * @param className - 최상위 wrapper의 기본 스타일을 확장하는 클래스 이름
  *
@@ -53,7 +52,6 @@ function InputRoot({
   disabled = false,
   id,
   invalid = false,
-  readOnly = false,
   required = false,
   ...props
 }: InputProps) {
@@ -64,7 +62,6 @@ function InputRoot({
     errorMessageId: `${fieldId}-error-message`,
     fieldId,
     invalid,
-    readOnly,
     required,
   };
 
@@ -75,7 +72,6 @@ function InputRoot({
         className={cn('flex w-full flex-col', className)}
         data-disabled={disabled || undefined}
         data-invalid={invalid || undefined}
-        data-readonly={readOnly || undefined}
         id={containerId}
       >
         {children}

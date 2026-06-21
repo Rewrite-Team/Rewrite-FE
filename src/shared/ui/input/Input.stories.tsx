@@ -19,7 +19,6 @@ interface InputPlaygroundProps {
   invalid: boolean;
   label: string;
   placeholder: string;
-  readOnly: boolean;
   required: boolean;
   type: InputType;
 }
@@ -38,19 +37,11 @@ function InputPlayground({
   invalid,
   label,
   placeholder,
-  readOnly,
   required,
   type,
 }: InputPlaygroundProps) {
   return (
-    <Input
-      className={className}
-      disabled={disabled}
-      id={id}
-      invalid={invalid}
-      readOnly={readOnly}
-      required={required}
-    >
+    <Input className={className} disabled={disabled} id={id} invalid={invalid} required={required}>
       <Input.Label>{label}</Input.Label>
       <Input.Field
         defaultValue={defaultValue || undefined}
@@ -141,7 +132,6 @@ const meta = {
     invalid: false,
     label: '자기소개서 제목',
     placeholder: '카카오 자기소개서',
-    readOnly: false,
     required: false,
     type: 'text',
   },
@@ -177,10 +167,6 @@ const meta = {
     placeholder: {
       control: 'text',
       description: 'Field 내부에 표시되는 짧은 입력 예시',
-    },
-    readOnly: {
-      control: 'boolean',
-      description: '값 수정 차단 여부',
     },
     required: {
       control: 'boolean',
@@ -249,13 +235,6 @@ export const Disabled: Story = {
   args: {
     defaultValue: '카카오 자기소개서',
     disabled: true,
-  },
-};
-
-export const ReadOnly: Story = {
-  args: {
-    defaultValue: '카카오 자기소개서',
-    readOnly: true,
   },
 };
 

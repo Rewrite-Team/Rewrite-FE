@@ -31,7 +31,7 @@ import type { InputFieldProps } from './Input.types';
  * ```
  */
 export default function InputField({ className, ref, type = 'text', ...props }: InputFieldProps) {
-  const { disabled, errorMessageId, fieldId, invalid, readOnly, required } = useInputContext();
+  const { disabled, errorMessageId, fieldId, invalid, required } = useInputContext();
 
   return (
     <input
@@ -47,14 +47,11 @@ export default function InputField({ className, ref, type = 'text', ...props }: 
         'focus-visible:border-primary-500 focus-visible:shadow-[0_0_12px_2px] focus-visible:shadow-primary-500/25',
         'data-[invalid=true]:border-error-500 data-[invalid=true]:focus-visible:shadow-error-500/25',
         'disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-300 disabled:placeholder:text-gray-500',
-        'data-[readonly=true]:cursor-default data-[readonly=true]:bg-gray-600 data-[readonly=true]:text-white',
         className
       )}
       data-invalid={invalid || undefined}
-      data-readonly={readOnly || undefined}
       disabled={disabled}
       id={fieldId}
-      readOnly={readOnly}
       ref={ref}
       required={required}
       type={type}
