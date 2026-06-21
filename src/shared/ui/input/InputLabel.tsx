@@ -30,7 +30,7 @@ export function InputLabel({ children, className, ...props }: InputLabelProps) {
   return (
     <label
       {...props}
-      className={cn('mb-6 w-fit body-20 font-semibold text-white', className)}
+      className={cn('mb-6 w-fit body-18 font-semibold text-white', className)}
       htmlFor={fieldId}
     >
       {children}
