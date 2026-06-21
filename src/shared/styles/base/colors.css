@@ -34,6 +34,9 @@
   --color-yellow-50: #fff0ce;
   --color-yellow-500: #ffc642;
 
+  /* Semantic Colors */
+  --color-error-500: #ff5656;
+
   --color-black: #000000;
   --color-white: #ffffff;
 }

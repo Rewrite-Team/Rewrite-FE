@@ -1,4 +1,4 @@
-import PageHeader from './PageHeader';
+import { PageHeader } from './PageHeader';
 
 import type { Meta, StoryObj } from '@storybook/nextjs';
 

@@ -1,2 +1,2 @@
-export { default as Badge } from './Badge';
-export { default as BadgeGroup } from './BadgeGroup';
+export { Badge } from './Badge';
+export { BadgeGroup } from './BadgeGroup';

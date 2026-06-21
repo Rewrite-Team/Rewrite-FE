@@ -46,7 +46,7 @@ interface BadgeTitleProps extends Omit<ComponentPropsWithoutRef<'div'>, 'title'>
  * <BadgeTitle companyName="회사명" jobName="직무" title="자기소개서 제목" />
  * ```
  */
-export default function BadgeTitle({
+export function BadgeTitle({
   companyName,
   jobName,
   title,

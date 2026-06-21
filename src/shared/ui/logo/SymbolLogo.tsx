@@ -30,7 +30,7 @@ interface SymbolLogoProps extends Omit<ComponentPropsWithoutRef<'svg'>, 'childre
  * <SymbolLogo className="h-10 w-13" />
  * ```
  */
-export default function SymbolLogo({ className, ...props }: SymbolLogoProps) {
+export function SymbolLogo({ className, ...props }: SymbolLogoProps) {
   return (
     <SymbolLogoAsset
       aria-hidden

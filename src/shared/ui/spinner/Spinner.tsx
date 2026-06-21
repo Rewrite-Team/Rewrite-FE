@@ -25,7 +25,7 @@ type SpinnerProps = Omit<HTMLAttributes<HTMLSpanElement>, 'aria-hidden' | 'child
  * </span>
  * ```
  */
-export default function Spinner({ className, ...props }: SpinnerProps) {
+export function Spinner({ className, ...props }: SpinnerProps) {
   return (
     <span
       {...props}

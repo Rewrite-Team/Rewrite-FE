@@ -29,7 +29,7 @@ interface QueryProviderProps {
  * @param props.children - React Query 훅을 사용하는 하위 노드입니다.
  * @returns 전달받은 하위 요소를 감싸는 React Query Provider입니다.
  */
-export default function QueryProvider({ children }: QueryProviderProps) {
+export function QueryProvider({ children }: QueryProviderProps) {
   const [queryClient] = useState(() => getQueryClient());
 
   return (

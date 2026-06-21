@@ -37,7 +37,7 @@ interface TextLogoProps extends Omit<ComponentPropsWithoutRef<typeof Link>, 'chi
  * <TextLogo as="h1" href="/" aria-label="홈으로 이동" />
  * ```
  */
-export default function TextLogo({ as = 'div', className, ...props }: TextLogoProps) {
+export function TextLogo({ as = 'div', className, ...props }: TextLogoProps) {
   const Component = as;
 
   return (

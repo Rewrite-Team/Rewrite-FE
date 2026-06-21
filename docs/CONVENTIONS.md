@@ -57,6 +57,15 @@ export default function WritingPage() {
 }
 ```
 
+일반 컴포넌트와 Provider는 named export를 사용한다. Next.js 파일 규약상 default export가
+필요한 `page.tsx`, `layout.tsx` 등의 특수 파일만 예외로 한다.
+
+```tsx
+export function WritingCard() {
+  return null;
+}
+```
+
 컴포넌트 외 일반 함수는 화살표 함수를 사용한다.
 
 ```ts
@@ -170,7 +179,7 @@ interface ButtonProps extends ComponentProps<'button'> {
 페이지와 컴포넌트 단위는 함수 선언식을 사용한다.
 
 ```tsx
-export default function Page() {}
+export default function Page() {} // Next.js page.tsx
 
 export function Button() {}
 ```

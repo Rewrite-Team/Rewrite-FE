@@ -1,4 +1,4 @@
-import BadgeTitle from './BadgeTitle';
+import { BadgeTitle } from './BadgeTitle';
 
 import type { Meta, StoryObj } from '@storybook/nextjs';
 

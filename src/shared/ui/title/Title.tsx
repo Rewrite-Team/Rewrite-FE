@@ -31,7 +31,7 @@ interface TitleProps extends ComponentPropsWithoutRef<'h1'> {
  * <Title as="h2" className="text-primary-500 body-20">키워드 분석</Title>
  * ```
  */
-export default function Title({ as = 'h1', className, children, ...props }: TitleProps) {
+export function Title({ as = 'h1', className, children, ...props }: TitleProps) {
   const Component = as;
 
   return (
