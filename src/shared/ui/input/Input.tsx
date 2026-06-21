@@ -37,11 +37,42 @@ import type { InputContextValue, InputProps } from './Input.types';
  * @param invalid - 유효성 오류 스타일과 접근성 상태를 제어하는 값
  * @param className - 최상위 wrapper의 기본 스타일을 확장하는 클래스 이름
  *
- * @example
+ * @example 기본 text Input
+ * ```tsx
+ * <Input id="company-name">
+ *   <Input.Label>회사명</Input.Label>
+ *   <Input.Field placeholder="지원할 회사명을 입력해 주세요." />
+ *   <Input.ErrorMessage>회사명을 입력해 주세요.</Input.ErrorMessage>
+ * </Input>
+ * ```
+ *
+ * @example 필수 URL Input
  * ```tsx
  * <Input id="job-url" required>
  *   <Input.Label>채용 공고 링크</Input.Label>
  *   <Input.Field type="url" placeholder="https://example.com/jobs/1" />
+ *   <Input.ErrorMessage>올바른 URL을 입력해 주세요.</Input.ErrorMessage>
+ * </Input>
+ * ```
+ *
+ * @example 버튼을 포함한 number Input
+ * ```tsx
+ * <Input id="character-limit">
+ *   <Input.Label>제한 글자 수</Input.Label>
+ *   <Input.Control>
+ *     <Input.Field type="number" min={0} placeholder="1000" />
+ *     <Button size="sm" type="button">적용</Button>
+ *   </Input.Control>
+ *   <Input.ErrorMessage>0 이상의 글자 수를 입력해 주세요.</Input.ErrorMessage>
+ * </Input>
+ * ```
+ *
+ * @example 비활성화된 Input
+ * ```tsx
+ * <Input id="cover-letter-title" disabled>
+ *   <Input.Label>자기소개서 제목</Input.Label>
+ *   <Input.Field defaultValue="카카오 자기소개서" />
+ *   <Input.ErrorMessage>자기소개서 제목을 입력해 주세요.</Input.ErrorMessage>
  * </Input>
  * ```
  */
