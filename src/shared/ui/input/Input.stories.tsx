@@ -253,7 +253,9 @@ export const WithButton: Story = {
       <Input.Label>제한 글자 수</Input.Label>
       <Input.Control>
         <Input.Field min={0} placeholder="1000" type="number" />
-        <Button size="sm">적용</Button>
+        <Button size="sm" type="button">
+          적용
+        </Button>
       </Input.Control>
     </Input>
   ),
