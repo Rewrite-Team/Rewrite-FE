@@ -81,7 +81,7 @@ export function TextAreaField({
         aria-invalid={invalid || undefined}
         aria-required={required || undefined}
         className={cn(
-          'block min-h-81.75 resize-y py-5',
+          'textarea-scrollbar block min-h-81.75 resize-y py-5',
           showCount ? 'pb-12' : undefined,
           fieldBaseClassName,
           fieldInteractionClassName,
@@ -101,8 +101,8 @@ export function TextAreaField({
       {showCount ? (
         <p
           className={cn(
-            'pointer-events-none absolute right-5 bottom-4 m-0 body-14 text-gray-200',
-            disabled ? 'text-gray-500' : undefined
+            'pointer-events-none absolute right-4 bottom-px left-px z-10 m-0 flex h-8 items-center justify-end rounded-bl-lg bg-gray-600 px-4 body-14 text-gray-200',
+            disabled ? 'bg-gray-700 text-gray-500' : undefined
           )}
           data-max-length-reached={hasReachedMaxLength || undefined}
           data-recommended-length-exceeded={hasExceededRecommendedLength || undefined}
