@@ -44,12 +44,8 @@ export function TextAreaField({
   const isControlled = value !== undefined;
   const currentLength = isControlled ? getValueLength(value) : uncontrolledLength;
   const countId = `${fieldId}-character-count`;
-  const describedBy = [
-    showCount ? countId : undefined,
-    invalid && hasErrorMessage ? errorMessageId : undefined,
-  ]
-    .filter(Boolean)
-    .join(' ');
+  const describedBy = showCount ? countId : undefined;
+  const ariaErrorMessageId = invalid && hasErrorMessage ? errorMessageId : undefined;
   const hasReachedMaxLength = maxLength !== undefined && currentLength >= maxLength;
   const hasExceededRecommendedLength =
     recommendedLength !== undefined && currentLength > recommendedLength;
@@ -80,8 +76,8 @@ export function TextAreaField({
     <div className="relative w-full">
       <textarea
         {...props}
-        aria-describedby={describedBy || undefined}
-        aria-errormessage={invalid && hasErrorMessage ? errorMessageId : undefined}
+        aria-describedby={describedBy}
+        aria-errormessage={ariaErrorMessageId}
         aria-invalid={invalid || undefined}
         aria-required={required || undefined}
         className={cn(

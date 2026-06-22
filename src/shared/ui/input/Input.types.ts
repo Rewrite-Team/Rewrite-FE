@@ -40,7 +40,7 @@ interface InputFieldGroupProps extends ComponentPropsWithoutRef<'div'> {
  */
 interface InputFieldProps extends Omit<
   ComponentPropsWithRef<'input'>,
-  'aria-describedby' | 'aria-invalid' | 'disabled' | 'id' | 'readOnly' | 'required' | 'type'
+  'aria-errormessage' | 'aria-invalid' | 'disabled' | 'id' | 'readOnly' | 'required' | 'type'
 > {
   type?: InputType;
 }

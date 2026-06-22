@@ -21,7 +21,7 @@ import type { FormControlErrorMessageProps } from './FormControl.types';
  * ### 접근성
  *
  * Root가 생성한 `errorMessageId`를 사용하며 `role="alert"`로 오류를 알립니다. 메시지 노드가
- * 실제 렌더링된 동안에만 Field가 동일한 id를 ARIA 속성으로 참조하도록 Context에 등록합니다.
+ * 실제 렌더링된 동안에만 Field가 동일한 id를 `aria-errormessage`로 참조하도록 등록합니다.
  *
  * @param children - 유효성 검증 실패 원인과 해결 방법을 설명하는 문구
  * @param className - 공통 오류 문구 스타일을 확장하는 클래스 이름

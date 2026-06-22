@@ -21,8 +21,8 @@ import type { InputFieldProps } from './Input.types';
  *
  * ### 접근성
  *
- * Root 상태에 따라 `required`, `aria-invalid`, `aria-describedby`, `aria-errormessage`를
- * 설정합니다. 접근성 이름은 함께 구성한 `Input.Label`에서 제공받습니다.
+ * Root 상태에 따라 `required`, `aria-invalid`, `aria-errormessage`를 설정합니다.
+ * 접근성 이름은 함께 구성한 `Input.Label`에서 제공받습니다.
  *
  * @param type - 지원하는 입력 타입. 기본값은 `text`
  * @param ref - Field DOM 요소에 접근하거나 폼 라이브러리와 연결하는 ref
@@ -36,13 +36,12 @@ import type { InputFieldProps } from './Input.types';
 export function InputField({ className, ref, type = 'text', ...props }: InputFieldProps) {
   const { disabled, errorMessageId, fieldId, hasErrorMessage, invalid, required } =
     useFormControlContext();
-  const describedBy = invalid && hasErrorMessage ? errorMessageId : undefined;
+  const ariaErrorMessageId = invalid && hasErrorMessage ? errorMessageId : undefined;
 
   return (
     <input
       {...props}
-      aria-describedby={describedBy}
-      aria-errormessage={describedBy}
+      aria-errormessage={ariaErrorMessageId}
       aria-invalid={invalid || undefined}
       aria-required={required || undefined}
       className={cn(
