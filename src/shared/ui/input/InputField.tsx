@@ -1,6 +1,9 @@
 import { cn } from '@/shared/styles/utils/cn';
-
-import { useInputContext } from './InputContext';
+import { useFormControlContext } from '@/shared/ui/form-control/FormControlContext';
+import {
+  fieldBaseClassName,
+  fieldInteractionClassName,
+} from '@/shared/ui/form-control/formControlStyles';
 
 import type { InputFieldProps } from './Input.types';
 
@@ -31,7 +34,7 @@ import type { InputFieldProps } from './Input.types';
  * ```
  */
 export function InputField({ className, ref, type = 'text', ...props }: InputFieldProps) {
-  const { disabled, errorMessageId, fieldId, invalid, required } = useInputContext();
+  const { disabled, errorMessageId, fieldId, invalid, required } = useFormControlContext();
 
   return (
     <input
@@ -41,14 +44,11 @@ export function InputField({ className, ref, type = 'text', ...props }: InputFie
       aria-invalid={invalid || undefined}
       aria-required={required || undefined}
       className={cn(
-        'h-16.75 min-w-0 w-full rounded-lg border border-transparent bg-gray-600 px-5 body-16 text-white outline-none',
-        'transition-[border-color,box-shadow,background-color,color] duration-150',
-        'placeholder:text-gray-200',
+        'h-16.75',
+        fieldBaseClassName,
+        fieldInteractionClassName,
         'autofill:[-webkit-text-fill-color:var(--color-white)] autofill:caret-white',
         'autofill:[transition:background-color_9999s_ease-out_0s]',
-        'focus-visible:border-primary-500 focus-visible:shadow-[0_0_12px_2px] focus-visible:shadow-primary-500/25',
-        'data-[invalid=true]:border-error-500 data-[invalid=true]:focus-visible:shadow-error-500/25',
-        'disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-300 disabled:placeholder:text-gray-500',
         className
       )}
       data-invalid={invalid || undefined}

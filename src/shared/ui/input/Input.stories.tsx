@@ -189,7 +189,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Label, Field, ErrorMessage를 조합하는 Compound Input입니다. 버튼은 Input.Control 안에서 함께 구성하며, 폼 상태는 FormField를 통해 React Hook Form과 연결합니다.',
+          'Label, Field, ErrorMessage를 조합하는 Compound Input입니다. 버튼은 Input.FieldGroup 안에서 함께 구성하며, 폼 상태는 FormField를 통해 React Hook Form과 연결합니다.',
       },
     },
   },
@@ -251,12 +251,12 @@ export const WithButton: Story = {
   render: () => (
     <Input>
       <Input.Label>제한 글자 수</Input.Label>
-      <Input.Control>
+      <Input.FieldGroup>
         <Input.Field min={0} placeholder="1000" type="number" />
         <Button size="sm" type="button">
           적용
         </Button>
-      </Input.Control>
+      </Input.FieldGroup>
     </Input>
   ),
 };

@@ -1,6 +1,4 @@
-import { cn } from '@/shared/styles/utils/cn';
-
-import { useInputContext } from './InputContext';
+import { FormControlLabel } from '@/shared/ui/form-control/FormControlLabel';
 
 import type { InputLabelProps } from './Input.types';
 
@@ -25,21 +23,9 @@ import type { InputLabelProps } from './Input.types';
  * ```
  */
 export function InputLabel({ children, className, ...props }: InputLabelProps) {
-  const { fieldId, required } = useInputContext();
-
   return (
-    <label
-      {...props}
-      className={cn('mb-6 w-fit body-18 font-semibold text-white', className)}
-      htmlFor={fieldId}
-    >
+    <FormControlLabel {...props} className={className}>
       {children}
-      {required ? (
-        <span aria-hidden="true" className="text-primary-500">
-          {' '}
-          *
-        </span>
-      ) : null}
-    </label>
+    </FormControlLabel>
   );
 }

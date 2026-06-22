@@ -3,14 +3,15 @@
 import { useId } from 'react';
 
 import { cn } from '@/shared/styles/utils/cn';
+import type { FormControlContextValue } from '@/shared/ui/form-control/FormControl.types';
+import { FormControlContext } from '@/shared/ui/form-control/FormControlContext';
 
-import { InputContext } from './InputContext';
-import { InputControl } from './InputControl';
 import { InputErrorMessage } from './InputErrorMessage';
 import { InputField } from './InputField';
+import { InputFieldGroup } from './InputFieldGroup';
 import { InputLabel } from './InputLabel';
 
-import type { InputContextValue, InputProps } from './Input.types';
+import type { InputProps } from './Input.types';
 
 /**
  * ## Input
@@ -23,7 +24,7 @@ import type { InputContextValue, InputProps } from './Input.types';
  *
  * `required`, `disabled`, `invalid` 상태를 하위 컴포넌트에 Context로 전달합니다.
  * `id`를 생략하면 고유한 Field id를 생성하며 Label과 보조 문구의 접근성 연결에도 사용합니다.
- * Field 내부 오른쪽에 버튼이 필요하면 `Input.Control` 안에서 함께 구성합니다.
+ * Field 내부 오른쪽에 버튼이 필요하면 `Input.FieldGroup` 안에서 함께 구성합니다.
  *
  * ### 접근성
  *
@@ -59,10 +60,10 @@ import type { InputContextValue, InputProps } from './Input.types';
  * ```tsx
  * <Input id="character-limit">
  *   <Input.Label>제한 글자 수</Input.Label>
- *   <Input.Control>
+ *   <Input.FieldGroup>
  *     <Input.Field type="number" min={0} placeholder="1000" />
  *     <Button size="sm" type="button">적용</Button>
- *   </Input.Control>
+ *   </Input.FieldGroup>
  *   <Input.ErrorMessage>0 이상의 글자 수를 입력해 주세요.</Input.ErrorMessage>
  * </Input>
  * ```
@@ -88,7 +89,7 @@ function InputRoot({
 }: InputProps) {
   const generatedId = useId();
   const fieldId = id ?? `input-${generatedId}`;
-  const contextValue: InputContextValue = {
+  const contextValue: FormControlContextValue = {
     disabled,
     errorMessageId: `${fieldId}-error-message`,
     fieldId,
@@ -97,7 +98,7 @@ function InputRoot({
   };
 
   return (
-    <InputContext value={contextValue}>
+    <FormControlContext value={contextValue}>
       <div
         {...props}
         className={cn('flex w-full flex-col', className)}
@@ -107,14 +108,14 @@ function InputRoot({
       >
         {children}
       </div>
-    </InputContext>
+    </FormControlContext>
   );
 }
 
 const Input = Object.assign(InputRoot, {
-  Control: InputControl,
   ErrorMessage: InputErrorMessage,
   Field: InputField,
+  FieldGroup: InputFieldGroup,
   Label: InputLabel,
 });
 

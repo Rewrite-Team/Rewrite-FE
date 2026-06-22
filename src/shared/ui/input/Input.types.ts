@@ -28,7 +28,7 @@ interface InputLabelProps extends Omit<ComponentPropsWithoutRef<'label'>, 'htmlF
 }
 
 /** Field와 Button 같은 부가 동작을 나란히 합성하는 레이아웃 컨테이너입니다. */
-interface InputControlProps extends ComponentPropsWithoutRef<'div'> {
+interface InputFieldGroupProps extends ComponentPropsWithoutRef<'div'> {
   children: ReactNode;
 }
 
@@ -50,20 +50,10 @@ interface InputErrorMessageProps extends Omit<ComponentPropsWithoutRef<'p'>, 'id
   children?: ReactNode;
 }
 
-/** Compound 하위 컴포넌트가 Root에서 전달받는 내부 계약입니다. */
-interface InputContextValue {
-  disabled: boolean;
-  errorMessageId: string;
-  fieldId: string;
-  invalid: boolean;
-  required: boolean;
-}
-
 export type {
-  InputContextValue,
-  InputControlProps,
   InputErrorMessageProps,
   InputFieldProps,
+  InputFieldGroupProps,
   InputLabelProps,
   InputProps,
   InputType,
