@@ -1,6 +1,4 @@
-import { cn } from '@/shared/styles/utils/cn';
-
-import { useInputContext } from './InputContext';
+import { FormControlErrorMessage } from '@/shared/ui/form-control/FormControlErrorMessage';
 
 import type { InputErrorMessageProps } from './Input.types';
 
@@ -25,20 +23,9 @@ import type { InputErrorMessageProps } from './Input.types';
  * ```
  */
 export function InputErrorMessage({ children, className, ...props }: InputErrorMessageProps) {
-  const { errorMessageId, invalid } = useInputContext();
-
-  if (!invalid || !children) {
-    return null;
-  }
-
   return (
-    <p
-      {...props}
-      className={cn('mt-2 mb-0 body-14 text-error-500', className)}
-      id={errorMessageId}
-      role="alert"
-    >
+    <FormControlErrorMessage {...props} className={className}>
       {children}
-    </p>
+    </FormControlErrorMessage>
   );
 }

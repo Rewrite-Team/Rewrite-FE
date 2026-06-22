@@ -1,0 +1,44 @@
+.textarea-scrollbar {
+  scrollbar-color: var(--color-gray-300) transparent;
+  scrollbar-width: thin;
+}
+
+.textarea-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.textarea-scrollbar::-webkit-scrollbar-track {
+  margin-block: 8px;
+  background: transparent;
+}
+
+.textarea-scrollbar::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 9999px;
+  background-color: var(--color-gray-300);
+  background-clip: content-box;
+}
+
+.textarea-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-gray-200);
+}
+
+.textarea-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.textarea-scrollbar::-webkit-resizer {
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M5 11L11 5M1 11L11 1' fill='none' stroke='%23a6a6a6' stroke-linecap='round' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-position: right bottom;
+  background-repeat: no-repeat;
+  background-size: 12px 12px;
+}
+
+.textarea-scrollbar:disabled {
+  scrollbar-color: var(--color-gray-500) transparent;
+}
+
+.textarea-scrollbar:disabled::-webkit-scrollbar-thumb {
+  background-color: var(--color-gray-500);
+}

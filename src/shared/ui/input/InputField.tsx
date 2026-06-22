@@ -1,6 +1,9 @@
 import { cn } from '@/shared/styles/utils/cn';
-
-import { useInputContext } from './InputContext';
+import { useFormControlContext } from '@/shared/ui/form-control/FormControlContext';
+import {
+  fieldBaseClassName,
+  fieldInteractionClassName,
+} from '@/shared/ui/form-control/formControlStyles';
 
 import type { InputFieldProps } from './Input.types';
 
@@ -18,8 +21,8 @@ import type { InputFieldProps } from './Input.types';
  *
  * ### 접근성
  *
- * Root 상태에 따라 `required`, `aria-invalid`, `aria-describedby`, `aria-errormessage`를
- * 설정합니다. 접근성 이름은 함께 구성한 `Input.Label`에서 제공받습니다.
+ * Root 상태에 따라 `required`, `aria-invalid`, `aria-errormessage`를 설정합니다.
+ * 접근성 이름은 함께 구성한 `Input.Label`에서 제공받습니다.
  *
  * @param type - 지원하는 입력 타입. 기본값은 `text`
  * @param ref - Field DOM 요소에 접근하거나 폼 라이브러리와 연결하는 ref
@@ -31,24 +34,22 @@ import type { InputFieldProps } from './Input.types';
  * ```
  */
 export function InputField({ className, ref, type = 'text', ...props }: InputFieldProps) {
-  const { disabled, errorMessageId, fieldId, invalid, required } = useInputContext();
+  const { disabled, errorMessageId, fieldId, hasErrorMessage, invalid, required } =
+    useFormControlContext();
+  const ariaErrorMessageId = invalid && hasErrorMessage ? errorMessageId : undefined;
 
   return (
     <input
       {...props}
-      aria-describedby={invalid ? errorMessageId : undefined}
-      aria-errormessage={invalid ? errorMessageId : undefined}
+      aria-errormessage={ariaErrorMessageId}
       aria-invalid={invalid || undefined}
       aria-required={required || undefined}
       className={cn(
-        'h-16.75 min-w-0 w-full rounded-lg border border-transparent bg-gray-600 px-5 body-16 text-white outline-none',
-        'transition-[border-color,box-shadow,background-color,color] duration-150',
-        'placeholder:text-gray-200',
+        'h-16.75',
+        fieldBaseClassName,
+        fieldInteractionClassName,
         'autofill:[-webkit-text-fill-color:var(--color-white)] autofill:caret-white',
         'autofill:[transition:background-color_9999s_ease-out_0s]',
-        'focus-visible:border-primary-500 focus-visible:shadow-[0_0_12px_2px] focus-visible:shadow-primary-500/25',
-        'data-[invalid=true]:border-error-500 data-[invalid=true]:focus-visible:shadow-error-500/25',
-        'disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-300 disabled:placeholder:text-gray-500',
         className
       )}
       data-invalid={invalid || undefined}

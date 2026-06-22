@@ -1,9 +1,9 @@
 import { cn } from '@/shared/styles/utils/cn';
 
-import type { InputControlProps } from './Input.types';
+import type { InputFieldGroupProps } from './Input.types';
 
 /**
- * ## Input.Control
+ * ## Input.FieldGroup
  *
  * @description
  * Button을 `Input.Field` 내부 오른쪽에 배치할 때 사용하는 선택적 레이아웃 컴포넌트입니다.
@@ -14,13 +14,13 @@ import type { InputControlProps } from './Input.types';
  *
  * @example
  * ```tsx
- * <Input.Control>
+ * <Input.FieldGroup>
  *   <Input.Field type="number" />
  *   <Button size="sm">적용</Button>
- * </Input.Control>
+ * </Input.FieldGroup>
  * ```
  */
-export function InputControl({ children, className, ...props }: InputControlProps) {
+export function InputFieldGroup({ children, className, ...props }: InputFieldGroupProps) {
   return (
     <div
       {...props}
