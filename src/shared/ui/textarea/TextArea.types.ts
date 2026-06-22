@@ -26,6 +26,7 @@ interface TextAreaFieldBaseProps extends Omit<
   | 'aria-describedby'
   | 'aria-errormessage'
   | 'aria-invalid'
+  | 'children'
   | 'disabled'
   | 'id'
   | 'maxLength'
