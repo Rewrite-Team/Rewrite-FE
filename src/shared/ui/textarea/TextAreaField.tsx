@@ -38,12 +38,16 @@ export function TextAreaField({
   value,
   ...props
 }: TextAreaFieldProps) {
-  const { disabled, errorMessageId, fieldId, invalid, required } = useFormControlContext();
+  const { disabled, errorMessageId, fieldId, hasErrorMessage, invalid, required } =
+    useFormControlContext();
   const [uncontrolledLength, setUncontrolledLength] = useState(() => getValueLength(defaultValue));
   const isControlled = value !== undefined;
   const currentLength = isControlled ? getValueLength(value) : uncontrolledLength;
   const countId = `${fieldId}-character-count`;
-  const describedBy = [showCount ? countId : undefined, invalid ? errorMessageId : undefined]
+  const describedBy = [
+    showCount ? countId : undefined,
+    invalid && hasErrorMessage ? errorMessageId : undefined,
+  ]
     .filter(Boolean)
     .join(' ');
   const hasReachedMaxLength = maxLength !== undefined && currentLength >= maxLength;
@@ -77,7 +81,7 @@ export function TextAreaField({
       <textarea
         {...props}
         aria-describedby={describedBy || undefined}
-        aria-errormessage={invalid ? errorMessageId : undefined}
+        aria-errormessage={invalid && hasErrorMessage ? errorMessageId : undefined}
         aria-invalid={invalid || undefined}
         aria-required={required || undefined}
         className={cn(

@@ -34,13 +34,15 @@ import type { InputFieldProps } from './Input.types';
  * ```
  */
 export function InputField({ className, ref, type = 'text', ...props }: InputFieldProps) {
-  const { disabled, errorMessageId, fieldId, invalid, required } = useFormControlContext();
+  const { disabled, errorMessageId, fieldId, hasErrorMessage, invalid, required } =
+    useFormControlContext();
+  const describedBy = invalid && hasErrorMessage ? errorMessageId : undefined;
 
   return (
     <input
       {...props}
-      aria-describedby={invalid ? errorMessageId : undefined}
-      aria-errormessage={invalid ? errorMessageId : undefined}
+      aria-describedby={describedBy}
+      aria-errormessage={describedBy}
       aria-invalid={invalid || undefined}
       aria-required={required || undefined}
       className={cn(

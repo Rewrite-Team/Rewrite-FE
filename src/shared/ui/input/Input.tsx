@@ -3,8 +3,8 @@
 import { useId } from 'react';
 
 import { cn } from '@/shared/styles/utils/cn';
-import type { FormControlContextValue } from '@/shared/ui/form-control/FormControl.types';
-import { FormControlContext } from '@/shared/ui/form-control/FormControlContext';
+import type { FormControlState } from '@/shared/ui/form-control/FormControl.types';
+import { FormControlProvider } from '@/shared/ui/form-control/FormControlProvider';
 
 import { InputErrorMessage } from './InputErrorMessage';
 import { InputField } from './InputField';
@@ -89,7 +89,7 @@ function InputRoot({
 }: InputProps) {
   const generatedId = useId();
   const fieldId = id ?? `input-${generatedId}`;
-  const contextValue: FormControlContextValue = {
+  const contextValue: FormControlState = {
     disabled,
     errorMessageId: `${fieldId}-error-message`,
     fieldId,
@@ -98,7 +98,7 @@ function InputRoot({
   };
 
   return (
-    <FormControlContext value={contextValue}>
+    <FormControlProvider value={contextValue}>
       <div
         {...props}
         className={cn('flex w-full flex-col', className)}
@@ -108,7 +108,7 @@ function InputRoot({
       >
         {children}
       </div>
-    </FormControlContext>
+    </FormControlProvider>
   );
 }
 

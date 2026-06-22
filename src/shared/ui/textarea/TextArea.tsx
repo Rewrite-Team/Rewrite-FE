@@ -3,8 +3,8 @@
 import { useId } from 'react';
 
 import { cn } from '@/shared/styles/utils/cn';
-import type { FormControlContextValue } from '@/shared/ui/form-control/FormControl.types';
-import { FormControlContext } from '@/shared/ui/form-control/FormControlContext';
+import type { FormControlState } from '@/shared/ui/form-control/FormControl.types';
+import { FormControlProvider } from '@/shared/ui/form-control/FormControlProvider';
 
 import { TextAreaErrorMessage } from './TextAreaErrorMessage';
 import { TextAreaField } from './TextAreaField';
@@ -54,7 +54,7 @@ function TextAreaRoot({
 }: TextAreaProps) {
   const generatedId = useId();
   const fieldId = id ?? `text-area-${generatedId}`;
-  const contextValue: FormControlContextValue = {
+  const contextValue: FormControlState = {
     disabled,
     errorMessageId: `${fieldId}-error-message`,
     fieldId,
@@ -63,7 +63,7 @@ function TextAreaRoot({
   };
 
   return (
-    <FormControlContext value={contextValue}>
+    <FormControlProvider value={contextValue}>
       <div
         {...props}
         className={cn('flex w-full flex-col', className)}
@@ -73,7 +73,7 @@ function TextAreaRoot({
       >
         {children}
       </div>
-    </FormControlContext>
+    </FormControlProvider>
   );
 }
 
