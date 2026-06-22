@@ -81,7 +81,7 @@ export function TextAreaField({
         aria-invalid={invalid || undefined}
         aria-required={required || undefined}
         className={cn(
-          'block min-h-48 resize-y py-5',
+          'block min-h-81.75 resize-y py-5',
           showCount ? 'pb-12' : undefined,
           fieldBaseClassName,
           fieldInteractionClassName,
