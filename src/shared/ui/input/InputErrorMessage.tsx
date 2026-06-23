@@ -11,8 +11,8 @@ import type { InputErrorMessageProps } from './Input.types';
  *
  * ### 접근성
  *
- * `role="alert"`로 오류를 알리고 Field의 `aria-describedby` 및 `aria-errormessage`와
- * 자동으로 연결합니다. 사용자가 수정할 수 있는 구체적인 메시지를 전달합니다.
+ * `role="alert"`로 오류를 알리고 Field의 `aria-errormessage`와 자동으로 연결합니다.
+ * 사용자가 수정할 수 있는 구체적인 메시지를 전달합니다.
  *
  * @param children - 유효성 검증 오류 메시지
  * @param className - ErrorMessage의 기본 스타일을 확장하는 클래스 이름

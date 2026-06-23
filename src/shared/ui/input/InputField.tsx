@@ -43,7 +43,6 @@ export function InputField({ className, ref, type = 'text', ...props }: InputFie
       {...props}
       aria-errormessage={ariaErrorMessageId}
       aria-invalid={invalid || undefined}
-      aria-required={required || undefined}
       className={cn(
         'h-16.75',
         fieldBaseClassName,
