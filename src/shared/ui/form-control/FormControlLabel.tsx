@@ -19,7 +19,7 @@ import type { FormControlLabelProps } from './FormControl.types';
  * ### 접근성
  *
  * 필수 표시 `*`는 장식 요소이므로 스크린 리더에서 제외합니다. 실제 필수 상태는 Root와
- * 연결된 Field의 네이티브 `required` 및 `aria-required` 속성으로 전달합니다.
+ * 연결된 Field의 네이티브 `required` 속성으로 전달합니다.
  *
  * @param children - 입력 요소의 목적을 설명하는 Label 문구
  * @param className - 공통 Label 스타일을 확장하는 클래스 이름

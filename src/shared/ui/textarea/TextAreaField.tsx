@@ -44,7 +44,6 @@ export function TextAreaField({
   const isControlled = value !== undefined;
   const currentLength = isControlled ? getValueLength(value) : uncontrolledLength;
   const countId = `${fieldId}-character-count`;
-  const describedBy = showCount ? countId : undefined;
   const ariaErrorMessageId = invalid && hasErrorMessage ? errorMessageId : undefined;
   const hasReachedMaxLength = maxLength !== undefined && currentLength >= maxLength;
   const hasExceededRecommendedLength =
@@ -76,10 +75,9 @@ export function TextAreaField({
     <div className="relative w-full">
       <textarea
         {...props}
-        aria-describedby={describedBy}
+        aria-describedby={showCount ? countId : undefined}
         aria-errormessage={ariaErrorMessageId}
         aria-invalid={invalid || undefined}
-        aria-required={required || undefined}
         className={cn(
           'textarea-scrollbar block min-h-81.75 resize-y py-5',
           showCount ? 'pb-12' : undefined,

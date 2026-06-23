@@ -51,13 +51,13 @@ type TextAreaLengthProps =
 type TextAreaFieldProps = TextAreaFieldBaseProps & TextAreaLengthProps;
 
 /** Label은 Root가 제공하는 id와 required 상태를 상속합니다. */
-type TextAreaLabelProps = Omit<ComponentPropsWithoutRef<'label'>, 'htmlFor'> & {
+interface TextAreaLabelProps extends Omit<ComponentPropsWithoutRef<'label'>, 'htmlFor'> {
   children: ReactNode;
-};
+}
 
 /** Root가 invalid일 때 유효성 검증 오류를 표시하는 문구입니다. */
-type TextAreaErrorMessageProps = Omit<ComponentPropsWithoutRef<'p'>, 'id'> & {
+interface TextAreaErrorMessageProps extends Omit<ComponentPropsWithoutRef<'p'>, 'id'> {
   children?: ReactNode;
-};
+}
 
 export type { TextAreaErrorMessageProps, TextAreaFieldProps, TextAreaLabelProps, TextAreaProps };

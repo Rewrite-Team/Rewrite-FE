@@ -11,8 +11,8 @@ import type { InputLabelProps } from './Input.types';
  *
  * ### 접근성
  *
- * 필수 표시 `*`는 장식 요소로 숨기고 실제 필수 상태는 Field의 네이티브 `required`와
- * `aria-required`로 전달합니다.
+ * 필수 표시 `*`는 장식 요소로 숨기고 실제 필수 상태는 Field의 네이티브 `required`로
+ * 전달합니다.
  *
  * @param children - Field의 목적을 설명하는 Label 문구
  * @param className - Label의 기본 스타일을 확장하는 클래스 이름
