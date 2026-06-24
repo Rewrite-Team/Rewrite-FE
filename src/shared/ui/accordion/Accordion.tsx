@@ -23,8 +23,9 @@ import type { AccordionContextValue, AccordionProps } from './Accordion.types';
  * ### 주요 내용
  *
  * `open`을 전달하면 controlled 방식으로 동작하고, 생략하면 `defaultOpen`을 기준으로
- * 내부 상태를 관리합니다. 여러 Accordion 중 하나만 열어야 하는 정책은 페이지나 부모
- * 컴포넌트에서 `open`과 `onOpenChange`로 제어합니다.
+ * 내부 상태를 관리합니다.
+ * 여러 Accordion 중 하나만 열어야 하는 정책은 페이지나 부모 컴포넌트에서 `open`과
+ * `onOpenChange`로 제어합니다.
  *
  * ### 구조
  *
