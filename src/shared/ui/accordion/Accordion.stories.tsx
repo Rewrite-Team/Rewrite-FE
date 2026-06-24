@@ -32,7 +32,7 @@ function ExclusiveAccordionExample({ disabled = false }: ExclusiveAccordionExamp
       >
         <Accordion.Header>
           <div className="flex items-center gap-2 text-white">
-            <Accordion.Trigger aria-label="첫 번째 섹션 영역 열기" />
+            <Accordion.Trigger aria-label="첫 번째 섹션 영역 접기/펼치기" />
             <Accordion.Label>첫 번째 섹션</Accordion.Label>
           </div>
         </Accordion.Header>
@@ -48,7 +48,7 @@ function ExclusiveAccordionExample({ disabled = false }: ExclusiveAccordionExamp
       >
         <Accordion.Header>
           <div className="flex items-center gap-2 text-white">
-            <Accordion.Trigger aria-label="두 번째 섹션 영역 열기" />
+            <Accordion.Trigger aria-label="두 번째 섹션 영역 접기/펼치기" />
             <Accordion.Label>두 번째 섹션</Accordion.Label>
           </div>
         </Accordion.Header>
@@ -66,7 +66,7 @@ function ExclusiveAccordionExample({ disabled = false }: ExclusiveAccordionExamp
       >
         <Accordion.Header>
           <div className="flex items-center gap-2 text-white">
-            <Accordion.Trigger aria-label="세 번째 섹션 영역 열기" />
+            <Accordion.Trigger aria-label="세 번째 섹션 영역 접기/펼치기" />
             <Accordion.Label>세 번째 섹션</Accordion.Label>
           </div>
         </Accordion.Header>
@@ -86,7 +86,7 @@ function CoverLetterInputSections() {
       <Accordion.Header>
         <Input id="storybook-question" required>
           <div className="flex items-center gap-2 text-white">
-            <Accordion.Trigger aria-label="질문 영역 열기" />
+            <Accordion.Trigger aria-label="질문 영역 접기/펼치기" />
             <Accordion.Label asChild>
               <Input.Label>질문</Input.Label>
             </Accordion.Label>
@@ -142,7 +142,7 @@ function IndependentControlledAccordionExample() {
       <Accordion onOpenChange={setIsProfileOpen} open={isProfileOpen}>
         <Accordion.Header>
           <div className="flex items-center gap-2 text-white">
-            <Accordion.Trigger aria-label="프로필 입력 영역 열기" />
+            <Accordion.Trigger aria-label="프로필 입력 영역 접기/펼치기" />
             <Accordion.Label>프로필 입력</Accordion.Label>
           </div>
         </Accordion.Header>
@@ -158,7 +158,7 @@ function IndependentControlledAccordionExample() {
       <Accordion onOpenChange={setIsResultOpen} open={isResultOpen}>
         <Accordion.Header>
           <div className="flex items-center gap-2 text-white">
-            <Accordion.Trigger aria-label="분석 결과 영역 열기" />
+            <Accordion.Trigger aria-label="분석 결과 영역 접기/펼치기" />
             <Accordion.Label>분석 결과</Accordion.Label>
           </div>
         </Accordion.Header>
@@ -209,7 +209,7 @@ export const Independent: Story = {
       <Accordion defaultOpen disabled={disabled}>
         <Accordion.Header>
           <div className="flex items-center gap-2 text-white">
-            <Accordion.Trigger aria-label="질문 영역 열기" />
+            <Accordion.Trigger aria-label="질문 영역 접기/펼치기" />
             <Accordion.Label>질문</Accordion.Label>
           </div>
         </Accordion.Header>
@@ -221,7 +221,7 @@ export const Independent: Story = {
       <Accordion defaultOpen disabled={disabled}>
         <Accordion.Header>
           <div className="flex items-center gap-2 text-white">
-            <Accordion.Trigger aria-label="답변 영역 열기" />
+            <Accordion.Trigger aria-label="답변 영역 접기/펼치기" />
             <Accordion.Label>답변</Accordion.Label>
           </div>
         </Accordion.Header>
@@ -233,7 +233,7 @@ export const Independent: Story = {
       <Accordion defaultOpen disabled={disabled}>
         <Accordion.Header>
           <div className="flex items-center gap-2 text-white">
-            <Accordion.Trigger aria-label="최종 작성본 영역 열기" />
+            <Accordion.Trigger aria-label="최종 작성본 영역 접기/펼치기" />
             <Accordion.Label>최종 작성본</Accordion.Label>
           </div>
         </Accordion.Header>
@@ -251,7 +251,7 @@ export const DefaultOpen: Story = {
       <Accordion>
         <Accordion.Header>
           <div className="flex items-center gap-2 text-white">
-            <Accordion.Trigger aria-label="질문 영역 열기" />
+            <Accordion.Trigger aria-label="질문 영역 접기/펼치기" />
             <Accordion.Label>질문</Accordion.Label>
           </div>
         </Accordion.Header>
@@ -263,7 +263,7 @@ export const DefaultOpen: Story = {
       <Accordion defaultOpen>
         <Accordion.Header>
           <div className="flex items-center gap-2 text-white">
-            <Accordion.Trigger aria-label="내가 쓴 자기소개서 영역 열기" />
+            <Accordion.Trigger aria-label="내가 쓴 자기소개서 영역 접기/펼치기" />
             <Accordion.Label>내가 쓴 자기소개서</Accordion.Label>
           </div>
         </Accordion.Header>
@@ -285,7 +285,7 @@ export const Disabled: Story = {
       <Accordion defaultOpen>
         <Accordion.Header>
           <div className="flex items-center gap-2 text-white">
-            <Accordion.Trigger aria-label="활성 섹션 영역 열기" />
+            <Accordion.Trigger aria-label="활성 섹션 영역 접기/펼치기" />
             <Accordion.Label>활성 섹션</Accordion.Label>
           </div>
         </Accordion.Header>
@@ -297,7 +297,7 @@ export const Disabled: Story = {
       <Accordion disabled>
         <Accordion.Header>
           <div className="flex items-center gap-2 text-gray-400">
-            <Accordion.Trigger aria-label="비활성 섹션 영역 열기" />
+            <Accordion.Trigger aria-label="비활성 섹션 영역 접기/펼치기" />
             <Accordion.Label>비활성 섹션</Accordion.Label>
           </div>
         </Accordion.Header>

@@ -38,11 +38,12 @@ type AccordionLabelProps =
       children: ReactElement<AccordionLabelChildProps>;
     });
 
-/** 섹션을 열고 닫는 button 기반 Trigger props입니다. */
+/** 섹션을 열고 닫는 아이콘 button 기반 Trigger props입니다. */
 interface AccordionTriggerProps extends Omit<
   ComponentPropsWithRef<'button'>,
   'aria-controls' | 'aria-expanded' | 'children' | 'disabled' | 'type'
 > {
+  /** 아이콘 전용 버튼의 접근성 이름입니다. */
   'aria-label': string;
 }
 

@@ -16,9 +16,9 @@ import type { AccordionTriggerProps } from './Accordion.types';
  *
  * ### 접근성
  *
- * `aria-expanded`와 `aria-controls`를 자동으로 설정해 Content와 연결합니다.
- * input이나 button 같은 요소는 Trigger 안에 넣지 말고 `Accordion.Header`에서 Trigger 밖에
- * 배치합니다.
+ * 아이콘만 렌더링하는 button이므로 `aria-label`을 필수로 전달해야 합니다. `aria-expanded`와
+ * `aria-controls`는 자동으로 설정해 Content와 연결합니다. input이나 button 같은 요소는
+ * Trigger 안에 넣지 말고 `Accordion.Header`에서 Trigger 밖에 배치합니다.
  *
  */
 export function AccordionTrigger({ className, onClick, ref, ...props }: AccordionTriggerProps) {

@@ -35,7 +35,7 @@ import type { AccordionContextValue, AccordionProps } from './Accordion.types';
  *   <Accordion.Header>
  *     <Input id="question" required>
  *       <div className="flex items-center gap-2">
- *         <Accordion.Trigger aria-label="질문 영역 열기" />
+ *         <Accordion.Trigger aria-label="질문 영역 접기/펼치기" />
  *         <Accordion.Label asChild>
  *           <Input.Label>질문</Input.Label>
  *         </Accordion.Label>
@@ -59,7 +59,7 @@ import type { AccordionContextValue, AccordionProps } from './Accordion.types';
  *   <Accordion.Header>
  *     <Input id="question" required>
  *       <div className="flex items-center gap-2">
- *         <Accordion.Trigger aria-label="질문 영역 열기" />
+ *         <Accordion.Trigger aria-label="질문 영역 접기/펼치기" />
  *         <Accordion.Label asChild>
  *           <Input.Label>질문</Input.Label>
  *         </Accordion.Label>
@@ -80,7 +80,7 @@ import type { AccordionContextValue, AccordionProps } from './Accordion.types';
  * ```tsx
  * <Accordion open={isOpen} onOpenChange={setIsOpen}>
  *   <Accordion.Header>
- *     <Accordion.Trigger aria-label="답변 영역 열기" />
+ *     <Accordion.Trigger aria-label="답변 영역 접기/펼치기" />
  *     <Accordion.Label>답변</Accordion.Label>
  *   </Accordion.Header>
  *   <Accordion.Content>
