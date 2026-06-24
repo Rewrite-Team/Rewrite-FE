@@ -38,7 +38,7 @@ export function FormControlLabel({ children, className, ...props }: FormControlL
   return (
     <label
       {...props}
-      className={cn('mb-6 w-fit body-18 font-semibold text-white', className)}
+      className={cn('mb-3 w-fit body-18 font-semibold text-white', className)}
       htmlFor={fieldId}
     >
       {children}
