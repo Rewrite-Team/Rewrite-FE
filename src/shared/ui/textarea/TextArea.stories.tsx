@@ -120,7 +120,7 @@ export const MaxLengthReached: Story = {
     <TextArea id="textarea-max-length">
       <TextArea.Label>자기소개서 내용</TextArea.Label>
       <TextArea.Field
-        defaultValue="최대길이"
+        defaultValue="최대 길이"
         maxLength={5}
         placeholder="자기소개서 내용을 입력해 주세요."
         showCount
