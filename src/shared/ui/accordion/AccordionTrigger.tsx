@@ -24,12 +24,12 @@ import type { AccordionTriggerProps } from './Accordion.types';
 export function AccordionTrigger({ className, onClick, ref, ...props }: AccordionTriggerProps) {
   const { contentId, disabled, isLockedOpen, isOpen, toggleOpen, triggerId } =
     useAccordionContext();
-  const isAriaDisabled = disabled || isLockedOpen;
+  const isInteractionDisabled = disabled || isLockedOpen;
 
   const handleClick: NonNullable<AccordionTriggerProps['onClick']> = (event) => {
     onClick?.(event);
 
-    if (event.defaultPrevented || disabled) {
+    if (event.defaultPrevented || isInteractionDisabled) {
       return;
     }
 
@@ -40,7 +40,7 @@ export function AccordionTrigger({ className, onClick, ref, ...props }: Accordio
     <button
       {...props}
       aria-controls={contentId}
-      aria-disabled={isAriaDisabled || undefined}
+      aria-disabled={isInteractionDisabled || undefined}
       aria-expanded={isOpen}
       className={cn(
         'group inline-flex size-6 shrink-0 items-center justify-center bg-transparent p-0 text-gray-50 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500',
