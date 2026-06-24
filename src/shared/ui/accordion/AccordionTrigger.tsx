@@ -57,9 +57,9 @@ export function AccordionTrigger({ className, onClick, ref, ...props }: Accordio
       <AltArrowDownIcon
         aria-hidden="true"
         className={cn(
-          'size-6 shrink-0 text-gray-50 transition-transform duration-200',
+          'size-6 shrink-0 text-current transition-transform duration-200',
           isOpen ? 'rotate-0' : '-rotate-90',
-          disabled ? 'text-gray-400' : 'group-hover:text-primary-500'
+          !disabled && 'group-hover:text-primary-500'
         )}
       />
     </button>
