@@ -7,51 +7,11 @@ import { FormField } from '@/shared/ui/form-field';
 
 import { Input } from './index';
 
-import type { InputType } from './Input.types';
 import type { Meta, StoryObj } from '@storybook/nextjs';
-
-interface InputPlaygroundProps {
-  className: string;
-  defaultValue: string;
-  disabled: boolean;
-  errorMessage: string;
-  id: string;
-  invalid: boolean;
-  label: string;
-  placeholder: string;
-  required: boolean;
-  type: InputType;
-}
 
 interface ExampleFormValues {
   jobUrl: string;
   title: string;
-}
-
-function InputPlayground({
-  className,
-  defaultValue,
-  disabled,
-  errorMessage,
-  id,
-  invalid,
-  label,
-  placeholder,
-  required,
-  type,
-}: InputPlaygroundProps) {
-  return (
-    <Input className={className} disabled={disabled} id={id} invalid={invalid} required={required}>
-      <Input.Label>{label}</Input.Label>
-      <Input.Field
-        defaultValue={defaultValue || undefined}
-        key={`${type}-${defaultValue}`}
-        placeholder={placeholder}
-        type={type}
-      />
-      <Input.ErrorMessage>{errorMessage}</Input.ErrorMessage>
-    </Input>
-  );
 }
 
 function ReactHookFormExample() {
@@ -122,61 +82,9 @@ function ReactHookFormExample() {
 
 const meta = {
   title: 'Shared/Input',
-  component: InputPlayground,
+  component: Input,
   args: {
-    className: '',
-    defaultValue: '',
-    disabled: false,
-    errorMessage: '입력값을 확인해 주세요.',
-    id: 'input-playground',
-    invalid: false,
-    label: '자기소개서 제목',
-    placeholder: '카카오 자기소개서',
-    required: false,
-    type: 'text',
-  },
-  argTypes: {
-    className: {
-      control: 'text',
-      description: 'Input Root의 기본 스타일을 확장하는 클래스 이름',
-    },
-    defaultValue: {
-      control: 'text',
-      description: 'Field의 초기 입력값',
-    },
-    disabled: {
-      control: 'boolean',
-      description: 'Field 입력과 포커스 차단 여부',
-    },
-    errorMessage: {
-      control: 'text',
-      description: 'invalid 상태에서 표시할 오류 문구',
-    },
-    id: {
-      control: 'text',
-      description: 'Label과 접근성 문구 연결에 사용하는 Field id',
-    },
-    invalid: {
-      control: 'boolean',
-      description: '유효성 검증 오류 상태',
-    },
-    label: {
-      control: 'text',
-      description: 'Field의 목적을 설명하는 Label',
-    },
-    placeholder: {
-      control: 'text',
-      description: 'Field 내부에 표시되는 짧은 입력 예시',
-    },
-    required: {
-      control: 'boolean',
-      description: '필수 입력 여부',
-    },
-    type: {
-      control: 'inline-radio',
-      description: 'Field의 HTML input 타입',
-      options: ['text', 'number', 'url'],
-    },
+    children: null,
   },
   decorators: [
     (Story) => (
@@ -185,66 +93,80 @@ const meta = {
       </div>
     ),
   ],
-  parameters: {
-    docs: {
-      description: {
-        component:
-          'Label, Field, ErrorMessage를 조합하는 Compound Input입니다. 버튼은 Input.FieldGroup 안에서 함께 구성하며, 폼 상태는 FormField를 통해 React Hook Form과 연결합니다.',
-      },
-    },
-  },
-} satisfies Meta<typeof InputPlayground>;
+} satisfies Meta<typeof Input>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  render: () => (
+    <Input id="input-default">
+      <Input.Label>자기소개서 제목</Input.Label>
+      <Input.Field placeholder="카카오 자기소개서" />
+      <Input.ErrorMessage>입력값을 확인해 주세요.</Input.ErrorMessage>
+    </Input>
+  ),
+};
 
 export const Required: Story = {
-  args: {
-    required: true,
-  },
+  render: () => (
+    <Input id="input-required" required>
+      <Input.Label>자기소개서 제목</Input.Label>
+      <Input.Field placeholder="카카오 자기소개서" />
+      <Input.ErrorMessage>입력값을 확인해 주세요.</Input.ErrorMessage>
+    </Input>
+  ),
 };
 
 export const Text: Story = {
-  args: {
-    label: '회사명',
-    placeholder: '지원할 회사명',
-    type: 'text',
-  },
+  render: () => (
+    <Input id="input-text">
+      <Input.Label>회사명</Input.Label>
+      <Input.Field placeholder="지원할 회사명" type="text" />
+      <Input.ErrorMessage>회사명을 입력해 주세요.</Input.ErrorMessage>
+    </Input>
+  ),
 };
 
 export const Number: Story = {
-  args: {
-    label: '제한 글자 수',
-    placeholder: '1000',
-    type: 'number',
-  },
+  render: () => (
+    <Input id="input-number">
+      <Input.Label>제한 글자 수</Input.Label>
+      <Input.Field placeholder="1000" type="number" />
+      <Input.ErrorMessage>0 이상의 글자 수를 입력해 주세요.</Input.ErrorMessage>
+    </Input>
+  ),
 };
 
 export const Url: Story = {
-  args: {
-    label: '채용 공고 링크',
-    placeholder: 'https://example.com/jobs/1',
-    type: 'url',
-  },
+  render: () => (
+    <Input id="input-url">
+      <Input.Label>채용 공고 링크</Input.Label>
+      <Input.Field placeholder="https://example.com/jobs/1" type="url" />
+      <Input.ErrorMessage>올바른 URL을 입력해 주세요.</Input.ErrorMessage>
+    </Input>
+  ),
 };
 
 export const Disabled: Story = {
-  args: {
-    defaultValue: '카카오 자기소개서',
-    disabled: true,
-  },
+  render: () => (
+    <Input disabled id="input-disabled">
+      <Input.Label>자기소개서 제목</Input.Label>
+      <Input.Field defaultValue="카카오 자기소개서" />
+      <Input.ErrorMessage>입력값을 확인해 주세요.</Input.ErrorMessage>
+    </Input>
+  ),
 };
 
 export const WithError: Story = {
-  args: {
-    errorMessage: '제목을 입력해 주세요.',
-    invalid: true,
-    placeholder: '',
-    required: true,
-  },
+  render: () => (
+    <Input id="input-error" invalid required>
+      <Input.Label>자기소개서 제목</Input.Label>
+      <Input.Field placeholder="" />
+      <Input.ErrorMessage>제목을 입력해 주세요.</Input.ErrorMessage>
+    </Input>
+  ),
 };
 
 export const WithButton: Story = {

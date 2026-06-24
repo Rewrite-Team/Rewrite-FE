@@ -9,50 +9,8 @@ import { TextArea } from './index';
 
 import type { Meta, StoryObj } from '@storybook/nextjs';
 
-interface TextAreaPlaygroundProps {
-  defaultValue: string;
-  disabled: boolean;
-  errorMessage: string;
-  invalid: boolean;
-  label: string;
-  length: number;
-  lengthType: 'max' | 'recommended';
-  placeholder: string;
-  required: boolean;
-  showCount: boolean;
-}
-
 interface ExampleFormValues {
   answer: string;
-}
-
-function TextAreaPlayground({
-  defaultValue,
-  disabled,
-  errorMessage,
-  invalid,
-  label,
-  length,
-  lengthType,
-  placeholder,
-  required,
-  showCount,
-}: TextAreaPlaygroundProps) {
-  const lengthProps = lengthType === 'max' ? { maxLength: length } : { recommendedLength: length };
-
-  return (
-    <TextArea disabled={disabled} invalid={invalid} required={required}>
-      <TextArea.Label>{label}</TextArea.Label>
-      <TextArea.Field
-        defaultValue={defaultValue || undefined}
-        key={defaultValue}
-        placeholder={placeholder}
-        showCount={showCount}
-        {...lengthProps}
-      />
-      <TextArea.ErrorMessage>{errorMessage}</TextArea.ErrorMessage>
-    </TextArea>
-  );
 }
 
 function ReactHookFormExample() {
@@ -101,33 +59,9 @@ function ReactHookFormExample() {
 
 const meta = {
   title: 'Shared/TextArea',
-  component: TextAreaPlayground,
+  component: TextArea,
   args: {
-    defaultValue: '',
-    disabled: false,
-    errorMessage: '자기소개서 내용을 입력해 주세요.',
-    invalid: false,
-    label: '자기소개서 내용',
-    length: 1000,
-    lengthType: 'recommended',
-    placeholder: '자기소개서 내용을 입력해 주세요.',
-    required: false,
-    showCount: true,
-  },
-  argTypes: {
-    defaultValue: { control: 'text' },
-    disabled: { control: 'boolean' },
-    errorMessage: { control: 'text' },
-    invalid: { control: 'boolean' },
-    label: { control: 'text' },
-    length: { control: 'number' },
-    lengthType: {
-      control: 'inline-radio',
-      options: ['recommended', 'max'],
-    },
-    placeholder: { control: 'text' },
-    required: { control: 'boolean' },
-    showCount: { control: 'boolean' },
+    children: null,
   },
   decorators: [
     (Story) => (
@@ -136,56 +70,93 @@ const meta = {
       </div>
     ),
   ],
-  parameters: {
-    docs: {
-      description: {
-        component:
-          '긴 텍스트 입력을 위한 Compound TextArea입니다. recommendedLength는 안내 기준이고 maxLength는 실제 입력 제한입니다.',
-      },
-    },
-  },
-} satisfies Meta<typeof TextAreaPlayground>;
+} satisfies Meta<typeof TextArea>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  render: () => (
+    <TextArea id="textarea-default">
+      <TextArea.Label>자기소개서 내용</TextArea.Label>
+      <TextArea.Field
+        placeholder="자기소개서 내용을 입력해 주세요."
+        recommendedLength={1000}
+        showCount
+      />
+      <TextArea.ErrorMessage>자기소개서 내용을 입력해 주세요.</TextArea.ErrorMessage>
+    </TextArea>
+  ),
+};
 
 export const WithoutCount: Story = {
-  args: {
-    showCount: false,
-  },
+  render: () => (
+    <TextArea id="textarea-without-count">
+      <TextArea.Label>자기소개서 내용</TextArea.Label>
+      <TextArea.Field placeholder="자기소개서 내용을 입력해 주세요." />
+      <TextArea.ErrorMessage>자기소개서 내용을 입력해 주세요.</TextArea.ErrorMessage>
+    </TextArea>
+  ),
 };
 
 export const RecommendedLengthExceeded: Story = {
-  args: {
-    defaultValue: '권장 길이를 초과한 자기소개서 내용입니다.',
-    length: 10,
-    lengthType: 'recommended',
-  },
+  render: () => (
+    <TextArea id="textarea-recommended-exceeded">
+      <TextArea.Label>자기소개서 내용</TextArea.Label>
+      <TextArea.Field
+        defaultValue="권장 길이를 초과한 자기소개서 내용입니다."
+        placeholder="자기소개서 내용을 입력해 주세요."
+        recommendedLength={10}
+        showCount
+      />
+      <TextArea.ErrorMessage>자기소개서 내용을 입력해 주세요.</TextArea.ErrorMessage>
+    </TextArea>
+  ),
 };
 
 export const MaxLengthReached: Story = {
-  args: {
-    defaultValue: '최대길이',
-    length: 5,
-    lengthType: 'max',
-  },
+  render: () => (
+    <TextArea id="textarea-max-length">
+      <TextArea.Label>자기소개서 내용</TextArea.Label>
+      <TextArea.Field
+        defaultValue="최대길이"
+        maxLength={5}
+        placeholder="자기소개서 내용을 입력해 주세요."
+        showCount
+      />
+      <TextArea.ErrorMessage>자기소개서 내용을 입력해 주세요.</TextArea.ErrorMessage>
+    </TextArea>
+  ),
 };
 
 export const WithError: Story = {
-  args: {
-    invalid: true,
-    required: true,
-  },
+  render: () => (
+    <TextArea id="textarea-error" invalid required>
+      <TextArea.Label>자기소개서 내용</TextArea.Label>
+      <TextArea.Field
+        placeholder="자기소개서 내용을 입력해 주세요."
+        recommendedLength={1000}
+        showCount
+      />
+      <TextArea.ErrorMessage>자기소개서 내용을 입력해 주세요.</TextArea.ErrorMessage>
+    </TextArea>
+  ),
 };
 
 export const Disabled: Story = {
-  args: {
-    defaultValue: '수정할 수 없는 자기소개서 내용입니다.',
-    disabled: true,
-  },
+  render: () => (
+    <TextArea disabled id="textarea-disabled">
+      <TextArea.Label>자기소개서 내용</TextArea.Label>
+      <TextArea.Field
+        defaultValue="수정할 수 없는 자기소개서 내용입니다."
+        placeholder="자기소개서 내용을 입력해 주세요."
+        recommendedLength={1000}
+        showCount
+      />
+      <TextArea.ErrorMessage>자기소개서 내용을 입력해 주세요.</TextArea.ErrorMessage>
+    </TextArea>
+  ),
 };
 
 export const ReactHookForm: Story = {
