@@ -30,11 +30,6 @@ function ModalVariantExample() {
             <p className="m-0 text-gray-100">제출 후에는 수정할 수 없습니다.</p>
           </Surface.Body>
           <Surface.Footer>
-            <Surface.Close asChild>
-              <Button className="w-24" size="sm" variant="secondary">
-                취소
-              </Button>
-            </Surface.Close>
             <Button className="w-24" size="sm">
               제출
             </Button>
@@ -76,11 +71,6 @@ function PanelVariantExample() {
             </Input>
           </Surface.Body>
           <Surface.Footer>
-            <Surface.Close asChild>
-              <Button className="w-24" size="sm" variant="secondary">
-                닫기
-              </Button>
-            </Surface.Close>
             <Button className="w-24" size="sm">
               적용
             </Button>
@@ -133,13 +123,6 @@ function PreventCloseWhenDirtyExample() {
             </TextArea>
             {message ? <p className="m-0 body-14 text-yellow-500">{message}</p> : null}
           </Surface.Body>
-          <Surface.Footer>
-            <Surface.Close asChild>
-              <Button className="w-24" size="sm" variant="secondary">
-                닫기
-              </Button>
-            </Surface.Close>
-          </Surface.Footer>
         </Surface.Content>
       </Surface.Portal>
     </Surface>
