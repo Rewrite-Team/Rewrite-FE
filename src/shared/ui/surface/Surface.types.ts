@@ -26,7 +26,7 @@ interface SurfaceCloseMeta {
 
 /** Surface가 공유하는 공통 props입니다. */
 interface SurfaceProps {
-  /** 닫기 요청을 전역적으로 허용할지 여부입니다. */
+  /** dismiss 닫기 요청을 전역적으로 허용할지 여부입니다. Close 버튼은 항상 닫힙니다. */
   canClose?: boolean;
   /** Surface compound 하위 컴포넌트입니다. */
   children: ReactNode;

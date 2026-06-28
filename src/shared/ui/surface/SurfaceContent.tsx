@@ -62,7 +62,7 @@ const assignRef = <TElement,>(ref: Ref<TElement> | undefined, value: TElement | 
  * ### 주요 내용
  *
  * ESC 닫기, 외부 클릭 닫기, Focus Trap, Focus Restore, Scroll Lock을 이 컴포넌트에서
- * 연결합니다. 닫기 가능 여부는 Surface의 `canClose`, `closeOnEscape`,
+ * 연결합니다. dismiss 닫기 가능 여부는 Surface의 `canClose`, `closeOnEscape`,
  * `closeOnOutsideClick` 정책을 따릅니다.
  *
  * ### 접근성

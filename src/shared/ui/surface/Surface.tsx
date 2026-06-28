@@ -74,7 +74,7 @@ import type {
  * @param open - 외부에서 열림 상태를 제어할 때 사용하는 controlled 값입니다.
  * @param defaultOpen - uncontrolled 방식에서 최초로 열어둘지 여부입니다.
  * @param onOpenChange - 열림 상태가 변경될 때 변경 값과 변경 이유를 받습니다.
- * @param canClose - false이면 Close, ESC, outside click 닫기 요청을 차단합니다.
+ * @param canClose - false이면 ESC, outside click 같은 dismiss 닫기 요청을 차단합니다.
  * @param onClosePrevented - 닫기 요청이 정책에 의해 차단됐을 때 호출됩니다.
  * @param closeOnEscape - ESC 키 닫기 허용 여부입니다.
  * @param closeOnOutsideClick - 외부 영역 클릭 닫기 허용 여부입니다.
@@ -105,6 +105,10 @@ function SurfaceRoot({
 
   const isCloseAllowed = useCallback(
     (reason: SurfaceCloseReason) => {
+      if (reason === 'close-button') {
+        return true;
+      }
+
       if (!canClose) {
         return false;
       }

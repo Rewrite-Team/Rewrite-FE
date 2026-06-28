@@ -36,7 +36,7 @@ const getSingleCloseChild = (children: SurfaceCloseProps['children']) => {
  *
  * ### 주요 내용
  *
- * 기본적으로 Surface의 닫기 정책(`canClose`)을 따릅니다.
+ * Surface의 닫기 정책과 무관하게 항상 닫기를 요청합니다.
  *
  * ### 접근성
  *

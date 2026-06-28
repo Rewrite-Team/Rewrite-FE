@@ -98,12 +98,12 @@ function PreventCloseWhenDirtyExample() {
 
   return (
     <Surface
-      canClose={!isDirty}
+      closeOnOutsideClick={!isDirty}
       onClosePrevented={({ reason }) => {
         setMessage(
-          reason === 'escape-key' || reason === 'outside-click'
+          reason === 'outside-click'
             ? '작성 중인 내용이 있어 닫을 수 없습니다.'
-            : '내용을 비운 뒤 닫아 주세요.'
+            : '작성 중인 내용을 확인해 주세요.'
         );
       }}
     >
@@ -134,9 +134,6 @@ function PreventCloseWhenDirtyExample() {
             {message ? <p className="m-0 body-14 text-yellow-500">{message}</p> : null}
           </Surface.Body>
           <Surface.Footer>
-            <Button className="w-28" onClick={() => setValue('')} size="sm" variant="secondary">
-              내용 비우기
-            </Button>
             <Surface.Close asChild>
               <Button className="w-24" size="sm" variant="secondary">
                 닫기
