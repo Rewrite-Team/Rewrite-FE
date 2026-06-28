@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import './base/fonts.css';
 @import './base/colors.css';
+@import './base/z-index.css';
 @import './base/scroll.css';
 
 button {
