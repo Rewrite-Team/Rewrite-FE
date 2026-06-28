@@ -1,0 +1,175 @@
+import { useState } from 'react';
+
+import { CancelIcon } from '@/shared/assets/icons/common';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { TextArea } from '@/shared/ui/textarea';
+
+import { Surface } from './index';
+
+import type { Meta, StoryObj } from '@storybook/nextjs';
+
+function ModalVariantExample() {
+  return (
+    <Surface>
+      <Surface.Trigger asChild>
+        <Button className="w-40">중앙 모달 열기</Button>
+      </Surface.Trigger>
+      <Surface.Portal>
+        <Surface.Overlay />
+        <Surface.Content aria-label="최종 제출 확인">
+          <Surface.Header>
+            <h2 className="m-0 body-20 font-semibold text-white">최종 제출하시겠습니까?</h2>
+            <Surface.Close asChild>
+              <Button aria-label="중앙 모달 닫기" iconOnly variant="ghost">
+                <CancelIcon aria-hidden="true" />
+              </Button>
+            </Surface.Close>
+          </Surface.Header>
+          <Surface.Body>
+            <p className="m-0 text-gray-100">제출 후에는 수정할 수 없습니다.</p>
+          </Surface.Body>
+          <Surface.Footer>
+            <Surface.Close asChild>
+              <Button className="w-24" size="sm" variant="secondary">
+                취소
+              </Button>
+            </Surface.Close>
+            <Button className="w-24" size="sm">
+              제출
+            </Button>
+          </Surface.Footer>
+        </Surface.Content>
+      </Surface.Portal>
+    </Surface>
+  );
+}
+
+function PanelVariantExample() {
+  return (
+    <Surface variant="panel">
+      <Surface.Trigger asChild>
+        <Button className="w-32" variant="secondary">
+          패널 열기
+        </Button>
+      </Surface.Trigger>
+      <Surface.Portal>
+        <Surface.Content aria-label="필터">
+          <Surface.Header>
+            <h2 className="m-0 body-20 font-semibold text-white">필터</h2>
+            <Surface.Close asChild>
+              <Button aria-label="패널 닫기" iconOnly variant="ghost">
+                <CancelIcon aria-hidden="true" />
+              </Button>
+            </Surface.Close>
+          </Surface.Header>
+          <Surface.Body className="flex flex-col gap-6">
+            <Input id="surface-company">
+              <Input.Label>회사명</Input.Label>
+              <Input.Field placeholder="회사명을 입력해 주세요." />
+              <Input.ErrorMessage />
+            </Input>
+            <Input id="surface-position">
+              <Input.Label>직무</Input.Label>
+              <Input.Field placeholder="직무를 입력해 주세요." />
+              <Input.ErrorMessage />
+            </Input>
+          </Surface.Body>
+          <Surface.Footer>
+            <Surface.Close asChild>
+              <Button className="w-24" size="sm" variant="secondary">
+                닫기
+              </Button>
+            </Surface.Close>
+            <Button className="w-24" size="sm">
+              적용
+            </Button>
+          </Surface.Footer>
+        </Surface.Content>
+      </Surface.Portal>
+    </Surface>
+  );
+}
+
+function PreventCloseWhenDirtyExample() {
+  const [value, setValue] = useState('작성 중인 자기소개서 초안입니다.');
+  const [message, setMessage] = useState('');
+  const isDirty = value.trim().length > 0;
+
+  return (
+    <Surface
+      canClose={!isDirty}
+      onClosePrevented={({ reason }) => {
+        setMessage(
+          reason === 'escape-key' || reason === 'outside-click'
+            ? '작성 중인 내용이 있어 닫을 수 없습니다.'
+            : '내용을 비운 뒤 닫아 주세요.'
+        );
+      }}
+    >
+      <Surface.Trigger asChild>
+        <Button className="w-48">작성 모달 열기</Button>
+      </Surface.Trigger>
+      <Surface.Portal>
+        <Surface.Overlay />
+        <Surface.Content aria-label="자기소개서 작성">
+          <Surface.Header>
+            <h2 className="m-0 body-20 font-semibold text-white">자기소개서 작성</h2>
+            <Surface.Close asChild>
+              <Button aria-label="작성 모달 닫기" iconOnly variant="ghost">
+                <CancelIcon aria-hidden="true" />
+              </Button>
+            </Surface.Close>
+          </Surface.Header>
+          <Surface.Body className="flex flex-col gap-4">
+            <TextArea id="surface-dirty-form">
+              <TextArea.Label>자기소개서 내용</TextArea.Label>
+              <TextArea.Field
+                onChange={(event) => setValue(event.target.value)}
+                placeholder="자기소개서 내용을 입력해 주세요."
+                value={value}
+              />
+              <TextArea.ErrorMessage />
+            </TextArea>
+            {message ? <p className="m-0 body-14 text-yellow-500">{message}</p> : null}
+          </Surface.Body>
+          <Surface.Footer>
+            <Button className="w-28" onClick={() => setValue('')} size="sm" variant="secondary">
+              내용 비우기
+            </Button>
+            <Surface.Close asChild>
+              <Button className="w-24" size="sm" variant="secondary">
+                닫기
+              </Button>
+            </Surface.Close>
+          </Surface.Footer>
+        </Surface.Content>
+      </Surface.Portal>
+    </Surface>
+  );
+}
+
+const meta = {
+  title: 'Shared/Surface',
+  parameters: {
+    backgrounds: {
+      default: 'black',
+    },
+  },
+} satisfies Meta;
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const ModalVariant: Story = {
+  render: () => <ModalVariantExample />,
+};
+
+export const PanelVariant: Story = {
+  render: () => <PanelVariantExample />,
+};
+
+export const PreventCloseWhenDirty: Story = {
+  render: () => <PreventCloseWhenDirtyExample />,
+};
