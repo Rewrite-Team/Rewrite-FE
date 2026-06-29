@@ -1,6 +1,6 @@
 'use client';
 
-import { Children, cloneElement, isValidElement } from 'react';
+import { Children, Fragment, cloneElement, isValidElement } from 'react';
 import type { ReactElement } from 'react';
 
 import { cn } from '@/shared/styles/utils/cn';
@@ -42,6 +42,10 @@ export function AccordionLabel({
 
     if (!isValidElement<AccordionLabelChildProps>(child)) {
       throw new Error('Accordion.Label with asChild must receive a valid React element child.');
+    }
+
+    if (child.type === Fragment) {
+      throw new Error('Accordion.Label with asChild must not receive React.Fragment.');
     }
 
     return cloneElement(child as ReactElement<AccordionLabelChildProps>, {

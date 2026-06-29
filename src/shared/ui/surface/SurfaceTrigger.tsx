@@ -1,6 +1,6 @@
 'use client';
 
-import { Children, cloneElement, isValidElement } from 'react';
+import { Children, Fragment, cloneElement, isValidElement } from 'react';
 import type { ComponentPropsWithRef, ReactElement } from 'react';
 
 import { cn } from '@/shared/styles/utils/cn';
@@ -27,6 +27,10 @@ const getSingleTriggerChild = (children: SurfaceTriggerProps['children']) => {
 
   if (!isValidElement<SurfaceTriggerChildProps>(child)) {
     throw new Error('Surface.Trigger with asChild must receive a valid React element child.');
+  }
+
+  if (child.type === Fragment) {
+    throw new Error('Surface.Trigger with asChild must not receive React.Fragment.');
   }
 
   return child as ReactElement<SurfaceTriggerChildProps>;

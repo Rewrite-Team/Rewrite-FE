@@ -1,6 +1,6 @@
 'use client';
 
-import { Children, cloneElement, isValidElement } from 'react';
+import { Children, Fragment, cloneElement, isValidElement } from 'react';
 import type { ComponentPropsWithRef, ReactElement } from 'react';
 
 import { cn } from '@/shared/styles/utils/cn';
@@ -23,6 +23,10 @@ const getSingleCloseChild = (children: SurfaceCloseProps['children']) => {
 
   if (!isValidElement<SurfaceCloseChildProps>(child)) {
     throw new Error('Surface.Close with asChild must receive a valid React element child.');
+  }
+
+  if (child.type === Fragment) {
+    throw new Error('Surface.Close with asChild must not receive React.Fragment.');
   }
 
   return child as ReactElement<SurfaceCloseChildProps>;
