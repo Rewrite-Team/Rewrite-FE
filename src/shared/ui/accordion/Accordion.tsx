@@ -120,11 +120,17 @@ function AccordionRoot({
       labelId: `accordion-label-${generatedId}`,
       triggerId: `accordion-trigger-${generatedId}`,
       toggleOpen: () => {
-        if (disabled || (isOpen && !collapsible)) {
+        if (disabled) {
           return;
         }
 
-        setIsOpen(!isOpen);
+        setIsOpen((open) => {
+          if (open && !collapsible) {
+            return open;
+          }
+
+          return !open;
+        });
       },
     }),
     [collapsible, disabled, generatedId, isOpen, setIsOpen]
