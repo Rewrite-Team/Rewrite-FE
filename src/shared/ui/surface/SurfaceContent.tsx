@@ -14,8 +14,8 @@ import {
 } from '@/shared/hooks';
 import { cn } from '@/shared/styles/utils/cn';
 
+import { useSurfaceStack } from './hooks/useSurfaceStack';
 import { useSurfaceContext } from './SurfaceContext';
-import { useSurfaceStackItem } from './SurfaceStack';
 
 import type { SurfaceContentProps } from './Surface.types';
 
@@ -80,7 +80,7 @@ export function SurfaceContent({
 }: SurfaceContentProps) {
   const { actions, meta, state } = useSurfaceContext();
   const contentRef = useRef<HTMLDivElement | null>(null);
-  const isTopSurface = useSurfaceStackItem(meta.contentId, state.isOpen);
+  const isTopSurface = useSurfaceStack(meta.contentId, state.isOpen);
 
   const setContentRef = useCallback(
     (element: HTMLDivElement | null) => {

@@ -78,7 +78,7 @@ const registerSurface = (id: string) => {
  * @param enabled - Surface가 열려 있어 stack에 등록되어야 하는지 여부
  * @returns 현재 Surface가 최상단이면 true, 아니면 false
  */
-function useSurfaceStackItem(id: string, enabled: boolean) {
+function useSurfaceStack(id: string, enabled: boolean) {
   useEffect(() => {
     if (!enabled) {
       return;
@@ -92,4 +92,4 @@ function useSurfaceStackItem(id: string, enabled: boolean) {
   return enabled && topSurfaceId === id;
 }
 
-export { useSurfaceStackItem };
+export { useSurfaceStack };
