@@ -70,17 +70,7 @@ export function SurfaceClose(props: SurfaceCloseProps) {
     ): NonNullable<SurfaceCloseChildProps['onClick']> =>
     (event) => {
       childOnClick?.(event);
-
-      if (event.defaultPrevented) {
-        return;
-      }
-
       onClick?.(event);
-
-      if (event.defaultPrevented) {
-        return;
-      }
-
       actions.close('close-button');
     };
 
