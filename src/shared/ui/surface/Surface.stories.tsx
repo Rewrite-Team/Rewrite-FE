@@ -26,7 +26,7 @@ function ModalVariantExample(props: SurfacePlaygroundProps) {
         <Surface.Content aria-label="최종 제출 확인">
           <Surface.Header>
             <h2 className="m-0 body-20 font-semibold text-white">최종 제출하시겠습니까?</h2>
-            <Surface.Close asChild>
+            <Surface.Close aria-label="중앙 모달 닫기" asChild>
               <Button aria-label="중앙 모달 닫기" iconOnly variant="ghost">
                 <CancelIcon aria-hidden="true" />
               </Button>
@@ -58,7 +58,7 @@ function PanelVariantExample(props: SurfacePlaygroundProps) {
         <Surface.Content aria-label="필터">
           <Surface.Header>
             <h2 className="m-0 body-20 font-semibold text-white">필터</h2>
-            <Surface.Close asChild>
+            <Surface.Close aria-label="패널 닫기" asChild>
               <Button aria-label="패널 닫기" iconOnly variant="ghost">
                 <CancelIcon aria-hidden="true" />
               </Button>
@@ -117,7 +117,7 @@ function PreventCloseWhenDirtyExample({ closeOnOutsideClick, ...props }: Surface
         <Surface.Content aria-label="자기소개서 작성">
           <Surface.Header>
             <h2 className="m-0 body-20 font-semibold text-white">자기소개서 작성</h2>
-            <Surface.Close asChild>
+            <Surface.Close aria-label="작성 모달 닫기" asChild>
               <Button aria-label="작성 모달 닫기" iconOnly variant="ghost">
                 <CancelIcon aria-hidden="true" />
               </Button>

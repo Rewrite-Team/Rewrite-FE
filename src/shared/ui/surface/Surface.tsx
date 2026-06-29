@@ -48,7 +48,7 @@ import type {
  *       <Surface.Header>제목</Surface.Header>
  *       <Surface.Body>내용</Surface.Body>
  *       <Surface.Footer>
- *         <Surface.Close asChild>
+ *         <Surface.Close aria-label="모달 닫기" asChild>
  *           <Button>닫기</Button>
  *         </Surface.Close>
  *       </Surface.Footer>

@@ -10,6 +10,7 @@ import { useSurfaceContext } from './SurfaceContext';
 import type { SurfaceCloseProps } from './Surface.types';
 
 interface SurfaceCloseChildProps {
+  'aria-label'?: string;
   className?: string;
   onClick?: ComponentPropsWithRef<'button'>['onClick'];
 }
@@ -44,15 +45,15 @@ const getSingleCloseChild = (children: SurfaceCloseProps['children']) => {
  *
  * ### 접근성
  *
- * 아이콘 버튼은 공통 Button의 `iconOnly`와 `aria-label`을 사용합니다.
+ * `aria-label`은 필수이며, `asChild` 사용 시 자식 요소에 전달됩니다.
  *
  * @example
  * ```tsx
- * <Surface.Close asChild>
+ * <Surface.Close aria-label="모달 닫기" asChild>
  *   <Button>닫기</Button>
  * </Surface.Close>
  *
- * <Surface.Close asChild>
+ * <Surface.Close aria-label="모달 닫기" asChild>
  *   <Button aria-label="모달 닫기" iconOnly>
  *     <CloseIcon aria-hidden="true" />
  *   </Button>
@@ -61,7 +62,7 @@ const getSingleCloseChild = (children: SurfaceCloseProps['children']) => {
  */
 export function SurfaceClose(props: SurfaceCloseProps) {
   const { actions } = useSurfaceContext();
-  const { children, className, onClick } = props;
+  const { 'aria-label': ariaLabel, children, className, onClick } = props;
 
   const createHandleClick =
     (
@@ -87,6 +88,7 @@ export function SurfaceClose(props: SurfaceCloseProps) {
     const child = getSingleCloseChild(children);
 
     return cloneElement(child, {
+      'aria-label': ariaLabel,
       className: cn(child.props.className, className),
       onClick: createHandleClick(child.props.onClick),
     });

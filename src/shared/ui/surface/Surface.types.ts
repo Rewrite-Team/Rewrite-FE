@@ -121,14 +121,18 @@ type SurfaceCloseBaseButtonProps = Omit<
 >;
 
 type SurfaceCloseButtonProps = SurfaceCloseBaseButtonProps & {
+  /** 닫기 동작의 접근성 이름입니다. */
+  'aria-label': string;
   /** 닫기 버튼의 텍스트 또는 아이콘입니다. */
   children: ReactNode;
-  'aria-label'?: string;
 };
 
 interface SurfaceCloseAsChildProps {
+  /** 닫기 동작의 접근성 이름입니다. asChild 사용 시 자식 요소에 전달됩니다. */
+  'aria-label': string;
   asChild: true;
   children: ReactElement<{
+    'aria-label'?: string;
     className?: string;
     onClick?: ComponentPropsWithRef<'button'>['onClick'];
   }>;
