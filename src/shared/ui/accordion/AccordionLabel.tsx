@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/shared/styles/utils/cn';
-import { cloneSlot, getSingleSlotChild } from '@/shared/ui/utils/Slot';
+import { cloneSlot, getSingleSlotChild } from '@/shared/utils/slot';
 
 import { useAccordionContext } from './AccordionContext';
 
