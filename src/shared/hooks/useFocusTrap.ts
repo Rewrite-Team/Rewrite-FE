@@ -65,14 +65,25 @@ export function useFocusTrap<TElement extends HTMLElement>({
 
       const firstElement = currentFocusableElements[0];
       const lastElement = currentFocusableElements[currentFocusableElements.length - 1];
+      const activeElement = document.activeElement;
+      const activeFocusableElement =
+        activeElement instanceof HTMLElement && currentFocusableElements.includes(activeElement)
+          ? activeElement
+          : null;
 
-      if (event.shiftKey && document.activeElement === firstElement) {
+      if (!activeFocusableElement) {
+        event.preventDefault();
+        (event.shiftKey ? lastElement : firstElement).focus();
+        return;
+      }
+
+      if (event.shiftKey && activeFocusableElement === firstElement) {
         event.preventDefault();
         lastElement.focus();
         return;
       }
 
-      if (!event.shiftKey && document.activeElement === lastElement) {
+      if (!event.shiftKey && activeFocusableElement === lastElement) {
         event.preventDefault();
         firstElement.focus();
       }
