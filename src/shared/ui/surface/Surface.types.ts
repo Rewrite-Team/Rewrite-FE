@@ -110,8 +110,18 @@ type SurfaceContentAccessibilityProps =
 /** Surface.Content props입니다. 접근성 이름을 반드시 전달해야 합니다. */
 type SurfaceContentProps = SurfaceContentBaseProps & SurfaceContentAccessibilityProps;
 
-/** Surface Header, Body, Footer가 공유하는 props입니다. */
-interface SurfaceSectionProps extends ComponentPropsWithRef<'div'> {
+/** Surface.Header props입니다. */
+interface SurfaceHeaderProps extends ComponentPropsWithRef<'header'> {
+  children: ReactNode;
+}
+
+/** Surface.Body props입니다. */
+interface SurfaceBodyProps extends ComponentPropsWithRef<'div'> {
+  children: ReactNode;
+}
+
+/** Surface.Footer props입니다. */
+interface SurfaceFooterProps extends ComponentPropsWithRef<'footer'> {
   children: ReactNode;
 }
 
@@ -185,7 +195,9 @@ export type {
   SurfaceOpenChangeReason,
   SurfacePortalProps,
   SurfaceProps,
-  SurfaceSectionProps,
+  SurfaceBodyProps,
+  SurfaceFooterProps,
+  SurfaceHeaderProps,
   SurfaceType,
   SurfaceTriggerProps,
 };

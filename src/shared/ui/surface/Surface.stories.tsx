@@ -4,6 +4,7 @@ import { CancelIcon } from '@/shared/assets/icons/common';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { TextArea } from '@/shared/ui/textarea';
+import { Title } from '@/shared/ui/title';
 
 import { Surface } from './index';
 
@@ -25,7 +26,9 @@ function ModalVariantExample(props: SurfacePlaygroundProps) {
         <Surface.Overlay />
         <Surface.Content aria-label="최종 제출 확인">
           <Surface.Header>
-            <h2 className="m-0 body-20 font-semibold text-white">최종 제출하시겠습니까?</h2>
+            <Title as="h2" className="body-20">
+              최종 제출하시겠습니까?
+            </Title>
             <Surface.Close aria-label="중앙 모달 닫기" asChild>
               <Button aria-label="중앙 모달 닫기" iconOnly variant="ghost">
                 <CancelIcon aria-hidden="true" />
@@ -57,7 +60,9 @@ function PanelVariantExample(props: SurfacePlaygroundProps) {
       <Surface.Portal>
         <Surface.Content aria-label="필터">
           <Surface.Header>
-            <h2 className="m-0 body-20 font-semibold text-white">필터</h2>
+            <Title as="h2" className="body-20">
+              필터
+            </Title>
             <Surface.Close aria-label="패널 닫기" asChild>
               <Button aria-label="패널 닫기" iconOnly variant="ghost">
                 <CancelIcon aria-hidden="true" />
@@ -116,7 +121,9 @@ function PreventCloseWhenDirtyExample({ closeOnOutsideClick, ...props }: Surface
         <Surface.Overlay />
         <Surface.Content aria-label="자기소개서 작성">
           <Surface.Header>
-            <h2 className="m-0 body-20 font-semibold text-white">자기소개서 작성</h2>
+            <Title as="h2" className="body-20">
+              자기소개서 작성
+            </Title>
             <Surface.Close aria-label="작성 모달 닫기" asChild>
               <Button aria-label="작성 모달 닫기" iconOnly variant="ghost">
                 <CancelIcon aria-hidden="true" />

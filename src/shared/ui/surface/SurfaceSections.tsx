@@ -4,7 +4,7 @@ import { cn } from '@/shared/styles/utils/cn';
 
 import { useSurfaceContext } from './SurfaceContext';
 
-import type { SurfaceSectionProps } from './Surface.types';
+import type { SurfaceBodyProps, SurfaceFooterProps, SurfaceHeaderProps } from './Surface.types';
 
 /**
  * ## Surface.Header
@@ -18,17 +18,17 @@ import type { SurfaceSectionProps } from './Surface.types';
  * 접근성 이름으로 쓰려면 직접 id를 지정하고 `Surface.Content`의 `aria-labelledby`와
  * 연결합니다.
  */
-export function SurfaceHeader({ children, className, ref, ...props }: SurfaceSectionProps) {
+export function SurfaceHeader({ children, className, ref, ...props }: SurfaceHeaderProps) {
   useSurfaceContext();
 
   return (
-    <div
+    <header
       {...props}
       className={cn('flex shrink-0 items-start justify-between gap-4 px-6 pt-6', className)}
       ref={ref}
     >
       {children}
-    </div>
+    </header>
   );
 }
 
@@ -43,7 +43,7 @@ export function SurfaceHeader({ children, className, ref, ...props }: SurfaceSec
  * 보조 설명이 필요하면 직접 id를 지정하고 `Surface.Content`의 `aria-describedby`와
  * 연결합니다.
  */
-export function SurfaceBody({ children, className, ref, ...props }: SurfaceSectionProps) {
+export function SurfaceBody({ children, className, ref, ...props }: SurfaceBodyProps) {
   useSurfaceContext();
 
   return (
@@ -68,16 +68,16 @@ export function SurfaceBody({ children, className, ref, ...props }: SurfaceSecti
  * 오른쪽 정렬과 일정한 버튼 간격을 기본으로 제공합니다. 액션이 필요 없는 Surface에서는
  * 생략할 수 있습니다.
  */
-export function SurfaceFooter({ children, className, ref, ...props }: SurfaceSectionProps) {
+export function SurfaceFooter({ children, className, ref, ...props }: SurfaceFooterProps) {
   useSurfaceContext();
 
   return (
-    <div
+    <footer
       {...props}
       className={cn('flex shrink-0 items-center justify-end gap-3 px-6 pb-6', className)}
       ref={ref}
     >
       {children}
-    </div>
+    </footer>
   );
 }
