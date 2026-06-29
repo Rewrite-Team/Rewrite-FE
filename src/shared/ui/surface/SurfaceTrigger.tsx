@@ -17,6 +17,13 @@ interface SurfaceTriggerChildProps {
   onClick?: ComponentPropsWithRef<'button'>['onClick'];
 }
 
+const getTriggerButtonProps = (props: Extract<SurfaceTriggerProps, { asChild?: false }>) => {
+  const buttonProps = { ...props };
+
+  delete buttonProps.asChild;
+  return buttonProps;
+};
+
 /**
  * ## Surface.Trigger
  *
@@ -41,10 +48,10 @@ interface SurfaceTriggerChildProps {
  */
 export function SurfaceTrigger(props: SurfaceTriggerProps) {
   const { actions, meta, state } = useSurfaceContext();
-  const { children, className, onClick } = props;
 
   const createHandleClick =
     (
+      onClick?: SurfaceTriggerChildProps['onClick'],
       childOnClick?: SurfaceTriggerChildProps['onClick']
     ): NonNullable<SurfaceTriggerChildProps['onClick']> =>
     (event) => {
@@ -72,30 +79,24 @@ export function SurfaceTrigger(props: SurfaceTriggerProps) {
   };
 
   if (props.asChild) {
+    const { children, className, onClick } = props;
     const child = getSingleSlotChild<SurfaceTriggerChildProps>(children, 'Surface.Trigger');
 
     return cloneSlot(child, {
       ...triggerProps,
       className,
-      onClick: createHandleClick(child.props.onClick),
+      onClick: createHandleClick(onClick, child.props.onClick),
     });
   }
 
-  const {
-    asChild: _asChild,
-    children: _children,
-    className: _className,
-    onClick: _onClick,
-    ref,
-    ...buttonProps
-  } = props;
+  const { children, className, onClick, ref, ...buttonProps } = getTriggerButtonProps(props);
 
   return (
     <button
       {...buttonProps}
       {...triggerProps}
       className={className}
-      onClick={createHandleClick()}
+      onClick={createHandleClick(onClick)}
       ref={ref}
       type="button"
     >

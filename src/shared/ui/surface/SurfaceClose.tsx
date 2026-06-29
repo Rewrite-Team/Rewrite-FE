@@ -14,6 +14,13 @@ interface SurfaceCloseChildProps {
   onClick?: ComponentPropsWithRef<'button'>['onClick'];
 }
 
+const getCloseButtonProps = (props: Extract<SurfaceCloseProps, { asChild?: false }>) => {
+  const buttonProps = { ...props };
+
+  delete buttonProps.asChild;
+  return buttonProps;
+};
+
 /**
  * ## Surface.Close
  *
@@ -43,10 +50,10 @@ interface SurfaceCloseChildProps {
  */
 export function SurfaceClose(props: SurfaceCloseProps) {
   const { actions } = useSurfaceContext();
-  const { 'aria-label': ariaLabel, children, className, onClick } = props;
 
   const createHandleClick =
     (
+      onClick?: SurfaceCloseChildProps['onClick'],
       childOnClick?: SurfaceCloseChildProps['onClick']
     ): NonNullable<SurfaceCloseChildProps['onClick']> =>
     (event) => {
@@ -56,29 +63,23 @@ export function SurfaceClose(props: SurfaceCloseProps) {
     };
 
   if (props.asChild) {
+    const { 'aria-label': ariaLabel, children, className, onClick } = props;
     const child = getSingleSlotChild<SurfaceCloseChildProps>(children, 'Surface.Close');
 
     return cloneSlot(child, {
       'aria-label': ariaLabel,
       className,
-      onClick: createHandleClick(child.props.onClick),
+      onClick: createHandleClick(onClick, child.props.onClick),
     });
   }
 
-  const {
-    asChild: _asChild,
-    children: _children,
-    className: _className,
-    onClick: _onClick,
-    ref,
-    ...buttonProps
-  } = props;
+  const { children, className, onClick, ref, ...buttonProps } = getCloseButtonProps(props);
 
   return (
     <button
       {...buttonProps}
       className={className}
-      onClick={createHandleClick()}
+      onClick={createHandleClick(onClick)}
       ref={ref}
       type="button"
     >
