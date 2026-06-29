@@ -14,6 +14,12 @@ interface SlotProps {
   className?: string;
 }
 
+interface AsChildProps {
+  asChild?: boolean;
+  children?: ReactNode;
+  ref?: unknown;
+}
+
 /**
  * ## getSingleSlotChild
  *
@@ -67,4 +73,21 @@ const cloneSlot = <TProps extends SlotProps>(child: ReactElement<TProps>, props:
     className: cn(props.className, child.props.className),
   } as Partial<TProps>);
 
-export { cloneSlot, getSingleSlotChild };
+/**
+ * ## getSlotProps
+ *
+ * asChild wrapper에서만 사용하는 제어 props를 제거하고 자식 요소에 주입할 props만 반환합니다.
+ *
+ * @param props - asChild compound 컴포넌트 props
+ * @returns 자식 요소에 전달할 수 있는 props
+ */
+const getSlotProps = <TProps extends AsChildProps>(props: TProps) => {
+  const slotProps = { ...props };
+
+  delete slotProps.asChild;
+  delete slotProps.children;
+  delete slotProps.ref;
+  return slotProps;
+};
+
+export { cloneSlot, getSingleSlotChild, getSlotProps };

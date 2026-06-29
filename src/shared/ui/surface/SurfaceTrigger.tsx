@@ -2,7 +2,7 @@
 
 import type { ComponentPropsWithRef } from 'react';
 
-import { cloneSlot, getSingleSlotChild } from '@/shared/ui/utils/Slot';
+import { cloneSlot, getSingleSlotChild, getSlotProps } from '@/shared/ui/utils/Slot';
 
 import { useSurfaceContext } from './SurfaceContext';
 
@@ -79,12 +79,13 @@ export function SurfaceTrigger(props: SurfaceTriggerProps) {
   };
 
   if (props.asChild) {
-    const { children, className, onClick } = props;
+    const { children, onClick } = props;
+    const slotProps = getSlotProps(props);
     const child = getSingleSlotChild<SurfaceTriggerChildProps>(children, 'Surface.Trigger');
 
     return cloneSlot(child, {
       ...triggerProps,
-      className,
+      ...slotProps,
       onClick: createHandleClick(onClick, child.props.onClick),
     });
   }

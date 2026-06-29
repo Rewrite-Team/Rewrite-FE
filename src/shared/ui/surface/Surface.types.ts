@@ -74,8 +74,6 @@ interface SurfaceTriggerAsChildProps {
     className?: string;
     onClick?: ComponentPropsWithRef<'button'>['onClick'];
   }>;
-  className?: string;
-  onClick?: ComponentPropsWithRef<'button'>['onClick'];
 }
 
 /** Surface.Trigger props입니다. */
@@ -85,7 +83,7 @@ type SurfaceTriggerProps =
       asChild?: false;
       children: ReactNode;
     })
-  | SurfaceTriggerAsChildProps;
+  | (SurfaceTriggerButtonProps & SurfaceTriggerAsChildProps);
 
 /** Surface.Overlay props입니다. */
 type SurfaceOverlayProps = ComponentPropsWithRef<'div'>;
@@ -146,8 +144,6 @@ interface SurfaceCloseAsChildProps {
     className?: string;
     onClick?: ComponentPropsWithRef<'button'>['onClick'];
   }>;
-  className?: string;
-  onClick?: ComponentPropsWithRef<'button'>['onClick'];
 }
 
 type SurfaceCloseProps =
@@ -155,7 +151,7 @@ type SurfaceCloseProps =
       /** 자식 컴포넌트에 Close 동작을 위임할지 여부입니다. */
       asChild?: false;
     })
-  | SurfaceCloseAsChildProps;
+  | (SurfaceCloseBaseButtonProps & SurfaceCloseAsChildProps);
 
 /** Surface 내부 Context가 하위 컴포넌트에 제공하는 상태입니다. */
 interface SurfaceState {

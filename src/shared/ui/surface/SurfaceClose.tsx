@@ -2,7 +2,7 @@
 
 import type { ComponentPropsWithRef } from 'react';
 
-import { cloneSlot, getSingleSlotChild } from '@/shared/ui/utils/Slot';
+import { cloneSlot, getSingleSlotChild, getSlotProps } from '@/shared/ui/utils/Slot';
 
 import { useSurfaceContext } from './SurfaceContext';
 
@@ -63,12 +63,12 @@ export function SurfaceClose(props: SurfaceCloseProps) {
     };
 
   if (props.asChild) {
-    const { 'aria-label': ariaLabel, children, className, onClick } = props;
+    const { children, onClick } = props;
+    const slotProps = getSlotProps(props);
     const child = getSingleSlotChild<SurfaceCloseChildProps>(children, 'Surface.Close');
 
     return cloneSlot(child, {
-      'aria-label': ariaLabel,
-      className,
+      ...slotProps,
       onClick: createHandleClick(onClick, child.props.onClick),
     });
   }
