@@ -52,7 +52,6 @@ export function ConfirmModal({
   const generatedId = useId();
   const titleId = `confirm-modal-title-${generatedId}`;
   const descriptionId = description ? `confirm-modal-description-${generatedId}` : undefined;
-  const isCancelDisabled = isLoading;
 
   return (
     <Surface
@@ -83,7 +82,7 @@ export function ConfirmModal({
             <Surface.Close aria-label={cancelLabel} asChild>
               <Button
                 className="h-10 w-full"
-                disabled={isCancelDisabled}
+                disabled={isLoading}
                 onClick={onCancel}
                 size="sm"
                 variant="secondary"
