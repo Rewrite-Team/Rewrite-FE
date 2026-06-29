@@ -13,6 +13,9 @@ const config: StorybookConfig = {
     options: {},
   },
   staticDirs: ['../public'],
+  typescript: {
+    reactDocgen: 'react-docgen-typescript',
+  },
   webpackFinal: async (config) => {
     if (!config.module || !config.module.rules) {
       return config;

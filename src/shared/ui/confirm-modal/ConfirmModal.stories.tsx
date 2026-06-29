@@ -100,11 +100,17 @@ const meta = {
     title: '해당 자기소개서를 저장하시겠습니까?',
   },
   argTypes: {
+    cancelLabel: {
+      control: 'text',
+    },
     closeOnEscape: {
       control: 'boolean',
     },
     closeOnOutsideClick: {
       control: 'boolean',
+    },
+    confirmLabel: {
+      control: 'text',
     },
     defaultOpen: {
       control: 'boolean',
@@ -120,6 +126,9 @@ const meta = {
     },
     onCancel: {
       action: 'cancel',
+    },
+    onClosePrevented: {
+      action: 'closePrevented',
     },
     onConfirm: {
       action: 'confirm',
@@ -143,12 +152,6 @@ const meta = {
   parameters: {
     backgrounds: {
       default: 'black',
-    },
-    docs: {
-      description: {
-        component:
-          '확인/취소 선택이 필요한 짧은 의사결정 모달입니다. Surface의 modal variant를 기반으로 focus trap, scroll lock, dismiss 정책을 재사용합니다.',
-      },
     },
   },
 } satisfies Meta<typeof ConfirmModal>;
