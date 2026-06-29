@@ -29,7 +29,7 @@ export function SurfaceOverlay({ className, ref, ...props }: SurfaceOverlayProps
       {...props}
       aria-hidden="true"
       className={cn(
-        'fixed inset-0 z-(--z-index-surface-overlay) bg-black/70 transition-opacity duration-150',
+        'surface-modal-overlay-animation fixed inset-0 z-(--z-index-surface-overlay) bg-black/70',
         className
       )}
       data-state={state.isOpen ? 'open' : 'closed'}

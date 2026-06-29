@@ -97,6 +97,7 @@ export function SurfaceContent({
           state: state.isOpen ? 'open' : 'closed',
           variant: state.variant,
         }),
+        state.variant === 'modal' && 'surface-modal-animation',
         className
       )}
       data-state={state.isOpen ? 'open' : 'closed'}
