@@ -1,5 +1,4 @@
-import { useState } from 'react';
-
+import { useControllableState } from '@/shared/hooks';
 import { cn } from '@/shared/styles/utils/cn';
 import { useFormControlContext } from '@/shared/ui/form-control/FormControlContext';
 import {
@@ -40,9 +39,10 @@ export function TextAreaField({
 }: TextAreaFieldProps) {
   const { disabled, errorMessageId, fieldId, hasErrorMessage, invalid, required } =
     useFormControlContext();
-  const [uncontrolledLength, setUncontrolledLength] = useState(() => getValueLength(defaultValue));
-  const isControlled = value !== undefined;
-  const currentLength = isControlled ? getValueLength(value) : uncontrolledLength;
+  const [currentLength, setCurrentLength] = useControllableState({
+    defaultValue: () => getValueLength(defaultValue),
+    value: value === undefined ? undefined : getValueLength(value),
+  });
   const countId = `${fieldId}-character-count`;
   const ariaErrorMessageId = invalid && hasErrorMessage ? errorMessageId : undefined;
   const hasReachedMaxLength = maxLength !== undefined && currentLength >= maxLength;
@@ -64,9 +64,7 @@ export function TextAreaField({
       event.currentTarget.value = nextValue;
     }
 
-    if (!isControlled) {
-      setUncontrolledLength(nextValue.length);
-    }
+    setCurrentLength(nextValue.length);
 
     onChange?.(event);
   };
@@ -99,7 +97,7 @@ export function TextAreaField({
       {showCount ? (
         <p
           className={cn(
-            'pointer-events-none absolute right-4 bottom-px left-px z-10 m-0 flex h-8 items-center justify-end rounded-bl-lg bg-gray-600 px-4 body-14 text-gray-200',
+            'pointer-events-none absolute right-4 bottom-px left-px z-(--z-index-form-floating) m-0 flex h-8 items-center justify-end rounded-bl-lg bg-gray-600 px-4 body-14 text-gray-200',
             disabled ? 'bg-gray-700 text-gray-500' : undefined
           )}
           data-max-length-reached={hasReachedMaxLength || undefined}

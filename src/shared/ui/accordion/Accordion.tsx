@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useId, useMemo, useState } from 'react';
+import { useId, useMemo } from 'react';
 
+import { useControllableState } from '@/shared/hooks';
 import { cn } from '@/shared/styles/utils/cn';
 
 import { AccordionContent } from './AccordionContent';
@@ -104,20 +105,11 @@ function AccordionRoot({
   ...props
 }: AccordionProps) {
   const generatedId = useId();
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
-  const isControlled = open !== undefined;
-  const isOpen = isControlled ? open : uncontrolledOpen;
-
-  const handleOpenChange = useCallback(
-    (nextOpen: boolean) => {
-      if (!isControlled) {
-        setUncontrolledOpen(nextOpen);
-      }
-
-      onOpenChange?.(nextOpen);
-    },
-    [isControlled, onOpenChange]
-  );
+  const [isOpen, setIsOpen] = useControllableState({
+    defaultValue: defaultOpen,
+    onChange: onOpenChange,
+    value: open,
+  });
 
   const contextValue = useMemo<AccordionContextValue>(
     () => ({
@@ -128,14 +120,20 @@ function AccordionRoot({
       labelId: `accordion-label-${generatedId}`,
       triggerId: `accordion-trigger-${generatedId}`,
       toggleOpen: () => {
-        if (disabled || (isOpen && !collapsible)) {
+        if (disabled) {
           return;
         }
 
-        handleOpenChange(!isOpen);
+        setIsOpen((open) => {
+          if (open && !collapsible) {
+            return open;
+          }
+
+          return !open;
+        });
       },
     }),
-    [collapsible, disabled, generatedId, handleOpenChange, isOpen]
+    [collapsible, disabled, generatedId, isOpen, setIsOpen]
   );
 
   return (

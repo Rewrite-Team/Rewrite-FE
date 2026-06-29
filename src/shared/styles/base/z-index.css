@@ -1,0 +1,10 @@
+:root {
+  /**
+    Z-Index Token
+    사용법: z-(--z-index-{name})
+    예시: z-(--z-index-surface-content)
+  */
+  --z-index-form-floating: 10;
+  --z-index-surface-overlay: 40;
+  --z-index-surface-content: 50;
+}
