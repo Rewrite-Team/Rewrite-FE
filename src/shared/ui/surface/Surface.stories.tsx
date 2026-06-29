@@ -96,6 +96,11 @@ function PreventCloseWhenDirtyExample() {
             : '작성 중인 내용을 확인해 주세요.'
         );
       }}
+      onOpenChange={(open) => {
+        if (!open) {
+          setMessage('');
+        }
+      }}
     >
       <Surface.Trigger asChild>
         <Button className="w-48">작성 모달 열기</Button>
@@ -115,7 +120,15 @@ function PreventCloseWhenDirtyExample() {
             <TextArea id="surface-dirty-form">
               <TextArea.Label>자기소개서 내용</TextArea.Label>
               <TextArea.Field
-                onChange={(event) => setValue(event.target.value)}
+                onChange={(event) => {
+                  const nextValue = event.target.value;
+
+                  setValue(nextValue);
+
+                  if (nextValue.trim().length === 0) {
+                    setMessage('');
+                  }
+                }}
                 placeholder="자기소개서 내용을 입력해 주세요."
                 value={value}
               />
