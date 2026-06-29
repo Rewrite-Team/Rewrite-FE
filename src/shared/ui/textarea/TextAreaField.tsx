@@ -1,5 +1,4 @@
-import { useState } from 'react';
-
+import { useControllableState } from '@/shared/hooks';
 import { cn } from '@/shared/styles/utils/cn';
 import { useFormControlContext } from '@/shared/ui/form-control/FormControlContext';
 import {
@@ -40,9 +39,10 @@ export function TextAreaField({
 }: TextAreaFieldProps) {
   const { disabled, errorMessageId, fieldId, hasErrorMessage, invalid, required } =
     useFormControlContext();
-  const [uncontrolledLength, setUncontrolledLength] = useState(() => getValueLength(defaultValue));
-  const isControlled = value !== undefined;
-  const currentLength = isControlled ? getValueLength(value) : uncontrolledLength;
+  const [currentLength, setCurrentLength] = useControllableState({
+    defaultValue: () => getValueLength(defaultValue),
+    value: value === undefined ? undefined : getValueLength(value),
+  });
   const countId = `${fieldId}-character-count`;
   const ariaErrorMessageId = invalid && hasErrorMessage ? errorMessageId : undefined;
   const hasReachedMaxLength = maxLength !== undefined && currentLength >= maxLength;
@@ -64,9 +64,7 @@ export function TextAreaField({
       event.currentTarget.value = nextValue;
     }
 
-    if (!isControlled) {
-      setUncontrolledLength(nextValue.length);
-    }
+    setCurrentLength(nextValue.length);
 
     onChange?.(event);
   };
