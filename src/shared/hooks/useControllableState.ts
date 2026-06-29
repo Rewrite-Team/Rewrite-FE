@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 
 interface UseControllableStateParams<TValue> {
@@ -35,21 +35,24 @@ export function useControllableState<TValue>({
   value,
 }: UseControllableStateParams<TValue>) {
   const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
+  const uncontrolledValueRef = useRef(uncontrolledValue);
   const isControlled = value !== undefined;
   const currentValue = isControlled ? value : uncontrolledValue;
 
   const setValue: Dispatch<SetStateAction<TValue>> = useCallback(
     (nextValueOrUpdater) => {
+      const previousValue = isControlled ? currentValue : uncontrolledValueRef.current;
       const nextValue =
         typeof nextValueOrUpdater === 'function'
-          ? (nextValueOrUpdater as (previousValue: TValue) => TValue)(currentValue)
+          ? (nextValueOrUpdater as (previousValue: TValue) => TValue)(previousValue)
           : nextValueOrUpdater;
 
-      if (Object.is(currentValue, nextValue)) {
+      if (Object.is(previousValue, nextValue)) {
         return;
       }
 
       if (!isControlled) {
+        uncontrolledValueRef.current = nextValue;
         setUncontrolledValue(nextValue);
       }
 

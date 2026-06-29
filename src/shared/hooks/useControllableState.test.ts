@@ -67,6 +67,25 @@ describe('useControllableState', () => {
     expect(onChange).toHaveBeenCalledWith(2);
   });
 
+  it('applies consecutive functional updates from the latest uncontrolled value', () => {
+    const onChange = jest.fn();
+    const { result } = renderHook(() =>
+      useControllableState({
+        defaultValue: 1,
+        onChange,
+      })
+    );
+
+    act(() => {
+      result.current[1]((previousValue) => previousValue + 1);
+      result.current[1]((previousValue) => previousValue + 1);
+    });
+
+    expect(result.current[0]).toBe(3);
+    expect(onChange).toHaveBeenNthCalledWith(1, 2);
+    expect(onChange).toHaveBeenNthCalledWith(2, 3);
+  });
+
   it('does not call onChange when next value is equal to current value', () => {
     const onChange = jest.fn();
     const { result } = renderHook(() =>
