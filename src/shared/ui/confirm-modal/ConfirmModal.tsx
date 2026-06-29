@@ -2,7 +2,6 @@
 
 import { useId } from 'react';
 
-import { cn } from '@/shared/styles/utils/cn';
 import { Button } from '@/shared/ui/button';
 import { Surface } from '@/shared/ui/surface';
 import { Title } from '@/shared/ui/title';
@@ -39,12 +38,9 @@ import type { ConfirmModalProps } from './ConfirmModal.types';
  * ```
  */
 export function ConfirmModal({
-  cancelButtonProps,
   cancelLabel = '취소',
-  className,
   closeOnEscape = true,
   closeOnOutsideClick = true,
-  confirmButtonProps,
   confirmLabel = '확인',
   description,
   isLoading = false,
@@ -71,7 +67,7 @@ export function ConfirmModal({
         <Surface.Content
           aria-describedby={descriptionId}
           aria-labelledby={titleId}
-          className={cn('w-80 p-6', 'items-center gap-5 bg-gray-800 text-center', className)}
+          className="w-80 items-center gap-5 bg-gray-800 p-6 text-center"
         >
           <Surface.Header className="flex flex-col items-center gap-5">
             <Title as="h2" className="body-18 font-bold" id={titleId}>
@@ -86,8 +82,7 @@ export function ConfirmModal({
           <Surface.Footer className="grid w-full grid-cols-2 gap-2">
             <Surface.Close aria-label={cancelLabel} asChild>
               <Button
-                {...cancelButtonProps}
-                className={cn('h-10 w-full', cancelButtonProps?.className)}
+                className="h-10 w-full"
                 disabled={isCancelDisabled}
                 onClick={onCancel}
                 size="sm"
@@ -97,8 +92,7 @@ export function ConfirmModal({
               </Button>
             </Surface.Close>
             <Button
-              {...confirmButtonProps}
-              className={cn('h-10 w-full', confirmButtonProps?.className)}
+              className="h-10 w-full"
               isLoading={isLoading}
               onClick={onConfirm}
               size="sm"

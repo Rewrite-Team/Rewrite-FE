@@ -1,23 +1,14 @@
-import type { ComponentProps, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
-import type { Button } from '@/shared/ui/button';
 import type { SurfaceCloseMeta, SurfaceOpenChangeMeta } from '@/shared/ui/surface';
-
-type ConfirmModalButtonProps = Omit<
-  ComponentProps<typeof Button>,
-  'aria-label' | 'children' | 'disabled' | 'iconOnly' | 'isLoading' | 'onClick'
->;
 
 /**
  * `ConfirmModal` 컴포넌트 props입니다.
  *
  * @param cancelLabel - 모달 하단에 표시할 취소 버튼 문구입니다.
- * @param cancelButtonProps - 취소 버튼에 추가로 전달할 버튼 스타일 props입니다.
- * @param className - 모달 컨테이너 스타일을 확장할 클래스입니다.
  * @param closeOnEscape - ESC 키로 닫을 수 있는지 여부입니다.
  * @param closeOnOutsideClick - 외부 영역 클릭으로 닫을 수 있는지 여부입니다.
  * @param confirmLabel - 모달 하단에 표시할 확인 버튼 문구입니다.
- * @param confirmButtonProps - 확인 버튼에 추가로 전달할 버튼 스타일 props입니다.
  * @param defaultOpen - uncontrolled 방식에서 최초로 열어둘지 여부입니다.
  * @param description - 제목 아래에 표시할 설명입니다.
  * @param focusTrap - 열린 동안 포커스를 Content 내부에 가둘지 여부입니다.
@@ -33,12 +24,9 @@ type ConfirmModalButtonProps = Omit<
  */
 interface ConfirmModalProps {
   cancelLabel?: string;
-  cancelButtonProps?: ConfirmModalButtonProps;
-  className?: string;
   closeOnEscape?: boolean;
   closeOnOutsideClick?: boolean;
   confirmLabel?: string;
-  confirmButtonProps?: ConfirmModalButtonProps;
   defaultOpen?: boolean;
   description?: ReactNode;
   focusTrap?: boolean;
@@ -53,4 +41,4 @@ interface ConfirmModalProps {
   title: ReactNode;
 }
 
-export type { ConfirmModalButtonProps, ConfirmModalProps };
+export type { ConfirmModalProps };

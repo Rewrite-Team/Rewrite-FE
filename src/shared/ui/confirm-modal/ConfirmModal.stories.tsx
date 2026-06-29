@@ -100,20 +100,11 @@ const meta = {
     title: '해당 자기소개서를 저장하시겠습니까?',
   },
   argTypes: {
-    cancelButtonProps: {
-      control: false,
-    },
-    className: {
-      control: false,
-    },
     closeOnEscape: {
       control: 'boolean',
     },
     closeOnOutsideClick: {
       control: 'boolean',
-    },
-    confirmButtonProps: {
-      control: false,
     },
     defaultOpen: {
       control: 'boolean',
