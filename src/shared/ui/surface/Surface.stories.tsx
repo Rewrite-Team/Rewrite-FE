@@ -7,11 +7,17 @@ import { TextArea } from '@/shared/ui/textarea';
 
 import { Surface } from './index';
 
+import type { SurfaceProps } from './index';
 import type { Meta, StoryObj } from '@storybook/nextjs';
 
-function ModalVariantExample() {
+type SurfacePlaygroundProps = Pick<
+  SurfaceProps,
+  'canClose' | 'closeOnEscape' | 'closeOnOutsideClick' | 'focusTrap' | 'restoreFocus' | 'scrollLock'
+>;
+
+function ModalVariantExample(props: SurfacePlaygroundProps) {
   return (
-    <Surface>
+    <Surface {...props}>
       <Surface.Trigger asChild>
         <Button className="w-40">중앙 모달 열기</Button>
       </Surface.Trigger>
@@ -40,9 +46,9 @@ function ModalVariantExample() {
   );
 }
 
-function PanelVariantExample() {
+function PanelVariantExample(props: SurfacePlaygroundProps) {
   return (
-    <Surface variant="panel">
+    <Surface {...props} variant="panel">
       <Surface.Trigger asChild>
         <Button className="w-32" variant="secondary">
           패널 열기
@@ -81,14 +87,15 @@ function PanelVariantExample() {
   );
 }
 
-function PreventCloseWhenDirtyExample() {
+function PreventCloseWhenDirtyExample({ closeOnOutsideClick, ...props }: SurfacePlaygroundProps) {
   const [value, setValue] = useState('작성 중인 자기소개서 초안입니다.');
   const [message, setMessage] = useState('');
   const isDirty = value.trim().length > 0;
 
   return (
     <Surface
-      closeOnOutsideClick={!isDirty}
+      {...props}
+      closeOnOutsideClick={!isDirty && closeOnOutsideClick}
       onClosePrevented={({ reason }) => {
         setMessage(
           reason === 'outside-click'
@@ -150,10 +157,8 @@ const meta = {
     children: null,
     closeOnEscape: true,
     closeOnOutsideClick: true,
-    defaultOpen: false,
     focusTrap: true,
     restoreFocus: true,
-    variant: 'modal',
   },
   argTypes: {
     canClose: {
@@ -165,8 +170,11 @@ const meta = {
     closeOnOutsideClick: {
       control: 'boolean',
     },
-    defaultOpen: {
-      control: 'boolean',
+    children: {
+      control: false,
+      table: {
+        disable: true,
+      },
     },
     focusTrap: {
       control: 'boolean',
@@ -176,10 +184,6 @@ const meta = {
     },
     scrollLock: {
       control: 'boolean',
-    },
-    variant: {
-      control: 'inline-radio',
-      options: ['modal', 'panel'],
     },
   },
   parameters: {
@@ -191,16 +195,16 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<SurfacePlaygroundProps>;
 
 export const ModalVariant: Story = {
-  render: () => <ModalVariantExample />,
+  render: (args) => <ModalVariantExample {...args} />,
 };
 
 export const PanelVariant: Story = {
-  render: () => <PanelVariantExample />,
+  render: (args) => <PanelVariantExample {...args} />,
 };
 
 export const PreventCloseWhenDirty: Story = {
-  render: () => <PreventCloseWhenDirtyExample />,
+  render: (args) => <PreventCloseWhenDirtyExample {...args} />,
 };
