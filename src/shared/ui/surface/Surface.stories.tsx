@@ -131,12 +131,50 @@ function PreventCloseWhenDirtyExample() {
 
 const meta = {
   title: 'Shared/Surface',
+  component: Surface,
+  args: {
+    canClose: true,
+    children: null,
+    closeOnEscape: true,
+    closeOnOutsideClick: true,
+    defaultOpen: false,
+    focusTrap: true,
+    restoreFocus: true,
+    variant: 'modal',
+  },
+  argTypes: {
+    canClose: {
+      control: 'boolean',
+    },
+    closeOnEscape: {
+      control: 'boolean',
+    },
+    closeOnOutsideClick: {
+      control: 'boolean',
+    },
+    defaultOpen: {
+      control: 'boolean',
+    },
+    focusTrap: {
+      control: 'boolean',
+    },
+    restoreFocus: {
+      control: 'boolean',
+    },
+    scrollLock: {
+      control: 'boolean',
+    },
+    variant: {
+      control: 'inline-radio',
+      options: ['modal', 'panel'],
+    },
+  },
   parameters: {
     backgrounds: {
       default: 'black',
     },
   },
-} satisfies Meta;
+} satisfies Meta<typeof Surface>;
 
 export default meta;
 
