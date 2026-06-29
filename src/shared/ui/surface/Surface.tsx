@@ -19,6 +19,38 @@ import type {
   SurfaceProps,
 } from './Surface.types';
 
+interface SurfaceClosePolicy {
+  canClose: boolean;
+  closeOnEscape: boolean;
+  closeOnOutsideClick: boolean;
+  reason: SurfaceCloseReason;
+}
+
+const isSurfaceCloseAllowed = ({
+  canClose,
+  closeOnEscape,
+  closeOnOutsideClick,
+  reason,
+}: SurfaceClosePolicy) => {
+  if (reason === 'close-button') {
+    return true;
+  }
+
+  if (!canClose) {
+    return false;
+  }
+
+  if (reason === 'escape-key') {
+    return closeOnEscape;
+  }
+
+  if (reason === 'outside-click') {
+    return closeOnOutsideClick;
+  }
+
+  return true;
+};
+
 /**
  * ## Surface
  *
@@ -103,35 +135,19 @@ function SurfaceRoot({
     value: open,
   });
 
-  const isCloseAllowed = useCallback(
-    (reason: SurfaceCloseReason) => {
-      if (reason === 'close-button') {
-        return true;
-      }
-
-      if (!canClose) {
-        return false;
-      }
-
-      if (reason === 'escape-key' && !closeOnEscape) {
-        return false;
-      }
-
-      if (reason === 'outside-click' && !closeOnOutsideClick) {
-        return false;
-      }
-
-      return true;
-    },
-    [canClose, closeOnEscape, closeOnOutsideClick]
-  );
-
   const requestOpenChange = useCallback(
     (nextOpen: boolean, reason: SurfaceOpenChangeReason = 'programmatic') => {
       if (!nextOpen) {
         const closeReason = reason as SurfaceCloseReason;
 
-        if (!isCloseAllowed(closeReason)) {
+        if (
+          !isSurfaceCloseAllowed({
+            canClose,
+            closeOnEscape,
+            closeOnOutsideClick,
+            reason: closeReason,
+          })
+        ) {
           onClosePrevented?.({ reason: closeReason });
           return;
         }
@@ -144,7 +160,15 @@ function SurfaceRoot({
       setIsOpen(nextOpen);
       onOpenChange?.(nextOpen, { reason });
     },
-    [isCloseAllowed, isOpen, onClosePrevented, onOpenChange, setIsOpen]
+    [
+      canClose,
+      closeOnEscape,
+      closeOnOutsideClick,
+      isOpen,
+      onClosePrevented,
+      onOpenChange,
+      setIsOpen,
+    ]
   );
 
   const contextValue = useMemo<SurfaceContextValue>(

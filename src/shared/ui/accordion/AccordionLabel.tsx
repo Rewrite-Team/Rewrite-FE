@@ -1,9 +1,7 @@
 'use client';
 
-import { Children, Fragment, cloneElement, isValidElement } from 'react';
-import type { ReactElement } from 'react';
-
 import { cn } from '@/shared/styles/utils/cn';
+import { cloneSlot, getSingleSlotChild } from '@/shared/ui/utils/Slot';
 
 import { useAccordionContext } from './AccordionContext';
 
@@ -32,25 +30,11 @@ export function AccordionLabel({
   const labelClassName = cn('mb-0 w-fit body-18 font-semibold text-current', className);
 
   if (asChild) {
-    const childCount = Children.count(children);
+    const child = getSingleSlotChild<AccordionLabelChildProps>(children, 'Accordion.Label');
 
-    if (childCount !== 1) {
-      throw new Error('Accordion.Label with asChild must receive exactly one React element child.');
-    }
-
-    const child = Children.only(children);
-
-    if (!isValidElement<AccordionLabelChildProps>(child)) {
-      throw new Error('Accordion.Label with asChild must receive a valid React element child.');
-    }
-
-    if (child.type === Fragment) {
-      throw new Error('Accordion.Label with asChild must not receive React.Fragment.');
-    }
-
-    return cloneElement(child as ReactElement<AccordionLabelChildProps>, {
+    return cloneSlot(child, {
       ...(props as AccordionLabelChildProps),
-      className: cn(labelClassName, child.props.className),
+      className: labelClassName,
       id: labelId,
     });
   }

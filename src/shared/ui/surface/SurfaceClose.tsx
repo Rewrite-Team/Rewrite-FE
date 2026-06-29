@@ -1,9 +1,8 @@
 'use client';
 
-import { Children, Fragment, cloneElement, isValidElement } from 'react';
-import type { ComponentPropsWithRef, ReactElement } from 'react';
+import type { ComponentPropsWithRef } from 'react';
 
-import { cn } from '@/shared/styles/utils/cn';
+import { cloneSlot, getSingleSlotChild } from '@/shared/ui/utils/Slot';
 
 import { useSurfaceContext } from './SurfaceContext';
 
@@ -14,24 +13,6 @@ interface SurfaceCloseChildProps {
   className?: string;
   onClick?: ComponentPropsWithRef<'button'>['onClick'];
 }
-
-const getSingleCloseChild = (children: SurfaceCloseProps['children']) => {
-  if (Children.count(children) !== 1) {
-    throw new Error('Surface.Close with asChild must receive exactly one React element child.');
-  }
-
-  const child = Children.only(children);
-
-  if (!isValidElement<SurfaceCloseChildProps>(child)) {
-    throw new Error('Surface.Close with asChild must receive a valid React element child.');
-  }
-
-  if (child.type === Fragment) {
-    throw new Error('Surface.Close with asChild must not receive React.Fragment.');
-  }
-
-  return child as ReactElement<SurfaceCloseChildProps>;
-};
 
 /**
  * ## Surface.Close
@@ -75,11 +56,11 @@ export function SurfaceClose(props: SurfaceCloseProps) {
     };
 
   if (props.asChild) {
-    const child = getSingleCloseChild(children);
+    const child = getSingleSlotChild<SurfaceCloseChildProps>(children, 'Surface.Close');
 
-    return cloneElement(child, {
+    return cloneSlot(child, {
       'aria-label': ariaLabel,
-      className: cn(child.props.className, className),
+      className,
       onClick: createHandleClick(child.props.onClick),
     });
   }

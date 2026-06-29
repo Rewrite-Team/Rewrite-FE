@@ -25,7 +25,7 @@ function ModalVariantExample(props: SurfacePlaygroundProps) {
       <Surface.Portal>
         <Surface.Overlay />
         <Surface.Content aria-label="최종 제출 확인">
-          <Surface.Header>
+          <Surface.Header className="flex shrink-0 items-start justify-between gap-4 px-6 pt-6">
             <Title as="h2" className="body-20">
               최종 제출하시겠습니까?
             </Title>
@@ -35,10 +35,10 @@ function ModalVariantExample(props: SurfacePlaygroundProps) {
               </Button>
             </Surface.Close>
           </Surface.Header>
-          <Surface.Body>
+          <Surface.Body className="min-h-0 flex-1 overflow-y-auto px-6 py-5 body-16 text-gray-50">
             <p className="m-0 text-gray-100">제출 후에는 수정할 수 없습니다.</p>
           </Surface.Body>
-          <Surface.Footer>
+          <Surface.Footer className="flex shrink-0 items-center justify-end gap-3 px-6 pb-6">
             <Button className="w-24" size="sm">
               제출
             </Button>
@@ -59,7 +59,7 @@ function PanelVariantExample(props: SurfacePlaygroundProps) {
       </Surface.Trigger>
       <Surface.Portal>
         <Surface.Content aria-label="필터">
-          <Surface.Header>
+          <Surface.Header className="flex shrink-0 items-start justify-between gap-4 px-6 pt-6">
             <Title as="h2" className="body-20">
               필터
             </Title>
@@ -69,7 +69,7 @@ function PanelVariantExample(props: SurfacePlaygroundProps) {
               </Button>
             </Surface.Close>
           </Surface.Header>
-          <Surface.Body className="flex flex-col gap-6">
+          <Surface.Body className="min-h-0 flex-1 overflow-y-auto px-6 py-5 body-16 text-gray-50 flex flex-col gap-6">
             <Input id="surface-company">
               <Input.Label>회사명</Input.Label>
               <Input.Field placeholder="회사명을 입력해 주세요." />
@@ -81,7 +81,7 @@ function PanelVariantExample(props: SurfacePlaygroundProps) {
               <Input.ErrorMessage />
             </Input>
           </Surface.Body>
-          <Surface.Footer>
+          <Surface.Footer className="flex shrink-0 items-center justify-end gap-3 px-6 pb-6">
             <Button className="w-24" size="sm">
               적용
             </Button>
@@ -120,7 +120,7 @@ function PreventCloseWhenDirtyExample({ closeOnOutsideClick, ...props }: Surface
       <Surface.Portal>
         <Surface.Overlay />
         <Surface.Content aria-label="자기소개서 작성">
-          <Surface.Header>
+          <Surface.Header className="flex shrink-0 items-start justify-between gap-4 px-6 pt-6">
             <Title as="h2" className="body-20">
               자기소개서 작성
             </Title>
@@ -130,7 +130,7 @@ function PreventCloseWhenDirtyExample({ closeOnOutsideClick, ...props }: Surface
               </Button>
             </Surface.Close>
           </Surface.Header>
-          <Surface.Body className="flex flex-col gap-4">
+          <Surface.Body className="min-h-0 flex-1 overflow-y-auto px-6 py-5 body-16 text-gray-50 flex flex-col gap-4">
             <TextArea id="surface-dirty-form">
               <TextArea.Label>자기소개서 내용</TextArea.Label>
               <TextArea.Field

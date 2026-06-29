@@ -157,7 +157,7 @@ type SurfaceCloseProps =
     })
   | SurfaceCloseAsChildProps;
 
-/** Surface Context가 하위 컴포넌트에 제공하는 상태입니다. */
+/** Surface 내부 Context가 하위 컴포넌트에 제공하는 상태입니다. */
 interface SurfaceState {
   focusTrap: boolean;
   isOpen: boolean;
@@ -166,18 +166,18 @@ interface SurfaceState {
   variant: SurfaceType;
 }
 
-/** Surface Context가 하위 컴포넌트에 제공하는 액션입니다. */
+/** Surface 내부 Context가 하위 컴포넌트에 제공하는 액션입니다. */
 interface SurfaceActions {
   close: (reason: SurfaceCloseReason) => void;
   toggle: (reason?: SurfaceOpenChangeReason) => void;
 }
 
-/** Surface Context에서 사용하는 자동 생성 id 모음입니다. */
+/** Surface 내부 Context에서 사용하는 자동 생성 id 모음입니다. */
 interface SurfaceMeta {
   contentId: string;
 }
 
-/** Surface compound 하위 컴포넌트가 공유하는 Context 값입니다. */
+/** Surface compound 하위 컴포넌트가 공유하는 내부 Context 값입니다. */
 interface SurfaceContextValue {
   actions: SurfaceActions;
   meta: SurfaceMeta;
@@ -185,19 +185,22 @@ interface SurfaceContextValue {
 }
 
 export type {
+  SurfaceActions,
+  SurfaceBodyProps,
+  SurfaceCloseProps,
   SurfaceCloseMeta,
   SurfaceCloseReason,
   SurfaceContextValue,
-  SurfaceCloseProps,
   SurfaceContentProps,
+  SurfaceFooterProps,
+  SurfaceHeaderProps,
   SurfaceOverlayProps,
   SurfaceOpenChangeMeta,
   SurfaceOpenChangeReason,
+  SurfaceMeta,
   SurfacePortalProps,
   SurfaceProps,
-  SurfaceBodyProps,
-  SurfaceFooterProps,
-  SurfaceHeaderProps,
+  SurfaceState,
   SurfaceType,
   SurfaceTriggerProps,
 };

@@ -1,7 +1,5 @@
 'use client';
 
-import { cn } from '@/shared/styles/utils/cn';
-
 import { useSurfaceContext } from './SurfaceContext';
 
 import type { SurfaceBodyProps, SurfaceFooterProps, SurfaceHeaderProps } from './Surface.types';
@@ -11,6 +9,7 @@ import type { SurfaceBodyProps, SurfaceFooterProps, SurfaceHeaderProps } from '.
  *
  * @description
  * Surface 상단 영역입니다. 제목, 설명, 닫기 버튼 같은 요소를 배치합니다.
+ * 기본 스타일을 제공하지 않으며 필요한 배치는 `className`으로 지정합니다.
  *
  * ### 접근성
  *
@@ -22,11 +21,7 @@ export function SurfaceHeader({ children, className, ref, ...props }: SurfaceHea
   useSurfaceContext();
 
   return (
-    <header
-      {...props}
-      className={cn('flex shrink-0 items-start justify-between gap-4 px-6 pt-6', className)}
-      ref={ref}
-    >
+    <header {...props} className={className} ref={ref}>
       {children}
     </header>
   );
@@ -37,6 +32,7 @@ export function SurfaceHeader({ children, className, ref, ...props }: SurfaceHea
  *
  * @description
  * Surface 본문 영역입니다. 입력 폼, 안내 문구, 리스트 등 실제 콘텐츠를 배치합니다.
+ * 기본 스타일을 제공하지 않으며 필요한 배치는 `className`으로 지정합니다.
  *
  * ### 접근성
  *
@@ -47,11 +43,7 @@ export function SurfaceBody({ children, className, ref, ...props }: SurfaceBodyP
   useSurfaceContext();
 
   return (
-    <div
-      {...props}
-      className={cn('min-h-0 flex-1 overflow-y-auto px-6 py-5 body-16 text-gray-50', className)}
-      ref={ref}
-    >
+    <div {...props} className={className} ref={ref}>
       {children}
     </div>
   );
@@ -62,21 +54,17 @@ export function SurfaceBody({ children, className, ref, ...props }: SurfaceBodyP
  *
  * @description
  * Surface 하단 액션 영역입니다. 확인, 취소, 저장 같은 주요 액션을 배치합니다.
+ * 기본 스타일을 제공하지 않으며 필요한 배치는 `className`으로 지정합니다.
  *
  * ### 주요 내용
  *
- * 오른쪽 정렬과 일정한 버튼 간격을 기본으로 제공합니다. 액션이 필요 없는 Surface에서는
- * 생략할 수 있습니다.
+ * 액션이 필요 없는 Surface에서는 생략할 수 있습니다.
  */
 export function SurfaceFooter({ children, className, ref, ...props }: SurfaceFooterProps) {
   useSurfaceContext();
 
   return (
-    <footer
-      {...props}
-      className={cn('flex shrink-0 items-center justify-end gap-3 px-6 pb-6', className)}
-      ref={ref}
-    >
+    <footer {...props} className={className} ref={ref}>
       {children}
     </footer>
   );

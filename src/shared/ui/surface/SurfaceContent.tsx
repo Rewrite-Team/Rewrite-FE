@@ -5,16 +5,9 @@ import type { Ref } from 'react';
 
 import { cva } from 'class-variance-authority';
 
-import {
-  useEscapeKey,
-  useFocusRestore,
-  useFocusTrap,
-  useOutsideClick,
-  useScrollLock,
-} from '@/shared/hooks';
 import { cn } from '@/shared/styles/utils/cn';
 
-import { useSurfaceStack } from './hooks/useSurfaceStack';
+import { useSurfaceInteractions } from './hooks/useSurfaceInteractions';
 import { useSurfaceContext } from './SurfaceContext';
 
 import type { SurfaceContentProps } from './Surface.types';
@@ -80,7 +73,6 @@ export function SurfaceContent({
 }: SurfaceContentProps) {
   const { actions, meta, state } = useSurfaceContext();
   const contentRef = useRef<HTMLDivElement | null>(null);
-  const isTopSurface = useSurfaceStack(meta.contentId, state.isOpen);
 
   const setContentRef = useCallback(
     (element: HTMLDivElement | null) => {
@@ -90,38 +82,7 @@ export function SurfaceContent({
     [ref]
   );
 
-  useEscapeKey({
-    enabled: state.isOpen && isTopSurface,
-    onEscapeKeyDown: () => actions.close('escape-key'),
-  });
-
-  useOutsideClick({
-    enabled: state.isOpen && isTopSurface,
-    onOutsideClick: (event) => {
-      const target = event.target;
-      const trigger = target instanceof Element ? target.closest('[data-surface-trigger]') : null;
-
-      if (trigger?.getAttribute('data-surface-trigger') === meta.contentId) {
-        return;
-      }
-
-      actions.close('outside-click');
-    },
-    ref: contentRef,
-  });
-
-  useFocusRestore({
-    enabled: state.isOpen && state.restoreFocus,
-  });
-
-  useFocusTrap({
-    enabled: state.isOpen && state.focusTrap && isTopSurface,
-    ref: contentRef,
-  });
-
-  useScrollLock({
-    enabled: state.isOpen && state.scrollLock,
-  });
+  useSurfaceInteractions({ actions, contentRef, meta, state });
 
   if (!state.isOpen) {
     return null;

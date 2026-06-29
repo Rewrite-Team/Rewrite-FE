@@ -1,9 +1,8 @@
 'use client';
 
-import { Children, Fragment, cloneElement, isValidElement } from 'react';
-import type { ComponentPropsWithRef, ReactElement } from 'react';
+import type { ComponentPropsWithRef } from 'react';
 
-import { cn } from '@/shared/styles/utils/cn';
+import { cloneSlot, getSingleSlotChild } from '@/shared/ui/utils/Slot';
 
 import { useSurfaceContext } from './SurfaceContext';
 
@@ -17,24 +16,6 @@ interface SurfaceTriggerChildProps {
   'data-surface-trigger'?: string;
   onClick?: ComponentPropsWithRef<'button'>['onClick'];
 }
-
-const getSingleTriggerChild = (children: SurfaceTriggerProps['children']) => {
-  if (Children.count(children) !== 1) {
-    throw new Error('Surface.Trigger with asChild must receive exactly one React element child.');
-  }
-
-  const child = Children.only(children);
-
-  if (!isValidElement<SurfaceTriggerChildProps>(child)) {
-    throw new Error('Surface.Trigger with asChild must receive a valid React element child.');
-  }
-
-  if (child.type === Fragment) {
-    throw new Error('Surface.Trigger with asChild must not receive React.Fragment.');
-  }
-
-  return child as ReactElement<SurfaceTriggerChildProps>;
-};
 
 /**
  * ## Surface.Trigger
@@ -91,11 +72,11 @@ export function SurfaceTrigger(props: SurfaceTriggerProps) {
   };
 
   if (props.asChild) {
-    const child = getSingleTriggerChild(children);
+    const child = getSingleSlotChild<SurfaceTriggerChildProps>(children, 'Surface.Trigger');
 
-    return cloneElement(child, {
+    return cloneSlot(child, {
       ...triggerProps,
-      className: cn(child.props.className, className),
+      className,
       onClick: createHandleClick(child.props.onClick),
     });
   }
