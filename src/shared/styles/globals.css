@@ -10,7 +10,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-smooth: never;
-  text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
 }
 
 button {
