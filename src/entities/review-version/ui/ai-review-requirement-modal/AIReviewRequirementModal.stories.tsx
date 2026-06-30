@@ -30,13 +30,24 @@ function ButtonOpenAIReviewRequirementModalExample(args: AIReviewRequirementModa
   );
 }
 
-function ControlledAIReviewRequirementModalExample() {
+function ControlledAIReviewRequirementModalExample(args: AIReviewRequirementModalStoryProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [requirement, setRequirement] = useState(DEFAULT_REQUIREMENT);
   const [message, setMessage] = useState('대기 중');
 
   const handleConfirm = (value: string) => {
+    args.onConfirm(value);
     setMessage(`재첨삭 요청: ${value.length}자`);
+  };
+
+  const handleOpenChange: AIReviewRequirementModalStoryProps['onOpenChange'] = (open, meta) => {
+    args.onOpenChange?.(open, meta);
+    setIsOpen(open);
+  };
+
+  const handleValueChange = (value: string) => {
+    args.onValueChange?.(value);
+    setRequirement(value);
   };
 
   return (
@@ -44,9 +55,10 @@ function ControlledAIReviewRequirementModalExample() {
       <Button onClick={() => setIsOpen(true)}>Controlled AIReviewRequirementModal 열기</Button>
       <p className="m-0 body-14 text-gray-100">{message}</p>
       <AIReviewRequirementModal
+        {...args}
         onConfirm={handleConfirm}
-        onOpenChange={setIsOpen}
-        onValueChange={setRequirement}
+        onOpenChange={handleOpenChange}
+        onValueChange={handleValueChange}
         open={isOpen}
         value={requirement}
       />
@@ -54,7 +66,7 @@ function ControlledAIReviewRequirementModalExample() {
   );
 }
 
-function LoadingAIReviewRequirementModalExample() {
+function LoadingAIReviewRequirementModalExample(args: AIReviewRequirementModalStoryProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -67,7 +79,8 @@ function LoadingAIReviewRequirementModalExample() {
     };
   }, []);
 
-  const handleConfirm = () => {
+  const handleConfirm = (value: string) => {
+    args.onConfirm(value);
     setIsLoading(true);
 
     timerRef.current = setTimeout(() => {
@@ -76,14 +89,20 @@ function LoadingAIReviewRequirementModalExample() {
     }, 1200);
   };
 
+  const handleOpenChange: AIReviewRequirementModalStoryProps['onOpenChange'] = (open, meta) => {
+    args.onOpenChange?.(open, meta);
+    setIsOpen(open);
+  };
+
   return (
     <div className="flex min-h-100 items-center justify-center">
       <Button onClick={() => setIsOpen(true)}>Loading AIReviewRequirementModal 열기</Button>
       <AIReviewRequirementModal
-        defaultValue={DEFAULT_REQUIREMENT}
+        {...args}
+        defaultValue={args.defaultValue ?? DEFAULT_REQUIREMENT}
         isLoading={isLoading}
         onConfirm={handleConfirm}
-        onOpenChange={setIsOpen}
+        onOpenChange={handleOpenChange}
         open={isOpen}
       />
     </div>
@@ -185,7 +204,7 @@ export const Default: Story = {
 };
 
 export const Controlled: Story = {
-  render: () => <ControlledAIReviewRequirementModalExample />,
+  render: (args) => <ControlledAIReviewRequirementModalExample {...args} />,
 };
 
 export const LongText: Story = {
@@ -196,5 +215,5 @@ export const LongText: Story = {
 };
 
 export const Loading: Story = {
-  render: () => <LoadingAIReviewRequirementModalExample />,
+  render: (args) => <LoadingAIReviewRequirementModalExample {...args} />,
 };
