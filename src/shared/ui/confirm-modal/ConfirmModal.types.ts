@@ -14,8 +14,8 @@ interface ConfirmModalProps {
   confirmLabel?: string;
   /** uncontrolled 방식에서 최초로 열어둘지 여부입니다. */
   defaultOpen?: boolean;
-  /** 제목 아래에 표시할 설명입니다. */
-  description?: ReactNode;
+  /** 제목 아래에 표시할 짧은 설명 문구입니다. */
+  description?: string;
   /** 열린 동안 포커스를 Content 내부에 가둘지 여부입니다. */
   focusTrap?: boolean;
   /** 확인 작업 진행 여부입니다. true이면 확인 버튼 로딩 표시와 dismiss 닫기 방지를 적용합니다. */
