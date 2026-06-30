@@ -97,7 +97,7 @@ export function TextAreaField({
       {showCount ? (
         <p
           className={cn(
-            'pointer-events-none absolute right-3 bottom-px left-px z-(--z-index-form-floating) m-0 flex h-8 items-center justify-end rounded-bl-lg bg-gray-600 px-4 body-14 text-gray-200',
+            'pointer-events-none absolute right-3 bottom-px left-px z-(--z-index-form-floating) m-0 flex h-8 items-center justify-end rounded-bl-lg bg-gray-600 px-4 body-14 font-normal text-gray-200',
             disabled ? 'bg-gray-700 text-gray-500' : undefined
           )}
           data-max-length-reached={hasReachedMaxLength || undefined}
