@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ComponentProps } from 'react';
 
 import { Button } from '@/shared/ui/button';
@@ -68,6 +68,26 @@ function ControlledConfirmModalExample() {
 
 function LoadingConfirmModalExample() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+
+  const handleConfirm = () => {
+    setIsLoading(true);
+
+    timerRef.current = setTimeout(() => {
+      setIsLoading(false);
+      setIsOpen(false);
+      timerRef.current = null;
+    }, 1200);
+  };
 
   return (
     <div className="flex min-h-80 items-center justify-center">
@@ -76,8 +96,8 @@ function LoadingConfirmModalExample() {
         cancelLabel="아니오"
         confirmLabel="저장하기"
         description="저장 중에는 모달을 닫을 수 없습니다."
-        isLoading
-        onConfirm={() => undefined}
+        isLoading={isLoading}
+        onConfirm={handleConfirm}
         onOpenChange={setIsOpen}
         open={isOpen}
         title="해당 자기소개서를 저장하시겠습니까?"
