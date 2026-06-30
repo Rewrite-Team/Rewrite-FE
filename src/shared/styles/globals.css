@@ -5,6 +5,13 @@
 @import './base/scroll.css';
 @import './components/surface.css';
 
+html,
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-smooth: never;
+}
+
 button {
   cursor: pointer;
 }
