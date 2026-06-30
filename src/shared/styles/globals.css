@@ -3,6 +3,7 @@
 @import './base/colors.css';
 @import './base/z-index.css';
 @import './base/scroll.css';
+@import './components/surface.css';
 
 button {
   cursor: pointer;
