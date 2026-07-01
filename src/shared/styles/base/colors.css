@@ -41,5 +41,6 @@
   --color-white: #ffffff;
 
   /* Shadow Tokens */
+  --shadow-tooltip-arrow: 0 0 16px rgba(118, 186, 255, 0.18);
   --shadow-tooltip: 0 14px 44px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(118, 186, 255, 0.08);
 }

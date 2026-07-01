@@ -9,7 +9,7 @@ import { useTooltipContext } from './TooltipContext';
 import type { TooltipArrowProps } from './Tooltip.types';
 
 const tooltipArrowVariants = cva(
-  'absolute size-2 rotate-45 border-gray-700 bg-gray-900 shadow-[0_0_16px_rgba(118,186,255,0.18)]',
+  'absolute size-2 rotate-45 border-gray-700 bg-gray-900 shadow-(--shadow-tooltip-arrow)',
   {
     variants: {
       placement: {

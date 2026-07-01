@@ -8,6 +8,38 @@ import type { Meta, StoryObj } from '@storybook/nextjs';
 
 type TooltipStoryProps = ComponentProps<typeof Tooltip.Root>;
 
+const PLACEMENT_EXAMPLES = [
+  {
+    description: '위에 표시됩니다.',
+    gridClassName: 'col-start-2 row-start-1',
+    label: 'Top',
+    placement: 'top',
+  },
+  {
+    description: '왼쪽에 표시됩니다.',
+    gridClassName: 'col-start-1 row-start-2',
+    label: 'Left',
+    placement: 'left',
+  },
+  {
+    description: '오른쪽에 표시됩니다.',
+    gridClassName: 'col-start-3 row-start-2',
+    label: 'Right',
+    placement: 'right',
+  },
+  {
+    description: '아래에 표시됩니다.',
+    gridClassName: 'col-start-2 row-start-3',
+    label: 'Bottom',
+    placement: 'bottom',
+  },
+] satisfies Array<{
+  description: string;
+  gridClassName: string;
+  label: string;
+  placement: NonNullable<TooltipStoryProps['placement']>;
+}>;
+
 function TooltipExample(props: TooltipStoryProps) {
   return (
     <div className="flex min-h-72 items-center justify-center bg-black p-12">
@@ -79,61 +111,22 @@ export const Placements: Story = {
   render: () => (
     <div className="grid min-h-96 place-items-center bg-black p-16">
       <div className="grid grid-cols-3 items-center gap-6">
-        <div />
-        <Tooltip placement="top">
-          <Tooltip.Trigger asChild>
-            <Button className="w-28" variant="secondary">
-              Top
-            </Button>
-          </Tooltip.Trigger>
-          <Tooltip.Content>
-            위에 표시됩니다.
-            <Tooltip.Arrow />
-          </Tooltip.Content>
-        </Tooltip>
-        <div />
-
-        <Tooltip placement="left">
-          <Tooltip.Trigger asChild>
-            <Button className="w-28" variant="secondary">
-              Left
-            </Button>
-          </Tooltip.Trigger>
-          <Tooltip.Content>
-            왼쪽에 표시됩니다.
-            <Tooltip.Arrow />
-          </Tooltip.Content>
-        </Tooltip>
-
-        <div className="rounded-xl border border-gray-700 bg-gray-900 px-5 py-4 text-center body-14 text-gray-100">
+        <div className="col-start-2 row-start-2 rounded-xl border border-gray-700 bg-gray-900 px-5 py-4 text-center body-14 text-gray-100">
           Hover / Focus
         </div>
-
-        <Tooltip placement="right">
-          <Tooltip.Trigger asChild>
-            <Button className="w-28" variant="secondary">
-              Right
-            </Button>
-          </Tooltip.Trigger>
-          <Tooltip.Content>
-            오른쪽에 표시됩니다.
-            <Tooltip.Arrow />
-          </Tooltip.Content>
-        </Tooltip>
-
-        <div />
-        <Tooltip placement="bottom">
-          <Tooltip.Trigger asChild>
-            <Button className="w-28" variant="secondary">
-              Bottom
-            </Button>
-          </Tooltip.Trigger>
-          <Tooltip.Content>
-            아래에 표시됩니다.
-            <Tooltip.Arrow />
-          </Tooltip.Content>
-        </Tooltip>
-        <div />
+        {PLACEMENT_EXAMPLES.map(({ description, gridClassName, label, placement }) => (
+          <Tooltip key={placement} placement={placement}>
+            <Tooltip.Trigger asChild>
+              <Button className={`w-28 ${gridClassName}`} variant="secondary">
+                {label}
+              </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+              {description}
+              <Tooltip.Arrow />
+            </Tooltip.Content>
+          </Tooltip>
+        ))}
       </div>
     </div>
   ),
