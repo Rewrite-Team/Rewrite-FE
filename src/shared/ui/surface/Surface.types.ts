@@ -57,7 +57,11 @@ interface SurfaceProps {
 /** Surface.Portal props입니다. */
 interface SurfacePortalProps {
   children: ReactNode;
-  /** portal을 렌더링할 대상 요소입니다. */
+  /**
+   * portal을 렌더링할 대상 요소입니다.
+   *
+   * 생략하면 앱 전역 Portal Root를 사용하고, `null`이면 렌더링하지 않습니다.
+   */
   container?: PortalContainer | null;
 }
 

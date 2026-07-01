@@ -1,5 +1,7 @@
 'use client';
 
+import { useMemo } from 'react';
+
 import { createPortal } from 'react-dom';
 
 import { PORTAL_ROOT_ID } from '@/shared/constants/portal';
@@ -28,7 +30,10 @@ const getDefaultPortalContainer = (): PortalContainer | null => {
  * @param container - 직접 지정할 portal 대상 요소입니다. `null`이면 렌더링하지 않습니다.
  */
 export function Portal({ children, container }: PortalProps) {
-  const portalContainer = container === undefined ? getDefaultPortalContainer() : container;
+  const portalContainer = useMemo(
+    () => (container === undefined ? getDefaultPortalContainer() : container),
+    [container]
+  );
 
   if (!portalContainer) {
     return null;
