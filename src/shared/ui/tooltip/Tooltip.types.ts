@@ -1,5 +1,7 @@
 import type { ComponentPropsWithRef, PointerEventHandler, ReactElement, ReactNode } from 'react';
 
+import type { PortalContainer } from '@/shared/ui/portal';
+
 type TooltipPlacement = 'bottom' | 'left' | 'right' | 'top';
 
 type TooltipOpenChangeReason = 'blur' | 'focus' | 'hover';
@@ -100,8 +102,6 @@ type TooltipTriggerProps =
     })
   | (TooltipTriggerButtonProps & TooltipTriggerAsChildProps);
 
-type TooltipPortalContainer = DocumentFragment | Element;
-
 interface TooltipContentProps extends Omit<ComponentPropsWithRef<'div'>, 'children' | 'role'> {
   /**
    * Tooltip에 표시할 안내 문구 또는 조합 UI입니다.
@@ -113,9 +113,9 @@ interface TooltipContentProps extends Omit<ComponentPropsWithRef<'div'>, 'childr
   /**
    * portal을 렌더링할 대상 요소입니다.
    *
-   * 생략하면 `document.body`를 사용합니다. `null`을 전달하면 portal 렌더링을 하지 않습니다.
+   * 생략하면 앱 전역 Portal Root를 사용합니다. `null`을 전달하면 portal 렌더링을 하지 않습니다.
    */
-  container?: TooltipPortalContainer | null;
+  container?: PortalContainer | null;
   /**
    * false이면 portal을 사용하지 않고 현재 React 트리 위치에 렌더링합니다.
    *

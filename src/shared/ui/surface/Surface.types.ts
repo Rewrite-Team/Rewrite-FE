@@ -1,5 +1,7 @@
 import type { ComponentPropsWithRef, ReactElement, ReactNode } from 'react';
 
+import type { PortalContainer } from '@/shared/ui/portal';
+
 /** Surface가 화면에 표시되는 형태입니다. */
 type SurfaceType = 'modal' | 'panel';
 
@@ -52,14 +54,15 @@ interface SurfaceProps {
   variant?: SurfaceType;
 }
 
-/** Surface.Portal이 렌더링될 수 있는 DOM container 타입입니다. */
-type SurfacePortalContainer = DocumentFragment | Element;
-
 /** Surface.Portal props입니다. */
 interface SurfacePortalProps {
   children: ReactNode;
-  /** portal을 렌더링할 대상 요소입니다. */
-  container?: SurfacePortalContainer | null;
+  /**
+   * portal을 렌더링할 대상 요소입니다.
+   *
+   * 생략하면 앱 전역 Portal Root를 사용하고, `null`이면 렌더링하지 않습니다.
+   */
+  container?: PortalContainer | null;
 }
 
 /** Surface.Trigger가 직접 button을 렌더링할 때 사용하는 props입니다. */

@@ -1,6 +1,6 @@
 'use client';
 
-import { createPortal } from 'react-dom';
+import { Portal } from '@/shared/ui/portal';
 
 import { useSurfaceContext } from './SurfaceContext';
 
@@ -16,17 +16,15 @@ import type { SurfacePortalProps } from './Surface.types';
  *
  * 기본적으로 Surface가 열려 있을 때만 children을 렌더링합니다.
  *
- * @param container - portal을 렌더링할 대상 요소입니다. 생략하면 `document.body`를 사용하고,
+ * @param container - portal을 렌더링할 대상 요소입니다. 생략하면 앱 전역 Portal Root를 사용하고,
  * `null`이면 렌더링하지 않습니다.
  */
 export function SurfacePortal({ children, container }: SurfacePortalProps) {
   const { state } = useSurfaceContext();
-  const portalContainer =
-    container === undefined ? (typeof document === 'undefined' ? null : document.body) : container;
 
-  if (!portalContainer || !state.isOpen) {
+  if (!state.isOpen) {
     return null;
   }
 
-  return createPortal(children, portalContainer);
+  return <Portal container={container}>{children}</Portal>;
 }
