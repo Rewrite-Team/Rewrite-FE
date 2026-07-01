@@ -1,5 +1,6 @@
 import localFont from 'next/font/local';
 
+import { PORTAL_ROOT_ID } from '@/shared/constants/portal';
 import '@/shared/styles/globals.css';
 
 const pretendard = localFont({
@@ -15,7 +16,10 @@ export default function RootLayout({
 }>) {
   return (
     <html className={`${pretendard.variable} ${pretendard.className}`} lang="ko">
-      <body>{children}</body>
+      <body>
+        {children}
+        <div id={PORTAL_ROOT_ID} />
+      </body>
     </html>
   );
 }

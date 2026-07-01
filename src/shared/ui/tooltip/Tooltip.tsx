@@ -66,7 +66,7 @@ const getTooltipPosition = (
  *
  * `Tooltip.Trigger`는 hover와 focus로 열림 상태를 요청하고, `Tooltip.Content`는
  * trigger 위치를 기준으로 fixed 좌표에 렌더링됩니다.
- * `Tooltip.Content`는 기본적으로 portal을 사용해 `document.body`에 렌더링되므로 부모 요소의
+ * `Tooltip.Content`는 기본적으로 앱 전역 Portal Root에 렌더링되므로 부모 요소의
  * `overflow: hidden` 영향을 줄일 수 있습니다.
  *
  * `placement`는 `top`, `right`, `bottom`, `left`를 지원합니다.

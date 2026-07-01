@@ -1,9 +1,9 @@
 'use client';
 
 import { cva } from 'class-variance-authority';
-import { createPortal } from 'react-dom';
 
 import { cn } from '@/shared/styles/utils/cn';
+import { Portal } from '@/shared/ui/portal';
 
 import { useTooltipContext } from './TooltipContext';
 
@@ -43,7 +43,7 @@ const tooltipContentVariants = cva(
  * 표시 위치는 Root의 `placement` 값에 따라 `top`, `right`, `bottom`, `left` 중 하나로
  * 정해지며, 상태에 따라 fade/scale 애니메이션이 적용됩니다.
  *
- * `usePortal`이 true이면 `document.body` 또는 `container`에 portal로 렌더링합니다.
+ * `usePortal`이 true이면 앱 전역 Portal Root 또는 `container`에 portal로 렌더링합니다.
  * 특정 테스트 환경이나 제한된 레이아웃 안에서 portal을 쓰지 않아야 할 때만 `usePortal={false}`를
  * 사용합니다.
  *
@@ -53,7 +53,7 @@ const tooltipContentVariants = cva(
  * id를 Root에서 주입합니다.
  *
  * @param container - portal을 렌더링할 DOM 요소입니다.
- * 생략하면 `document.body`를 사용합니다.
+ * 생략하면 앱 전역 Portal Root를 사용합니다.
  * @param usePortal - false이면 현재 React 트리 위치에 그대로 렌더링합니다.
  *
  * @example
@@ -74,8 +74,6 @@ export function TooltipContent({
   ...props
 }: TooltipContentProps) {
   const { meta, state } = useTooltipContext();
-  const portalContainer =
-    container === undefined ? (typeof document === 'undefined' ? null : document.body) : container;
 
   if (!state.shouldRenderContent) {
     return null;
@@ -111,9 +109,5 @@ export function TooltipContent({
     return content;
   }
 
-  if (!portalContainer) {
-    return null;
-  }
-
-  return createPortal(content, portalContainer);
+  return <Portal container={container}>{content}</Portal>;
 }
