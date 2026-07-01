@@ -139,8 +139,18 @@ function TooltipRoot({
     value: open,
   });
   const [isPositioned, setIsPositioned] = useState(false);
+  const [previousOpen, setPreviousOpen] = useState(isOpen);
   const [shouldRenderContent, setShouldRenderContent] = useState(defaultOpen || open === true);
   const [position, setPosition] = useState<TooltipPosition>({ left: 0, top: 0 });
+
+  if (previousOpen !== isOpen) {
+    setPreviousOpen(isOpen);
+
+    if (isOpen) {
+      setShouldRenderContent(true);
+      setIsPositioned(false);
+    }
+  }
 
   const updatePosition = useCallback(() => {
     if (!triggerRef.current) {
@@ -155,11 +165,6 @@ function TooltipRoot({
     (nextOpen: boolean, reason: TooltipOpenChangeReason) => {
       if (Object.is(isOpen, nextOpen)) {
         return;
-      }
-
-      if (nextOpen) {
-        setShouldRenderContent(true);
-        setIsPositioned(false);
       }
 
       setIsOpen(nextOpen);
