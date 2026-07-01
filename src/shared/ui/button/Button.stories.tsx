@@ -20,11 +20,6 @@ const meta = {
       options: ['primary', 'secondary', 'ghost', 'outline'],
     },
   },
-  parameters: {
-    backgrounds: {
-      default: 'dark',
-    },
-  },
 } satisfies Meta<typeof Button>;
 
 export default meta;

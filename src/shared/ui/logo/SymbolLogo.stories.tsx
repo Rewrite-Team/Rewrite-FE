@@ -7,7 +7,7 @@ const meta = {
   component: SymbolLogo,
   decorators: [
     (Story) => (
-      <div className="bg-black p-8">
+      <div className="p-8">
         <Story />
       </div>
     ),

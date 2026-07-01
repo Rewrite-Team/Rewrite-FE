@@ -11,7 +11,7 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="min-w-160 bg-black p-8 text-white">
+      <div className="min-w-160 p-8 text-white">
         <Story />
       </div>
     ),

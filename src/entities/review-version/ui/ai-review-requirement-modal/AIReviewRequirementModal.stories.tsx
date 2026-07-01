@@ -188,11 +188,6 @@ const meta = {
       control: false,
     },
   },
-  parameters: {
-    backgrounds: {
-      default: 'black',
-    },
-  },
 } satisfies Meta<typeof AIReviewRequirementModal>;
 
 export default meta;

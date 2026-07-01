@@ -7,8 +7,9 @@ const preview: Preview = {
     layout: 'centered',
 
     backgrounds: {
+      default: 'dark',
       options: {
-        black: { name: 'black', value: '#000000' },
+        dark: { name: 'dark', value: '#000000' },
       },
     },
 
@@ -27,7 +28,7 @@ const preview: Preview = {
     },
   },
   initialGlobals: {
-    backgrounds: { value: 'black' },
+    backgrounds: { value: 'dark' },
   },
 };
 

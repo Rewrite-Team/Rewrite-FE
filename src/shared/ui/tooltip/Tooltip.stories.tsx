@@ -42,7 +42,7 @@ const PLACEMENT_EXAMPLES = [
 
 function TooltipExample(props: TooltipStoryProps) {
   return (
-    <div className="flex min-h-72 items-center justify-center bg-black p-12">
+    <div className="flex min-h-72 items-center justify-center p-12">
       <Tooltip {...props}>
         <Tooltip.Trigger asChild>
           <Button aria-label="AI 첨삭 도움말" iconOnly variant="outline">
@@ -92,11 +92,6 @@ const meta = {
       control: false,
     },
   },
-  parameters: {
-    backgrounds: {
-      default: 'black',
-    },
-  },
 } satisfies Meta<typeof Tooltip.Root>;
 
 export default meta;
@@ -109,7 +104,7 @@ export const Playground: Story = {
 
 export const Placements: Story = {
   render: () => (
-    <div className="grid min-h-96 place-items-center bg-black p-16">
+    <div className="grid min-h-96 place-items-center p-16">
       <div className="grid grid-cols-3 items-center gap-6">
         <div className="col-start-2 row-start-2 rounded-xl border border-gray-700 bg-gray-900 px-5 py-4 text-center body-14 text-gray-100">
           Hover / Focus
@@ -134,7 +129,7 @@ export const Placements: Story = {
 
 export const TextTrigger: Story = {
   render: () => (
-    <p className="min-h-64 bg-black p-12 body-16 text-gray-100">
+    <p className="min-h-64 p-12 body-16 text-gray-100">
       문장 안에서도{' '}
       <Tooltip placement="bottom">
         <Tooltip.Trigger asChild>

@@ -193,11 +193,6 @@ const meta = {
       control: 'boolean',
     },
   },
-  parameters: {
-    backgrounds: {
-      default: 'black',
-    },
-  },
 } satisfies Meta<typeof Surface>;
 
 export default meta;
