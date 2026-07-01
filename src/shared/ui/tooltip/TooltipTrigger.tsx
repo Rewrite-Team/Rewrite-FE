@@ -40,6 +40,16 @@ const getTriggerButtonProps = (props: Extract<TooltipTriggerProps, { asChild?: f
   return buttonProps;
 };
 
+const mergeDescribedBy = (...ids: Array<string | undefined>) => {
+  const describedByIds = ids.flatMap((id) => id?.split(/\s+/) ?? []).filter((id) => id.length > 0);
+
+  if (describedByIds.length === 0) {
+    return undefined;
+  }
+
+  return Array.from(new Set(describedByIds)).join(' ');
+};
+
 const composeTooltipEventHandlers =
   <TEvent extends { defaultPrevented: boolean }>(
     childHandler: ((event: TEvent) => void) | undefined,
@@ -81,6 +91,8 @@ const composeTooltipEventHandlers =
  * ### 접근성
  *
  * Tooltip이 DOM에 렌더링되는 동안 `aria-describedby`가 자동으로 연결됩니다.
+ * 기존 `aria-describedby`가 있으면 Tooltip id와 공백으로 병합되어 기존 설명 연결을
+ * 유지합니다.
  * Trigger가 아이콘만 렌더링하는 경우 사용자가 동작을 이해할 수 있도록 `aria-label`을 직접
  * 전달합니다.
  *
@@ -113,10 +125,15 @@ export function TooltipTrigger(props: TooltipTriggerProps) {
     const { children, onBlur, onFocus, onPointerEnter, onPointerLeave } = props;
     const slotProps = getSlotProps(props);
     const child = getSingleSlotChild<TooltipTriggerChildProps>(children, 'Tooltip.Trigger');
+    const describedBy = mergeDescribedBy(
+      child.props['aria-describedby'],
+      slotProps['aria-describedby'],
+      triggerProps['aria-describedby']
+    );
 
     return cloneSlot(child, {
       ...slotProps,
-      'aria-describedby': triggerProps['aria-describedby'],
+      'aria-describedby': describedBy,
       'data-state': triggerProps['data-state'],
       onBlur: composeTooltipEventHandlers(child.props.onBlur, onBlur, actions.hideForBlur),
       onFocus: composeTooltipEventHandlers(child.props.onFocus, onFocus, actions.showForFocus),
@@ -134,13 +151,21 @@ export function TooltipTrigger(props: TooltipTriggerProps) {
     });
   }
 
-  const { children, onBlur, onFocus, onPointerEnter, onPointerLeave, ref, ...buttonProps } =
-    getTriggerButtonProps(props);
+  const {
+    'aria-describedby': describedBy,
+    children,
+    onBlur,
+    onFocus,
+    onPointerEnter,
+    onPointerLeave,
+    ref,
+    ...buttonProps
+  } = getTriggerButtonProps(props);
 
   return (
     <button
       {...buttonProps}
-      aria-describedby={triggerProps['aria-describedby']}
+      aria-describedby={mergeDescribedBy(describedBy, triggerProps['aria-describedby'])}
       data-state={triggerProps['data-state']}
       onBlur={composeTooltipEventHandlers(undefined, onBlur, actions.hideForBlur)}
       onFocus={composeTooltipEventHandlers(undefined, onFocus, actions.showForFocus)}

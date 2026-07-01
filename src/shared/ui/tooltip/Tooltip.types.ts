@@ -59,10 +59,7 @@ interface TooltipProps {
   placement?: TooltipPlacement;
 }
 
-type TooltipTriggerButtonProps = Omit<
-  ComponentPropsWithRef<'button'>,
-  'aria-describedby' | 'children' | 'type'
->;
+type TooltipTriggerButtonProps = Omit<ComponentPropsWithRef<'button'>, 'children' | 'type'>;
 
 interface TooltipTriggerAsChildProps {
   /**
