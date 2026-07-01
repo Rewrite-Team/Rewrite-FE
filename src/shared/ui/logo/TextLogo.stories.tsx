@@ -20,7 +20,7 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="bg-black p-8 text-white">
+      <div className="p-8 text-white">
         <Story />
       </div>
     ),

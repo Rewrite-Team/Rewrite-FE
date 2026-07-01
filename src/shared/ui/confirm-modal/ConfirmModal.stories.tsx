@@ -169,11 +169,6 @@ const meta = {
       control: 'text',
     },
   },
-  parameters: {
-    backgrounds: {
-      default: 'black',
-    },
-  },
 } satisfies Meta<typeof ConfirmModal>;
 
 export default meta;
