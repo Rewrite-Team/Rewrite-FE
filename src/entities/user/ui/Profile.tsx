@@ -1,15 +1,12 @@
-import type { ComponentPropsWithoutRef } from 'react';
-
 import type { ImageProps } from 'next/image';
 
 import { DefaultProfileImage } from '@/shared/assets/images';
-import { cn } from '@/shared/styles/utils/cn';
 
 import { ProfileImage } from './ProfileImage';
 
 import type { UserProfile } from '../model/types';
 
-interface ProfileProps extends ComponentPropsWithoutRef<'div'>, UserProfile {
+interface ProfileProps extends UserProfile {
   fallbackImageSrc?: ImageProps['src'];
   imageAlt?: string;
 }
@@ -30,11 +27,9 @@ export function Profile({
   profileImageUrl,
   fallbackImageSrc = DefaultProfileImage,
   imageAlt = `${name} 프로필 이미지`,
-  className,
-  ...props
 }: ProfileProps) {
   return (
-    <div className={cn('flex items-center gap-3', className)} {...props}>
+    <div className="flex items-center gap-3">
       <ProfileImage alt={imageAlt} fallbackSrc={fallbackImageSrc} src={profileImageUrl} />
       <span className="body-16 truncate font-medium text-white">{name}</span>
     </div>
