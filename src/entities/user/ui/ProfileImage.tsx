@@ -12,15 +12,15 @@ interface ProfileImageProps {
 }
 
 export function ProfileImage({ alt, fallbackSrc, src }: ProfileImageProps) {
-  const [failedSrc, setFailedSrc] = useState<string | null>(null);
-  const imageSrc = failedSrc === src ? fallbackSrc : src;
+  const [failedImageSrc, setFailedImageSrc] = useState<string | null>(null);
+  const imageSrc = failedImageSrc === src ? fallbackSrc : src;
 
   const handleError = () => {
     if (imageSrc === fallbackSrc) {
       return;
     }
 
-    setFailedSrc(src);
+    setFailedImageSrc(src);
   };
 
   return (
