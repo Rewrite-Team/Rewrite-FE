@@ -5,6 +5,7 @@
     예시: z-(--z-index-surface-content)
   */
   --z-index-form-floating: 10;
+  --z-index-header: 30;
   --z-index-surface-overlay: 40;
   --z-index-surface-content: 50;
   --z-index-tooltip: 60;

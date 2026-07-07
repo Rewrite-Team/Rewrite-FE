@@ -6,5 +6,6 @@
  */
 export const ROUTES = {
   LANDING: '/',
+  LOGIN: '/login',
   WRITING: '/writing',
 } as const;
