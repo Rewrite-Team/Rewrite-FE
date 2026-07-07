@@ -15,7 +15,7 @@ const meta = {
     (Story) => (
       <div className="min-h-120 bg-black text-white">
         <Story />
-        <main className="mx-auto flex max-w-320 flex-col gap-4 px-5 py-12 md:px-8">
+        <main className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-12 md:px-8">
           <h1 className="heading-32 font-semibold">Header Preview</h1>
           <p className="body-16 max-w-180 text-gray-100">
             스크롤 시 Header 배경과 blur가 적용됩니다. Storybook에서는 Scrolled 스토리로 상태를
@@ -36,6 +36,11 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+const loggedInUser = {
+  name: '이서정',
+  profileImageUrl: DefaultProfileImage.src,
+};
+
 export const Guest: Story = {};
 
 export const GuestScrolled: Story = {
@@ -46,19 +51,13 @@ export const GuestScrolled: Story = {
 
 export const LoggedIn: Story = {
   args: {
-    user: {
-      name: '이서정',
-      profileImageUrl: DefaultProfileImage.src,
-    },
+    user: loggedInUser,
   },
 };
 
 export const LoggedInScrolled: Story = {
   args: {
     isBackgroundBlurred: true,
-    user: {
-      name: '이서정',
-      profileImageUrl: DefaultProfileImage.src,
-    },
+    user: loggedInUser,
   },
 };
