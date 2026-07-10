@@ -51,10 +51,10 @@ export function TextLogo({ as = 'div', className, ...props }: TextLogoProps) {
       >
         <TextLogoAsset
           aria-hidden
-          className="h-5.5 w-25.5"
+          className="h-[19px] w-[103px]"
           focusable={false}
-          height={22}
-          width={102}
+          height={19}
+          width={103}
         />
       </Link>
     </Component>
