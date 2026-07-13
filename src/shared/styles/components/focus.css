@@ -3,9 +3,23 @@
 }
 
 .focus-ring:focus-visible {
-  @apply ring-2 ring-primary-500;
+  @apply ring-2 ring-inset ring-primary-100;
 }
 
 .focus-ring[data-invalid='true']:focus-visible {
+  @apply ring-error-500;
+}
+
+.focus-ring-overlay::after {
+  @apply pointer-events-none absolute inset-0 rounded-lg opacity-0 ring-2 ring-inset ring-primary-100 transition-opacity duration-150;
+  content: '';
+  z-index: calc(var(--z-index-form-floating) + 1);
+}
+
+.focus-ring-overlay:has(> :focus-visible)::after {
+  @apply opacity-100;
+}
+
+.focus-ring-overlay[data-invalid='true']::after {
   @apply ring-error-500;
 }

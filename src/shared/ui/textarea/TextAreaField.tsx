@@ -3,7 +3,7 @@ import { cn } from '@/shared/styles/utils/cn';
 import { useFormControlContext } from '@/shared/ui/form-control/FormControlContext';
 import {
   fieldBaseClassName,
-  fieldInteractionClassName,
+  fieldStateClassName,
 } from '@/shared/ui/form-control/formControlStyles';
 
 import type { TextAreaFieldProps } from './TextArea.types';
@@ -70,7 +70,10 @@ export function TextAreaField({
   };
 
   return (
-    <div className="relative w-full">
+    <div
+      className="focus-ring-overlay relative w-full rounded-lg"
+      data-invalid={invalid || undefined}
+    >
       <textarea
         {...props}
         aria-describedby={showCount ? countId : undefined}
@@ -80,7 +83,7 @@ export function TextAreaField({
           'textarea-scrollbar block min-h-81.75 resize-y py-5',
           showCount ? 'pb-12' : undefined,
           fieldBaseClassName,
-          fieldInteractionClassName,
+          fieldStateClassName,
           className
         )}
         data-invalid={invalid || undefined}
