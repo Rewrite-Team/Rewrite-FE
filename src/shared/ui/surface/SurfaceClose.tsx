@@ -2,6 +2,7 @@
 
 import type { ComponentPropsWithRef } from 'react';
 
+import { cn } from '@/shared/styles/utils/cn';
 import { cloneSlot, getSingleSlotChild, getSlotProps } from '@/shared/utils/slot';
 
 import { useSurfaceContext } from './SurfaceContext';
@@ -78,7 +79,7 @@ export function SurfaceClose(props: SurfaceCloseProps) {
   return (
     <button
       {...buttonProps}
-      className={className}
+      className={cn('focus-ring', className)}
       onClick={createHandleClick(onClick)}
       ref={ref}
       type="button"

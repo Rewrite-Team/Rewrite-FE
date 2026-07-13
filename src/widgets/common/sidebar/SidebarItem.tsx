@@ -1,6 +1,7 @@
 import type { ComponentType, SVGProps } from 'react';
 
-import { cn } from '@/shared/styles/utils/cn';
+import { cva } from 'class-variance-authority';
+
 import { Button, LinkButton } from '@/shared/ui/button';
 
 interface SidebarItemBaseProps {
@@ -29,13 +30,28 @@ interface SidebarItemActionProps extends SidebarItemBaseProps {
 
 type SidebarItemProps = SidebarItemActionProps | SidebarItemLinkProps;
 
-const itemClassName = (isActive: boolean, isExpanded: boolean) =>
-  cn(
-    'group/item relative flex h-10 items-center rounded-lg text-gray-300 outline-none transition-[color,background-color,box-shadow] duration-200 hover:bg-gray-700 hover:text-white focus-visible:ring-2 focus-visible:ring-primary-300',
-    isExpanded ? 'w-full justify-start gap-3 px-3' : 'w-10 justify-center',
-    isActive &&
-      'bg-primary-500/15 text-primary-300 ring-1 ring-primary-500/35 ring-inset shadow-sidebar-active hover:bg-primary-500/25 hover:text-primary-100'
-  );
+const sidebarItemVariants = cva(
+  [
+    'group/item relative flex h-10 items-center rounded-lg text-gray-300 transition-[color,background-color,box-shadow] duration-200 hover:bg-gray-700 hover:text-white',
+    'focus-ring',
+  ],
+  {
+    variants: {
+      isActive: {
+        false: null,
+        true: 'bg-primary-500/15 text-primary-300 ring-1 ring-primary-200/15 ring-inset shadow-sidebar-active hover:bg-primary-500/25 hover:text-primary-100',
+      },
+      isExpanded: {
+        false: 'w-10 justify-center',
+        true: 'w-full justify-start gap-3 px-3',
+      },
+    },
+    defaultVariants: {
+      isActive: false,
+      isExpanded: false,
+    },
+  }
+);
 
 /**
  * ## SidebarItem
@@ -84,7 +100,7 @@ export function SidebarItem({
     <LinkButton
       aria-current={isActive ? 'page' : undefined}
       aria-label={label}
-      className={itemClassName(isActive, isExpanded)}
+      className={sidebarItemVariants({ isActive, isExpanded })}
       href={href}
       onClick={onSelect}
       size="icon"
@@ -97,7 +113,7 @@ export function SidebarItem({
       aria-controls={ariaControls}
       aria-expanded={ariaExpanded}
       aria-label={label}
-      className={itemClassName(isActive, isExpanded)}
+      className={sidebarItemVariants({ isActive, isExpanded })}
       onClick={onClick}
       size="icon"
       variant="ghost"

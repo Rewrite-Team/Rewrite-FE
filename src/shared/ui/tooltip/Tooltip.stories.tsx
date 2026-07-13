@@ -1,5 +1,6 @@
 import type { ComponentProps } from 'react';
 
+import { cn } from '@/shared/styles/utils/cn';
 import { Button } from '@/shared/ui/button';
 
 import { Tooltip } from './index';
@@ -133,7 +134,9 @@ export const TextTrigger: Story = {
       문장 안에서도{' '}
       <Tooltip placement="bottom">
         <Tooltip.Trigger asChild>
-          <button className="rounded-sm text-primary-500 underline underline-offset-4 outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+          <button
+            className={cn('rounded-sm text-primary-500 underline underline-offset-4', 'focus-ring')}
+          >
             키워드 분석
           </button>
         </Tooltip.Trigger>

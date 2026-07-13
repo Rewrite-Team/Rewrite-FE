@@ -3,8 +3,8 @@ import { cva, type VariantProps } from 'class-variance-authority';
 const buttonVariants = cva(
   [
     'inline-flex shrink-0 items-center justify-center gap-2 rounded-lg font-medium',
-    'transition-colors duration-150 outline-none select-none whitespace-nowrap',
-    'focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black',
+    'transition-colors duration-150 select-none whitespace-nowrap',
+    'focus-ring',
     'data-[loading=true]:cursor-wait',
   ],
   {

@@ -1,0 +1,11 @@
+.focus-ring {
+  @apply outline-none;
+}
+
+.focus-ring:focus-visible {
+  @apply ring-2 ring-primary-500;
+}
+
+.focus-ring[data-invalid='true']:focus-visible {
+  @apply ring-error-500;
+}

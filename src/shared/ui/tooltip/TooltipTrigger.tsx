@@ -3,6 +3,7 @@
 import { useCallback } from 'react';
 import type { ComponentPropsWithRef, Ref } from 'react';
 
+import { cn } from '@/shared/styles/utils/cn';
 import { cloneSlot, getSingleSlotChild, getSlotProps } from '@/shared/utils/slot';
 
 import { useTooltipContext } from './TooltipContext';
@@ -159,6 +160,7 @@ export function TooltipTrigger(props: TooltipTriggerProps) {
     onPointerEnter,
     onPointerLeave,
     ref,
+    className,
     ...buttonProps
   } = getTriggerButtonProps(props);
 
@@ -166,6 +168,7 @@ export function TooltipTrigger(props: TooltipTriggerProps) {
     <button
       {...buttonProps}
       aria-describedby={mergeDescribedBy(describedBy, triggerProps['aria-describedby'])}
+      className={cn('focus-ring', className)}
       data-state={triggerProps['data-state']}
       onBlur={composeTooltipEventHandlers(undefined, onBlur, actions.hideForBlur)}
       onFocus={composeTooltipEventHandlers(undefined, onFocus, actions.showForFocus)}
