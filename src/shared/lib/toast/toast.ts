@@ -1,13 +1,18 @@
 import { toast } from 'react-toastify';
 
-import type { Id, ToastContent, ToastOptions, ToastPosition, TypeOptions } from 'react-toastify';
+import type { Id, ToastContent, ToastOptions, ToastPosition } from 'react-toastify';
 
 export const TOAST_AUTO_CLOSE = 4_000;
 export const TOAST_POSITION = 'bottom-right' satisfies ToastPosition;
 
-export type AppToastOptions<Data = unknown> = Omit<ToastOptions<Data>, 'type'>;
+type AppToastType = 'success' | 'error' | 'info' | 'warning';
 
-const createToastId = <Data>(type: TypeOptions, message: ToastContent<Data>): Id | undefined => {
+export type AppToastOptions = Pick<
+  ToastOptions,
+  'ariaLabel' | 'autoClose' | 'onClose' | 'position' | 'role' | 'toastId'
+>;
+
+const createToastId = (type: AppToastType, message: ToastContent): Id | undefined => {
   if (typeof message !== 'string' && typeof message !== 'number') {
     return undefined;
   }
@@ -15,11 +20,7 @@ const createToastId = <Data>(type: TypeOptions, message: ToastContent<Data>): Id
   return `app-toast:${type}:${message}`;
 };
 
-const showToast = <Data>(
-  type: Exclude<TypeOptions, 'default'>,
-  message: ToastContent<Data>,
-  options?: AppToastOptions<Data>
-) => {
+const showToast = (type: AppToastType, message: ToastContent, options?: AppToastOptions) => {
   const toastId = options?.toastId ?? createToastId(type, message);
   const role = options?.role ?? (type === 'success' || type === 'info' ? 'status' : 'alert');
 
@@ -48,12 +49,10 @@ const showToast = <Data>(
  * ```
  */
 export const appToast = {
-  error: <Data>(message: ToastContent<Data>, options?: AppToastOptions<Data>) =>
-    showToast('error', message, options),
-  info: <Data>(message: ToastContent<Data>, options?: AppToastOptions<Data>) =>
-    showToast('info', message, options),
-  success: <Data>(message: ToastContent<Data>, options?: AppToastOptions<Data>) =>
+  error: (message: ToastContent, options?: AppToastOptions) => showToast('error', message, options),
+  info: (message: ToastContent, options?: AppToastOptions) => showToast('info', message, options),
+  success: (message: ToastContent, options?: AppToastOptions) =>
     showToast('success', message, options),
-  warning: <Data>(message: ToastContent<Data>, options?: AppToastOptions<Data>) =>
+  warning: (message: ToastContent, options?: AppToastOptions) =>
     showToast('warning', message, options),
 };
