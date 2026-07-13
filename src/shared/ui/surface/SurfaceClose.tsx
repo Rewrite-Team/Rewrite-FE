@@ -70,6 +70,7 @@ export function SurfaceClose(props: SurfaceCloseProps) {
 
     return cloneSlot(child, {
       ...slotProps,
+      className: cn('focus-ring', slotProps.className),
       onClick: createHandleClick(onClick, child.props.onClick),
     });
   }

@@ -3,6 +3,7 @@ import type { ComponentType, SVGProps } from 'react';
 import { cva } from 'class-variance-authority';
 
 import { Button, LinkButton } from '@/shared/ui/button';
+import { Tooltip } from '@/shared/ui/tooltip';
 
 interface SidebarItemBaseProps {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
@@ -65,12 +66,13 @@ const sidebarItemVariants = cva(
  * @description
  * Sidebar에서 페이지 이동 링크와 화면 내 액션 버튼을 동일한 시각 규칙으로 렌더링합니다.
  * `href`가 있으면 LinkButton, 없으면 Button을 사용합니다. 접힌 상태에서는 아이콘만 표시하고
- * pointer hover 시 메뉴 설명 툴팁을 제공합니다.
+ * pointer hover 또는 키보드 focus 시 메뉴 설명 툴팁을 제공합니다.
  *
  * ### 접근성
  *
- * 모든 아이콘 메뉴는 `label`을 접근성 이름으로 사용합니다. 현재 페이지 링크에는
- * `aria-current="page"`를, 드롭다운 트리거에는 `aria-expanded`를 전달합니다.
+ * 모든 아이콘 메뉴는 `label`을 접근성 이름으로 사용합니다. 접힌 메뉴의 툴팁은
+ * `aria-describedby`로 메뉴와 연결됩니다. 현재 페이지 링크에는 `aria-current="page"`를,
+ * 드롭다운 트리거에는 `aria-expanded`를 전달합니다.
  *
  * @param icon - 메뉴 의미를 나타내는 SVG 아이콘 컴포넌트
  * @param label - 메뉴 텍스트이자 아이콘 버튼의 접근성 이름
@@ -81,7 +83,7 @@ const sidebarItemVariants = cva(
  * @param ariaControls - 드롭다운 트리거와 연결할 메뉴 요소의 id
  * @param onClick - 액션 버튼 선택 시 실행할 콜백
  * @param onSelect - 링크 선택 직전에 실행할 콜백
- * @param showTooltip - 접힌 상태에서 hover 툴팁을 표시할지 여부
+ * @param showTooltip - 접힌 상태에서 hover 또는 focus 툴팁을 표시할지 여부
  * @param surface - 메뉴가 배치되는 배경에 따른 hover 색상
  */
 export function SidebarItem({
@@ -135,15 +137,12 @@ export function SidebarItem({
   }
 
   return (
-    <span className="group/tooltip relative block">
-      {item}
-      <span className="body-12 pointer-events-none invisible absolute top-1/2 left-[calc(100%+8px)] z-(--z-index-tooltip) -translate-y-1/2 whitespace-nowrap rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 font-medium text-gray-50 opacity-0 shadow-(--shadow-tooltip) transition-opacity group-hover/tooltip:visible group-hover/tooltip:opacity-100">
-        <span
-          aria-hidden
-          className="absolute top-1/2 -left-1.25 size-2.5 -translate-y-1/2 rotate-45 border-b border-l border-gray-700 bg-gray-900"
-        />
+    <Tooltip offset={8} placement="right">
+      <Tooltip.Trigger asChild>{item}</Tooltip.Trigger>
+      <Tooltip.Content>
         {label}
-      </span>
-    </span>
+        <Tooltip.Arrow />
+      </Tooltip.Content>
+    </Tooltip>
   );
 }
