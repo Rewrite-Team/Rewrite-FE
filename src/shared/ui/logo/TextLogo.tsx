@@ -44,7 +44,8 @@ export function TextLogo({ as = 'div', className, ...props }: TextLogoProps) {
     <Component className="m-0 inline-flex">
       <Link
         className={cn(
-          'inline-flex items-center transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-500',
+          'inline-flex items-center transition-opacity hover:opacity-80',
+          'focus-ring',
           className
         )}
         {...props}

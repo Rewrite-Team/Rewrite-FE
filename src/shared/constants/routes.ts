@@ -8,4 +8,7 @@ export const ROUTES = {
   LANDING: '/',
   LOGIN: '/login',
   WRITING: '/writing',
+  WRITING_DETAIL: (writingId: string) => `/writing/${writingId}`,
+  INTERVIEW: (writingId: string) => `/writing/${writingId}/interview`,
+  KEYWORD_ANALYSIS: (writingId: string) => `/writing/${writingId}/keyword-analysis`,
 } as const;
