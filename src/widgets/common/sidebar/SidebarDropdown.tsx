@@ -79,6 +79,7 @@ export function SidebarDropdown({
               isExpanded
               label="AI 첨삭"
               onSelect={onClose}
+              surface="dropdown"
             />
           </li>
           <li>
@@ -89,6 +90,7 @@ export function SidebarDropdown({
               isExpanded
               label="키워드 분석"
               onSelect={onClose}
+              surface="dropdown"
             />
           </li>
         </ul>

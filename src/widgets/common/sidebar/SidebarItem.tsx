@@ -10,6 +10,7 @@ interface SidebarItemBaseProps {
   label: string;
   isExpanded?: boolean;
   showTooltip?: boolean;
+  surface?: 'dropdown' | 'sidebar';
 }
 
 interface SidebarItemLinkProps extends SidebarItemBaseProps {
@@ -32,11 +33,15 @@ type SidebarItemProps = SidebarItemActionProps | SidebarItemLinkProps;
 
 const sidebarItemVariants = cva(
   [
-    'group/item relative flex h-10 items-center rounded-lg text-gray-300 transition-[color,background-color,box-shadow] duration-200 hover:bg-gray-700 hover:text-white',
+    'group/item relative flex h-10 items-center rounded-lg text-gray-300 transition-[color,background-color,box-shadow] duration-200 hover:text-white',
     'focus-ring',
   ],
   {
     variants: {
+      surface: {
+        dropdown: 'hover:bg-gray-600',
+        sidebar: 'hover:bg-gray-700',
+      },
       isActive: {
         false: null,
         true: 'bg-primary-500/15 text-primary-300 ring-1 ring-primary-200/15 ring-inset shadow-sidebar-active hover:bg-primary-500/25 hover:text-primary-100',
@@ -49,6 +54,7 @@ const sidebarItemVariants = cva(
     defaultVariants: {
       isActive: false,
       isExpanded: false,
+      surface: 'sidebar',
     },
   }
 );
@@ -76,6 +82,7 @@ const sidebarItemVariants = cva(
  * @param onClick - 액션 버튼 선택 시 실행할 콜백
  * @param onSelect - 링크 선택 직전에 실행할 콜백
  * @param showTooltip - 접힌 상태에서 hover 툴팁을 표시할지 여부
+ * @param surface - 메뉴가 배치되는 배경에 따른 hover 색상
  */
 export function SidebarItem({
   ariaControls,
@@ -88,6 +95,7 @@ export function SidebarItem({
   onClick,
   onSelect,
   showTooltip = true,
+  surface = 'sidebar',
 }: SidebarItemProps) {
   const content = (
     <>
@@ -100,7 +108,7 @@ export function SidebarItem({
     <LinkButton
       aria-current={isActive ? 'page' : undefined}
       aria-label={label}
-      className={sidebarItemVariants({ isActive, isExpanded })}
+      className={sidebarItemVariants({ isActive, isExpanded, surface })}
       href={href}
       onClick={onSelect}
       size="icon"
@@ -113,7 +121,7 @@ export function SidebarItem({
       aria-controls={ariaControls}
       aria-expanded={ariaExpanded}
       aria-label={label}
-      className={sidebarItemVariants({ isActive, isExpanded })}
+      className={sidebarItemVariants({ isActive, isExpanded, surface })}
       onClick={onClick}
       size="icon"
       variant="ghost"
