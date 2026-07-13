@@ -12,6 +12,7 @@
 
 .focus-ring-overlay::after {
   @apply pointer-events-none absolute inset-0 rounded-lg opacity-0 ring-2 ring-inset ring-primary-100 transition-opacity duration-150;
+
   content: '';
   z-index: calc(var(--z-index-form-floating) + 1);
 }
