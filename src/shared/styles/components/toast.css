@@ -1,0 +1,90 @@
+:root {
+  --toastify-color-dark: var(--color-gray-800);
+  --toastify-color-info: var(--color-primary-500);
+  --toastify-color-success: var(--color-success-500);
+  --toastify-color-warning: var(--color-yellow-500);
+  --toastify-color-error: var(--color-error-500);
+  --toastify-toast-width: min(360px, calc(100vw - 32px));
+  --toastify-toast-min-height: 56px;
+  --toastify-toast-padding: 14px 16px;
+  --toastify-toast-bd-radius: 12px;
+  --toastify-toast-shadow: var(--shadow-toast);
+  --toastify-z-index: var(--z-index-toast);
+}
+
+.Toastify__toast-container {
+  width: var(--toastify-toast-width);
+}
+
+.Toastify__toast {
+  overflow: hidden;
+  border: 1px solid var(--color-gray-600);
+  color: var(--color-gray-50);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.Toastify__toast--success {
+  border-color: color-mix(in srgb, var(--toastify-color-success) 45%, transparent);
+}
+
+.Toastify__toast--error {
+  border-color: color-mix(in srgb, var(--toastify-color-error) 45%, transparent);
+}
+
+.Toastify__toast--info {
+  border-color: color-mix(in srgb, var(--toastify-color-info) 45%, transparent);
+}
+
+.Toastify__toast--warning {
+  border-color: color-mix(in srgb, var(--toastify-color-warning) 45%, transparent);
+}
+
+.Toastify__toast-body {
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+.Toastify__toast-icon {
+  width: 20px;
+}
+
+.Toastify__progress-bar--wrp {
+  bottom: 1px;
+  height: 3px;
+  left: 1px;
+  width: calc(100% - 2px);
+  border-bottom-left-radius: calc(var(--toastify-toast-bd-radius) - 1px);
+  border-bottom-right-radius: calc(var(--toastify-toast-bd-radius) - 1px);
+}
+
+.Toastify__progress-bar {
+  height: 100%;
+}
+
+.Toastify__close-button {
+  align-self: center;
+  border-radius: 4px;
+  color: var(--color-gray-100);
+  opacity: 1;
+}
+
+.Toastify__close-button:hover {
+  color: var(--color-white);
+}
+
+.Toastify__close-button:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .Toastify__toast-container {
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+  }
+}

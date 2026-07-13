@@ -2,6 +2,7 @@ import localFont from 'next/font/local';
 
 import { PORTAL_ROOT_ID } from '@/shared/constants/portal';
 import '@/shared/styles/globals.css';
+import { ToastContainer } from '@/shared/ui/toast';
 
 const pretendard = localFont({
   src: '../../public/fonts/PretendardVariable.woff2',
@@ -19,6 +20,7 @@ export default function RootLayout({
       <body>
         {children}
         <div id={PORTAL_ROOT_ID} />
+        <ToastContainer />
       </body>
     </html>
   );

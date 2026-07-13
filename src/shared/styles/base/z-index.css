@@ -9,4 +9,5 @@
   --z-index-surface-overlay: 40;
   --z-index-surface-content: 50;
   --z-index-tooltip: 60;
+  --z-index-toast: 70;
 }

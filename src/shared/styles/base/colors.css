@@ -35,6 +35,7 @@
   --color-yellow-500: #ffc642;
 
   /* Semantic Colors */
+  --color-success-500: #55c790;
   --color-error-500: #ff5656;
 
   --color-black: #000000;
@@ -46,4 +47,5 @@
   --shadow-sidebar-active: 0 0 18px rgba(118, 186, 255, 0.16);
   --shadow-tooltip-arrow: 0 0 16px rgba(118, 186, 255, 0.18);
   --shadow-tooltip: 0 14px 44px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(118, 186, 255, 0.08);
+  --shadow-toast: 0 14px 44px rgba(0, 0, 0, 0.42);
 }
