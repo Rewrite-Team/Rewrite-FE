@@ -43,6 +43,7 @@
   /* Shadow Tokens */
   --shadow-header-login-button: 0 0 24px rgba(118, 186, 255, 0.28);
   --shadow-header-login-button-hover: 0 8px 28px rgba(118, 186, 255, 0.36);
+  --shadow-sidebar-active: 0 0 18px rgba(118, 186, 255, 0.16);
   --shadow-tooltip-arrow: 0 0 16px rgba(118, 186, 255, 0.18);
   --shadow-tooltip: 0 14px 44px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(118, 186, 255, 0.08);
 }
