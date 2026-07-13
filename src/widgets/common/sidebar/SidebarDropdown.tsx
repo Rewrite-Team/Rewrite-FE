@@ -1,8 +1,6 @@
-import { useId, useRef } from 'react';
-
 import { AiEditIcon, KeywordIcon, WritingDetailIcon } from '@/shared/assets/icons/side-menu';
-import { useEscapeKey, useOutsideClick } from '@/shared/hooks';
 
+import { useSidebarDropdown } from './hooks/useSidebarDropdown';
 import { SidebarItem } from './SidebarItem';
 
 interface SidebarDropdownProps {
@@ -27,6 +25,8 @@ interface SidebarDropdownProps {
  *
  * 트리거에는 `aria-expanded`를 전달하여 드롭다운의 열림 상태를 보조 기술에 제공합니다.
  * 하위 이동 메뉴는 현재 경로에 해당할 때 `aria-current="page"`를 노출합니다.
+ * 방향키로 드롭다운을 열고 항목 사이를 이동할 수 있으며, Home/End는 처음과 마지막 항목으로
+ * 이동합니다. Escape로 닫으면 포커스를 트리거로 복원합니다.
  *
  * @param detailHref - AI 첨삭 메뉴가 이동할 자기소개서 상세 경로
  * @param keywordAnalysisHref - 키워드 분석 메뉴가 이동할 경로
@@ -47,14 +47,14 @@ export function SidebarDropdown({
   onClose,
   onToggle,
 }: SidebarDropdownProps) {
-  const dropdownId = useId();
-  const dropdownRef = useRef<HTMLLIElement>(null);
-
-  useOutsideClick({ enabled: isOpen, onOutsideClick: onClose, ref: dropdownRef });
-  useEscapeKey({ enabled: isOpen, onEscapeKeyDown: onClose });
+  const { dropdownId, dropdownRef, handleBlur, handleKeyDown } = useSidebarDropdown({
+    isOpen,
+    onClose,
+    onToggle,
+  });
 
   return (
-    <li className="relative" ref={dropdownRef}>
+    <li className="relative" onBlur={handleBlur} onKeyDown={handleKeyDown} ref={dropdownRef}>
       <SidebarItem
         ariaControls={dropdownId}
         ariaExpanded={isOpen}

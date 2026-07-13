@@ -85,6 +85,7 @@ export function Sidebar({
         <ul className={cn('flex flex-col items-center gap-1', isExpanded && 'w-44 items-stretch')}>
           <li>
             <SidebarItem
+              ariaExpanded={isExpanded}
               icon={MenuIcon}
               isExpanded={isExpanded}
               label={isExpanded ? '메뉴 접기' : '사이드바 펼치기'}
