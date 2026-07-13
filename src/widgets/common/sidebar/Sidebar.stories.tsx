@@ -26,7 +26,7 @@ export const KeywordAnalysis: Story = {
   args: { pathname: '/writing/1/keyword-analysis' },
 };
 
-export const AiInterview: Story = {
+export const AIInterview: Story = {
   args: { pathname: '/writing/1/interview' },
 };
 
