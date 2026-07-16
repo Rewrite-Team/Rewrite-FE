@@ -9,8 +9,6 @@ const meta = {
   component: Sidebar,
   parameters: { layout: 'centered' },
   args: {
-    onDelete: fn(),
-    onVersionClick: fn(),
     writingId: '1',
   },
 } satisfies Meta<typeof Sidebar>;
@@ -28,6 +26,24 @@ export const KeywordAnalysis: Story = {
 
 export const AIInterview: Story = {
   args: { pathname: '/writing/1/interview' },
+};
+
+export const FullActions: Story = {
+  args: {
+    onDelete: fn(),
+    onVersionClick: fn(),
+    pathname: '/writing/1',
+    variant: 'full',
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(canvas.getByRole('button', { name: '버전 관리' }));
+    await expect(args.onVersionClick).toHaveBeenCalledOnce();
+
+    await userEvent.click(canvas.getByRole('button', { name: '자기소개서 삭제' }));
+    await expect(args.onDelete).toHaveBeenCalledOnce();
+  },
 };
 
 export const Interactions: Story = {
@@ -62,11 +78,5 @@ export const Interactions: Story = {
       'aria-expanded',
       'true'
     );
-
-    await userEvent.click(canvas.getByRole('button', { name: '버전 관리' }));
-    await expect(meta.args.onVersionClick).toHaveBeenCalledOnce();
-
-    await userEvent.click(canvas.getByRole('button', { name: '자기소개서 삭제' }));
-    await expect(meta.args.onDelete).toHaveBeenCalledOnce();
   },
 };

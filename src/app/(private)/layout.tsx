@@ -3,5 +3,5 @@ export default function PrivateLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  return <div className="flex min-h-full flex-1 flex-col">{children}</div>;
 }
