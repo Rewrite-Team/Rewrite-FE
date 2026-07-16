@@ -1,13 +1,13 @@
 import type { ComponentPropsWithoutRef } from 'react';
 
-type SidebarVariant = 'contextual' | 'detail';
+type SidebarVariant = 'compact' | 'full';
 
 interface SidebarProps extends ComponentPropsWithoutRef<'aside'> {
   writingId: string;
+  onDelete?: () => void;
+  onVersionClick?: () => void;
   pathname?: string;
   variant?: SidebarVariant;
-  onDelete: () => void;
-  onVersionClick: () => void;
 }
 
 export type { SidebarProps, SidebarVariant };

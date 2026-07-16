@@ -16,12 +16,20 @@ import type { SidebarProps, SidebarVariant } from './Sidebar.types';
 const isPathActive = (pathname: string, href: string, includeChildren = true) =>
   pathname === href || (includeChildren && pathname.startsWith(`${href}/`));
 
+const handlePendingVersionClick = () => {
+  // TODO: 버전 관리 모달 구현 후 연결합니다.
+};
+
+const handlePendingDelete = () => {
+  // TODO: 자기소개서 삭제 확인 모달 구현 후 연결합니다.
+};
+
 /**
  * ## Sidebar
  *
  * @description
  * 자기소개서 상세, 키워드 분석, AI 면접 화면에서 공유하는 경로 기반 내비게이션입니다.
- * 상세 화면은 전체 메뉴를, 하위 기능 화면은 간결한 contextual 메뉴를 기본으로 표시합니다.
+ * 상세 화면은 전체 메뉴를, 하위 기능 화면은 간결한 메뉴를 기본으로 표시합니다.
  * 현재 경로를 기준으로 Active 메뉴를 계산하고, 메뉴 버튼으로 라벨을 펼치거나 접을 수 있습니다.
  *
  * ### 접근성
@@ -32,8 +40,8 @@ const isPathActive = (pathname: string, href: string, includeChildren = true) =>
  * @param writingId - 메뉴 경로에 사용할 자기소개서 식별자
  * @param pathname - Storybook/테스트에서 현재 경로를 주입할 때 사용합니다.
  * @param variant - 표시 형태를 명시적으로 덮어씁니다.
- * @param onDelete - 삭제 메뉴 선택 시 실행할 콜백입니다.
- * @param onVersionClick - 버전 관리 메뉴 선택 시 실행할 콜백입니다.
+ * @param onDelete - 자기소개서 삭제 메뉴를 선택했을 때 실행할 콜백입니다.
+ * @param onVersionClick - 버전 관리 메뉴를 선택했을 때 실행할 콜백입니다.
  */
 export function Sidebar({
   className,
@@ -51,7 +59,7 @@ export function Sidebar({
     interview: ROUTES.INTERVIEW(writingId),
     keywordAnalysis: ROUTES.KEYWORD_ANALYSIS(writingId),
   };
-  const inferredVariant: SidebarVariant = pathname === routes.detail ? 'detail' : 'contextual';
+  const inferredVariant: SidebarVariant = pathname === routes.detail ? 'full' : 'compact';
   const variant = variantProp ?? inferredVariant;
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAnalysisMenuOpen, setIsAnalysisMenuOpen] = useState(false);
@@ -106,14 +114,14 @@ export function Sidebar({
             onToggle={handleAnalysisMenuToggle}
           />
 
-          {variant === 'detail' ? (
+          {variant === 'full' ? (
             <>
               <li>
                 <SidebarItem
                   icon={VersionIcon}
                   isExpanded={isExpanded}
                   label="버전 관리"
-                  onClick={onVersionClick}
+                  onClick={onVersionClick ?? handlePendingVersionClick}
                 />
               </li>
               <li>
@@ -121,7 +129,7 @@ export function Sidebar({
                   icon={DeleteIcon}
                   isExpanded={isExpanded}
                   label="자기소개서 삭제"
-                  onClick={onDelete}
+                  onClick={onDelete ?? handlePendingDelete}
                 />
               </li>
               <li className="my-1 h-px w-full bg-gray-600" aria-hidden />

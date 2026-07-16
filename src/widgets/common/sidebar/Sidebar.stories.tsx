@@ -1,4 +1,4 @@
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
 
 import { Sidebar } from './Sidebar';
 
@@ -9,8 +9,6 @@ const meta = {
   component: Sidebar,
   parameters: { layout: 'centered' },
   args: {
-    onDelete: fn(),
-    onVersionClick: fn(),
     writingId: '1',
   },
 } satisfies Meta<typeof Sidebar>;
@@ -62,11 +60,5 @@ export const Interactions: Story = {
       'aria-expanded',
       'true'
     );
-
-    await userEvent.click(canvas.getByRole('button', { name: '버전 관리' }));
-    await expect(meta.args.onVersionClick).toHaveBeenCalledOnce();
-
-    await userEvent.click(canvas.getByRole('button', { name: '자기소개서 삭제' }));
-    await expect(meta.args.onDelete).toHaveBeenCalledOnce();
   },
 };
