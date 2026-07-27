@@ -44,17 +44,19 @@ const PLACEMENT_EXAMPLES = [
 function TooltipExample(props: TooltipStoryProps) {
   return (
     <div className="flex min-h-72 items-center justify-center p-12">
-      <Tooltip {...props}>
-        <Tooltip.Trigger asChild>
-          <Button aria-label="AI 첨삭 도움말" iconOnly variant="outline">
-            ?
-          </Button>
-        </Tooltip.Trigger>
+      <Tooltip.Root {...props}>
+        <Tooltip.Trigger
+          render={
+            <Button aria-label="AI 첨삭 도움말" iconOnly variant="outline">
+              ?
+            </Button>
+          }
+        />
         <Tooltip.Content>
           AI 첨삭 결과는 자기소개서 문항별로 생성됩니다.
           <Tooltip.Arrow />
         </Tooltip.Content>
-      </Tooltip>
+      </Tooltip.Root>
     </div>
   );
 }
@@ -111,17 +113,19 @@ export const Placements: Story = {
           Hover / Focus
         </div>
         {PLACEMENT_EXAMPLES.map(({ description, gridClassName, label, placement }) => (
-          <Tooltip key={placement} placement={placement}>
-            <Tooltip.Trigger asChild>
-              <Button className={`w-28 ${gridClassName}`} variant="secondary">
-                {label}
-              </Button>
-            </Tooltip.Trigger>
+          <Tooltip.Root key={placement} placement={placement}>
+            <Tooltip.Trigger
+              render={
+                <Button className={`w-28 ${gridClassName}`} variant="secondary">
+                  {label}
+                </Button>
+              }
+            />
             <Tooltip.Content>
               {description}
               <Tooltip.Arrow />
             </Tooltip.Content>
-          </Tooltip>
+          </Tooltip.Root>
         ))}
       </div>
     </div>
@@ -132,19 +136,25 @@ export const TextTrigger: Story = {
   render: () => (
     <p className="min-h-64 p-12 body-16 text-gray-100">
       문장 안에서도{' '}
-      <Tooltip placement="bottom">
-        <Tooltip.Trigger asChild>
-          <button
-            className={cn('rounded-sm text-primary-500 underline underline-offset-4', 'focus-ring')}
-          >
-            키워드 분석
-          </button>
-        </Tooltip.Trigger>
+      <Tooltip.Root placement="bottom">
+        <Tooltip.Trigger
+          render={
+            <button
+              className={cn(
+                'rounded-sm text-primary-500 underline underline-offset-4',
+                'focus-ring'
+              )}
+              type="button"
+            >
+              키워드 분석
+            </button>
+          }
+        />
         <Tooltip.Content>
           직무와 연결되는 핵심 표현을 추출해 보여줍니다.
           <Tooltip.Arrow />
         </Tooltip.Content>
-      </Tooltip>{' '}
+      </Tooltip.Root>{' '}
       설명을 자연스럽게 연결할 수 있습니다.
     </p>
   ),
