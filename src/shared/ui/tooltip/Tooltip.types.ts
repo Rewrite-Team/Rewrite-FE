@@ -1,4 +1,4 @@
-import type { ComponentPropsWithRef, ReactElement, ReactNode } from 'react';
+import type { ComponentPropsWithRef, ReactNode } from 'react';
 
 import type { Tooltip } from '@base-ui/react/tooltip';
 
@@ -21,23 +21,13 @@ interface TooltipRootProps {
   placement?: TooltipPlacement;
 }
 
-type TooltipTriggerButtonProps = Omit<ComponentPropsWithRef<'button'>, 'children' | 'type'>;
-
-interface TooltipTriggerAsChildProps {
-  /** 단일 자식 요소를 Trigger로 사용합니다. */
-  asChild: true;
-  /** Trigger로 사용할 단일 React Element입니다. Fragment는 지원하지 않습니다. */
-  children: ReactElement;
-}
-
-type TooltipTriggerProps =
-  | (TooltipTriggerButtonProps & {
-      /** 생략하면 Trigger가 button을 렌더링합니다. */
-      asChild?: false;
-      /** 아이콘만 표시할 때는 `aria-label`도 제공해야 합니다. */
-      children: ReactNode;
-    })
-  | (TooltipTriggerButtonProps & TooltipTriggerAsChildProps);
+type TooltipTriggerProps = Omit<
+  ComponentPropsWithRef<typeof Tooltip.Trigger>,
+  'className' | 'delay' | 'type'
+> & {
+  /** Trigger에 적용할 className입니다. */
+  className?: string;
+};
 
 interface TooltipContentProps extends Omit<ComponentPropsWithRef<'div'>, 'children' | 'role'> {
   /** 짧은 읽기 전용 설명입니다. 상호작용 요소는 넣지 않습니다. */

@@ -138,7 +138,7 @@ export function SidebarItem({
 
   return (
     <Tooltip.Root offset={8} placement="right">
-      <Tooltip.Trigger asChild>{item}</Tooltip.Trigger>
+      <Tooltip.Trigger render={item} />
       <Tooltip.Content>
         {label}
         <Tooltip.Arrow />

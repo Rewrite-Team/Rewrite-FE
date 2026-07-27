@@ -19,9 +19,9 @@ import type { TooltipConfigContextValue } from './TooltipConfigContext';
  * @example
  * ```tsx
  * <Tooltip.Root placement="top">
- *   <Tooltip.Trigger asChild>
- *     <Button aria-label="도움말" iconOnly>?</Button>
- *   </Tooltip.Trigger>
+ *   <Tooltip.Trigger
+ *     render={<Button aria-label="도움말" iconOnly>?</Button>}
+ *   />
  *   <Tooltip.Content>
  *     AI 첨삭 결과는 자기소개서 문항별로 생성됩니다.
  *     <Tooltip.Arrow />
