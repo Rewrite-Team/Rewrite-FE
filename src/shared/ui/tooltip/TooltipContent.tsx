@@ -2,8 +2,8 @@
 
 import { Tooltip } from '@base-ui/react/tooltip';
 
-import { PORTAL_ROOT_ID } from '@/shared/constants/portal';
 import { cn } from '@/shared/styles/utils/cn';
+import { getDefaultPortalContainer } from '@/shared/ui/portal';
 
 import { useTooltipConfigContext } from './TooltipConfigContext';
 
@@ -18,14 +18,6 @@ const tooltipContentClassNames = [
   'data-ending-style:pointer-events-none data-ending-style:scale-97 data-ending-style:opacity-0 data-ending-style:blur-[1px]',
   'data-instant:transition-none motion-reduce:transition-none',
 ];
-
-const getDefaultPortalContainer = (): HTMLElement | undefined => {
-  if (typeof document === 'undefined') {
-    return undefined;
-  }
-
-  return document.getElementById(PORTAL_ROOT_ID) ?? document.body;
-};
 
 /**
  * ## Tooltip.Content

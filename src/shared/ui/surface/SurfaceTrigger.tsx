@@ -1,29 +1,12 @@
 'use client';
 
-import type { ComponentPropsWithRef } from 'react';
+import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 
 import { cn } from '@/shared/styles/utils/cn';
-import { cloneSlot, getSingleSlotChild, getSlotProps } from '@/shared/utils/slot';
-
-import { useSurfaceContext } from './SurfaceContext';
 
 import type { SurfaceTriggerProps } from './Surface.types';
 
-interface SurfaceTriggerChildProps {
-  'aria-controls'?: string;
-  'aria-expanded'?: boolean;
-  className?: string;
-  'data-state'?: 'closed' | 'open';
-  'data-surface-trigger'?: string;
-  onClick?: ComponentPropsWithRef<'button'>['onClick'];
-}
-
-const getTriggerButtonProps = (props: Extract<SurfaceTriggerProps, { asChild?: false }>) => {
-  const buttonProps = { ...props };
-
-  delete buttonProps.asChild;
-  return buttonProps;
-};
+type SurfaceTriggerClickHandler = NonNullable<BaseDialog.Trigger.Props['onClick']>;
 
 /**
  * ## Surface.Trigger
@@ -33,8 +16,10 @@ const getTriggerButtonProps = (props: Extract<SurfaceTriggerProps, { asChild?: f
  *
  * ### 주요 내용
  *
- * 클릭 시 `Surface`의 상태를 `trigger` 이유로 변경합니다.
- * `aria-controls`와 `aria-expanded`는 `Surface.Content`와 연결되도록 자동 설정됩니다.
+ * Base UI Dialog Trigger를 통해 Surface를 열고 닫습니다. `aria-controls`와
+ * `aria-expanded`는 `Surface.Content`와 연결되도록 자동 설정됩니다.
+ * `asChild`의 자식이 button을 렌더링하지 않으면 `nativeButton={false}`를 전달합니다.
+ * 사용자 또는 자식의 `onClick`에서 `preventDefault()`를 호출하면 상태 변경을 취소합니다.
  *
  * ### 접근성
  *
@@ -48,61 +33,26 @@ const getTriggerButtonProps = (props: Extract<SurfaceTriggerProps, { asChild?: f
  * ```
  */
 export function SurfaceTrigger(props: SurfaceTriggerProps) {
-  const { actions, meta, state } = useSurfaceContext();
+  const nativeButton = props.asChild ? props.nativeButton : true;
+  const { asChild, children, className, onClick, ...triggerProps } = props;
 
-  const createHandleClick =
-    (
-      onClick?: SurfaceTriggerChildProps['onClick'],
-      childOnClick?: SurfaceTriggerChildProps['onClick']
-    ): NonNullable<SurfaceTriggerChildProps['onClick']> =>
-    (event) => {
-      childOnClick?.(event);
+  const handleClick: SurfaceTriggerClickHandler = (event) => {
+    onClick?.(event);
 
-      if (event.defaultPrevented) {
-        return;
-      }
-
-      onClick?.(event);
-
-      if (event.defaultPrevented) {
-        return;
-      }
-
-      actions.toggle('trigger');
-    };
-
-  const triggerState: SurfaceTriggerChildProps['data-state'] = state.isOpen ? 'open' : 'closed';
-  const triggerProps = {
-    'aria-controls': meta.contentId,
-    'aria-expanded': state.isOpen,
-    'data-state': triggerState,
-    'data-surface-trigger': meta.contentId,
+    if (event.defaultPrevented) {
+      event.preventBaseUIHandler();
+    }
   };
 
-  if (props.asChild) {
-    const { children, onClick } = props;
-    const slotProps = getSlotProps(props);
-    const child = getSingleSlotChild<SurfaceTriggerChildProps>(children, 'Surface.Trigger');
-
-    return cloneSlot(child, {
-      ...triggerProps,
-      ...slotProps,
-      onClick: createHandleClick(onClick, child.props.onClick),
-    });
-  }
-
-  const { children, className, onClick, ref, ...buttonProps } = getTriggerButtonProps(props);
-
   return (
-    <button
-      {...buttonProps}
+    <BaseDialog.Trigger
       {...triggerProps}
       className={cn('focus-ring', className)}
-      onClick={createHandleClick(onClick)}
-      ref={ref}
-      type="button"
+      nativeButton={nativeButton}
+      onClick={handleClick}
+      render={asChild ? children : undefined}
     >
-      {children}
-    </button>
+      {asChild ? undefined : children}
+    </BaseDialog.Trigger>
   );
 }
