@@ -1,5 +1,7 @@
 'use client';
 
+import { Dialog as BaseDialog } from '@base-ui/react/dialog';
+
 import { cn } from '@/shared/styles/utils/cn';
 
 import { useSurfaceContext } from './SurfaceContext';
@@ -18,21 +20,20 @@ import type { SurfaceOverlayProps } from './Surface.types';
  * Content 뒤에 배치해 배경과 현재 Surface를 시각적으로 분리합니다.
  */
 export function SurfaceOverlay({ className, ref, ...props }: SurfaceOverlayProps) {
-  const { state } = useSurfaceContext();
+  const { config } = useSurfaceContext();
 
-  if (state.variant === 'panel' || !state.isOpen) {
+  if (config.variant === 'panel') {
     return null;
   }
 
   return (
-    <div
+    <BaseDialog.Backdrop
       {...props}
       aria-hidden="true"
       className={cn(
         'surface-modal-overlay-animation fixed inset-0 z-(--z-index-surface-overlay) bg-black/70',
         className
       )}
-      data-state={state.isOpen ? 'open' : 'closed'}
       ref={ref}
     />
   );

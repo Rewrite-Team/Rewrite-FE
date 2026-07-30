@@ -1,26 +1,10 @@
 'use client';
 
-import type { ComponentPropsWithRef } from 'react';
+import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 
 import { cn } from '@/shared/styles/utils/cn';
-import { cloneSlot, getSingleSlotChild, getSlotProps } from '@/shared/utils/slot';
-
-import { useSurfaceContext } from './SurfaceContext';
 
 import type { SurfaceCloseProps } from './Surface.types';
-
-interface SurfaceCloseChildProps {
-  'aria-label'?: string;
-  className?: string;
-  onClick?: ComponentPropsWithRef<'button'>['onClick'];
-}
-
-const getCloseButtonProps = (props: Extract<SurfaceCloseProps, { asChild?: false }>) => {
-  const buttonProps = { ...props };
-
-  delete buttonProps.asChild;
-  return buttonProps;
-};
 
 /**
  * ## Surface.Close
@@ -35,6 +19,7 @@ const getCloseButtonProps = (props: Extract<SurfaceCloseProps, { asChild?: false
  * ### 접근성
  *
  * `aria-label`은 필수이며, `asChild` 사용 시 자식 요소에 전달됩니다.
+ * `asChild`의 자식이 button을 렌더링하지 않으면 `nativeButton={false}`를 전달합니다.
  *
  * @example
  * ```tsx
@@ -50,42 +35,17 @@ const getCloseButtonProps = (props: Extract<SurfaceCloseProps, { asChild?: false
  * ```
  */
 export function SurfaceClose(props: SurfaceCloseProps) {
-  const { actions } = useSurfaceContext();
-
-  const createHandleClick =
-    (
-      onClick?: SurfaceCloseChildProps['onClick'],
-      childOnClick?: SurfaceCloseChildProps['onClick']
-    ): NonNullable<SurfaceCloseChildProps['onClick']> =>
-    (event) => {
-      childOnClick?.(event);
-      onClick?.(event);
-      actions.close('close-button');
-    };
-
-  if (props.asChild) {
-    const { children, onClick } = props;
-    const slotProps = getSlotProps(props);
-    const child = getSingleSlotChild<SurfaceCloseChildProps>(children, 'Surface.Close');
-
-    return cloneSlot(child, {
-      ...slotProps,
-      className: cn('focus-ring', slotProps.className),
-      onClick: createHandleClick(onClick, child.props.onClick),
-    });
-  }
-
-  const { children, className, onClick, ref, ...buttonProps } = getCloseButtonProps(props);
+  const nativeButton = props.asChild ? props.nativeButton : true;
+  const { asChild, children, className, ...closeProps } = props;
 
   return (
-    <button
-      {...buttonProps}
+    <BaseDialog.Close
+      {...closeProps}
       className={cn('focus-ring', className)}
-      onClick={createHandleClick(onClick)}
-      ref={ref}
-      type="button"
+      nativeButton={nativeButton}
+      render={asChild ? children : undefined}
     >
-      {children}
-    </button>
+      {asChild ? undefined : children}
+    </BaseDialog.Close>
   );
 }
