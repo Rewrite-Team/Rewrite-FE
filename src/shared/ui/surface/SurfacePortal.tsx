@@ -1,8 +1,8 @@
 'use client';
 
-import { Portal } from '@/shared/ui/portal';
+import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 
-import { useSurfaceContext } from './SurfaceContext';
+import { getDefaultPortalContainer } from '@/shared/ui/portal';
 
 import type { SurfacePortalProps } from './Surface.types';
 
@@ -10,7 +10,7 @@ import type { SurfacePortalProps } from './Surface.types';
  * ## Surface.Portal
  *
  * @description
- * Surface 하위 UI를 document body 또는 지정한 container로 portal 렌더링합니다.
+ * Surface 하위 UI를 앱 전역 Portal Root 또는 지정한 container로 portal 렌더링합니다.
  *
  * ### 주요 내용
  *
@@ -20,11 +20,11 @@ import type { SurfacePortalProps } from './Surface.types';
  * `null`이면 렌더링하지 않습니다.
  */
 export function SurfacePortal({ children, container }: SurfacePortalProps) {
-  const { state } = useSurfaceContext();
+  const portalContainer = container === undefined ? getDefaultPortalContainer() : container;
 
-  if (!state.isOpen) {
+  if (!portalContainer) {
     return null;
   }
 
-  return <Portal container={container}>{children}</Portal>;
+  return <BaseDialog.Portal container={portalContainer}>{children}</BaseDialog.Portal>;
 }

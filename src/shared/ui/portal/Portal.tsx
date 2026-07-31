@@ -4,17 +4,9 @@ import { useMemo } from 'react';
 
 import { createPortal } from 'react-dom';
 
-import { PORTAL_ROOT_ID } from '@/shared/constants/portal';
+import { getDefaultPortalContainer } from './getDefaultPortalContainer';
 
-import type { PortalContainer, PortalProps } from './Portal.types';
-
-const getDefaultPortalContainer = (): PortalContainer | null => {
-  if (typeof document === 'undefined') {
-    return null;
-  }
-
-  return document.getElementById(PORTAL_ROOT_ID) ?? document.body;
-};
+import type { PortalProps } from './Portal.types';
 
 /**
  * ## Portal

@@ -1,9 +1,10 @@
 import type { ComponentPropsWithRef, ReactElement, ReactNode } from 'react';
 
-import type { PortalContainer } from '@/shared/ui/portal';
-
 /** Surface가 화면에 표시되는 형태입니다. */
 type SurfaceType = 'modal' | 'panel';
+
+/** Base UI Dialog Portal이 지원하는 container입니다. */
+type SurfacePortalContainer = HTMLElement | ShadowRoot;
 
 /** Surface 열림 상태가 변경된 원인입니다. */
 type SurfaceOpenChangeReason =
@@ -28,13 +29,13 @@ interface SurfaceCloseMeta {
 
 /** Surface가 공유하는 공통 props입니다. */
 interface SurfaceProps {
-  /** dismiss 닫기 요청을 전역적으로 허용할지 여부입니다. Close 버튼은 항상 닫힙니다. */
+  /** Surface.Close를 제외한 모든 닫기 요청을 허용할지 여부입니다. */
   canClose?: boolean;
   /** Surface compound 하위 컴포넌트입니다. */
   children: ReactNode;
   /** ESC 키로 닫을 수 있는지 여부입니다. */
   closeOnEscape?: boolean;
-  /** Content 바깥 pointer down으로 닫을 수 있는지 여부입니다. */
+  /** Content 바깥 상호작용으로 닫을 수 있는지 여부입니다. */
   closeOnOutsideClick?: boolean;
   /** uncontrolled 방식에서 최초로 열어둘지 여부입니다. */
   defaultOpen?: boolean;
@@ -62,7 +63,7 @@ interface SurfacePortalProps {
    *
    * 생략하면 앱 전역 Portal Root를 사용하고, `null`이면 렌더링하지 않습니다.
    */
-  container?: PortalContainer | null;
+  container?: SurfacePortalContainer | null;
 }
 
 /** Surface.Trigger가 직접 button을 렌더링할 때 사용하는 props입니다. */
@@ -77,6 +78,8 @@ interface SurfaceTriggerAsChildProps {
     className?: string;
     onClick?: ComponentPropsWithRef<'button'>['onClick'];
   }>;
+  /** 자식이 실제 button을 렌더링하는지 여부입니다. */
+  nativeButton?: boolean;
 }
 
 /** Surface.Trigger props입니다. */
@@ -147,6 +150,8 @@ interface SurfaceCloseAsChildProps {
     className?: string;
     onClick?: ComponentPropsWithRef<'button'>['onClick'];
   }>;
+  /** 자식이 실제 button을 렌더링하는지 여부입니다. */
+  nativeButton?: boolean;
 }
 
 type SurfaceCloseProps =
@@ -156,39 +161,25 @@ type SurfaceCloseProps =
     })
   | (SurfaceCloseBaseButtonProps & SurfaceCloseAsChildProps);
 
-/** Surface 내부 Context가 하위 컴포넌트에 제공하는 상태입니다. */
-interface SurfaceState {
+/** Surface 내부 Context가 Base UI part 어댑터에 제공하는 설정입니다. */
+interface SurfaceConfig {
   focusTrap: boolean;
-  isOpen: boolean;
+  isAriaModal: boolean;
   restoreFocus: boolean;
-  scrollLock: boolean;
   variant: SurfaceType;
-}
-
-/** Surface 내부 Context가 하위 컴포넌트에 제공하는 액션입니다. */
-interface SurfaceActions {
-  close: (reason: SurfaceCloseReason) => void;
-  toggle: (reason?: SurfaceOpenChangeReason) => void;
-}
-
-/** Surface 내부 Context에서 사용하는 자동 생성 id 모음입니다. */
-interface SurfaceMeta {
-  contentId: string;
 }
 
 /** Surface compound 하위 컴포넌트가 공유하는 내부 Context 값입니다. */
 interface SurfaceContextValue {
-  actions: SurfaceActions;
-  meta: SurfaceMeta;
-  state: SurfaceState;
+  config: SurfaceConfig;
 }
 
 export type {
-  SurfaceActions,
   SurfaceBodyProps,
   SurfaceCloseProps,
   SurfaceCloseMeta,
   SurfaceCloseReason,
+  SurfaceConfig,
   SurfaceContextValue,
   SurfaceContentProps,
   SurfaceFooterProps,
@@ -196,10 +187,9 @@ export type {
   SurfaceOverlayProps,
   SurfaceOpenChangeMeta,
   SurfaceOpenChangeReason,
-  SurfaceMeta,
+  SurfacePortalContainer,
   SurfacePortalProps,
   SurfaceProps,
-  SurfaceState,
   SurfaceType,
   SurfaceTriggerProps,
 };

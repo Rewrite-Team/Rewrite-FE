@@ -70,9 +70,9 @@ const sidebarItemVariants = cva(
  *
  * ### 접근성
  *
- * 모든 아이콘 메뉴는 `label`을 접근성 이름으로 사용합니다. 접힌 메뉴의 툴팁은
- * `aria-describedby`로 메뉴와 연결됩니다. 현재 페이지 링크에는 `aria-current="page"`를,
- * 드롭다운 트리거에는 `aria-expanded`를 전달합니다.
+ * 모든 아이콘 메뉴는 `label`을 접근성 이름으로 사용합니다. 접힌 메뉴의 Tooltip은
+ * 같은 문구를 시각적으로 보완합니다. 현재 페이지 링크에는 `aria-current="page"`를,
+ * 드롭다운 Trigger에는 `aria-expanded`를 전달합니다.
  *
  * @param icon - 메뉴 의미를 나타내는 SVG 아이콘 컴포넌트
  * @param label - 메뉴 텍스트이자 아이콘 버튼의 접근성 이름
@@ -137,12 +137,12 @@ export function SidebarItem({
   }
 
   return (
-    <Tooltip offset={8} placement="right">
-      <Tooltip.Trigger asChild>{item}</Tooltip.Trigger>
+    <Tooltip.Root offset={8} placement="right">
+      <Tooltip.Trigger render={item} />
       <Tooltip.Content>
         {label}
         <Tooltip.Arrow />
       </Tooltip.Content>
-    </Tooltip>
+    </Tooltip.Root>
   );
 }
