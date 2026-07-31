@@ -55,7 +55,7 @@ export function BadgeTitle({
   badgeGroupClassName,
   companyBadgeClassName,
   jobBadgeClassName,
-  titleClassName,
+  titleClassName = 'heading-24',
   ...props
 }: BadgeTitleProps) {
   return (
@@ -67,7 +67,7 @@ export function BadgeTitle({
         companyBadgeClassName={companyBadgeClassName}
         jobBadgeClassName={jobBadgeClassName}
       />
-      <Title as={titleAs} className={cn('heading-24', titleClassName)}>
+      <Title as={titleAs} className={titleClassName} title={title}>
         {title}
       </Title>
     </div>
