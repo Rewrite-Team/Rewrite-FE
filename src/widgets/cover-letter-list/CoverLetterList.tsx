@@ -33,7 +33,7 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
           href={ROUTES.WRITING_CREATE}
           variant="outline"
         >
-          upload
+          CREATE
         </LinkButton>
       </div>
 
