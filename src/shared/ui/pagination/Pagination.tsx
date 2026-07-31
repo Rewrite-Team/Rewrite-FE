@@ -86,9 +86,12 @@ export function Pagination({ className, currentPage, pathname, totalPages }: Pag
   const getHref = (page: number) => `${pathname}?page=${page}`;
 
   return (
-    <nav aria-label="페이지 이동" className={cn('flex justify-center', className)}>
-      <ul className="flex items-center gap-1">
-        <li>
+    <nav
+      aria-label="페이지 이동"
+      className={cn('flex w-full items-center justify-center', className)}
+    >
+      <ul className="m-0 flex items-center justify-center gap-1 p-0">
+        <li className="flex items-center justify-center">
           <PaginationArrow
             direction="previous"
             href={currentPage > 1 ? getHref(currentPage - 1) : undefined}
@@ -108,7 +111,7 @@ export function Pagination({ className, currentPage, pathname, totalPages }: Pag
           }
 
           return (
-            <li key={item}>
+            <li className="flex items-center justify-center" key={item}>
               <Link
                 aria-current={item === currentPage ? 'page' : undefined}
                 aria-label={`${item}페이지`}
@@ -124,7 +127,7 @@ export function Pagination({ className, currentPage, pathname, totalPages }: Pag
           );
         })}
 
-        <li>
+        <li className="flex items-center justify-center">
           <PaginationArrow
             direction="next"
             href={currentPage < totalPages ? getHref(currentPage + 1) : undefined}
