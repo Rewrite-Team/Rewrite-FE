@@ -1,7 +1,7 @@
-export const MOCK_COVER_LETTER_PAGE_SIZE = 9;
-export const MOCK_COVER_LETTER_TOTAL_PAGES = 5;
+const PAGE_SIZE = 9;
+const TOTAL_ITEMS = 21;
 
-const REVIEW_STATUSES = ['WRITING', 'REVIEWING', 'REVIEWED', 'REVIEW_FAILED'] as const;
+const DISPLAY_STATUSES = ['WRITING', 'REVIEWING', 'REVIEWED', 'REVIEW_FAILED'] as const;
 const TITLES = [
   '사용자 경험을 고민하는 프론트엔드 개발자',
   '작은 개선을 꾸준히 만드는 개발자',
@@ -17,24 +17,42 @@ const COMPANY_NAMES = ['Re:write', '오픈AI', '넥스트랩'] as const;
 const POSITION_TITLES = ['프론트엔드', '웹 개발', 'UI 엔지니어'] as const;
 
 /**
- * ## MOCK_COVER_LETTERS
+ * ## getMockCoverLetterListResponse
  *
  * @description
- * 자기소개서 목록 UI와 페이지네이션을 확인하기 위한 임시 데이터입니다.
- * 실제 목록 API가 연결되면 서버 응답으로 대체합니다.
+ * 자기소개서 목록 API와 동일한 페이지 응답 구조를 만드는 임시 목 함수입니다.
+ * 요청 페이지를 실제 데이터 범위로 정규화하고 해당 페이지의 항목과 페이지 메타데이터를 반환합니다.
+ * 실제 목록 API가 연결되면 이 함수와 목 데이터를 함께 제거합니다.
+ *
+ * @param requestedPage - 화면에서 요청한 1부터 시작하는 페이지 번호
+ * @returns 자기소개서 목록과 페이지 메타데이터
  */
-export const MOCK_COVER_LETTERS = Array.from(
-  { length: MOCK_COVER_LETTER_PAGE_SIZE * MOCK_COVER_LETTER_TOTAL_PAGES },
-  (_, index) => ({
-    id: String(index + 1),
+const MOCK_COVER_LETTERS = Array.from({ length: TOTAL_ITEMS }, (_, index) => {
+  const displayStatus = DISPLAY_STATUSES[index % DISPLAY_STATUSES.length];
+
+  return {
+    id: `cl_${String(index + 1).padStart(2, '0')}`,
     title: TITLES[index % TITLES.length],
     companyName: COMPANY_NAMES[index % COMPANY_NAMES.length],
     positionTitle: POSITION_TITLES[index % POSITION_TITLES.length],
-    displayStatus: REVIEW_STATUSES[index % REVIEW_STATUSES.length],
+    displayStatus,
     createdAt: '2026-06-20T14:00:00',
     latestReviewedVersionId:
-      REVIEW_STATUSES[index % REVIEW_STATUSES.length] === 'REVIEWED'
-        ? `rv_${String(index + 1).padStart(2, '0')}`
-        : null,
-  })
-);
+      displayStatus === 'REVIEWED' ? `rv_${String(index + 1).padStart(2, '0')}` : null,
+  };
+});
+
+export const getMockCoverLetterListResponse = (requestedPage: number) => {
+  const totalItems = MOCK_COVER_LETTERS.length;
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+  const page = Math.min(Math.max(requestedPage, 1), Math.max(totalPages, 1));
+  const startIndex = (page - 1) * PAGE_SIZE;
+
+  return {
+    items: MOCK_COVER_LETTERS.slice(startIndex, startIndex + PAGE_SIZE),
+    page,
+    size: PAGE_SIZE,
+    totalItems,
+    totalPages,
+  };
+};
