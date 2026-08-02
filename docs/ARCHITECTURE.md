@@ -57,10 +57,12 @@ src/app/
     └── writing/
         ├── page.tsx
         ├── create/
-        │   ├── step1/page.tsx
-        │   ├── step2/page.tsx
-        │   ├── step3/page.tsx
-        │   └── step4/page.tsx
+        │   └── (steps)/
+        │       ├── layout.tsx
+        │       ├── step1/page.tsx
+        │       ├── step2/page.tsx
+        │       ├── step3/page.tsx
+        │       └── step4/page.tsx
         └── [id]/
             ├── page.tsx
             ├── keyword-analysis/
@@ -89,10 +91,12 @@ app/
     └── writing/
         ├── page.tsx
         ├── create/
-        │   ├── step1/page.tsx
-        │   ├── step2/page.tsx
-        │   ├── step3/page.tsx
-        │   └── step4/page.tsx
+        │   └── (steps)/
+        │       ├── layout.tsx
+        │       ├── step1/page.tsx
+        │       ├── step2/page.tsx
+        │       ├── step3/page.tsx
+        │       └── step4/page.tsx
         └── [id]/
             ├── page.tsx
             ├── keyword-analysis/
