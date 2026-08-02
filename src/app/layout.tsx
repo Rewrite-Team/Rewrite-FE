@@ -22,7 +22,7 @@ export default function RootLayout({
       <body className="flex min-h-dvh flex-col bg-black">
         <Header />
         <main className="flex min-h-0 flex-1 flex-col px-5 sm:px-8 lg:px-12">
-          <div className="mx-auto flex w-full max-w-275 flex-1 flex-col">{children}</div>
+          <div className="mx-auto flex w-full max-w-277.5 flex-1 flex-col">{children}</div>
         </main>
         <Footer />
         <div id={PORTAL_ROOT_ID} />
