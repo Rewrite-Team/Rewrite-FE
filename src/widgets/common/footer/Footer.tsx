@@ -34,13 +34,12 @@ export function Footer({
       <div className="mx-auto flex min-h-14 w-full items-center justify-between px-5 py-7 xl:px-20">
         <div className="flex flex-col gap-6">
           <TextLogo aria-label="Re:write 홈으로 이동" href={logoHref} />
-          <p className="body-16 font-normal text-white">© 2026 Re:write</p>
+          <p className="body-16 font-normal">© 2026 Re:write</p>
         </div>
 
         <nav aria-label="프로젝트 링크" className="flex items-center">
           <LinkButton
             aria-label="Re:write GitHub 저장소로 이동"
-            className="text-white"
             external
             href={githubHref}
             iconOnly
