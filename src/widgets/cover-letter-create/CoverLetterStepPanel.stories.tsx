@@ -1,3 +1,5 @@
+import type { ComponentProps } from 'react';
+
 import { CoverLetterStepPanel } from './CoverLetterStepPanel';
 
 import type { Meta, StoryObj } from '@storybook/nextjs';
@@ -19,11 +21,11 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta;
+} satisfies Meta<typeof CoverLetterStepPanel>;
 
 export default meta;
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<ComponentProps<typeof CoverLetterStepPanel>>;
 
 export const Step1: Story = {
   args: {
