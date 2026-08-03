@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { Button } from '@/shared/ui/button';
+import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
 import type { StepPanelAction } from '@/widgets/cover-letter-create/types/coverLetterCreate';
 
 interface StepActionButtonProps {
@@ -26,9 +27,9 @@ export function StepActionButton({ action, children, className, variant }: StepA
     <Button
       className={className}
       disabled={!isEnabled}
+      form={COVER_LETTER_STEP_FORM_ID}
       onClick={isEnabled ? action.onClick : undefined}
-      // TODO: STEP별 폼 추가 시 `form` 속성으로 연결하고 다음·임시 저장·완료 버튼을 `submit`으로 전환한다.
-      type="button"
+      type="submit"
       variant={variant}
     >
       {children}

@@ -101,7 +101,7 @@ export function AIReviewRequirementModal({
             <TextArea disabled={textareaDisabled} id={requirementFieldId}>
               <TextArea.Label className="sr-only">AI 첨삭 요구사항</TextArea.Label>
               <TextArea.Field
-                className="min-h-50 w-full resize-none font-normal"
+                className="min-h-50 resize-none font-normal"
                 maxLength={maxLength}
                 onChange={handleRequirementChange}
                 placeholder={placeholder}

@@ -3,8 +3,9 @@ import { WRITING_CREATE_STEPS } from '@/shared/constants/writingCreate';
 import { cn } from '@/shared/styles/utils/cn';
 import type { WritingCreateStep } from '@/shared/types/writingCreate';
 import { COVER_LETTER_STEP_CONFIG } from '@/widgets/cover-letter-create/constants/stepConfig';
-import { StepActionButton } from '@/widgets/cover-letter-create/StepActionButton';
 import type { StepPanelAction } from '@/widgets/cover-letter-create/types/coverLetterCreate';
+
+import { StepActionButton } from './StepActionButton';
 
 interface CoverLetterStepPanelBaseProps {
   className?: string;
@@ -83,10 +84,10 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
   const isFinalStep = currentStep === 4;
 
   return (
-    <div className={cn('flex w-full flex-col gap-3', className)}>
+    <div className={cn('contents lg:flex lg:flex-col lg:gap-3', className)}>
       <nav
         aria-label="자기소개서 등록 진행 단계"
-        className="flex h-24 w-full items-center justify-center overflow-hidden rounded-2xl bg-gray-800"
+        className="row-start-2 mt-6 flex h-24 min-w-0 items-center justify-center overflow-hidden rounded-2xl bg-gray-800 lg:mt-0"
       >
         <ol className="flex h-12 w-67.5 items-start">
           {WRITING_CREATE_STEPS.map((step, index) => {
@@ -138,7 +139,7 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
         </ol>
       </nav>
 
-      <div className="flex flex-col gap-2">
+      <div className="row-start-4 mt-6 flex min-w-0 flex-col gap-2 lg:mt-0">
         {isFinalStep ? (
           <StepActionButton action={props.completeAction} className="h-11.25 w-full">
             완료
