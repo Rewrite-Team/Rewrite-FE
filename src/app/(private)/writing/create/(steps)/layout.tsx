@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
 
-import { WritingCreateStepsLayoutClient } from './WritingCreateStepsLayoutClient';
+import { WritingCreateStepLayoutClient } from './WritingCreateStepLayoutClient';
 
-interface WritingCreateStepsLayoutProps {
+interface WritingCreateLayoutProps {
   children: ReactNode;
 }
 
-export default function WritingCreateStepsLayout({ children }: WritingCreateStepsLayoutProps) {
-  return <WritingCreateStepsLayoutClient>{children}</WritingCreateStepsLayoutClient>;
+export default function WritingCreateLayout({ children }: WritingCreateLayoutProps) {
+  return <WritingCreateStepLayoutClient>{children}</WritingCreateStepLayoutClient>;
 }

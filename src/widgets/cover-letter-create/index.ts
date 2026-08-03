@@ -1,5 +1,3 @@
 export { CoverLetterStepPanel } from './CoverLetterStepPanel';
-export {
-  COVER_LETTER_CREATE_STEP_CONFIG,
-  isCoverLetterCreateStepSegment,
-} from './coverLetterCreateStepConfig';
+export { COVER_LETTER_STEP_CONFIG } from './constants/stepConfig';
+export type { CoverLetterCreateStepSegment } from './types/coverLetterCreate';

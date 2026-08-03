@@ -1,16 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { Button } from '@/shared/ui/button';
-
-/** STEP 패널 버튼의 활성 상태와 실행 가능한 액션을 함께 표현합니다. */
-export type StepPanelAction =
-  | {
-      onClick: () => void;
-      status: 'enabled';
-    }
-  | {
-      status: 'disabled';
-    };
+import type { StepPanelAction } from '@/widgets/cover-letter-create/types/coverLetterCreate';
 
 interface StepActionButtonProps {
   action: StepPanelAction;

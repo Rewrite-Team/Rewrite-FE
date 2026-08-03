@@ -13,7 +13,6 @@ describe('CoverLetterStepPanel', () => {
     render(
       <CoverLetterStepPanel
         currentStep={2}
-        highestCompletedStep={1}
         nextAction={{ onClick: jest.fn(), status: 'enabled' }}
         onStepSelect={jest.fn()}
         saveDraftAction={{ status: 'disabled' }}
@@ -29,7 +28,6 @@ describe('CoverLetterStepPanel', () => {
     render(
       <CoverLetterStepPanel
         currentStep={2}
-        highestCompletedStep={1}
         nextAction={{ onClick: jest.fn(), status: 'enabled' }}
         onStepSelect={jest.fn()}
         saveDraftAction={{ status: 'disabled' }}
@@ -51,7 +49,6 @@ describe('CoverLetterStepPanel', () => {
     render(
       <CoverLetterStepPanel
         currentStep={1}
-        highestCompletedStep={null}
         nextAction={{ onClick: handleNext, status: 'enabled' }}
         onStepSelect={jest.fn()}
         saveDraftAction={{ status: 'disabled' }}
@@ -70,7 +67,6 @@ describe('CoverLetterStepPanel', () => {
     render(
       <CoverLetterStepPanel
         currentStep={3}
-        highestCompletedStep={2}
         nextAction={{ onClick: jest.fn(), status: 'enabled' }}
         onStepSelect={handleStepSelect}
         saveDraftAction={{ status: 'disabled' }}
@@ -91,7 +87,6 @@ describe('CoverLetterStepPanel', () => {
       <CoverLetterStepPanel
         completeAction={{ status: 'disabled' }}
         currentStep={4}
-        highestCompletedStep={3}
         onStepSelect={jest.fn()}
       />
     );

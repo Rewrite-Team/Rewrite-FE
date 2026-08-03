@@ -1,15 +1,14 @@
-import { FINAL_COVER_LETTER_CREATE_STEP } from '@/features/cover-letter/create-flow';
 import { CheckIcon } from '@/shared/assets/icons/common';
-import type { WritingCreateStep } from '@/shared/constants/routes';
+import { WRITING_CREATE_STEPS } from '@/shared/constants/writingCreate';
 import { cn } from '@/shared/styles/utils/cn';
-
-import { COVER_LETTER_CREATE_STEPS } from './coverLetterCreateStepConfig';
-import { StepActionButton, type StepPanelAction } from './StepActionButton';
+import type { WritingCreateStep } from '@/shared/types/writingCreate';
+import { COVER_LETTER_STEP_CONFIG } from '@/widgets/cover-letter-create/constants/stepConfig';
+import { StepActionButton } from '@/widgets/cover-letter-create/StepActionButton';
+import type { StepPanelAction } from '@/widgets/cover-letter-create/types/coverLetterCreate';
 
 interface CoverLetterStepPanelBaseProps {
   className?: string;
   currentStep: WritingCreateStep;
-  highestCompletedStep: WritingCreateStep | null;
   onStepSelect: (step: WritingCreateStep) => void;
 }
 
@@ -17,28 +16,42 @@ type CoverLetterStepPanelProps = CoverLetterStepPanelBaseProps &
   (
     | {
         completeAction?: never;
-        currentStep: Exclude<WritingCreateStep, typeof FINAL_COVER_LETTER_CREATE_STEP>;
+        currentStep: Exclude<WritingCreateStep, 4>;
         nextAction: StepPanelAction;
         saveDraftAction: StepPanelAction;
       }
     | {
         completeAction: StepPanelAction;
-        currentStep: typeof FINAL_COVER_LETTER_CREATE_STEP;
+        currentStep: 4;
         nextAction?: never;
         saveDraftAction?: never;
       }
   );
 
+type CoverLetterCreateStepStatus = 'completed' | 'current' | 'upcoming';
+
+const STEP_STATUS_LABEL = {
+  completed: '완료',
+  current: '현재 단계',
+  upcoming: '진행 전',
+} as const satisfies Record<CoverLetterCreateStepStatus, string>;
+
+const getStepStatus = (
+  step: WritingCreateStep,
+  currentStep: WritingCreateStep
+): CoverLetterCreateStepStatus => {
+  if (step === currentStep) return 'current';
+  if (step < currentStep) return 'completed';
+
+  return 'upcoming';
+};
+
 const getConnectorClassName = (
-  startStep: WritingCreateStep,
-  endStep: WritingCreateStep,
-  currentStep: WritingCreateStep,
-  highestCompletedStep: WritingCreateStep | null
+  startStepStatus: CoverLetterCreateStepStatus,
+  endStepStatus: CoverLetterCreateStepStatus
 ) => {
-  const isActiveStep = (step: WritingCreateStep) =>
-    step === currentStep || (highestCompletedStep !== null && step <= highestCompletedStep);
-  const isStartStepActive = isActiveStep(startStep);
-  const isEndStepActive = isActiveStep(endStep);
+  const isStartStepActive = startStepStatus !== 'upcoming';
+  const isEndStepActive = endStepStatus !== 'upcoming';
 
   if (isStartStepActive && isEndStepActive) return 'bg-primary-500';
   if (isStartStepActive) return 'bg-gradient-to-r from-primary-500 to-gray-500';
@@ -66,8 +79,8 @@ const getConnectorClassName = (
  * @param completeAction - STEP4의 완료 버튼 상태와 동작
  */
 export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
-  const { className, currentStep, highestCompletedStep, onStepSelect } = props;
-  const isFinalStep = currentStep === FINAL_COVER_LETTER_CREATE_STEP;
+  const { className, currentStep, onStepSelect } = props;
+  const isFinalStep = currentStep === 4;
 
   return (
     <div className={cn('flex w-full flex-col gap-3', className)}>
@@ -76,43 +89,39 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
         className="flex h-24 w-full items-center justify-center overflow-hidden rounded-2xl bg-gray-800"
       >
         <ol className="flex h-12 w-67.5 items-start">
-          {COVER_LETTER_CREATE_STEPS.map((stepConfig, index) => {
-            const isCompleted =
-              highestCompletedStep !== null && stepConfig.step <= highestCompletedStep;
-            const isCurrent = stepConfig.step === currentStep;
-            const nextStepConfig = COVER_LETTER_CREATE_STEPS[index + 1];
+          {WRITING_CREATE_STEPS.map((step, index) => {
+            const stepConfig = COVER_LETTER_STEP_CONFIG[`step${step}`];
+            const stepStatus = getStepStatus(step, currentStep);
+            const isCompleted = stepStatus === 'completed';
+            const nextStep = WRITING_CREATE_STEPS[index + 1];
+            const nextStepStatus = nextStep ? getStepStatus(nextStep, currentStep) : null;
 
             return (
               <li
-                aria-current={isCurrent ? 'step' : undefined}
-                className={cn('relative flex h-12 items-start', nextStepConfig ? 'w-20.5' : 'w-6')}
-                key={stepConfig.step}
+                aria-current={stepStatus === 'current' ? 'step' : undefined}
+                className={cn('relative flex h-12 items-start', nextStep ? 'w-20.5' : 'w-6')}
+                key={step}
               >
                 <button
                   aria-label={`${stepConfig.label} 단계로 이동`}
                   className={cn(
                     'relative z-10 flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-sm leading-none font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300 disabled:cursor-default',
-                    isCompleted || isCurrent ? 'bg-primary-500' : 'bg-gray-500',
-                    isCurrent && 'border border-white'
+                    stepStatus !== 'upcoming' ? 'bg-primary-500' : 'bg-gray-500',
+                    stepStatus === 'current' && 'border border-white'
                   )}
-                  disabled={isCurrent || !isCompleted}
-                  onClick={() => onStepSelect(stepConfig.step)}
+                  disabled={!isCompleted}
+                  onClick={() => onStepSelect(step)}
                   type="button"
                 >
-                  {isCompleted ? <CheckIcon className="h-3 w-4" /> : stepConfig.step}
+                  {isCompleted ? <CheckIcon className="h-3 w-4" /> : step}
                 </button>
 
-                {nextStepConfig ? (
+                {nextStepStatus ? (
                   <span
                     aria-hidden
                     className={cn(
                       'mt-3 h-px w-14.5 shrink-0',
-                      getConnectorClassName(
-                        stepConfig.step,
-                        nextStepConfig.step,
-                        currentStep,
-                        highestCompletedStep
-                      )
+                      getConnectorClassName(stepStatus, nextStepStatus)
                     )}
                   />
                 ) : null}
@@ -121,7 +130,7 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
                   {stepConfig.label}
                 </span>
                 <span className="sr-only">
-                  {stepConfig.step}단계 {isCompleted ? '완료' : isCurrent ? '현재 단계' : '진행 전'}
+                  {step}단계 {STEP_STATUS_LABEL[stepStatus]}
                 </span>
               </li>
             );
