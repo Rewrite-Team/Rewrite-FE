@@ -61,7 +61,7 @@ export function WritingCreateStepShell({
     ) : (
       <CoverLetterStepPanel
         currentStep={step}
-        nextAction={{ onClick: handleNext, status: 'enabled' }}
+        nextAction={step === 1 ? { status: 'enabled' } : { onClick: handleNext, status: 'enabled' }}
         onStepSelect={handleStepSelect}
         saveDraftAction={
           // TODO: STEP별 임시 저장 API가 준비되면 폼 검증과 저장 mutation을 연결한다.
@@ -76,12 +76,12 @@ export function WritingCreateStepShell({
 
       <aside
         aria-label="자기소개서 등록 진행 및 작업"
-        className="mt-6 flex min-w-0 flex-col gap-3 lg:col-start-2 lg:row-start-2 lg:mt-9"
+        className="contents lg:col-start-2 lg:row-start-2 lg:mt-9 lg:block"
       >
         {stepPanel}
       </aside>
 
-      <div className="mt-9 flex min-w-0 flex-col gap-12 lg:col-start-1 lg:row-start-2">
+      <div className="row-start-3 mt-9 flex min-w-0 flex-col gap-12 lg:col-start-1 lg:row-start-2">
         {children}
       </div>
     </div>

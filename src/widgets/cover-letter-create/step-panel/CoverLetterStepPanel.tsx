@@ -84,10 +84,10 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
   const isFinalStep = currentStep === 4;
 
   return (
-    <div className={cn('flex w-full flex-col gap-3', className)}>
+    <div className={cn('contents lg:flex lg:w-full lg:flex-col lg:gap-3', className)}>
       <nav
         aria-label="자기소개서 등록 진행 단계"
-        className="flex h-24 w-full items-center justify-center overflow-hidden rounded-2xl bg-gray-800"
+        className="row-start-2 mt-6 flex h-24 min-w-0 items-center justify-center overflow-hidden rounded-2xl bg-gray-800 lg:mt-0 lg:w-full"
       >
         <ol className="flex h-12 w-67.5 items-start">
           {WRITING_CREATE_STEPS.map((step, index) => {
@@ -139,7 +139,7 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
         </ol>
       </nav>
 
-      <div className="flex flex-col gap-2">
+      <div className="row-start-4 mt-6 flex min-w-0 flex-col gap-2 lg:mt-0 lg:w-full">
         {isFinalStep ? (
           <StepActionButton action={props.completeAction} className="h-11.25 w-full">
             완료

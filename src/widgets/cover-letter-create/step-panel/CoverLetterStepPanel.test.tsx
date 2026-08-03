@@ -2,6 +2,8 @@ import type { ComponentPropsWithoutRef } from 'react';
 
 import { fireEvent, render, screen } from '@testing-library/react';
 
+import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
+
 import { CoverLetterStepPanel } from './CoverLetterStepPanel';
 
 jest.mock('@/shared/assets/icons/common', () => ({
@@ -55,10 +57,17 @@ describe('CoverLetterStepPanel', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: '다음' }));
+    const nextButton = screen.getByRole('button', { name: '다음' });
+    const saveDraftButton = screen.getByRole('button', { name: '임시 저장' });
+
+    fireEvent.click(nextButton);
 
     expect(handleNext).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole('button', { name: '임시 저장' })).toBeDisabled();
+    expect(nextButton).toHaveAttribute('form', COVER_LETTER_STEP_FORM_ID);
+    expect(nextButton).toHaveAttribute('type', 'submit');
+    expect(saveDraftButton).toBeDisabled();
+    expect(saveDraftButton).toHaveAttribute('form', COVER_LETTER_STEP_FORM_ID);
+    expect(saveDraftButton).toHaveAttribute('type', 'submit');
   });
 
   it('이전 단계 아이콘만 이동할 수 있다', () => {
@@ -91,7 +100,11 @@ describe('CoverLetterStepPanel', () => {
       />
     );
 
-    expect(screen.getByRole('button', { name: '완료' })).toBeDisabled();
+    const completeButton = screen.getByRole('button', { name: '완료' });
+
+    expect(completeButton).toBeDisabled();
+    expect(completeButton).toHaveAttribute('form', COVER_LETTER_STEP_FORM_ID);
+    expect(completeButton).toHaveAttribute('type', 'submit');
     expect(screen.queryByRole('button', { name: '다음' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: '임시 저장' })).not.toBeInTheDocument();
   });
