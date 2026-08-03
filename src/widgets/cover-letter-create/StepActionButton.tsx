@@ -27,6 +27,7 @@ export function StepActionButton({ action, children, className, variant }: StepA
       className={className}
       disabled={!isEnabled}
       onClick={isEnabled ? action.onClick : undefined}
+      // TODO: STEP별 폼 추가 시 `form` 속성으로 연결하고 다음·임시 저장·완료 버튼을 `submit`으로 전환한다.
       type="button"
       variant={variant}
     >
