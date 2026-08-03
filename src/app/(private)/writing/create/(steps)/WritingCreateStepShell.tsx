@@ -81,9 +81,7 @@ export function WritingCreateStepShell({
         {stepPanel}
       </aside>
 
-      <div className="row-start-3 mt-9 flex min-w-0 flex-col gap-12 lg:col-start-1 lg:row-start-2">
-        {children}
-      </div>
+      <div className="row-start-3 mt-9 min-w-0 lg:col-start-1 lg:row-start-2">{children}</div>
     </div>
   );
 }

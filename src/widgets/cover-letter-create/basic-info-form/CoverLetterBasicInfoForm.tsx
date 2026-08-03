@@ -26,7 +26,7 @@ export function CoverLetterBasicInfoForm() {
   return (
     <form
       aria-label="자기소개서 기본 정보"
-      className="flex w-full flex-col gap-12"
+      className="flex flex-col gap-12"
       id={COVER_LETTER_STEP_FORM_ID}
       noValidate
       onSubmit={handleSubmit}
