@@ -1,12 +1,10 @@
 import Link from 'next/link';
 
+import type { CoverLetterSummary } from '@/entities/cover-letter/model/types';
+import { CoverLetterStatus } from '@/entities/cover-letter/ui/CoverLetterStatus';
 import { ROUTES } from '@/shared/constants/routes';
 import { BadgeTitle } from '@/shared/ui/badge-title';
 import { formatDate } from '@/shared/utils/formatDate';
-
-import { CoverLetterStatus } from './CoverLetterStatus';
-
-import type { CoverLetterSummary } from '../model/types';
 
 interface CoverLetterCardProps {
   coverLetter: CoverLetterSummary;
