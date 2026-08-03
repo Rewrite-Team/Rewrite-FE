@@ -1,6 +1,5 @@
+import { Profile } from '@/entities/user/ui/Profile';
 import { DefaultProfileImage } from '@/shared/assets/images';
-
-import { Profile } from './Profile';
 
 import type { Meta, StoryObj } from '@storybook/nextjs';
 

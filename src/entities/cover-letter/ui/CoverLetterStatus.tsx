@@ -1,7 +1,6 @@
+import type { CoverLetterDisplayStatus } from '@/entities/cover-letter/model/types';
 import { cn } from '@/shared/styles/utils/cn';
 import { SymbolLogo } from '@/shared/ui/logo';
-
-import type { CoverLetterDisplayStatus } from '../model/types';
 
 interface CoverLetterStatusProps {
   displayStatus: CoverLetterDisplayStatus;

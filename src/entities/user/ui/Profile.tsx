@@ -1,10 +1,8 @@
 import type { ImageProps } from 'next/image';
 
+import type { UserProfile } from '@/entities/user/model/types';
+import { ProfileImage } from '@/entities/user/ui/ProfileImage';
 import { DefaultProfileImage } from '@/shared/assets/images';
-
-import { ProfileImage } from './ProfileImage';
-
-import type { UserProfile } from '../model/types';
 
 interface ProfileProps extends UserProfile {
   fallbackImageSrc?: ImageProps['src'];

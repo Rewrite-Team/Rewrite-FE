@@ -1,6 +1,9 @@
-import { CoverLetterCard } from './CoverLetterCard';
+import type {
+  CoverLetterDisplayStatus,
+  CoverLetterSummary,
+} from '@/entities/cover-letter/model/types';
+import { CoverLetterCard } from '@/entities/cover-letter/ui/CoverLetterCard';
 
-import type { CoverLetterDisplayStatus, CoverLetterSummary } from '../model/types';
 import type { Meta, StoryObj } from '@storybook/nextjs';
 
 const DISPLAY_STATUSES: CoverLetterDisplayStatus[] = [
