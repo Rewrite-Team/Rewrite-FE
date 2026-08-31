@@ -1,3 +1,5 @@
+import { CoverLetterReviewForm } from '@/widgets/cover-letter-create';
+
 export default function WritingCreateStep4Page() {
-  return null;
+  return <CoverLetterReviewForm />;
 }
