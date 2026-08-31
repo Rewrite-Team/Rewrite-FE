@@ -34,7 +34,7 @@ export function WritingCreateStepShell({
   const { description, step, title } = COVER_LETTER_STEP_CONFIG[currentStepSegment];
   const currentStepIndex = WRITING_CREATE_STEPS.indexOf(step);
   const nextStep = WRITING_CREATE_STEPS[currentStepIndex + 1];
-  const hasConnectedForm = step === 1 || step === 2;
+  const hasConnectedForm = nextStep !== undefined;
 
   // TODO: API 연결 시 서버의 WRITING 진행 상태와 저장 결과를 기준으로 이동 가능 STEP을 결정한다.
   const handleNext = () => {
