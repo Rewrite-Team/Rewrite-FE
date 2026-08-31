@@ -48,7 +48,7 @@ export function CoverLetterPreferredQualificationForm() {
           name="preferredQualification"
           render={({ errorMessage, field, invalid }) => (
             <TextArea id="preferred-qualification" invalid={invalid} required>
-              <TextArea.Label className="mb-6">공고 우대사항</TextArea.Label>
+              <TextArea.Label className="mb-6 leading-5.5">공고 우대사항</TextArea.Label>
               <TextArea.Field
                 {...field}
                 className="h-85.5 min-h-85.5"
