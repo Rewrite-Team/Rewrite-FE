@@ -54,7 +54,7 @@ export function WritingCreateStepShell({
       <CoverLetterStepPanel
         completeAction={
           // TODO: 최종 등록 API가 준비되면 완료 mutation과 로딩·오류 처리를 연결한다.
-          { status: 'disabled' }
+          { status: 'enabled' }
         }
         currentStep={step}
         onStepSelect={handleStepSelect}

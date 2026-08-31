@@ -2,5 +2,6 @@ export { CoverLetterBasicInfoForm } from './basic-info-form/CoverLetterBasicInfo
 export { COVER_LETTER_STEP_CONFIG } from './constants/stepConfig';
 export { CoverLetterPreferredQualificationForm } from './preferred-qualification-form/CoverLetterPreferredQualificationForm';
 export { CoverLetterQuestionForm } from './question-form/CoverLetterQuestionForm';
+export { CoverLetterReviewForm } from './review-form/CoverLetterReviewForm';
 export { CoverLetterStepPanel } from './step-panel/CoverLetterStepPanel';
 export type { CoverLetterCreateStepSegment } from './types/coverLetterCreate';
