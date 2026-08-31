@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   useFieldArray,
   useForm,
@@ -12,6 +13,11 @@ import {
   type SubmitHandler,
 } from 'react-hook-form';
 
+import {
+  coverLetterStep3Schema,
+  type CoverLetterStep3FormInput,
+  type CoverLetterStep3Values,
+} from '@/features/cover-letter/create-flow';
 import { ROUTES } from '@/shared/constants/routes';
 import { Accordion } from '@/shared/ui/accordion';
 import { Button } from '@/shared/ui/button';
@@ -20,40 +26,24 @@ import { Input } from '@/shared/ui/input';
 import { TextArea } from '@/shared/ui/textarea';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
 
-interface CoverLetterQuestion {
-  answer: string;
-  characterLimit: string;
-  question: string;
-}
-
-interface CoverLetterQuestionFormValues {
-  questions: CoverLetterQuestion[];
-}
-
 interface CoverLetterQuestionFieldsProps {
   answerLength?: number;
-  control: Control<CoverLetterQuestionFormValues>;
+  control: Control<CoverLetterStep3FormInput, unknown, CoverLetterStep3Values>;
   index: number;
   isOpen: boolean;
   onApplyLength: () => void;
   onOpenChange: (open: boolean) => void;
 }
 
-const EMPTY_QUESTION: CoverLetterQuestion = {
+const EMPTY_QUESTION: CoverLetterStep3FormInput['questions'][number] = {
   answer: '',
   characterLimit: '',
   question: '',
 };
 
-const DEFAULT_FORM_VALUES: CoverLetterQuestionFormValues = {
+const DEFAULT_FORM_VALUES: CoverLetterStep3FormInput = {
   questions: [{ ...EMPTY_QUESTION }],
 };
-
-const REQUIRED_QUESTION_MESSAGE = '자기소개서 질문을 입력해주세요.';
-const REQUIRED_ANSWER_MESSAGE = '자기소개서 내용을 입력해주세요.';
-const INVALID_CHARACTER_LIMIT_MESSAGE = '글자 수는 1 이상의 숫자로 입력해주세요.';
-
-const validateRequiredText = (value: string, message: string) => value.trim().length > 0 || message;
 
 /** 하나의 자기소개서 문항과 답변 입력 영역을 구성합니다. */
 function CoverLetterQuestionFields({
@@ -93,10 +83,6 @@ function CoverLetterQuestionFields({
               </div>
             </Input>
           )}
-          rules={{
-            required: REQUIRED_QUESTION_MESSAGE,
-            validate: (value) => validateRequiredText(value, REQUIRED_QUESTION_MESSAGE),
-          }}
         />
       </Accordion.Header>
 
@@ -123,12 +109,6 @@ function CoverLetterQuestionFields({
               <Input.ErrorMessage>{errorMessage}</Input.ErrorMessage>
             </Input>
           )}
-          rules={{
-            validate: (value) =>
-              value === '' ||
-              (/^\d+$/.test(value) && Number(value) > 0) ||
-              INVALID_CHARACTER_LIMIT_MESSAGE,
-          }}
         />
 
         <FormField
@@ -150,10 +130,6 @@ function CoverLetterQuestionFields({
               <TextArea.ErrorMessage>{errorMessage}</TextArea.ErrorMessage>
             </TextArea>
           )}
-          rules={{
-            required: REQUIRED_ANSWER_MESSAGE,
-            validate: (value) => validateRequiredText(value, REQUIRED_ANSWER_MESSAGE),
-          }}
         />
       </Accordion.Content>
     </Accordion>
@@ -171,8 +147,13 @@ export function CoverLetterQuestionForm() {
   const router = useRouter();
   const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(0);
   const [answerLengths, setAnswerLengths] = useState<Array<number | undefined>>([undefined]);
-  const { control, getValues, handleSubmit, trigger } = useForm<CoverLetterQuestionFormValues>({
+  const { control, getValues, handleSubmit, trigger } = useForm<
+    CoverLetterStep3FormInput,
+    unknown,
+    CoverLetterStep3Values
+  >({
     defaultValues: DEFAULT_FORM_VALUES,
+    resolver: zodResolver(coverLetterStep3Schema),
   });
   const { append, fields } = useFieldArray({
     control,
@@ -201,12 +182,12 @@ export function CoverLetterQuestionForm() {
     setOpenQuestionIndex(fields.length);
   };
 
-  const handleValidSubmit: SubmitHandler<CoverLetterQuestionFormValues> = () => {
+  const handleValidSubmit: SubmitHandler<CoverLetterStep3Values> = () => {
     // TODO: 문항과 답변 저장 API가 연결되면 저장 성공 후 STEP4로 이동한다.
     router.push(ROUTES.WRITING_CREATE_STEP(4));
   };
 
-  const handleInvalidSubmit: SubmitErrorHandler<CoverLetterQuestionFormValues> = (errors) => {
+  const handleInvalidSubmit: SubmitErrorHandler<CoverLetterStep3FormInput> = (errors) => {
     const questionErrors = errors.questions;
 
     if (!Array.isArray(questionErrors)) return;

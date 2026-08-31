@@ -2,44 +2,39 @@
 
 import type { SubmitEvent } from 'react';
 
+import {
+  coverLetterStep4Schema,
+  type CoverLetterStep4Input,
+  type CoverLetterStep4Values,
+} from '@/features/cover-letter/create-flow';
 import { Accordion } from '@/shared/ui/accordion';
 import { Input } from '@/shared/ui/input';
 import { TextArea } from '@/shared/ui/textarea';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
 
-interface CoverLetterReviewQuestion {
-  answer: string;
-  characterLimit?: number;
-  question: string;
-}
-
-interface CoverLetterReviewData {
-  companyName: string;
-  jobPostingUrl: string;
-  positionTitle: string;
-  preferredQualification: string;
-  questions: CoverLetterReviewQuestion[];
-  title: string;
-}
+type CoverLetterReviewQuestion = CoverLetterStep4Values['questions'][number];
 
 interface CoverLetterReviewQuestionProps extends CoverLetterReviewQuestion {
   questionNumber: number;
 }
 
-const PUBLISHING_REVIEW_DATA: CoverLetterReviewData = {
+const PUBLISHING_REVIEW_INPUT = {
   companyName: '카카오',
-  jobPostingUrl: 'https://어쩌구저쩌구.com',
+  jobPostingUrl: 'https://careers.kakao.com/jobs/frontend',
   positionTitle: '프론트엔드 개발자',
   preferredQualification: '착하고 착하고 착한 사람 찾아요~!',
   questions: [
     {
       answer: '이서정입니다람쥐~',
-      characterLimit: 700,
+      characterLimit: '700',
       question: '이름이 무엇입니까?',
     },
   ],
   title: '카카오 자기소개서',
-};
+} satisfies CoverLetterStep4Input;
+
+// TODO: API 연결 시 서버 응답을 STEP4 스키마로 검증한 결과로 교체한다.
+const PUBLISHING_REVIEW_DATA = coverLetterStep4Schema.parse(PUBLISHING_REVIEW_INPUT);
 
 /** 최종 확인 화면에서 하나의 자기소개서 문항과 답변을 표시합니다. */
 function CoverLetterReviewQuestion({

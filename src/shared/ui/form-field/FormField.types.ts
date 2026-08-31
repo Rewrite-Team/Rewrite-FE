@@ -37,10 +37,11 @@ interface FormFieldRenderProps<
  * Controller의 기본 `render` 대신 공통 UI에 필요한 편의 값이 포함된
  * `FormFieldRenderProps`를 전달하는 render 함수를 사용합니다.
  */
-type FormFieldProps<TFieldValues extends FieldValues, TName extends FieldPath<TFieldValues>> = Omit<
-  ControllerProps<TFieldValues, TName>,
-  'render'
-> & {
+type FormFieldProps<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>,
+  TTransformedValues extends FieldValues = TFieldValues,
+> = Omit<ControllerProps<TFieldValues, TName, TTransformedValues>, 'render'> & {
   render: (props: FormFieldRenderProps<TFieldValues, TName>) => ReactElement;
 };
 

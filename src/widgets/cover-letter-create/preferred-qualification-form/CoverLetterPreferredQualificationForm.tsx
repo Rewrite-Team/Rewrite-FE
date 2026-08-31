@@ -2,18 +2,18 @@
 
 import { useRouter } from 'next/navigation';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 
+import {
+  coverLetterStep2Schema,
+  type CoverLetterStep2FormInput,
+  type CoverLetterStep2Values,
+} from '@/features/cover-letter/create-flow';
 import { ROUTES } from '@/shared/constants/routes';
 import { FormField } from '@/shared/ui/form-field';
 import { TextArea } from '@/shared/ui/textarea';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
-
-interface PreferredQualificationFormValues {
-  preferredQualification: string;
-}
-
-const REQUIRED_MESSAGE = '공고 우대사항을 입력해주세요.';
 
 /**
  * ## CoverLetterPreferredQualificationForm
@@ -24,13 +24,18 @@ const REQUIRED_MESSAGE = '공고 우대사항을 입력해주세요.';
  */
 export function CoverLetterPreferredQualificationForm() {
   const router = useRouter();
-  const { control, handleSubmit } = useForm<PreferredQualificationFormValues>({
+  const { control, handleSubmit } = useForm<
+    CoverLetterStep2FormInput,
+    unknown,
+    CoverLetterStep2Values
+  >({
     defaultValues: {
       preferredQualification: '',
     },
+    resolver: zodResolver(coverLetterStep2Schema),
   });
 
-  const handleValidSubmit: SubmitHandler<PreferredQualificationFormValues> = () => {
+  const handleValidSubmit: SubmitHandler<CoverLetterStep2Values> = () => {
     // TODO: 우대사항 저장 API가 연결되면 저장 성공 후 STEP3으로 이동한다.
     router.push(ROUTES.WRITING_CREATE_STEP(3));
   };
@@ -57,10 +62,6 @@ export function CoverLetterPreferredQualificationForm() {
               <TextArea.ErrorMessage>{errorMessage}</TextArea.ErrorMessage>
             </TextArea>
           )}
-          rules={{
-            required: REQUIRED_MESSAGE,
-            validate: (value) => value.trim().length > 0 || REQUIRED_MESSAGE,
-          }}
         />
       </div>
     </form>
