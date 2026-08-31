@@ -34,6 +34,7 @@ export function WritingCreateStepShell({
   const { description, step, title } = COVER_LETTER_STEP_CONFIG[currentStepSegment];
   const currentStepIndex = WRITING_CREATE_STEPS.indexOf(step);
   const nextStep = WRITING_CREATE_STEPS[currentStepIndex + 1];
+  const hasConnectedForm = step === 1 || step === 2;
 
   // TODO: API 연결 시 서버의 WRITING 진행 상태와 저장 결과를 기준으로 이동 가능 STEP을 결정한다.
   const handleNext = () => {
@@ -61,7 +62,9 @@ export function WritingCreateStepShell({
     ) : (
       <CoverLetterStepPanel
         currentStep={step}
-        nextAction={step === 1 ? { status: 'enabled' } : { onClick: handleNext, status: 'enabled' }}
+        nextAction={
+          hasConnectedForm ? { status: 'enabled' } : { onClick: handleNext, status: 'enabled' }
+        }
         onStepSelect={handleStepSelect}
         saveDraftAction={
           // TODO: STEP별 임시 저장 API가 준비되면 폼 검증과 저장 mutation을 연결한다.
