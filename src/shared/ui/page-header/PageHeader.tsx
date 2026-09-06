@@ -1,13 +1,16 @@
-import type { ComponentPropsWithoutRef } from 'react';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 
 import { cn } from '@/shared/styles/utils/cn';
 import { Title } from '@/shared/ui/title';
 
 interface PageHeaderProps extends Omit<ComponentPropsWithoutRef<'div'>, 'title'> {
   title: string;
-  description: string;
+  description?: string;
+  eyebrow?: ReactNode;
+  version?: string;
   titleClassName?: string;
   descriptionClassName?: string;
+  versionClassName?: string;
 }
 
 /**
@@ -22,10 +25,13 @@ interface PageHeaderProps extends Omit<ComponentPropsWithoutRef<'div'>, 'title'>
  * 한 페이지에서 대표 `h1`이 중복되지 않도록 페이지 조립 단계에서 사용 위치를 조정해야 합니다.
  *
  * @param title - 페이지의 대표 제목
- * @param description - 페이지 목적을 설명하는 보조 문구
+ * @param description - 페이지 목적을 설명하는 선택적 보조 문구
+ * @param eyebrow - 제목 위에 배지처럼 배치할 선택적 콘텐츠
+ * @param version - 제목 옆에 표시할 선택적 버전 문자열
  * @param className - 헤더 레이아웃을 확장할 때 사용하는 클래스 이름
  * @param titleClassName - 제목 스타일을 확장할 때 사용하는 클래스 이름
  * @param descriptionClassName - 설명 스타일을 확장할 때 사용하는 클래스 이름
+ * @param versionClassName - 버전 스타일을 확장할 때 사용하는 클래스 이름
  *
  * @example
  * ```tsx
@@ -38,17 +44,32 @@ interface PageHeaderProps extends Omit<ComponentPropsWithoutRef<'div'>, 'title'>
 export function PageHeader({
   title,
   description,
+  eyebrow,
+  version,
   className,
   titleClassName,
   descriptionClassName,
+  versionClassName,
   ...props
 }: PageHeaderProps) {
   return (
     <div className={cn('flex flex-col gap-2', className)} {...props}>
-      <Title className={cn('heading-24', titleClassName)}>{title}</Title>
-      <p className={cn('m-0 wrap-break-word body-16 font-normal text-white', descriptionClassName)}>
-        {description}
-      </p>
+      {eyebrow}
+      <div className="flex min-w-0 items-baseline gap-2">
+        <Title className={cn('min-w-0 heading-24', titleClassName)} title={title}>
+          {title}
+        </Title>
+        {version ? (
+          <span className={cn('shrink-0 body-12 text-gray-100', versionClassName)}>{version}</span>
+        ) : null}
+      </div>
+      {description ? (
+        <p
+          className={cn('m-0 wrap-break-word body-16 font-normal text-white', descriptionClassName)}
+        >
+          {description}
+        </p>
+      ) : null}
     </div>
   );
 }
