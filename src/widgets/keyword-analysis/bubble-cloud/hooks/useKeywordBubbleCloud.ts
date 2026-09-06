@@ -12,15 +12,15 @@ import {
 
 import type { KeywordAnalysisKeyword } from '@/entities/keyword-analysis';
 
-import { KEYWORD_BUBBLE_VIEWBOX } from './constants';
-import { createBubbleNodes } from './keywordBubbleLayout';
+import { KEYWORD_BUBBLE_VIEWBOX } from '../constants';
+import { createBubbleNodes } from '../utils/keywordBubbleLayout';
 import {
   KEYWORD_BUBBLE_PHYSICS,
   clampBubblePosition,
   createBoundaryForce,
-} from './keywordBubblePhysics';
+} from '../utils/keywordBubblePhysics';
 
-import type { KeywordBubbleNode, KeywordBubbleTooltipState } from './types';
+import type { KeywordBubbleNode, KeywordBubbleTooltipState } from '../types';
 
 const TOOLTIP_VERTICAL_EDGE_THRESHOLD = 82;
 const TOOLTIP_HORIZONTAL_BOUNDARY_PADDING = 92;
@@ -35,6 +35,17 @@ interface BubbleDragState {
   velocityY: number;
 }
 
+/**
+ * 키워드 데이터를 D3 force 시뮬레이션에 연결하고 버블 상호작용 상태를 관리합니다.
+ *
+ * @remarks
+ * 키워드 구성이 변경되면 등장 애니메이션을 다시 실행하고 삭제된 버블의 위치 캐시를 정리합니다.
+ * 포인터 드래그 중에는 버블을 고정하며 포인터를 놓을 때 마지막 이동 속도를 관성으로 전달합니다.
+ * 사용자가 모션 감소를 설정한 경우 시뮬레이션을 즉시 정착시키고 드래그 좌표를 직접 반영합니다.
+ *
+ * @param keywords - 버블 노드로 변환할 키워드 분석 결과입니다.
+ * @returns 버블 렌더링 데이터, SVG ref, Tooltip 상태와 포인터 이벤트 처리 함수입니다.
+ */
 export function useKeywordBubbleCloud(keywords: KeywordAnalysisKeyword[]) {
   const [activeTooltip, setActiveTooltip] = useState<KeywordBubbleTooltipState | null>(null);
   const [isEntryAnimationActive, setIsEntryAnimationActive] = useState(false);

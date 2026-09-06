@@ -27,11 +27,11 @@ const MOCK_KEYWORD_ANALYSIS_ITEMS: KeywordAnalysisKeyword[] = [
 ];
 
 /**
- * ## KeywordAnalysisResult
+ * 자기소개서에서 추출한 핵심 키워드를 물리 기반 버블 클라우드로 표시합니다.
  *
- * @description
- * 자기소개서에서 추출한 핵심 키워드를 물리 기반 버블 워드클라우드로 표시합니다.
- * 현재는 결과 API가 준비되기 전까지 목 데이터를 사용하며, 키워드 차트는 별도 영역으로 추가합니다.
+ * @remarks
+ * 현재는 결과 API 연동 전이므로 목 키워드 데이터를 사용합니다.
+ * 키워드 차트는 후속 구현에서 별도 영역으로 추가합니다.
  */
 export function KeywordAnalysisResult() {
   return (

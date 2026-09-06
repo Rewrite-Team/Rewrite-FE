@@ -271,7 +271,8 @@ slice-name/
 ├── api/
 ├── model/
 ├── ui/
-├── lib/
+├── hooks/
+├── utils/
 └── index.ts
 ```
 
@@ -282,7 +283,8 @@ slice-name/
 | `api` | 서버 통신 함수, 요청·응답 DTO 타입, query/mutation 옵션 |
 | `model` | 도메인 모델 타입, 상태, schema, 도메인 계산 |
 | `ui` | slice 전용 UI 컴포넌트 |
-| `lib` | 해당 slice 내부에서만 쓰는 유틸 |
+| `hooks` | 해당 slice 내부에서만 쓰는 React hook |
+| `utils` | 해당 slice 내부에서만 쓰는 순수 함수 |
 | `index.ts` | 외부 공개 API |
 
 외부에서는 slice 내부 경로를 직접 import하지 않고 `index.ts`를 통해 import한다.

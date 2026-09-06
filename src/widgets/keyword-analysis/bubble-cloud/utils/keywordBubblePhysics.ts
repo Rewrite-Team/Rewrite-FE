@@ -1,8 +1,9 @@
-import { KEYWORD_BUBBLE_VIEWBOX } from './constants';
+import { KEYWORD_BUBBLE_VIEWBOX } from '../constants';
 
-import type { KeywordBubbleNode } from './types';
+import type { KeywordBubbleNode } from '../types';
 import type { Force } from 'd3-force';
 
+/** D3 force의 정착 속도, 충돌, 경계, 드래그 관성을 조절하는 물리 설정입니다. */
 export const KEYWORD_BUBBLE_PHYSICS = {
   alphaDecay: 0.045,
   boundaryPadding: 8,
@@ -28,6 +29,13 @@ interface BubblePosition {
   y: number;
 }
 
+/**
+ * 버블의 중심 좌표를 반지름과 경계 여백을 고려한 ViewBox 내부로 제한합니다.
+ *
+ * @param position - 제한할 버블의 중심 좌표입니다.
+ * @param radius - 버블의 반지름입니다.
+ * @returns ViewBox 경계를 벗어나지 않도록 보정한 중심 좌표입니다.
+ */
 export const clampBubblePosition = (position: BubblePosition, radius: number): BubblePosition => {
   const { boundaryPadding } = KEYWORD_BUBBLE_PHYSICS;
 
@@ -43,6 +51,14 @@ export const clampBubblePosition = (position: BubblePosition, radius: number): B
   };
 };
 
+/**
+ * 버블이 ViewBox 경계를 벗어나면 안쪽 방향으로 속도를 가하는 D3 force를 생성합니다.
+ *
+ * @remarks
+ * 이 force는 D3 시뮬레이션 tick마다 노드의 `vx`와 `vy`를 직접 변경합니다.
+ *
+ * @returns 키워드 버블 노드에 적용할 경계 force입니다.
+ */
 export const createBoundaryForce = (): Force<KeywordBubbleNode, undefined> => {
   let nodes: KeywordBubbleNode[] = [];
   const { boundaryPadding, boundaryStrength } = KEYWORD_BUBBLE_PHYSICS;

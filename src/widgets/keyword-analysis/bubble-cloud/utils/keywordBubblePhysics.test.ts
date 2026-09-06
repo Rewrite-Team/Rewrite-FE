@@ -1,11 +1,11 @@
-import { KEYWORD_BUBBLE_VIEWBOX } from './constants';
+import { KEYWORD_BUBBLE_VIEWBOX } from '../constants';
 import {
   KEYWORD_BUBBLE_PHYSICS,
   clampBubblePosition,
   createBoundaryForce,
 } from './keywordBubblePhysics';
 
-import type { KeywordBubbleNode } from './types';
+import type { KeywordBubbleNode } from '../types';
 
 const createNode = (overrides: Partial<KeywordBubbleNode> = {}): KeywordBubbleNode => ({
   displayLines: ['테스트'],

@@ -6,6 +6,13 @@ interface KeywordBubbleTooltipProps {
   tooltip: KeywordBubbleTooltipState | null;
 }
 
+/**
+ * 활성화된 키워드 버블의 이름과 중요도를 버블 주변에 표시합니다.
+ *
+ * @remarks
+ * 위치 값은 SVG ViewBox 좌표에서 컨테이너 기준 백분율로 변환됩니다.
+ * Tooltip이 비활성 상태이면 아무 요소도 렌더링하지 않습니다.
+ */
 export function KeywordBubbleTooltip({ tooltip }: KeywordBubbleTooltipProps) {
   if (!tooltip) return null;
 

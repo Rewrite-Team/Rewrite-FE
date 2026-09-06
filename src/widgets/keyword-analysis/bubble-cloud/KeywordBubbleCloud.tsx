@@ -11,26 +11,21 @@ import {
   KEYWORD_BUBBLE_LABEL_LINE_HEIGHT_RATIO,
   KEYWORD_BUBBLE_VIEWBOX,
 } from './constants';
+import { useKeywordBubbleCloud } from './hooks/useKeywordBubbleCloud';
 import { KeywordBubbleTooltip } from './KeywordBubbleTooltip';
-import { useKeywordBubbleCloud } from './useKeywordBubbleCloud';
 
 interface KeywordBubbleCloudProps {
   keywords: KeywordAnalysisKeyword[];
 }
 
 /**
- * ## KeywordBubbleCloud
+ * 키워드 분석 결과를 물리 기반의 SVG 버블 클라우드로 표시합니다.
  *
- * @description
- * 최대 20개의 키워드를 SVG 버블로 표시하고 d3-force 충돌·중심 힘을 사용해 튕기며
- * 정착하는 애니메이션을 제공합니다.
- *
- * ### 접근성
- *
- * 운영체제의 모션 감소 설정이 켜져 있으면 시뮬레이션을 즉시 완료합니다. 시각적 SVG는
- * 보조 기술에서 숨기고 동일한 키워드와 빈도 정보를 텍스트 목록으로 제공합니다.
- *
- * @param keywords - 중요도 내림차순을 권장하는 키워드 데이터. 20개를 초과하면 앞의 20개만 표시합니다.
+ * @remarks
+ * 최대 20개의 키워드에 충돌과 중심 force를 적용해 튕긴 뒤 정착하는 애니메이션을 제공합니다.
+ * 사용자는 각 버블을 드래그하거나 호버해 중요도를 확인할 수 있습니다.
+ * 운영체제의 모션 감소 설정이 켜져 있으면 시뮬레이션을 즉시 완료합니다.
+ * 시각적 SVG는 보조 기술에서 숨기고 동일한 정보를 텍스트 목록으로 제공합니다.
  */
 export function KeywordBubbleCloud({ keywords }: KeywordBubbleCloudProps) {
   const shadowFilterId = useId();

@@ -1,6 +1,6 @@
 import type { KeywordAnalysisKeyword } from '@/entities/keyword-analysis';
 
-import { KEYWORD_BUBBLE_MAX_COUNT, KEYWORD_BUBBLE_RADIUS } from './constants';
+import { KEYWORD_BUBBLE_MAX_COUNT, KEYWORD_BUBBLE_RADIUS } from '../constants';
 import { createBubbleNodes } from './keywordBubbleLayout';
 
 const createKeyword = (index: number, importance = index): KeywordAnalysisKeyword => ({

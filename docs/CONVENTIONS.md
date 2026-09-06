@@ -214,6 +214,9 @@ const getButtonLabel = () => '저장';
 페이지 컴포넌트는 `app` 라우트 파일에서 얇게 유지하고, 실제 화면 조립은 `widgets`로 내린다.
 
 공통 UI는 `shared/ui`, 도메인 UI는 `entities/*/ui`, 사용자 액션 UI는 `features/*`, 페이지 조립 UI는 `widgets/*`에 둔다.
+특정 slice나 하위 영역에서만 사용하는 React hook은 해당 범위의 `hooks` 폴더에 둔다.
+특정 slice나 하위 영역에서만 사용하는 순수 함수는 해당 범위의 `utils` 폴더에 둔다.
+외부 라이브러리 설정, adapter와 인스턴스 생성 로직은 `shared/lib`에 둔다.
 
 ## 6. State Management
 

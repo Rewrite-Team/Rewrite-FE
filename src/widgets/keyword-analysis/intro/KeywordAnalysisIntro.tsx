@@ -11,13 +11,10 @@ interface KeywordAnalysisIntroProps {
 }
 
 /**
- * ## KeywordAnalysisIntro
+ * 자기소개서 키워드 분석을 시작할 수 있는 빈 상태 화면을 표시합니다.
  *
- * @description
- * 자기소개서 키워드 분석을 시작하기 전에 로티와 시작 액션을 표시합니다.
- * 문서 형태의 Lottie를 사용해 분석 대상이 자기소개서임을 시각적으로 전달합니다.
- *
- * @param writingId - 분석 결과 경로를 구성할 자기소개서 식별자
+ * @remarks
+ * 문서 Lottie와 분석 시작 버튼을 제공하며 버튼을 누르면 해당 자기소개서의 결과 경로로 이동합니다.
  */
 export function KeywordAnalysisIntro({ writingId }: KeywordAnalysisIntroProps) {
   const router = useRouter();
