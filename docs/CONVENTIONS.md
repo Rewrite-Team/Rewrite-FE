@@ -139,6 +139,27 @@ export type { Writing } from './model/types';
 
 ## 4. TypeScript
 
+여러 화면 블록을 조립하는 widget에서는 slice 루트의 `types.ts`에 둘 이상의 하위 폴더에서 함께 사용하거나 `index.ts`로 외부에 공개하는 타입만 둔다.
+특정 컴포넌트나 하위 폴더에서만 사용하는 타입은 사용처 파일에 선언하거나 해당 폴더의 `types.ts`에 둔다.
+entity와 feature의 도메인 모델 타입, 상태, schema는 `model`에 두고 API 요청·응답 DTO 타입은 `api`에 둔다.
+라우트 세그먼트처럼 특정 라우트 트리에서만 사용하는 타입은 해당 `app` 라우트 폴더에 둔다.
+
+```txt
+widgets/slice-name/
+├── types.ts          # widget 하위 폴더 공통 또는 외부 공개 타입
+└── component-name/
+    └── types.ts      # component-name 내부 전용 타입
+
+entities/entity-name/
+├── api/
+│   └── types.ts      # API 요청·응답 DTO 타입
+└── model/
+    └── types.ts      # 도메인 모델 타입
+
+app/route-segment/
+└── types.ts          # 해당 라우트 트리 전용 타입
+```
+
 객체 형태의 props와 모델은 `interface`를 우선 사용한다.
 
 ```ts
