@@ -1,1 +1,2 @@
-export { KeywordAnalysisIntro } from './KeywordAnalysisIntro';
+export { KeywordAnalysisIntro } from './intro/KeywordAnalysisIntro';
+export { KeywordAnalysisResult } from './result/KeywordAnalysisResult';

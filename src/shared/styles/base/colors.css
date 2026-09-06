@@ -49,3 +49,31 @@
   --shadow-tooltip: 0 14px 44px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(118, 186, 255, 0.08);
   --shadow-toast: 0 14px 44px rgba(0, 0, 0, 0.42);
 }
+
+:root {
+  /* Keyword Bubble Colors */
+  --color-keyword-blue-fill: #14283d;
+  --color-keyword-blue-stroke: #76baff;
+  --color-keyword-blue-text: #d5eaff;
+  --color-keyword-teal-fill: #172f35;
+  --color-keyword-teal-stroke: #62c4c9;
+  --color-keyword-teal-text: #c7eef0;
+  --color-keyword-indigo-fill: #202743;
+  --color-keyword-indigo-stroke: #8799e8;
+  --color-keyword-indigo-text: #dce2ff;
+  --color-keyword-green-fill: #19332e;
+  --color-keyword-green-stroke: #68b79a;
+  --color-keyword-green-text: #ccebdd;
+  --color-keyword-violet-fill: #28253d;
+  --color-keyword-violet-stroke: #9a8ed0;
+  --color-keyword-violet-text: #e2ddf7;
+  --color-keyword-steel-fill: #1e2c38;
+  --color-keyword-steel-stroke: #6c9fbe;
+  --color-keyword-steel-text: #d0e4f0;
+  --color-keyword-sage-fill: #243139;
+  --color-keyword-sage-stroke: #7fa9aa;
+  --color-keyword-sage-text: #d8e9e8;
+  --color-keyword-neutral-fill: #292c32;
+  --color-keyword-neutral-stroke: #8f98a5;
+  --color-keyword-neutral-text: #e0e4e9;
+}

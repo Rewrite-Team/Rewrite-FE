@@ -1,0 +1,32 @@
+.keyword-bubble {
+  opacity: 0;
+}
+
+.keyword-bubble-pop {
+  animation: keyword-bubble-pop 480ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes keyword-bubble-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+
+  72% {
+    opacity: 1;
+    transform: scale(1.025);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .keyword-bubble,
+  .keyword-bubble-pop {
+    opacity: 1;
+    animation: none;
+  }
+}
