@@ -83,7 +83,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        'w-fit rounded-full bg-gray-800 p-3 text-gray-300 shadow-lg shadow-black/20',
+        'relative z-(--z-index-sidebar) w-fit rounded-full bg-gray-800 p-3 text-gray-300 shadow-lg shadow-black/20',
         isExpanded && 'rounded-3xl',
         className
       )}
