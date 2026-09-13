@@ -4,6 +4,12 @@ import { LinkButton } from '@/shared/ui/button';
 import { PageHeader } from '@/shared/ui/page-header';
 import { KeywordAnalysisResult } from '@/widgets/keyword-analysis';
 
+/**
+ * ## KeywordAnalysisResultPage
+ *
+ * @description
+ * 선택한 자기소개서의 키워드 중요도와 시각화 결과를 제공하는 페이지입니다.
+ */
 export default async function KeywordAnalysisResultPage({
   params,
 }: Readonly<{
@@ -12,7 +18,7 @@ export default async function KeywordAnalysisResultPage({
   const { id } = await params;
 
   return (
-    <section className="flex w-full flex-1 flex-col px-5 sm:px-8 lg:px-11">
+    <section className="writing-detail-content">
       <header className="flex flex-col items-start gap-5 sm:flex-row sm:items-end sm:justify-between">
         {/* TODO: 자기소개서 상세 API 연결 후 회사, 직무, 제목과 버전 정보를 교체합니다. */}
         <PageHeader
