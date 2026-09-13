@@ -1,6 +1,6 @@
-import { KEYWORD_BUBBLE_VIEWBOX } from '../constants';
+import { KEYWORD_BUBBLE_DEFAULT_BOUNDS } from '../constants';
 
-import type { KeywordBubbleNode } from '../types';
+import type { KeywordBubbleBounds, KeywordBubbleNode } from '../types';
 import type { Force } from 'd3-force';
 
 /** D3 force의 정착 속도, 충돌, 경계, 드래그 관성을 조절하는 물리 설정입니다. */
@@ -8,6 +8,7 @@ export const KEYWORD_BUBBLE_PHYSICS = {
   alphaDecay: 0.045,
   boundaryPadding: 8,
   boundaryStrength: 0.32,
+  boundaryVelocityRetention: 0.35,
   chargeStrength: -1.5,
   collisionIterations: 4,
   collisionPadding: 3,
@@ -34,21 +35,57 @@ interface BubblePosition {
  *
  * @param position - 제한할 버블의 중심 좌표입니다.
  * @param radius - 버블의 반지름입니다.
- * @returns ViewBox 경계를 벗어나지 않도록 보정한 중심 좌표입니다.
+ * @param bounds - 버블이 움직일 수 있는 실제 렌더링 영역입니다.
+ * @returns 렌더링 영역의 경계를 벗어나지 않도록 보정한 중심 좌표입니다.
  */
-export const clampBubblePosition = (position: BubblePosition, radius: number): BubblePosition => {
+export const clampBubblePosition = (
+  position: BubblePosition,
+  radius: number,
+  bounds: KeywordBubbleBounds = KEYWORD_BUBBLE_DEFAULT_BOUNDS
+): BubblePosition => {
   const { boundaryPadding } = KEYWORD_BUBBLE_PHYSICS;
 
   return {
     x: Math.max(
       radius + boundaryPadding,
-      Math.min(KEYWORD_BUBBLE_VIEWBOX.width - radius - boundaryPadding, position.x)
+      Math.min(bounds.width - radius - boundaryPadding, position.x)
     ),
     y: Math.max(
       radius + boundaryPadding,
-      Math.min(KEYWORD_BUBBLE_VIEWBOX.height - radius - boundaryPadding, position.y)
+      Math.min(bounds.height - radius - boundaryPadding, position.y)
     ),
   };
+};
+
+/**
+ * 시뮬레이션 노드를 렌더링 경계 안으로 제한하고 경계에 닿은 속도를 감쇠해 반사합니다.
+ *
+ * @param node - 위치와 속도를 보정할 D3 버블 노드입니다.
+ * @param bounds - 버블이 움직일 수 있는 실제 렌더링 영역입니다.
+ * @returns 보정된 버블 중심 좌표입니다.
+ */
+export const constrainBubbleNodeToBounds = (
+  node: KeywordBubbleNode,
+  bounds: KeywordBubbleBounds
+): BubblePosition => {
+  const currentPosition = {
+    x: node.x ?? bounds.width / 2,
+    y: node.y ?? bounds.height / 2,
+  };
+  const nextPosition = clampBubblePosition(currentPosition, node.radius, bounds);
+
+  if (nextPosition.x !== currentPosition.x) {
+    node.vx = -(node.vx ?? 0) * KEYWORD_BUBBLE_PHYSICS.boundaryVelocityRetention;
+  }
+
+  if (nextPosition.y !== currentPosition.y) {
+    node.vy = -(node.vy ?? 0) * KEYWORD_BUBBLE_PHYSICS.boundaryVelocityRetention;
+  }
+
+  node.x = nextPosition.x;
+  node.y = nextPosition.y;
+
+  return nextPosition;
 };
 
 /**
@@ -57,9 +94,12 @@ export const clampBubblePosition = (position: BubblePosition, radius: number): B
  * @remarks
  * 이 force는 D3 시뮬레이션 tick마다 노드의 `vx`와 `vy`를 직접 변경합니다.
  *
+ * @param bounds - 경계 force를 적용할 실제 렌더링 영역입니다.
  * @returns 키워드 버블 노드에 적용할 경계 force입니다.
  */
-export const createBoundaryForce = (): Force<KeywordBubbleNode, undefined> => {
+export const createBoundaryForce = (
+  bounds: KeywordBubbleBounds = KEYWORD_BUBBLE_DEFAULT_BOUNDS
+): Force<KeywordBubbleNode, undefined> => {
   let nodes: KeywordBubbleNode[] = [];
   const { boundaryPadding, boundaryStrength } = KEYWORD_BUBBLE_PHYSICS;
 
@@ -68,9 +108,9 @@ export const createBoundaryForce = (): Force<KeywordBubbleNode, undefined> => {
       if (node.x === undefined || node.y === undefined) return;
 
       const minX = node.radius + boundaryPadding;
-      const maxX = KEYWORD_BUBBLE_VIEWBOX.width - node.radius - boundaryPadding;
+      const maxX = bounds.width - node.radius - boundaryPadding;
       const minY = node.radius + boundaryPadding;
-      const maxY = KEYWORD_BUBBLE_VIEWBOX.height - node.radius - boundaryPadding;
+      const maxY = bounds.height - node.radius - boundaryPadding;
 
       if (node.x < minX) {
         node.vx = (node.vx ?? 0) + (minX - node.x) * boundaryStrength;

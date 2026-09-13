@@ -12,15 +12,18 @@ import {
 
 import type { KeywordAnalysisKeyword } from '@/entities/keyword-analysis';
 
-import { KEYWORD_BUBBLE_VIEWBOX } from '../constants';
+import { createKeywordAnalysisSignature } from '../../utils/keywordCollection';
+import { KEYWORD_BUBBLE_DEFAULT_BOUNDS } from '../constants';
 import { createBubbleNodes } from '../utils/keywordBubbleLayout';
 import {
   KEYWORD_BUBBLE_PHYSICS,
   clampBubblePosition,
+  constrainBubbleNodeToBounds,
   createBoundaryForce,
 } from '../utils/keywordBubblePhysics';
 
-import type { KeywordBubbleNode, KeywordBubbleTooltipState } from '../types';
+import type { KeywordHoverChangeHandler } from '../../types';
+import type { KeywordBubbleBounds, KeywordBubbleNode, KeywordBubbleTooltipState } from '../types';
 
 const TOOLTIP_VERTICAL_EDGE_THRESHOLD = 82;
 const TOOLTIP_HORIZONTAL_BOUNDARY_PADDING = 92;
@@ -44,10 +47,17 @@ interface BubbleDragState {
  * 사용자가 모션 감소를 설정한 경우 시뮬레이션을 즉시 정착시키고 드래그 좌표를 직접 반영합니다.
  *
  * @param keywords - 버블 노드로 변환할 키워드 분석 결과입니다.
+ * @param onKeywordHoverChange - 포인터가 가리키는 키워드의 변경을 전달하는 콜백입니다.
  * @returns 버블 렌더링 데이터, SVG ref, Tooltip 상태와 포인터 이벤트 처리 함수입니다.
  */
-export function useKeywordBubbleCloud(keywords: KeywordAnalysisKeyword[]) {
+export function useKeywordBubbleCloud(
+  keywords: KeywordAnalysisKeyword[],
+  onKeywordHoverChange?: KeywordHoverChangeHandler
+) {
   const [activeTooltip, setActiveTooltip] = useState<KeywordBubbleTooltipState | null>(null);
+  const [bubbleBounds, setBubbleBounds] = useState<KeywordBubbleBounds>(
+    KEYWORD_BUBBLE_DEFAULT_BOUNDS
+  );
   const [isEntryAnimationActive, setIsEntryAnimationActive] = useState(false);
   const bubbleElementsRef = useRef(new Map<string, SVGGElement>());
   const bubblePositionsRef = useRef(new Map<string, { x: number; y: number }>());
@@ -55,11 +65,13 @@ export function useKeywordBubbleCloud(keywords: KeywordAnalysisKeyword[]) {
   const nodesRef = useRef<KeywordBubbleNode[]>([]);
   const simulationRef = useRef<Simulation<KeywordBubbleNode, undefined> | null>(null);
   const activeDragRef = useRef<BubbleDragState | null>(null);
+  const bubbleBoundsRef = useRef<KeywordBubbleBounds>(KEYWORD_BUBBLE_DEFAULT_BOUNDS);
   const prefersReducedMotionRef = useRef(false);
-  const bubbleNodes = useMemo(() => createBubbleNodes(keywords), [keywords]);
-  const bubbleSignature = bubbleNodes
-    .map(({ frequency, id, importance }) => `${id}:${frequency}:${importance}`)
-    .join('|');
+  const bubbleNodes = useMemo(
+    () => createBubbleNodes(keywords, bubbleBounds),
+    [bubbleBounds, keywords]
+  );
+  const bubbleSignature = createKeywordAnalysisSignature(bubbleNodes);
 
   useEffect(() => {
     let enterAnimationFrame = 0;
@@ -74,6 +86,47 @@ export function useKeywordBubbleCloud(keywords: KeywordAnalysisKeyword[]) {
     };
   }, [bubbleSignature]);
 
+  useEffect(() => {
+    const svg = svgRef.current;
+
+    if (!svg) return;
+
+    const updateBubbleBounds = () => {
+      const { height, width } = svg.getBoundingClientRect();
+      const nextBounds = {
+        height: Math.round(height),
+        width: Math.round(width),
+      };
+      const previousBounds = bubbleBoundsRef.current;
+
+      if (
+        nextBounds.height <= 0 ||
+        nextBounds.width <= 0 ||
+        (nextBounds.height === previousBounds.height && nextBounds.width === previousBounds.width)
+      )
+        return;
+
+      bubblePositionsRef.current.forEach((position, id) => {
+        bubblePositionsRef.current.set(id, {
+          x: (position.x / previousBounds.width) * nextBounds.width,
+          y: (position.y / previousBounds.height) * nextBounds.height,
+        });
+      });
+      bubbleBoundsRef.current = nextBounds;
+      setBubbleBounds(nextBounds);
+    };
+
+    updateBubbleBounds();
+
+    if (typeof ResizeObserver === 'undefined') return;
+
+    const resizeObserver = new ResizeObserver(updateBubbleBounds);
+
+    resizeObserver.observe(svg);
+
+    return () => resizeObserver.disconnect();
+  }, []);
+
   const getPointerPositionInViewBox = useCallback((event: ReactPointerEvent<SVGGElement>) => {
     const svg = svgRef.current;
 
@@ -82,8 +135,8 @@ export function useKeywordBubbleCloud(keywords: KeywordAnalysisKeyword[]) {
     const bounds = svg.getBoundingClientRect();
 
     return {
-      x: ((event.clientX - bounds.left) / bounds.width) * KEYWORD_BUBBLE_VIEWBOX.width,
-      y: ((event.clientY - bounds.top) / bounds.height) * KEYWORD_BUBBLE_VIEWBOX.height,
+      x: ((event.clientX - bounds.left) / bounds.width) * bubbleBoundsRef.current.width,
+      y: ((event.clientY - bounds.top) / bounds.height) * bubbleBoundsRef.current.height,
     };
   }, []);
 
@@ -97,8 +150,13 @@ export function useKeywordBubbleCloud(keywords: KeywordAnalysisKeyword[]) {
 
       event.preventDefault();
       setActiveTooltip(null);
+      onKeywordHoverChange?.(null);
       event.currentTarget.setPointerCapture(event.pointerId);
-      const clampedPosition = clampBubblePosition(pointerPosition, node.radius);
+      const clampedPosition = clampBubblePosition(
+        pointerPosition,
+        node.radius,
+        bubbleBoundsRef.current
+      );
 
       node.fx = clampedPosition.x;
       node.fy = clampedPosition.y;
@@ -115,7 +173,7 @@ export function useKeywordBubbleCloud(keywords: KeywordAnalysisKeyword[]) {
         simulationRef.current?.alphaTarget(KEYWORD_BUBBLE_PHYSICS.dragAlphaTarget).restart();
       }
     },
-    [getPointerPositionInViewBox]
+    [getPointerPositionInViewBox, onKeywordHoverChange]
   );
 
   const handlePointerMove = useCallback(
@@ -130,7 +188,11 @@ export function useKeywordBubbleCloud(keywords: KeywordAnalysisKeyword[]) {
       if (!node) return;
 
       event.preventDefault();
-      const { x: nextX, y: nextY } = clampBubblePosition(pointerPosition, node.radius);
+      const { x: nextX, y: nextY } = clampBubblePosition(
+        pointerPosition,
+        node.radius,
+        bubbleBoundsRef.current
+      );
 
       activeDrag.velocityX = Math.max(
         -KEYWORD_BUBBLE_PHYSICS.maxThrowVelocity,
@@ -206,21 +268,26 @@ export function useKeywordBubbleCloud(keywords: KeywordAnalysisKeyword[]) {
         x: Math.max(
           TOOLTIP_HORIZONTAL_BOUNDARY_PADDING,
           Math.min(
-            KEYWORD_BUBBLE_VIEWBOX.width - TOOLTIP_HORIZONTAL_BOUNDARY_PADDING,
+            bubbleBoundsRef.current.width - TOOLTIP_HORIZONTAL_BOUNDARY_PADDING,
             pointerPosition.x
           )
         ),
         y: pointerPosition.y + (placement === 'bottom' ? TOOLTIP_OFFSET : -TOOLTIP_OFFSET),
       });
+      onKeywordHoverChange?.(node.keyword);
     },
-    [getPointerPositionInViewBox]
+    [getPointerPositionInViewBox, onKeywordHoverChange]
   );
 
-  const handlePointerLeave = useCallback((event: ReactPointerEvent<SVGGElement>) => {
-    const id = event.currentTarget.dataset.bubbleId;
+  const handlePointerLeave = useCallback(
+    (event: ReactPointerEvent<SVGGElement>) => {
+      const id = event.currentTarget.dataset.bubbleId;
 
-    setActiveTooltip((currentTooltip) => (currentTooltip?.id === id ? null : currentTooltip));
-  }, []);
+      setActiveTooltip((currentTooltip) => (currentTooltip?.id === id ? null : currentTooltip));
+      onKeywordHoverChange?.(null);
+    },
+    [onKeywordHoverChange]
+  );
 
   const registerBubbleElement = useCallback((id: string, element: SVGGElement | null) => {
     if (element) {
@@ -251,12 +318,14 @@ export function useKeywordBubbleCloud(keywords: KeywordAnalysisKeyword[]) {
       return previousPosition ? { ...node, ...previousPosition, vx: 0, vy: 0 } : { ...node };
     });
     const updateBubblePositions = () => {
-      nodes.forEach(
-        ({ id, x = KEYWORD_BUBBLE_VIEWBOX.width / 2, y = KEYWORD_BUBBLE_VIEWBOX.height / 2 }) => {
-          bubblePositionsRef.current.set(id, { x, y });
-          bubbleElementsRef.current.get(id)?.setAttribute('transform', `translate(${x}, ${y})`);
-        }
-      );
+      nodes.forEach((node) => {
+        const nextPosition = constrainBubbleNodeToBounds(node, bubbleBounds);
+
+        bubblePositionsRef.current.set(node.id, nextPosition);
+        bubbleElementsRef.current
+          .get(node.id)
+          ?.setAttribute('transform', `translate(${nextPosition.x}, ${nextPosition.y})`);
+      });
     };
     const simulation = forceSimulation(nodes)
       .alpha(KEYWORD_BUBBLE_PHYSICS.initialAlpha)
@@ -277,17 +346,17 @@ export function useKeywordBubbleCloud(keywords: KeywordAnalysisKeyword[]) {
       )
       .force(
         'x',
-        forceX<KeywordBubbleNode>(KEYWORD_BUBBLE_VIEWBOX.width / 2).strength(
+        forceX<KeywordBubbleNode>(bubbleBounds.width / 2).strength(
           KEYWORD_BUBBLE_PHYSICS.xForceStrength
         )
       )
       .force(
         'y',
-        forceY<KeywordBubbleNode>(KEYWORD_BUBBLE_VIEWBOX.height / 2).strength(
+        forceY<KeywordBubbleNode>(bubbleBounds.height / 2).strength(
           KEYWORD_BUBBLE_PHYSICS.yForceStrength
         )
       )
-      .force('boundary', createBoundaryForce())
+      .force('boundary', createBoundaryForce(bubbleBounds))
       .on('tick', updateBubblePositions);
     const prefersReducedMotion =
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -309,10 +378,11 @@ export function useKeywordBubbleCloud(keywords: KeywordAnalysisKeyword[]) {
       activeDragRef.current = null;
       prefersReducedMotionRef.current = false;
     };
-  }, [bubbleNodes]);
+  }, [bubbleBounds, bubbleNodes]);
 
   return {
     activeTooltip,
+    bubbleBounds,
     bubbleNodes,
     handlePointerDown,
     handlePointerEnter,

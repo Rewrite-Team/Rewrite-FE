@@ -1,8 +1,7 @@
-import { KEYWORD_BUBBLE_VIEWBOX } from './constants';
-
-import type { KeywordBubbleTooltipState } from './types';
+import type { KeywordBubbleBounds, KeywordBubbleTooltipState } from './types';
 
 interface KeywordBubbleTooltipProps {
+  bounds: KeywordBubbleBounds;
   tooltip: KeywordBubbleTooltipState | null;
 }
 
@@ -13,7 +12,7 @@ interface KeywordBubbleTooltipProps {
  * 위치 값은 SVG ViewBox 좌표에서 컨테이너 기준 백분율로 변환됩니다.
  * Tooltip이 비활성 상태이면 아무 요소도 렌더링하지 않습니다.
  */
-export function KeywordBubbleTooltip({ tooltip }: KeywordBubbleTooltipProps) {
+export function KeywordBubbleTooltip({ bounds, tooltip }: KeywordBubbleTooltipProps) {
   if (!tooltip) return null;
 
   return (
@@ -23,8 +22,8 @@ export function KeywordBubbleTooltip({ tooltip }: KeywordBubbleTooltipProps) {
       }`}
       role="tooltip"
       style={{
-        left: `${(tooltip.x / KEYWORD_BUBBLE_VIEWBOX.width) * 100}%`,
-        top: `${(tooltip.y / KEYWORD_BUBBLE_VIEWBOX.height) * 100}%`,
+        left: `${(tooltip.x / bounds.width) * 100}%`,
+        top: `${(tooltip.y / bounds.height) * 100}%`,
       }}
     >
       <strong className="max-w-44 wrap-break-word text-center font-semibold text-white">

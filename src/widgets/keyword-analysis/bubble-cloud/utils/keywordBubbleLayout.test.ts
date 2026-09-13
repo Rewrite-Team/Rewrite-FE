@@ -1,6 +1,7 @@
 import type { KeywordAnalysisKeyword } from '@/entities/keyword-analysis';
 
-import { KEYWORD_BUBBLE_MAX_COUNT, KEYWORD_BUBBLE_RADIUS } from '../constants';
+import { KEYWORD_ANALYSIS_MAX_KEYWORD_COUNT } from '../../constants';
+import { KEYWORD_BUBBLE_RADIUS } from '../constants';
 import { createBubbleNodes } from './keywordBubbleLayout';
 
 const createKeyword = (index: number, importance = index): KeywordAnalysisKeyword => ({
@@ -11,11 +12,11 @@ const createKeyword = (index: number, importance = index): KeywordAnalysisKeywor
 
 describe('createBubbleNodes', () => {
   it('표시할 키워드를 최대 개수로 제한한다', () => {
-    const keywords = Array.from({ length: KEYWORD_BUBBLE_MAX_COUNT + 1 }, (_, index) =>
+    const keywords = Array.from({ length: KEYWORD_ANALYSIS_MAX_KEYWORD_COUNT + 1 }, (_, index) =>
       createKeyword(index)
     );
 
-    expect(createBubbleNodes(keywords)).toHaveLength(KEYWORD_BUBBLE_MAX_COUNT);
+    expect(createBubbleNodes(keywords)).toHaveLength(KEYWORD_ANALYSIS_MAX_KEYWORD_COUNT);
   });
 
   it('최소·최대 중요도를 설정된 반지름 범위에 대응시킨다', () => {

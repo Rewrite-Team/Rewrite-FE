@@ -12,6 +12,11 @@ interface KeywordBubbleNode extends SimulationNodeDatum, KeywordAnalysisKeyword 
   fontSize: number;
 }
 
+interface KeywordBubbleBounds {
+  height: number;
+  width: number;
+}
+
 interface KeywordBubbleTooltipState {
   id: string;
   importance: number;
@@ -21,4 +26,4 @@ interface KeywordBubbleTooltipState {
   y: number;
 }
 
-export type { KeywordBubbleNode, KeywordBubbleTooltipState };
+export type { KeywordBubbleBounds, KeywordBubbleNode, KeywordBubbleTooltipState };

@@ -1,13 +1,14 @@
 import type { KeywordAnalysisKeyword } from '@/entities/keyword-analysis';
 
+import { limitKeywordAnalysisKeywords } from '../../utils/keywordCollection';
+import { getKeywordTextWidthUnits, truncateKeywordByWidth } from '../../utils/keywordText';
 import {
   KEYWORD_BUBBLE_INITIAL_LAYOUT,
-  KEYWORD_BUBBLE_MAX_COUNT,
   KEYWORD_BUBBLE_RADIUS,
-  KEYWORD_BUBBLE_VIEWBOX,
+  KEYWORD_BUBBLE_DEFAULT_BOUNDS,
 } from '../constants';
 
-import type { KeywordBubbleNode } from '../types';
+import type { KeywordBubbleBounds, KeywordBubbleNode } from '../types';
 
 interface BubbleColor {
   fill: string;
@@ -20,7 +21,6 @@ const MIN_LABEL_FONT_SIZE = 8;
 const MIN_SINGLE_LINE_FONT_SIZE = 10.5;
 const MAX_LABEL_FONT_SIZE = 17;
 const LABEL_WIDTH_RATIO = 1.55;
-const LABEL_WIDTH_TOLERANCE = 0.02;
 const SHORT_LABEL_WIDTH_UNITS = 4;
 
 const BUBBLE_COLOR_PALETTE: BubbleColor[] = [
@@ -86,20 +86,11 @@ const getBubbleRadius = (importance: number, minImportance: number, maxImportanc
   return min + Math.pow(normalizedImportance, scaleExponent) * (max - min);
 };
 
-/** 문자 종류별 예상 너비를 합산해 SVG 라벨의 상대 너비를 계산합니다. */
-const getKeywordWidthUnits = (keyword: string) =>
-  Array.from(keyword).reduce((width, character) => {
-    if (/\s/.test(character)) return width + 0.35;
-    if (/^[\u0020-\u007e]$/.test(character)) return width + 0.58;
-
-    return width + 1;
-  }, 0);
-
 /** 한 줄 라벨이 버블 안에 들어가도록 글자 크기를 계산합니다. */
 const getSingleLineFontSize = (keyword: string, radius: number) => {
   const sizeForRadius = radius * 0.38;
   const sizeForTextLength =
-    (radius * LABEL_WIDTH_RATIO) / Math.max(getKeywordWidthUnits(keyword), 1);
+    (radius * LABEL_WIDTH_RATIO) / Math.max(getKeywordTextWidthUnits(keyword), 1);
 
   return Math.min(MAX_LABEL_FONT_SIZE, sizeForRadius, sizeForTextLength);
 };
@@ -119,7 +110,7 @@ const splitKeywordIntoLines = (keyword: string) => {
     const isWordBoundary =
       /\s/.test(characters[index - 1] ?? '') || /\s/.test(characters[index] ?? '');
     const score =
-      Math.abs(getKeywordWidthUnits(firstLine) - getKeywordWidthUnits(secondLine)) -
+      Math.abs(getKeywordTextWidthUnits(firstLine) - getKeywordTextWidthUnits(secondLine)) -
       (isWordBoundary ? 0.75 : 0);
 
     if (score < bestScore) {
@@ -131,31 +122,12 @@ const splitKeywordIntoLines = (keyword: string) => {
   return bestLines;
 };
 
-/** 주어진 예상 너비를 초과하는 라벨을 말줄임표와 함께 줄입니다. */
-const truncateKeywordLine = (keyword: string, maxWidthUnits: number) => {
-  if (getKeywordWidthUnits(keyword) <= maxWidthUnits + LABEL_WIDTH_TOLERANCE) return keyword;
-
-  const ellipsis = '…';
-  let displayKeyword = '';
-
-  for (const character of Array.from(keyword)) {
-    if (
-      getKeywordWidthUnits(`${displayKeyword}${character}${ellipsis}`) >
-      maxWidthUnits + LABEL_WIDTH_TOLERANCE
-    )
-      break;
-    displayKeyword += character;
-  }
-
-  return `${displayKeyword.trimEnd()}${ellipsis}`;
-};
-
 /** 키워드 길이와 버블 반지름에 맞는 한 줄 또는 두 줄 라벨 배치를 계산합니다. */
 const getLabelLayout = (keyword: string, radius: number) => {
   const singleLineFontSize = getSingleLineFontSize(keyword, radius);
 
   if (
-    getKeywordWidthUnits(keyword) <= SHORT_LABEL_WIDTH_UNITS ||
+    getKeywordTextWidthUnits(keyword) <= SHORT_LABEL_WIDTH_UNITS ||
     singleLineFontSize >= MIN_SINGLE_LINE_FONT_SIZE
   ) {
     return {
@@ -165,7 +137,7 @@ const getLabelLayout = (keyword: string, radius: number) => {
   }
 
   const lines = splitKeywordIntoLines(keyword);
-  const widestLine = Math.max(...lines.map(getKeywordWidthUnits));
+  const widestLine = Math.max(...lines.map(getKeywordTextWidthUnits));
   const twoLineFontSize = Math.min(
     MAX_LABEL_FONT_SIZE,
     radius * 0.36,
@@ -176,7 +148,7 @@ const getLabelLayout = (keyword: string, radius: number) => {
 
   return {
     fontSize,
-    lines: lines.map((line) => truncateKeywordLine(line, maxWidthUnits)),
+    lines: lines.map((line) => truncateKeywordByWidth(line, maxWidthUnits)),
   };
 };
 
@@ -188,18 +160,22 @@ const getLabelLayout = (keyword: string, radius: number) => {
  * 중요도 범위를 반지름 범위에 매핑하고 황금각 기반의 초기 좌표를 생성합니다.
  *
  * @param keywords - 변환할 키워드 분석 결과입니다.
+ * @param bounds - 초기 버블을 배치할 실제 렌더링 영역입니다.
  * @returns 색상, 라벨 배치, 반지름과 초기 물리 상태가 포함된 버블 노드 목록입니다.
  */
-export const createBubbleNodes = (keywords: KeywordAnalysisKeyword[]): KeywordBubbleNode[] => {
-  const limitedKeywords = keywords.slice(0, KEYWORD_BUBBLE_MAX_COUNT);
+export const createBubbleNodes = (
+  keywords: KeywordAnalysisKeyword[],
+  bounds: KeywordBubbleBounds = KEYWORD_BUBBLE_DEFAULT_BOUNDS
+): KeywordBubbleNode[] => {
+  const limitedKeywords = limitKeywordAnalysisKeywords(keywords);
 
   if (limitedKeywords.length === 0) return [];
 
   const importanceValues = limitedKeywords.map(({ importance }) => importance);
   const minImportance = Math.min(...importanceValues);
   const maxImportance = Math.max(...importanceValues);
-  const centerX = KEYWORD_BUBBLE_VIEWBOX.width / 2;
-  const centerY = KEYWORD_BUBBLE_VIEWBOX.height / 2;
+  const centerX = bounds.width / 2;
+  const centerY = bounds.height / 2;
   const { goldenAngleRadians, horizontalDistance, velocity, verticalDistance } =
     KEYWORD_BUBBLE_INITIAL_LAYOUT;
 

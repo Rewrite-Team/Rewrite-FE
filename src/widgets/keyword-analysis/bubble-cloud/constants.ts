@@ -1,9 +1,8 @@
 export const KEYWORD_BUBBLE_ENTRY_STAGGER_MS = 25;
 export const KEYWORD_BUBBLE_LABEL_LINE_HEIGHT_RATIO = 1.12;
-export const KEYWORD_BUBBLE_MAX_COUNT = 20;
 
-export const KEYWORD_BUBBLE_VIEWBOX = {
-  height: 360,
+export const KEYWORD_BUBBLE_DEFAULT_BOUNDS = {
+  height: 472,
   width: 480,
 } as const;
 
