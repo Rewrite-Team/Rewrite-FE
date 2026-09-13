@@ -15,6 +15,7 @@ import {
 import { ROUTES } from '@/shared/constants/routes';
 import { cn } from '@/shared/styles/utils/cn';
 
+import styles from './Sidebar.module.css';
 import { SidebarItem } from './SidebarItem';
 
 import type { SidebarProps, SidebarVariant } from './Sidebar.types';
@@ -38,7 +39,7 @@ const handlePendingDelete = () => {
  * 상세 화면은 전체 메뉴를, 하위 기능 화면은 간결한 메뉴를 기본으로 표시합니다.
  * AI 첨삭, 키워드 분석, AI 면접을 직접 이동하는 평면 메뉴로 제공하고 현재 경로를 기준으로
  * Active 메뉴를 계산합니다. 메뉴 버튼으로 아이콘 목록을 펼치거나 접습니다.
- * 모바일에서는 메뉴 버튼만 표시하고 펼치면 아이콘 메뉴를 버튼 위쪽으로 노출합니다.
+ * 모바일에서는 메뉴 버튼만 표시하고 펼치면 아이콘과 라벨을 담은 플로팅 패널을 노출합니다.
  *
  * ### 접근성
  *
@@ -75,7 +76,9 @@ export function Sidebar({
   const isDetailActive = pathname === routes.detail;
   const isKeywordActive = isPathActive(pathname, routes.keywordAnalysis);
   const isInterviewActive = isPathActive(pathname, routes.interview);
-  const mobileMenuItemClassName = isExpanded ? undefined : 'hidden lg:block';
+  const mobileMenuItemClassName = isExpanded
+    ? cn('w-full', styles.menuItemEntering)
+    : 'hidden lg:block';
   const shouldShowMobileLabel = isExpanded;
 
   const handleToggle = () => {
@@ -119,7 +122,10 @@ export function Sidebar({
       {isExpanded ? (
         <button
           aria-label="사이드바 닫기"
-          className="fixed inset-0 z-(--z-index-sidebar-backdrop) bg-backdrop lg:hidden"
+          className={cn(
+            'fixed inset-0 z-(--z-index-sidebar-backdrop) bg-backdrop lg:hidden',
+            styles.backdropEntering
+          )}
           onClick={handleSidebarClose}
           tabIndex={-1}
           type="button"
@@ -128,8 +134,11 @@ export function Sidebar({
 
       <aside
         className={cn(
-          'relative z-(--z-index-sidebar) w-fit rounded-full bg-gray-800 p-3 text-gray-300 shadow-lg shadow-black/20',
-          isExpanded && 'rounded-3xl',
+          'relative z-(--z-index-sidebar) w-fit rounded-full border border-white/8 bg-gray-800/95 p-2.5 text-gray-300 shadow-[0_12px_32px_rgba(0,0,0,0.35)] backdrop-blur-md transition-[background-color,box-shadow] duration-200 motion-reduce:transition-none lg:p-3',
+          isExpanded && [
+            'rounded-2xl bg-gray-800/98 shadow-[0_20px_48px_rgba(0,0,0,0.45)]',
+            styles.panelEntering,
+          ],
           className
         )}
         {...props}
@@ -137,11 +146,11 @@ export function Sidebar({
         <nav aria-label="자기소개서 메뉴">
           <ul
             className={cn(
-              'flex flex-col items-center gap-1',
-              isExpanded && 'lg:w-44 lg:items-stretch'
+              'flex w-11 flex-col items-center gap-1 lg:w-10 lg:transition-[width] lg:duration-300 lg:ease-out lg:motion-reduce:transition-none',
+              isExpanded && 'w-44 items-stretch lg:w-44'
             )}
           >
-            <li className="order-last lg:order-none">
+            <li className="order-last self-center lg:order-none lg:self-stretch">
               <SidebarItem
                 ariaExpanded={isExpanded}
                 buttonRef={sidebarToggleRef}
@@ -189,10 +198,15 @@ export function Sidebar({
               </>
             ) : null}
 
-            <li
-              className={cn('my-1 hidden h-px w-full bg-gray-600 lg:block', isExpanded && 'block')}
-              aria-hidden
-            />
+            {isDetailActive ? (
+              <li
+                className={cn(
+                  'my-1 hidden h-px w-full bg-gray-600 lg:block',
+                  isExpanded && ['block', styles.menuItemEntering]
+                )}
+                aria-hidden
+              />
+            ) : null}
 
             <li className={mobileMenuItemClassName}>
               <SidebarItem

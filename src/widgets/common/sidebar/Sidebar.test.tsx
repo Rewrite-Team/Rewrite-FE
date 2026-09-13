@@ -16,7 +16,7 @@ jest.mock('next/navigation', () => ({
 }));
 
 describe('Sidebar', () => {
-  it('모바일에서는 아이콘 왼쪽에 배경 없는 텍스트 라벨을 표시한다', () => {
+  it('모바일에서는 펼친 패널 내부에 아이콘과 텍스트 라벨을 표시한다', () => {
     render(<Sidebar writingId="1" />);
 
     const aiEditMenuItem = screen.getByRole('link', { name: 'AI 첨삭' }).closest('li');
@@ -26,14 +26,15 @@ describe('Sidebar', () => {
     fireEvent.click(screen.getByRole('button', { name: '사이드바 펼치기' }));
 
     expect(aiEditMenuItem).not.toHaveClass('hidden');
+    expect(aiEditMenuItem).toHaveClass('w-full');
     expect(screen.getByRole('button', { name: '메뉴 접기' }).closest('li')).toHaveClass(
       'order-last',
       'lg:order-none'
     );
     expect(screen.getByText('메뉴 접기')).toHaveClass('hidden', 'lg:inline');
-    expect(screen.getByText('AI 첨삭')).toHaveClass('text-gray-100', 'lg:inline');
-    expect(screen.getByText('키워드 분석')).toHaveClass('text-gray-100', 'lg:inline');
-    expect(screen.getByText('AI 면접')).toHaveClass('text-gray-100', 'lg:inline');
+    expect(screen.getByText('AI 첨삭')).toHaveClass('inline', 'text-gray-100');
+    expect(screen.getByText('키워드 분석')).toHaveClass('inline', 'text-gray-100');
+    expect(screen.getByText('AI 면접')).toHaveClass('inline', 'text-gray-100');
     expect(screen.getByRole('link', { name: 'AI 면접' }).querySelector('svg')).not.toHaveClass(
       'hidden'
     );
@@ -64,6 +65,12 @@ describe('Sidebar', () => {
 
     expect(featureDivider).toHaveClass('block', 'lg:block');
     expect(featureDivider).not.toHaveClass('hidden');
+  });
+
+  it('AI 첨삭이 아닌 화면에서는 기능 메뉴 구분선을 표시하지 않는다', () => {
+    const { container } = render(<Sidebar pathname="/writing/1/keyword-analysis" writingId="1" />);
+
+    expect(container.querySelectorAll('li[aria-hidden="true"]')).toHaveLength(1);
   });
 
   it('탐색 링크를 선택하면 펼친 사이드바를 닫는다', () => {
