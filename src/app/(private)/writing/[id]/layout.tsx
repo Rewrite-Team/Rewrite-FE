@@ -1,5 +1,7 @@
 import { Sidebar } from '@/widgets/common/sidebar';
 
+import './layout.css';
+
 export default async function WritingDetailLayout({
   children,
   params,

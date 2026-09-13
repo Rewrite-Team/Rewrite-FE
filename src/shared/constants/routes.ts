@@ -15,6 +15,7 @@ export const ROUTES = {
   WRITING_CREATE_STEP: getWritingCreateStepRoute,
   WRITING_DETAIL: (writingId: string) => `/writing/${writingId}`,
   INTERVIEW: (writingId: string) => `/writing/${writingId}/interview`,
+  INTERVIEW_SESSION: (writingId: string) => `/writing/${writingId}/interview/session`,
   KEYWORD_ANALYSIS: (writingId: string) => `/writing/${writingId}/keyword-analysis`,
   KEYWORD_ANALYSIS_RESULT: (writingId: string) => `/writing/${writingId}/keyword-analysis/result`,
 } as const;
