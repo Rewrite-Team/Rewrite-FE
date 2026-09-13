@@ -4,11 +4,17 @@ import { useEffect, useRef, useState } from 'react';
 
 import { usePathname } from 'next/navigation';
 
-import { DeleteIcon, InterviewIcon, MenuIcon, VersionIcon } from '@/shared/assets/icons/side-menu';
+import {
+  DeleteIcon,
+  InterviewIcon,
+  KeywordIcon,
+  MenuIcon,
+  VersionIcon,
+  WritingDetailIcon,
+} from '@/shared/assets/icons/side-menu';
 import { ROUTES } from '@/shared/constants/routes';
 import { cn } from '@/shared/styles/utils/cn';
 
-import { SidebarDropdown } from './SidebarDropdown';
 import { SidebarItem } from './SidebarItem';
 
 import type { SidebarProps, SidebarVariant } from './Sidebar.types';
@@ -30,7 +36,8 @@ const handlePendingDelete = () => {
  * @description
  * 자기소개서 상세, 키워드 분석, AI 면접 화면에서 공유하는 경로 기반 내비게이션입니다.
  * 상세 화면은 전체 메뉴를, 하위 기능 화면은 간결한 메뉴를 기본으로 표시합니다.
- * 현재 경로를 기준으로 Active 메뉴를 계산하고, 메뉴 버튼으로 아이콘 목록을 펼치거나 접습니다.
+ * AI 첨삭, 키워드 분석, AI 면접을 직접 이동하는 평면 메뉴로 제공하고 현재 경로를 기준으로
+ * Active 메뉴를 계산합니다. 메뉴 버튼으로 아이콘 목록을 펼치거나 접습니다.
  * 모바일에서는 메뉴 버튼만 표시하고 펼치면 아이콘 메뉴를 버튼 위쪽으로 노출합니다.
  *
  * ### 접근성
@@ -65,29 +72,18 @@ export function Sidebar({
   const shouldRestoreToggleFocusRef = useRef(false);
   const sidebarToggleRef = useRef<HTMLButtonElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isAnalysisMenuOpen, setIsAnalysisMenuOpen] = useState(false);
   const isDetailActive = pathname === routes.detail;
   const isKeywordActive = isPathActive(pathname, routes.keywordAnalysis);
   const isInterviewActive = isPathActive(pathname, routes.interview);
   const mobileMenuItemClassName = isExpanded ? undefined : 'hidden lg:block';
-  const shouldShowMobileLabel = isExpanded && !isAnalysisMenuOpen;
+  const shouldShowMobileLabel = isExpanded;
 
   const handleToggle = () => {
     setIsExpanded((wasExpanded) => !wasExpanded);
-    setIsAnalysisMenuOpen(false);
-  };
-
-  const handleAnalysisMenuToggle = () => {
-    setIsAnalysisMenuOpen((wasOpen) => !wasOpen);
-  };
-
-  const handleAnalysisMenuClose = () => {
-    setIsAnalysisMenuOpen(false);
   };
 
   const handleSidebarClose = () => {
     setIsExpanded(false);
-    setIsAnalysisMenuOpen(false);
   };
 
   useEffect(() => {
@@ -99,7 +95,6 @@ export function Sidebar({
       if (event.key === 'Escape') {
         shouldRestoreToggleFocusRef.current = true;
         setIsExpanded(false);
-        setIsAnalysisMenuOpen(false);
       }
     };
 
@@ -154,25 +149,22 @@ export function Sidebar({
                 isExpanded={isExpanded}
                 label={isExpanded ? '메뉴 접기' : '사이드바 펼치기'}
                 onClick={handleToggle}
-                showMobileLabel={shouldShowMobileLabel}
               />
             </li>
 
             <li className="my-1 hidden h-px w-full bg-gray-600 lg:block" aria-hidden />
 
-            <SidebarDropdown
-              className={mobileMenuItemClassName}
-              detailHref={routes.detail}
-              isDetailActive={isDetailActive}
-              isExpanded={isExpanded}
-              isKeywordActive={isKeywordActive}
-              isOpen={isAnalysisMenuOpen}
-              keywordAnalysisHref={routes.keywordAnalysis}
-              onClose={handleAnalysisMenuClose}
-              onNavigate={handleSidebarClose}
-              onToggle={handleAnalysisMenuToggle}
-              showMobileLabel={shouldShowMobileLabel}
-            />
+            <li className={mobileMenuItemClassName}>
+              <SidebarItem
+                href={routes.detail}
+                icon={WritingDetailIcon}
+                isActive={isDetailActive}
+                isExpanded={isExpanded}
+                label="AI 첨삭"
+                onSelect={handleSidebarClose}
+                showMobileLabel={shouldShowMobileLabel}
+              />
+            </li>
 
             {variant === 'full' ? (
               <>
@@ -194,9 +186,25 @@ export function Sidebar({
                     showMobileLabel={shouldShowMobileLabel}
                   />
                 </li>
-                <li className="my-1 hidden h-px w-full bg-gray-600 lg:block" aria-hidden />
               </>
             ) : null}
+
+            <li
+              className={cn('my-1 hidden h-px w-full bg-gray-600 lg:block', isExpanded && 'block')}
+              aria-hidden
+            />
+
+            <li className={mobileMenuItemClassName}>
+              <SidebarItem
+                href={routes.keywordAnalysis}
+                icon={KeywordIcon}
+                isActive={isKeywordActive}
+                isExpanded={isExpanded}
+                label="키워드 분석"
+                onSelect={handleSidebarClose}
+                showMobileLabel={shouldShowMobileLabel}
+              />
+            </li>
 
             <li className={mobileMenuItemClassName}>
               <SidebarItem

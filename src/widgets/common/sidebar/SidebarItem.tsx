@@ -13,11 +13,9 @@ interface SidebarItemBaseProps {
   label: string;
   showMobileLabel?: boolean;
   showTooltip?: boolean;
-  surface?: 'dropdown' | 'sidebar';
 }
 
 interface SidebarItemLinkProps extends SidebarItemBaseProps {
-  ariaControls?: never;
   ariaExpanded?: never;
   buttonRef?: never;
   href: string;
@@ -26,7 +24,6 @@ interface SidebarItemLinkProps extends SidebarItemBaseProps {
 }
 
 interface SidebarItemActionProps extends SidebarItemBaseProps {
-  ariaControls?: string;
   ariaExpanded?: boolean;
   buttonRef?: Ref<HTMLButtonElement>;
   href?: never;
@@ -43,10 +40,6 @@ const sidebarItemVariants = cva(
   ],
   {
     variants: {
-      surface: {
-        dropdown: 'hover:bg-gray-600',
-        sidebar: 'hover:bg-gray-700',
-      },
       isActive: {
         false: null,
         true: 'bg-primary-500/15 text-primary-300 ring-1 ring-primary-200/15 ring-inset shadow-sidebar-active hover:bg-primary-500/25 hover:text-primary-100',
@@ -59,7 +52,6 @@ const sidebarItemVariants = cva(
     defaultVariants: {
       isActive: false,
       isExpanded: false,
-      surface: 'sidebar',
     },
   }
 );
@@ -75,8 +67,8 @@ const sidebarItemVariants = cva(
  * ### 접근성
  *
  * 모든 아이콘 메뉴는 `label`을 접근성 이름으로 사용합니다. 접힌 메뉴의 Tooltip은
- * 같은 문구를 시각적으로 보완합니다. 현재 페이지 링크에는 `aria-current="page"`를,
- * 드롭다운 Trigger에는 `aria-expanded`를 전달합니다.
+ * 같은 문구를 시각적으로 보완합니다. 현재 페이지 링크에는 `aria-current="page"`를
+ * 전달합니다.
  *
  * @param icon - 메뉴 의미를 나타내는 SVG 아이콘 컴포넌트
  * @param label - 메뉴 텍스트이자 아이콘 버튼의 접근성 이름
@@ -84,16 +76,13 @@ const sidebarItemVariants = cva(
  * @param href - 전달하면 페이지 이동 링크로 렌더링되는 내부 경로
  * @param isActive - 현재 페이지 또는 선택 상태의 시각적 강조 여부
  * @param isExpanded - 데스크톱 확장 Sidebar에서 아이콘 옆에 내부 라벨을 표시할지 여부
- * @param ariaExpanded - 드롭다운 트리거의 열림 상태
- * @param ariaControls - 드롭다운 트리거와 연결할 메뉴 요소의 id
+ * @param ariaExpanded - 메뉴 토글이 제어하는 영역의 펼침 상태
  * @param buttonRef - 액션 버튼 DOM 요소에 접근할 때 사용하는 ref
  * @param onClick - 액션 버튼 선택 시 실행할 콜백
  * @param onSelect - 링크 선택 직전에 실행할 콜백
  * @param showTooltip - 접힌 상태에서 hover 또는 focus 툴팁을 표시할지 여부
- * @param surface - 메뉴가 배치되는 배경에 따른 hover 색상
  */
 export function SidebarItem({
-  ariaControls,
   ariaExpanded,
   buttonRef,
   href,
@@ -105,7 +94,6 @@ export function SidebarItem({
   onSelect,
   showMobileLabel = false,
   showTooltip = true,
-  surface = 'sidebar',
 }: SidebarItemProps) {
   const content = (
     <>
@@ -115,12 +103,7 @@ export function SidebarItem({
           className={cn(
             'whitespace-nowrap font-medium',
             showMobileLabel
-              ? cn(
-                  'absolute block body-12 text-gray-100 lg:static lg:inline lg:body-14 lg:text-inherit',
-                  surface === 'dropdown'
-                    ? 'right-[calc(100%+0.125rem)]'
-                    : 'right-[calc(100%+0.5rem)]'
-                )
+              ? 'absolute right-[calc(100%+0.5rem)] block body-12 text-gray-100 lg:static lg:inline lg:body-14 lg:text-inherit'
               : 'hidden body-14 lg:inline'
           )}
         >
@@ -134,7 +117,7 @@ export function SidebarItem({
     <LinkButton
       aria-current={isActive ? 'page' : undefined}
       aria-label={label}
-      className={sidebarItemVariants({ isActive, isExpanded, surface })}
+      className={sidebarItemVariants({ isActive, isExpanded })}
       href={href}
       onClick={onSelect}
       size="icon"
@@ -144,10 +127,9 @@ export function SidebarItem({
     </LinkButton>
   ) : (
     <Button
-      aria-controls={ariaControls}
       aria-expanded={ariaExpanded}
       aria-label={label}
-      className={sidebarItemVariants({ isActive, isExpanded, surface })}
+      className={sidebarItemVariants({ isActive, isExpanded })}
       onClick={onClick}
       ref={buttonRef}
       size="icon"
