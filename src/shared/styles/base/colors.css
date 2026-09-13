@@ -37,6 +37,7 @@
   /* Semantic Colors */
   --color-success-500: #55c790;
   --color-error-500: #ff5656;
+  --color-backdrop: rgb(0 0 0 / 70%);
 
   --color-black: #000000;
   --color-white: #ffffff;

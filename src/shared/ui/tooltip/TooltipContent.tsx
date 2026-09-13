@@ -10,7 +10,7 @@ import { useTooltipConfigContext } from './TooltipConfigContext';
 import type { TooltipContentProps } from './Tooltip.types';
 
 const tooltipContentClassNames = [
-  'z-(--z-index-tooltip) max-w-70 rounded-lg border border-gray-700 bg-gray-900 px-3 py-2',
+  'max-w-70 rounded-lg border border-gray-700 bg-gray-900 px-3 py-2',
   'body-12 font-medium text-gray-50 shadow-(--shadow-tooltip)',
   'origin-[var(--transform-origin)] scale-100 opacity-100 blur-0 outline-none backdrop-blur-sm',
   'transition-[opacity,transform,filter] duration-150 ease-out',
@@ -38,7 +38,7 @@ export function TooltipContent({
   const { offset, placement } = useTooltipConfigContext();
 
   const content = (
-    <Tooltip.Positioner side={placement} sideOffset={offset}>
+    <Tooltip.Positioner className="z-(--z-index-tooltip)" side={placement} sideOffset={offset}>
       <Tooltip.Popup
         {...props}
         className={cn(tooltipContentClassNames, className)}

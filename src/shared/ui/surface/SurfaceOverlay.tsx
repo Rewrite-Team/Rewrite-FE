@@ -31,7 +31,7 @@ export function SurfaceOverlay({ className, ref, ...props }: SurfaceOverlayProps
       {...props}
       aria-hidden="true"
       className={cn(
-        'surface-modal-overlay-animation fixed inset-0 z-(--z-index-surface-overlay) bg-black/70',
+        'surface-modal-overlay-animation fixed inset-0 z-(--z-index-surface-overlay) bg-backdrop',
         className
       )}
       ref={ref}
