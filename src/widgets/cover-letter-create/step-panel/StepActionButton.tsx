@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 
 import { Button } from '@/shared/ui/button';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
-import type { StepPanelAction } from '@/widgets/cover-letter-create/types/coverLetterCreate';
+
+import type { StepPanelAction } from './types';
 
 interface StepActionButtonProps {
   action: StepPanelAction;

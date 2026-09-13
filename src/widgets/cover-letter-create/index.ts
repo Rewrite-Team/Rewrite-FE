@@ -4,4 +4,3 @@ export { CoverLetterPreferredQualificationForm } from './preferred-qualification
 export { CoverLetterQuestionForm } from './question-form/CoverLetterQuestionForm';
 export { CoverLetterReviewForm } from './review-form/CoverLetterReviewForm';
 export { CoverLetterStepPanel } from './step-panel/CoverLetterStepPanel';
-export type { CoverLetterCreateStepSegment } from './types/coverLetterCreate';

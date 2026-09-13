@@ -30,7 +30,7 @@ export function Footer({
   ...props
 }: FooterProps) {
   return (
-    <footer className={cn('w-full bg-gray-800 text-white', className)} {...props}>
+    <footer className={cn('w-dvw max-w-none bg-gray-900 text-white', className)} {...props}>
       <div className="mx-auto flex min-h-14 w-full items-center justify-between px-5 py-7 xl:px-20">
         <div className="flex flex-col gap-6">
           <TextLogo aria-label="Re:write 홈으로 이동" href={logoHref} />

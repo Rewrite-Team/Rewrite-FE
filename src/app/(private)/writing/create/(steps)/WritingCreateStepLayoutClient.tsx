@@ -4,12 +4,11 @@ import type { ReactNode } from 'react';
 
 import { useSelectedLayoutSegment } from 'next/navigation';
 
-import {
-  COVER_LETTER_STEP_CONFIG,
-  type CoverLetterCreateStepSegment,
-} from '@/widgets/cover-letter-create';
+import { COVER_LETTER_STEP_CONFIG } from '@/widgets/cover-letter-create';
 
 import { WritingCreateStepShell } from './WritingCreateStepShell';
+
+import type { CoverLetterCreateStepSegment } from './types';
 
 interface WritingCreateStepLayoutClientProps {
   children: ReactNode;

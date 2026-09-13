@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from 'react';
+import type { ComponentPropsWithRef } from 'react';
 
 import { cn } from '@/shared/styles/utils/cn';
 
@@ -8,7 +8,7 @@ import { buttonVariants, type ButtonVariantProps } from './buttonVariants';
 import type { ButtonAccessibilityProps, ButtonStateProps } from './Button.types';
 
 type ButtonProps = ButtonVariantProps &
-  Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'aria-label' | 'children' | 'disabled'> &
+  Omit<ComponentPropsWithRef<'button'>, 'aria-label' | 'children' | 'disabled'> &
   ButtonStateProps &
   ButtonAccessibilityProps;
 

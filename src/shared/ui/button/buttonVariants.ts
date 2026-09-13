@@ -17,7 +17,7 @@ const buttonVariants = cva(
         ghost:
           'border border-transparent bg-transparent text-white data-[disabled=false]:hover:text-primary-500 data-[disabled=false]:active:text-primary-600 disabled:text-gray-500 aria-disabled:cursor-not-allowed aria-disabled:text-gray-500',
         outline:
-          'border border-primary-500 bg-transparent text-primary-500 data-[disabled=false]:hover:bg-primary-300/50 data-[disabled=false]:active:bg-primary-300/60 disabled:border-gray-500 disabled:text-gray-500 aria-disabled:cursor-not-allowed aria-disabled:border-gray-500 aria-disabled:text-gray-500',
+          'border border-primary-500 bg-transparent text-primary-500 data-[disabled=false]:hover:bg-primary-500/20 data-[disabled=false]:active:bg-primary-500/30 disabled:border-gray-500 disabled:text-gray-500 aria-disabled:cursor-not-allowed aria-disabled:border-gray-500 aria-disabled:text-gray-500',
       },
       size: {
         sm: 'h-7 w-16 body-14',

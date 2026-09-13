@@ -66,7 +66,7 @@ export function Header({
   return (
     <header
       className={cn(
-        'sticky top-0 z-(--z-index-header) w-full transition-[background-color,box-shadow,backdrop-filter] duration-200',
+        'sticky top-0 z-(--z-index-header) w-dvw max-w-none transition-[background-color,box-shadow,backdrop-filter] duration-200',
         shouldBlur && 'bg-black/70 shadow-lg shadow-black/20 backdrop-blur-md',
         className
       )}

@@ -32,6 +32,16 @@ export const LongDescription: Story = {
   },
 };
 
+export const WithEyebrowAndVersion: Story = {
+  args: {
+    title: '자기소개서 제목',
+    description: undefined,
+    eyebrow: <span className="body-12 text-primary-300">회사명 · 직무</span>,
+    version: 'V0.1',
+    titleClassName: 'body-20',
+  },
+};
+
 export const CustomLayout: Story = {
   args: {
     title: '키워드 분석 결과',

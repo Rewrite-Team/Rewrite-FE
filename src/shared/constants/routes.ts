@@ -16,4 +16,5 @@ export const ROUTES = {
   WRITING_DETAIL: (writingId: string) => `/writing/${writingId}`,
   INTERVIEW: (writingId: string) => `/writing/${writingId}/interview`,
   KEYWORD_ANALYSIS: (writingId: string) => `/writing/${writingId}/keyword-analysis`,
+  KEYWORD_ANALYSIS_RESULT: (writingId: string) => `/writing/${writingId}/keyword-analysis/result`,
 } as const;

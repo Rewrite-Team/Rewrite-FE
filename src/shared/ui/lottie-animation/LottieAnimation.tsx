@@ -1,8 +1,6 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-
-const LottiePlayer = dynamic(() => import('react-lottie-player'), { ssr: false });
+import LottiePlayer from 'react-lottie-player';
 
 interface LottieAnimationData {
   assets?: unknown[];

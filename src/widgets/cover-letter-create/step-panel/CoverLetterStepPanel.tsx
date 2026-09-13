@@ -3,9 +3,10 @@ import { WRITING_CREATE_STEPS } from '@/shared/constants/writingCreate';
 import { cn } from '@/shared/styles/utils/cn';
 import type { WritingCreateStep } from '@/shared/types/writingCreate';
 import { COVER_LETTER_STEP_CONFIG } from '@/widgets/cover-letter-create/constants/stepConfig';
-import type { StepPanelAction } from '@/widgets/cover-letter-create/types/coverLetterCreate';
 
 import { StepActionButton } from './StepActionButton';
+
+import type { StepPanelAction } from './types';
 
 interface CoverLetterStepPanelBaseProps {
   className?: string;

@@ -1,4 +1,14 @@
-import type { CoverLetterStepConfigBySegment } from '@/widgets/cover-letter-create/types/coverLetterCreate';
+import type { WritingCreateStep } from '@/shared/types/writingCreate';
+
+interface CoverLetterStepDisplayConfig {
+  description: string;
+  label: string;
+  title: string;
+}
+
+type CoverLetterStepConfigBySegment = {
+  [Step in WritingCreateStep as `step${Step}`]: CoverLetterStepDisplayConfig & { step: Step };
+};
 
 /** 각 라우트 STEP에서 표시할 제목, 설명, 진행 라벨을 정의합니다. */
 export const COVER_LETTER_STEP_CONFIG = {

@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html className={`${pretendard.variable} ${pretendard.className}`} lang="ko">
-      <body className="flex min-h-dvh flex-col bg-black">
+      <body className="flex min-h-dvh flex-col overflow-x-clip bg-black">
         <Header />
         <main className="flex min-h-0 flex-1 flex-col px-5 sm:px-8 lg:px-12">
           <div className="mx-auto flex w-full max-w-277.5 flex-1 flex-col">{children}</div>

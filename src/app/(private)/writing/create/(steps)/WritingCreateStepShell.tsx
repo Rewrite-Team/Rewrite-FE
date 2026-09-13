@@ -8,11 +8,9 @@ import { ROUTES } from '@/shared/constants/routes';
 import { WRITING_CREATE_STEPS } from '@/shared/constants/writingCreate';
 import type { WritingCreateStep } from '@/shared/types/writingCreate';
 import { PageHeader } from '@/shared/ui/page-header';
-import {
-  COVER_LETTER_STEP_CONFIG,
-  CoverLetterStepPanel,
-  type CoverLetterCreateStepSegment,
-} from '@/widgets/cover-letter-create';
+import { COVER_LETTER_STEP_CONFIG, CoverLetterStepPanel } from '@/widgets/cover-letter-create';
+
+import type { CoverLetterCreateStepSegment } from './types';
 
 interface WritingCreateStepShellProps {
   children: ReactNode;

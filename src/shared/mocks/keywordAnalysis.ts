@@ -1,0 +1,23 @@
+/** 키워드 분석 결과 API가 연결되기 전 버블 클라우드와 중요도 차트에서 공유하는 목 데이터입니다. */
+export const MOCK_KEYWORD_ANALYSIS_KEYWORDS = [
+  { keyword: '사용자 경험', frequency: 20, importance: 98 },
+  { keyword: 'React', frequency: 19, importance: 95 },
+  { keyword: '협업', frequency: 18, importance: 92 },
+  { keyword: 'TypeScript', frequency: 17, importance: 89 },
+  { keyword: '문제 해결', frequency: 16, importance: 86 },
+  { keyword: '접근성', frequency: 15, importance: 82 },
+  { keyword: 'Next.js', frequency: 14, importance: 79 },
+  { keyword: '성능 최적화', frequency: 13, importance: 75 },
+  { keyword: '디자인 시스템', frequency: 12, importance: 71 },
+  { keyword: '상태 관리', frequency: 11, importance: 68 },
+  { keyword: '테스트', frequency: 10, importance: 64 },
+  { keyword: 'API', frequency: 9, importance: 59 },
+  { keyword: '웹 표준', frequency: 8, importance: 55 },
+  { keyword: '컴포넌트', frequency: 7, importance: 51 },
+  { keyword: '데이터', frequency: 6, importance: 47 },
+  { keyword: '리팩터링', frequency: 5, importance: 43 },
+  { keyword: '커뮤니케이션', frequency: 4, importance: 39 },
+  { keyword: 'Git', frequency: 3, importance: 35 },
+  { keyword: '애자일', frequency: 2, importance: 31 },
+  { keyword: '코드 리뷰', frequency: 1, importance: 27 },
+];

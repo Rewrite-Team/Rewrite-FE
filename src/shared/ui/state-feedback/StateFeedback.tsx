@@ -47,7 +47,7 @@ export function StateFeedback({
     const { label, ...buttonProps } = action;
 
     actionButton = (
-      <Button {...buttonProps} size="md">
+      <Button {...buttonProps} className={cn('w-full', buttonProps.className)} size="md">
         {label}
       </Button>
     );
@@ -86,7 +86,7 @@ export function StateFeedback({
         </p>
       ) : null}
 
-      {actionButton ? <div className="mt-6">{actionButton}</div> : null}
+      {actionButton ? <div className="mt-6 w-full max-w-88">{actionButton}</div> : null}
     </section>
   );
 }
