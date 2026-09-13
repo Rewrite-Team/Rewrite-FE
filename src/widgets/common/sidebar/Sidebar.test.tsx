@@ -63,15 +63,17 @@ describe('Sidebar', () => {
     expect(screen.queryByRole('button', { name: '사이드바 닫기' })).not.toBeInTheDocument();
   });
 
-  it('펼친 메뉴에서 Escape를 누르면 사이드바를 닫는다', () => {
+  it('펼친 메뉴에서 Escape를 누르면 사이드바를 닫고 토글 버튼으로 포커스를 복원한다', () => {
     render(<Sidebar writingId="1" />);
 
     fireEvent.click(screen.getByRole('button', { name: '사이드바 펼치기' }));
+    screen.getByRole('link', { name: 'AI 면접' }).focus();
+
     fireEvent.keyDown(document, { key: 'Escape' });
 
-    expect(screen.getByRole('button', { name: '사이드바 펼치기' })).toHaveAttribute(
-      'aria-expanded',
-      'false'
-    );
+    const sidebarToggle = screen.getByRole('button', { name: '사이드바 펼치기' });
+
+    expect(sidebarToggle).toHaveAttribute('aria-expanded', 'false');
+    expect(sidebarToggle).toHaveFocus();
   });
 });

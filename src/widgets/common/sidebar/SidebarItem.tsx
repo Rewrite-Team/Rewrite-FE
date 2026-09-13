@@ -1,4 +1,4 @@
-import type { ComponentType, SVGProps } from 'react';
+import type { ComponentType, Ref, SVGProps } from 'react';
 
 import { cva } from 'class-variance-authority';
 
@@ -19,6 +19,7 @@ interface SidebarItemBaseProps {
 interface SidebarItemLinkProps extends SidebarItemBaseProps {
   ariaControls?: never;
   ariaExpanded?: never;
+  buttonRef?: never;
   href: string;
   onClick?: never;
   onSelect?: () => void;
@@ -27,6 +28,7 @@ interface SidebarItemLinkProps extends SidebarItemBaseProps {
 interface SidebarItemActionProps extends SidebarItemBaseProps {
   ariaControls?: string;
   ariaExpanded?: boolean;
+  buttonRef?: Ref<HTMLButtonElement>;
   href?: never;
   onClick: () => void;
   onSelect?: never;
@@ -84,6 +86,7 @@ const sidebarItemVariants = cva(
  * @param isExpanded - 데스크톱 확장 Sidebar에서 아이콘 옆에 내부 라벨을 표시할지 여부
  * @param ariaExpanded - 드롭다운 트리거의 열림 상태
  * @param ariaControls - 드롭다운 트리거와 연결할 메뉴 요소의 id
+ * @param buttonRef - 액션 버튼 DOM 요소에 접근할 때 사용하는 ref
  * @param onClick - 액션 버튼 선택 시 실행할 콜백
  * @param onSelect - 링크 선택 직전에 실행할 콜백
  * @param showTooltip - 접힌 상태에서 hover 또는 focus 툴팁을 표시할지 여부
@@ -92,6 +95,7 @@ const sidebarItemVariants = cva(
 export function SidebarItem({
   ariaControls,
   ariaExpanded,
+  buttonRef,
   href,
   icon: Icon,
   isActive = false,
@@ -145,6 +149,7 @@ export function SidebarItem({
       aria-label={label}
       className={sidebarItemVariants({ isActive, isExpanded, surface })}
       onClick={onClick}
+      ref={buttonRef}
       size="icon"
       variant="ghost"
     >

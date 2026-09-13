@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { usePathname } from 'next/navigation';
 
@@ -62,6 +62,8 @@ export function Sidebar({
   };
   const inferredVariant: SidebarVariant = pathname === routes.detail ? 'full' : 'compact';
   const variant = variantProp ?? inferredVariant;
+  const shouldRestoreToggleFocusRef = useRef(false);
+  const sidebarToggleRef = useRef<HTMLButtonElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAnalysisMenuOpen, setIsAnalysisMenuOpen] = useState(false);
   const isDetailActive = pathname === routes.detail;
@@ -95,6 +97,7 @@ export function Sidebar({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        shouldRestoreToggleFocusRef.current = true;
         setIsExpanded(false);
         setIsAnalysisMenuOpen(false);
       }
@@ -105,6 +108,15 @@ export function Sidebar({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
+  }, [isExpanded]);
+
+  useEffect(() => {
+    if (isExpanded || !shouldRestoreToggleFocusRef.current) {
+      return;
+    }
+
+    sidebarToggleRef.current?.focus();
+    shouldRestoreToggleFocusRef.current = false;
   }, [isExpanded]);
 
   return (
@@ -137,6 +149,7 @@ export function Sidebar({
             <li className="order-last lg:order-none">
               <SidebarItem
                 ariaExpanded={isExpanded}
+                buttonRef={sidebarToggleRef}
                 icon={MenuIcon}
                 isExpanded={isExpanded}
                 label={isExpanded ? '메뉴 접기' : '사이드바 펼치기'}
