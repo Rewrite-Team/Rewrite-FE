@@ -169,6 +169,7 @@ export function Sidebar({
               isOpen={isAnalysisMenuOpen}
               keywordAnalysisHref={routes.keywordAnalysis}
               onClose={handleAnalysisMenuClose}
+              onNavigate={handleSidebarClose}
               onToggle={handleAnalysisMenuToggle}
               showMobileLabel={shouldShowMobileLabel}
             />
@@ -204,6 +205,7 @@ export function Sidebar({
                 isActive={isInterviewActive}
                 isExpanded={isExpanded}
                 label="AI 면접"
+                onSelect={handleSidebarClose}
                 showMobileLabel={shouldShowMobileLabel}
               />
             </li>

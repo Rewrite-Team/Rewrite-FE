@@ -13,6 +13,7 @@ interface SidebarDropdownProps {
   isOpen: boolean;
   keywordAnalysisHref: string;
   onClose: () => void;
+  onNavigate: () => void;
   onToggle: () => void;
   showMobileLabel?: boolean;
 }
@@ -38,7 +39,8 @@ interface SidebarDropdownProps {
  * @param isKeywordActive - 키워드 분석 경로의 Active 여부
  * @param isExpanded - 데스크톱 Sidebar의 라벨 확장 여부
  * @param isOpen - 드롭다운 표시 여부
- * @param onClose - 외부 클릭, Escape, 메뉴 선택 시 닫힘을 요청하는 콜백
+ * @param onClose - 외부 클릭이나 Escape 입력 시 드롭다운 닫힘을 요청하는 콜백
+ * @param onNavigate - 하위 탐색 링크를 선택했을 때 전체 Sidebar 닫힘을 요청하는 콜백
  * @param onToggle - 트리거 선택 시 열림 상태 변경을 요청하는 콜백
  * @param showMobileLabel - 모바일에서 Trigger 아이콘 왼쪽에 텍스트 라벨을 표시할지 여부
  */
@@ -51,6 +53,7 @@ export function SidebarDropdown({
   isOpen,
   keywordAnalysisHref,
   onClose,
+  onNavigate,
   onToggle,
   showMobileLabel = false,
 }: SidebarDropdownProps) {
@@ -91,7 +94,7 @@ export function SidebarDropdown({
               isActive={isDetailActive}
               isExpanded
               label="AI 첨삭"
-              onSelect={onClose}
+              onSelect={onNavigate}
               showMobileLabel
               surface="dropdown"
             />
@@ -103,7 +106,7 @@ export function SidebarDropdown({
               isActive={isKeywordActive}
               isExpanded
               label="키워드 분석"
-              onSelect={onClose}
+              onSelect={onNavigate}
               showMobileLabel
               surface="dropdown"
             />

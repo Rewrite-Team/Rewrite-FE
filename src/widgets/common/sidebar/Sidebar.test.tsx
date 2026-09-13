@@ -63,6 +63,28 @@ describe('Sidebar', () => {
     expect(screen.queryByRole('button', { name: '사이드바 닫기' })).not.toBeInTheDocument();
   });
 
+  it('탐색 링크를 선택하면 펼친 사이드바와 분석 드롭다운을 함께 닫는다', () => {
+    render(<Sidebar writingId="1" />);
+
+    fireEvent.click(screen.getByRole('button', { name: '사이드바 펼치기' }));
+    fireEvent.click(screen.getByRole('link', { name: 'AI 면접' }));
+
+    expect(screen.getByRole('button', { name: '사이드바 펼치기' })).toHaveAttribute(
+      'aria-expanded',
+      'false'
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '사이드바 펼치기' }));
+    fireEvent.click(screen.getByRole('button', { name: '자기소개서 분석' }));
+    fireEvent.click(screen.getByRole('link', { name: '키워드 분석' }));
+
+    expect(screen.getByRole('button', { name: '사이드바 펼치기' })).toHaveAttribute(
+      'aria-expanded',
+      'false'
+    );
+    expect(screen.queryByRole('link', { name: '키워드 분석' })).not.toBeInTheDocument();
+  });
+
   it('펼친 메뉴에서 Escape를 누르면 사이드바를 닫고 토글 버튼으로 포커스를 복원한다', () => {
     render(<Sidebar writingId="1" />);
 
