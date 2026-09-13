@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { TOAST_AUTO_CLOSE, TOAST_POSITION } from '@/shared/lib/toast';
 
-import '@/shared/styles/components/toast.css';
+import './Toast.css';
 
 /**
  * ## ToastContainer

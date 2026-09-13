@@ -1,7 +1,12 @@
 @import 'tailwindcss';
+
+/* Design tokens */
 @import './base/fonts.css';
 @import './base/colors.css';
+@import './base/shadows.css';
 @import './base/z-index.css';
+
+/* Global foundations */
 @import './base/scroll.css';
 @import './components/focus.css';
 @import './components/surface.css';

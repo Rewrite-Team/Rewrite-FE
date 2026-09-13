@@ -1,8 +1,8 @@
 'use client';
 
-import '@/shared/styles/components/keyword-bubble.css';
-
 import { useId } from 'react';
+
+import { cn } from '@/shared/styles/utils/cn';
 
 import { KEYWORD_ANALYSIS_VISUALIZATION_PANEL_CLASS_NAME } from '../constants';
 import {
@@ -10,6 +10,7 @@ import {
   KEYWORD_BUBBLE_LABEL_LINE_HEIGHT_RATIO,
 } from './constants';
 import { useKeywordBubbleCloud } from './hooks/useKeywordBubbleCloud';
+import styles from './KeywordBubbleCloud.module.css';
 import { KeywordBubbleTooltip } from './KeywordBubbleTooltip';
 
 import type { KeywordAnalysisVisualizationProps } from '../types';
@@ -44,7 +45,7 @@ export function KeywordBubbleCloud({
   } = useKeywordBubbleCloud(keywords, onKeywordHoverChange);
 
   return (
-    <div className={KEYWORD_ANALYSIS_VISUALIZATION_PANEL_CLASS_NAME}>
+    <div className={cn(KEYWORD_ANALYSIS_VISUALIZATION_PANEL_CLASS_NAME, styles.cloud)}>
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_24%_20%,rgba(118,186,255,0.11),transparent_34%),radial-gradient(circle_at_78%_74%,rgba(84,132,181,0.08),transparent_36%)]"
@@ -93,7 +94,7 @@ export function KeywordBubbleCloud({
                   transform={`translate(${x}, ${y})`}
                 >
                   <g
-                    className={isEntryAnimationActive ? 'keyword-bubble-pop' : 'keyword-bubble'}
+                    className={isEntryAnimationActive ? styles.pop : styles.hidden}
                     style={{
                       animationDelay: `${index * KEYWORD_BUBBLE_ENTRY_STAGGER_MS}ms`,
                       transformBox: 'fill-box',
