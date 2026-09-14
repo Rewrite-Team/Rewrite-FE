@@ -4,17 +4,13 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 
 import { requestPersistentInterviewStorage, saveInterviewRecording } from '@/entities/interview';
-import { useInterviewRecorder } from '@/features/interview/voice-answer';
+import { useInterviewRecorder, VoiceRecordingControls } from '@/features/interview/voice-answer';
 import type { CompletedInterviewRecording } from '@/features/interview/voice-answer';
 import { appToast } from '@/shared/lib/toast';
 
 import { useInterviewAutoScroll } from './hooks/useInterviewAutoScroll';
 import { usePersistedInterviewSession } from './hooks/usePersistedInterviewSession';
-import {
-  InterviewAnswerForm,
-  InterviewRecordingControls,
-  InterviewTextAnswerControls,
-} from './InterviewAnswerForm';
+import { InterviewAnswerForm, InterviewTextAnswerControls } from './InterviewAnswerForm';
 import { InterviewConversation } from './InterviewConversation';
 import { InterviewQuestionPanel } from './InterviewQuestionPanel';
 
@@ -22,7 +18,7 @@ interface InterviewSessionProps {
   writingId: string;
 }
 
-function getRecordingStartErrorMessage(error: unknown) {
+const getRecordingStartErrorMessage = (error: unknown) => {
   if (error instanceof DOMException && error.name === 'NotAllowedError') {
     return '음성 입력을 사용하려면 마이크 권한을 허용해 주세요.';
   }
@@ -32,7 +28,7 @@ function getRecordingStartErrorMessage(error: unknown) {
   }
 
   return '음성 입력을 시작하지 못했습니다. 다시 시도해 주세요.';
-}
+};
 
 /**
  * ## InterviewSession
@@ -223,7 +219,7 @@ export function InterviewSession({ writingId }: InterviewSessionProps) {
 
         <InterviewAnswerForm onSubmit={(event) => void handleSubmit(event)}>
           {isRecordingActive ? (
-            <InterviewRecordingControls
+            <VoiceRecordingControls
               onCancel={handleRecordingCancel}
               onComplete={() => void handleRecordingComplete()}
               status={recordingStatus}

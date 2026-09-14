@@ -34,7 +34,7 @@ type SpeechRecognitionWindow = Window &
 const subscribeToVoiceSupport = () => () => undefined;
 const getServerVoiceSupportSnapshot = () => false;
 
-function getSpeechRecognitionConstructor() {
+const getSpeechRecognitionConstructor = () => {
   if (typeof window === 'undefined') {
     return undefined;
   }
@@ -42,11 +42,11 @@ function getSpeechRecognitionConstructor() {
   const speechWindow = window as SpeechRecognitionWindow;
 
   return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
-}
+};
 
-function getVoiceSupportSnapshot() {
+const getVoiceSupportSnapshot = () => {
   return Boolean(getSpeechRecognitionConstructor());
-}
+};
 
 /**
  * ## useSpeechRecognition

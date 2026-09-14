@@ -347,6 +347,7 @@ describe('InterviewSession', () => {
     await waitFor(() => {
       expect(screen.getByText('인식된 음성 답변입니다.')).toBeInTheDocument();
       expect(answerInput).toHaveValue('');
+      expect(screen.getByRole('button', { name: '내 답변 듣기' })).toBeInTheDocument();
     });
   });
 });

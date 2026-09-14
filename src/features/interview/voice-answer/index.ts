@@ -1,4 +1,5 @@
 export { useInterviewMessageAudio } from './hooks/useInterviewMessageAudio';
 export { useInterviewRecorder } from './hooks/useInterviewRecorder';
-export { INITIAL_INTERVIEW_WAVEFORM_LEVELS } from './model/constants';
+export { VoiceInputButton } from './ui/VoiceInputButton';
+export { VoiceRecordingControls } from './ui/VoiceRecordingControls';
 export type { CompletedInterviewRecording, InterviewRecordingStatus } from './model/types';
