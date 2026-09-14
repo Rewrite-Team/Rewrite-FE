@@ -6,6 +6,7 @@ import { CopyIcon, ListenIcon } from '@/shared/assets/icons/interview';
 import { appToast } from '@/shared/lib/toast';
 import { cn } from '@/shared/styles/utils/cn';
 import { Button } from '@/shared/ui/button';
+import { copyTextToClipboard } from '@/shared/utils/copyTextToClipboard';
 
 interface InterviewConversationProps {
   isQuestionPanelOpen: boolean;
@@ -34,17 +35,14 @@ export function InterviewConversation({
   const { playMessageAudio } = useInterviewMessageAudio();
 
   const handleMessageCopy = async (message: string) => {
-    if (!navigator.clipboard) {
-      appToast.error('복사하지 못했습니다. 다시 시도해 주세요.');
+    const isCopied = await copyTextToClipboard(message);
+
+    if (isCopied) {
+      appToast.success('복사되었습니다.');
       return;
     }
 
-    try {
-      await navigator.clipboard.writeText(message);
-      appToast.success('복사되었습니다.');
-    } catch {
-      appToast.error('복사하지 못했습니다. 다시 시도해 주세요.');
-    }
+    appToast.error('복사하지 못했습니다. 다시 시도해 주세요.');
   };
 
   return (
