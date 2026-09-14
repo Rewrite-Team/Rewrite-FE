@@ -28,8 +28,10 @@ describe('Sidebar', () => {
     expect(aiEditMenuItem).not.toHaveClass('hidden');
     expect(aiEditMenuItem).toHaveClass('w-full');
     expect(screen.getByRole('button', { name: '메뉴 접기' }).closest('li')).toHaveClass(
-      'order-last',
-      'lg:order-none'
+      'lg:order-first'
+    );
+    expect(screen.getByRole('button', { name: '메뉴 접기' }).closest('li')).toBe(
+      screen.getByRole('list').lastElementChild
     );
     expect(screen.getByText('메뉴 접기')).toHaveClass('hidden', 'lg:inline');
     expect(screen.getByText('AI 첨삭')).toHaveClass('inline', 'text-gray-100');

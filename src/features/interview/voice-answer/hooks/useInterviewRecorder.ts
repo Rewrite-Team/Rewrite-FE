@@ -139,15 +139,17 @@ export function useInterviewRecorder() {
         () => resolve(new Blob(chunksRef.current, { type: recorder.mimeType })),
         { once: true }
       );
-      recorder.stop();
     });
+    const recordingEndedAt = performance.now();
+
+    recorder.stop();
 
     try {
       const [audioBlob, recognizedTranscript] = await Promise.all([
         audioPromise,
         stopRecognition(),
       ]);
-      const durationMs = Math.max(0, performance.now() - recordingStartedAtRef.current);
+      const durationMs = Math.max(0, recordingEndedAt - recordingStartedAtRef.current);
 
       if (audioBlob.size === 0) {
         throw new Error('EMPTY_RECORDING');

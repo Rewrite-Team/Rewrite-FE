@@ -150,17 +150,6 @@ export function Sidebar({
               isExpanded && 'w-44 items-stretch lg:w-44'
             )}
           >
-            <li className="order-last self-center lg:order-none lg:self-stretch">
-              <SidebarItem
-                ariaExpanded={isExpanded}
-                buttonRef={sidebarToggleRef}
-                icon={MenuIcon}
-                isExpanded={isExpanded}
-                label={isExpanded ? '메뉴 접기' : '사이드바 펼치기'}
-                onClick={handleToggle}
-              />
-            </li>
-
             <li className="my-1 hidden h-px w-full bg-gray-600 lg:block" aria-hidden />
 
             <li className={mobileMenuItemClassName}>
@@ -229,6 +218,17 @@ export function Sidebar({
                 label="AI 면접"
                 onSelect={handleSidebarClose}
                 showMobileLabel={shouldShowMobileLabel}
+              />
+            </li>
+
+            <li className="self-center lg:order-first lg:self-stretch">
+              <SidebarItem
+                ariaExpanded={isExpanded}
+                buttonRef={sidebarToggleRef}
+                icon={MenuIcon}
+                isExpanded={isExpanded}
+                label={isExpanded ? '메뉴 접기' : '사이드바 펼치기'}
+                onClick={handleToggle}
               />
             </li>
           </ul>

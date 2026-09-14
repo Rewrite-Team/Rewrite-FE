@@ -299,8 +299,14 @@ describe('InterviewSession', () => {
   it('지원하지 않는 브라우저에서는 음성 입력을 비활성화하고 안내한다', async () => {
     renderInterviewSession();
 
-    expect(screen.getByRole('button', { name: '음성 입력 시작' })).toBeDisabled();
-    fireEvent.focus(screen.getByLabelText('음성 입력 미지원 안내'));
+    const voiceInputButton = screen.getByRole('button', {
+      name: '음성 입력 미지원: Chrome을 사용해 주세요',
+    });
+
+    expect(voiceInputButton).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(voiceInputButton);
+    expect(screen.queryByRole('button', { name: '음성 입력 취소' })).not.toBeInTheDocument();
+    fireEvent.focus(voiceInputButton);
 
     expect(
       await screen.findByText(

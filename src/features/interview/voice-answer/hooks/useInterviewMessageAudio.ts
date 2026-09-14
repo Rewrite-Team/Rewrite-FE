@@ -57,7 +57,15 @@ export function useInterviewMessageAudio() {
 
       activeAudioRef.current = audio;
       activeAudioUrlRef.current = audioUrl;
-      audio.addEventListener('ended', releaseActiveAudio, { once: true });
+      audio.addEventListener(
+        'ended',
+        () => {
+          if (activeAudioRef.current === audio) {
+            releaseActiveAudio();
+          }
+        },
+        { once: true }
+      );
       await audio.play();
     } catch {
       if (requestId !== playbackRequestIdRef.current) {
