@@ -131,6 +131,13 @@
   background-position: 100% 0;
   background-size: 220% 100%;
   animation: shimmer-document-line 8s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+.section[data-animation-active='true'] .headerLine,
+.section[data-animation-active='true'] .headerSubline,
+.section[data-animation-active='true'] .documentLines span {
+  animation-play-state: running;
 }
 
 .headerLine {

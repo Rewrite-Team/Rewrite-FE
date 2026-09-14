@@ -102,6 +102,34 @@ export function LandingPreparation() {
           });
         });
 
+        let hasCompletedEntry = false;
+
+        const setAnimationActive = (isActive: boolean) => {
+          section.dataset.animationActive = String(isActive);
+
+          if (!hasCompletedEntry) {
+            return;
+          }
+
+          floatingTweens.forEach((tween) => {
+            if (isActive) {
+              tween.resume();
+              return;
+            }
+
+            tween.pause();
+          });
+        };
+
+        const visibilityTrigger = ScrollTrigger.create({
+          trigger: section,
+          start: 'top bottom',
+          end: 'bottom top',
+          onToggle: ({ isActive }) => setAnimationActive(isActive),
+        });
+
+        setAnimationActive(visibilityTrigger.isActive);
+
         const timeline = gsap.timeline({
           scrollTrigger: {
             trigger: section,
@@ -109,7 +137,11 @@ export function LandingPreparation() {
             once: true,
           },
           onComplete: () => {
-            floatingTweens.forEach((tween) => tween.play());
+            hasCompletedEntry = true;
+
+            if (visibilityTrigger.isActive) {
+              floatingTweens.forEach((tween) => tween.play());
+            }
           },
         });
 
@@ -177,6 +209,7 @@ export function LandingPreparation() {
       ref={sectionRef}
       aria-labelledby="landing-preparation-title"
       className={styles.section}
+      data-animation-active="false"
     >
       <div className={styles.scene}>
         <DocumentCard variant="left" />
