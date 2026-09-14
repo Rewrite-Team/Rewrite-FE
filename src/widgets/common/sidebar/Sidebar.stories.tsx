@@ -50,25 +50,13 @@ export const Interactions: Story = {
   args: { pathname: '/writing/1' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const analysisTrigger = canvas.getByRole('button', { name: '자기소개서 분석' });
+    const aiEditLink = canvas.getByRole('link', { name: 'AI 첨삭' });
+    const keywordAnalysisLink = canvas.getByRole('link', { name: '키워드 분석' });
+    const interviewLink = canvas.getByRole('link', { name: 'AI 면접' });
 
-    analysisTrigger.focus();
-    await userEvent.keyboard('{ArrowDown}');
-    await expect(analysisTrigger).toHaveAttribute('aria-expanded', 'true');
-    const detailLink = canvas.getByRole('link', { name: 'AI 첨삭' });
-    const keywordLink = canvas.getByRole('link', { name: '키워드 분석' });
-
-    await expect(detailLink).toHaveFocus();
-    await userEvent.keyboard('{ArrowDown}');
-    await expect(keywordLink).toHaveFocus();
-    await userEvent.keyboard('{Home}');
-    await expect(detailLink).toHaveFocus();
-    await userEvent.keyboard('{End}');
-    await expect(keywordLink).toHaveFocus();
-
-    await userEvent.keyboard('{Escape}');
-    await expect(analysisTrigger).toHaveAttribute('aria-expanded', 'false');
-    await expect(analysisTrigger).toHaveFocus();
+    await expect(aiEditLink).toHaveAttribute('href', '/writing/1');
+    await expect(keywordAnalysisLink).toHaveAttribute('href', '/writing/1/keyword-analysis');
+    await expect(interviewLink).toHaveAttribute('href', '/writing/1/interview');
 
     const sidebarTrigger = canvas.getByRole('button', { name: '사이드바 펼치기' });
 

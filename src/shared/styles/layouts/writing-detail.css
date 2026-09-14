@@ -1,0 +1,20 @@
+/* 자기소개서 상세 하위 기능 페이지에서 공유하는 콘텐츠 영역 레이아웃입니다. */
+.writing-detail-content {
+  display: flex;
+  width: 100%;
+  flex: 1;
+  flex-direction: column;
+  padding-inline: 1.25rem;
+}
+
+@media (width >= 40rem) {
+  .writing-detail-content {
+    padding-inline: 2rem;
+  }
+}
+
+@media (width >= 64rem) {
+  .writing-detail-content {
+    padding-inline: 2.75rem;
+  }
+}

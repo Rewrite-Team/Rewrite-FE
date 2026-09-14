@@ -107,7 +107,7 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
                 <button
                   aria-label={`${stepConfig.label} 단계로 이동`}
                   className={cn(
-                    'relative z-10 flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-sm leading-none font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300 disabled:cursor-default',
+                    'relative z-(--z-index-local-overlay) flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-sm leading-none font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300 disabled:cursor-default',
                     stepStatus !== 'upcoming' ? 'bg-primary-500' : 'bg-gray-500',
                     stepStatus === 'current' && 'border border-white'
                   )}

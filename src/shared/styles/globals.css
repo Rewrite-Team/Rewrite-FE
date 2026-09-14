@@ -25,3 +25,8 @@ button {
 button:disabled {
   cursor: not-allowed;
 }
+
+/* 몰입형 화면은 페이지에서 전역 푸터를 숨기도록 레이아웃 의도를 표시합니다. */
+body:has([data-layout-footer='hidden']) > footer {
+  display: none;
+}

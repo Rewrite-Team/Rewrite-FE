@@ -3,6 +3,7 @@
 import { useId } from 'react';
 
 import { cn } from '@/shared/styles/utils/cn';
+import { Title } from '@/shared/ui/title';
 
 import { KEYWORD_ANALYSIS_VISUALIZATION_PANEL_CLASS_NAME } from '../constants';
 import {
@@ -30,6 +31,7 @@ export function KeywordBubbleCloud({
   onKeywordHoverChange,
 }: KeywordAnalysisVisualizationProps) {
   const shadowFilterId = useId();
+  const titleId = `${shadowFilterId}-title`;
   const {
     activeTooltip,
     bubbleBounds,
@@ -45,7 +47,14 @@ export function KeywordBubbleCloud({
   } = useKeywordBubbleCloud(keywords, onKeywordHoverChange);
 
   return (
-    <div className={cn(KEYWORD_ANALYSIS_VISUALIZATION_PANEL_CLASS_NAME, styles.cloud)}>
+    <section
+      aria-labelledby={titleId}
+      className={cn(KEYWORD_ANALYSIS_VISUALIZATION_PANEL_CLASS_NAME, styles.cloud)}
+    >
+      <Title as="h3" className="sr-only" id={titleId}>
+        키워드 버블 클라우드
+      </Title>
+
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_24%_20%,rgba(118,186,255,0.11),transparent_34%),radial-gradient(circle_at_78%_74%,rgba(84,132,181,0.08),transparent_36%)]"
@@ -149,6 +158,6 @@ export function KeywordBubbleCloud({
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }

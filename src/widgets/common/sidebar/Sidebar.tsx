@@ -1,20 +1,36 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import type { ComponentPropsWithoutRef } from 'react';
 
 import { usePathname } from 'next/navigation';
 
-import { DeleteIcon, InterviewIcon, MenuIcon, VersionIcon } from '@/shared/assets/icons/side-menu';
+import {
+  DeleteIcon,
+  InterviewIcon,
+  KeywordIcon,
+  MenuIcon,
+  VersionIcon,
+  WritingDetailIcon,
+} from '@/shared/assets/icons/side-menu';
 import { ROUTES } from '@/shared/constants/routes';
 import { cn } from '@/shared/styles/utils/cn';
 
-import { SidebarDropdown } from './SidebarDropdown';
+import styles from './Sidebar.module.css';
 import { SidebarItem } from './SidebarItem';
 
-import type { SidebarProps, SidebarVariant } from './Sidebar.types';
+type SidebarVariant = 'compact' | 'full';
 
-const isPathActive = (pathname: string, href: string, includeChildren = true) =>
-  pathname === href || (includeChildren && pathname.startsWith(`${href}/`));
+interface SidebarProps extends ComponentPropsWithoutRef<'aside'> {
+  writingId: string;
+  onDelete?: () => void;
+  onVersionClick?: () => void;
+  pathname?: string;
+  variant?: SidebarVariant;
+}
+
+const isPathActive = (pathname: string, href: string) =>
+  pathname === href || pathname.startsWith(`${href}/`);
 
 const handlePendingVersionClick = () => {
   // TODO: 버전 관리 모달 구현 후 연결합니다.
@@ -30,8 +46,9 @@ const handlePendingDelete = () => {
  * @description
  * 자기소개서 상세, 키워드 분석, AI 면접 화면에서 공유하는 경로 기반 내비게이션입니다.
  * 상세 화면은 전체 메뉴를, 하위 기능 화면은 간결한 메뉴를 기본으로 표시합니다.
- * 현재 경로를 기준으로 Active 메뉴를 계산하고, 메뉴 버튼으로 아이콘 목록을 펼치거나 접습니다.
- * 모바일에서는 메뉴 버튼만 표시하고 펼치면 아이콘 메뉴를 버튼 위쪽으로 노출합니다.
+ * AI 첨삭, 키워드 분석, AI 면접을 직접 이동하는 평면 메뉴로 제공하고 현재 경로를 기준으로
+ * Active 메뉴를 계산합니다. 메뉴 버튼으로 아이콘 목록을 펼치거나 접습니다.
+ * 모바일에서는 메뉴 버튼만 표시하고 펼치면 아이콘과 라벨을 담은 플로팅 패널을 노출합니다.
  *
  * ### 접근성
  *
@@ -65,29 +82,20 @@ export function Sidebar({
   const shouldRestoreToggleFocusRef = useRef(false);
   const sidebarToggleRef = useRef<HTMLButtonElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isAnalysisMenuOpen, setIsAnalysisMenuOpen] = useState(false);
   const isDetailActive = pathname === routes.detail;
   const isKeywordActive = isPathActive(pathname, routes.keywordAnalysis);
   const isInterviewActive = isPathActive(pathname, routes.interview);
-  const mobileMenuItemClassName = isExpanded ? undefined : 'hidden lg:block';
-  const shouldShowMobileLabel = isExpanded && !isAnalysisMenuOpen;
+  const mobileMenuItemClassName = isExpanded
+    ? cn('w-full', styles.menuItemEntering)
+    : 'hidden lg:block';
+  const shouldShowMobileLabel = isExpanded;
 
   const handleToggle = () => {
     setIsExpanded((wasExpanded) => !wasExpanded);
-    setIsAnalysisMenuOpen(false);
-  };
-
-  const handleAnalysisMenuToggle = () => {
-    setIsAnalysisMenuOpen((wasOpen) => !wasOpen);
-  };
-
-  const handleAnalysisMenuClose = () => {
-    setIsAnalysisMenuOpen(false);
   };
 
   const handleSidebarClose = () => {
     setIsExpanded(false);
-    setIsAnalysisMenuOpen(false);
   };
 
   useEffect(() => {
@@ -99,7 +107,6 @@ export function Sidebar({
       if (event.key === 'Escape') {
         shouldRestoreToggleFocusRef.current = true;
         setIsExpanded(false);
-        setIsAnalysisMenuOpen(false);
       }
     };
 
@@ -124,7 +131,10 @@ export function Sidebar({
       {isExpanded ? (
         <button
           aria-label="사이드바 닫기"
-          className="fixed inset-0 z-(--z-index-sidebar-backdrop) bg-backdrop lg:hidden"
+          className={cn(
+            'fixed inset-0 z-(--z-index-sidebar-backdrop) bg-backdrop lg:hidden',
+            styles.backdropEntering
+          )}
           onClick={handleSidebarClose}
           tabIndex={-1}
           type="button"
@@ -133,8 +143,11 @@ export function Sidebar({
 
       <aside
         className={cn(
-          'relative z-(--z-index-sidebar) w-fit rounded-full bg-gray-800 p-3 text-gray-300 shadow-lg shadow-black/20',
-          isExpanded && 'rounded-3xl',
+          'relative z-(--z-index-sidebar) w-fit rounded-full border border-white/8 bg-gray-800/95 p-2.5 text-gray-300 shadow-[0_12px_32px_rgba(0,0,0,0.35)] backdrop-blur-md transition-[background-color,box-shadow] duration-200 motion-reduce:transition-none lg:p-3',
+          isExpanded && [
+            'rounded-2xl bg-gray-800/98 shadow-[0_20px_48px_rgba(0,0,0,0.45)]',
+            styles.panelEntering,
+          ],
           className
         )}
         {...props}
@@ -142,37 +155,23 @@ export function Sidebar({
         <nav aria-label="자기소개서 메뉴">
           <ul
             className={cn(
-              'flex flex-col items-center gap-1',
-              isExpanded && 'lg:w-44 lg:items-stretch'
+              'flex w-11 flex-col items-center gap-1 lg:w-10 lg:transition-[width] lg:duration-300 lg:ease-out lg:motion-reduce:transition-none',
+              isExpanded && 'w-44 items-stretch lg:w-44'
             )}
           >
-            <li className="order-last lg:order-none">
+            <li className="my-1 hidden h-px w-full bg-gray-600 lg:block" aria-hidden />
+
+            <li className={mobileMenuItemClassName}>
               <SidebarItem
-                ariaExpanded={isExpanded}
-                buttonRef={sidebarToggleRef}
-                icon={MenuIcon}
+                href={routes.detail}
+                icon={WritingDetailIcon}
+                isActive={isDetailActive}
                 isExpanded={isExpanded}
-                label={isExpanded ? '메뉴 접기' : '사이드바 펼치기'}
-                onClick={handleToggle}
+                label="AI 첨삭"
+                onSelect={handleSidebarClose}
                 showMobileLabel={shouldShowMobileLabel}
               />
             </li>
-
-            <li className="my-1 hidden h-px w-full bg-gray-600 lg:block" aria-hidden />
-
-            <SidebarDropdown
-              className={mobileMenuItemClassName}
-              detailHref={routes.detail}
-              isDetailActive={isDetailActive}
-              isExpanded={isExpanded}
-              isKeywordActive={isKeywordActive}
-              isOpen={isAnalysisMenuOpen}
-              keywordAnalysisHref={routes.keywordAnalysis}
-              onClose={handleAnalysisMenuClose}
-              onNavigate={handleSidebarClose}
-              onToggle={handleAnalysisMenuToggle}
-              showMobileLabel={shouldShowMobileLabel}
-            />
 
             {variant === 'full' ? (
               <>
@@ -194,9 +193,30 @@ export function Sidebar({
                     showMobileLabel={shouldShowMobileLabel}
                   />
                 </li>
-                <li className="my-1 hidden h-px w-full bg-gray-600 lg:block" aria-hidden />
               </>
             ) : null}
+
+            {isDetailActive ? (
+              <li
+                className={cn(
+                  'my-1 hidden h-px w-full bg-gray-600 lg:block',
+                  isExpanded && ['block', styles.menuItemEntering]
+                )}
+                aria-hidden
+              />
+            ) : null}
+
+            <li className={mobileMenuItemClassName}>
+              <SidebarItem
+                href={routes.keywordAnalysis}
+                icon={KeywordIcon}
+                isActive={isKeywordActive}
+                isExpanded={isExpanded}
+                label="키워드 분석"
+                onSelect={handleSidebarClose}
+                showMobileLabel={shouldShowMobileLabel}
+              />
+            </li>
 
             <li className={mobileMenuItemClassName}>
               <SidebarItem
@@ -207,6 +227,17 @@ export function Sidebar({
                 label="AI 면접"
                 onSelect={handleSidebarClose}
                 showMobileLabel={shouldShowMobileLabel}
+              />
+            </li>
+
+            <li className="self-center lg:order-first lg:self-stretch">
+              <SidebarItem
+                ariaExpanded={isExpanded}
+                buttonRef={sidebarToggleRef}
+                icon={MenuIcon}
+                isExpanded={isExpanded}
+                label={isExpanded ? '메뉴 접기' : '사이드바 펼치기'}
+                onClick={handleToggle}
               />
             </li>
           </ul>
