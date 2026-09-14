@@ -1,8 +1,10 @@
-import { LandingClosing } from '@/widgets/landing/closing';
-import { LandingFeatures } from '@/widgets/landing/features';
-import { LandingHero } from '@/widgets/landing/hero';
-import { LandingPreparation } from '@/widgets/landing/preparation';
-import { LandingProcess } from '@/widgets/landing/process';
+import {
+  LandingClosing,
+  LandingFeatures,
+  LandingHero,
+  LandingPreparation,
+  LandingProcess,
+} from '@/widgets/landing';
 
 export default function PublicHomePage() {
   return (
