@@ -13,6 +13,7 @@ import { appToast } from '@/shared/lib/toast';
 export function useInterviewMessageAudio() {
   const activeAudioRef = useRef<HTMLAudioElement | null>(null);
   const activeAudioUrlRef = useRef<string | null>(null);
+  const playbackRequestIdRef = useRef(0);
 
   const releaseActiveAudio = () => {
     activeAudioRef.current?.pause();
@@ -25,6 +26,9 @@ export function useInterviewMessageAudio() {
   };
 
   const playMessageAudio = async (message: InterviewMessage) => {
+    const requestId = playbackRequestIdRef.current + 1;
+
+    playbackRequestIdRef.current = requestId;
     releaseActiveAudio();
     window.speechSynthesis?.cancel();
 
@@ -39,6 +43,10 @@ export function useInterviewMessageAudio() {
     try {
       const recording = await getInterviewRecording(message.recordingId);
 
+      if (requestId !== playbackRequestIdRef.current) {
+        return;
+      }
+
       if (!recording) {
         appToast.error('저장된 음성을 찾지 못했습니다.');
         return;
@@ -52,6 +60,10 @@ export function useInterviewMessageAudio() {
       audio.addEventListener('ended', releaseActiveAudio, { once: true });
       await audio.play();
     } catch {
+      if (requestId !== playbackRequestIdRef.current) {
+        return;
+      }
+
       releaseActiveAudio();
       appToast.error('음성을 재생하지 못했습니다.');
     }
@@ -59,6 +71,7 @@ export function useInterviewMessageAudio() {
 
   useEffect(
     () => () => {
+      playbackRequestIdRef.current += 1;
       releaseActiveAudio();
       window.speechSynthesis?.cancel();
     },
