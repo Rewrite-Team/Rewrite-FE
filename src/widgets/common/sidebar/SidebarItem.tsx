@@ -11,7 +11,6 @@ interface SidebarItemBaseProps {
   isExpanded?: boolean;
   label: string;
   showMobileLabel?: boolean;
-  showTooltip?: boolean;
 }
 
 interface SidebarItemLinkProps extends SidebarItemBaseProps {
@@ -80,7 +79,6 @@ const sidebarItemVariants = cva(
  * @param buttonRef - 액션 버튼 DOM 요소에 접근할 때 사용하는 ref
  * @param onClick - 액션 버튼 선택 시 실행할 콜백
  * @param onSelect - 링크 선택 직전에 실행할 콜백
- * @param showTooltip - 접힌 상태에서 hover 또는 focus 툴팁을 표시할지 여부
  */
 export function SidebarItem({
   ariaExpanded,
@@ -93,7 +91,6 @@ export function SidebarItem({
   onClick,
   onSelect,
   showMobileLabel = false,
-  showTooltip = true,
 }: SidebarItemProps) {
   const content = (
     <>
@@ -138,7 +135,7 @@ export function SidebarItem({
     </Button>
   );
 
-  if (isExpanded || !showTooltip) {
+  if (isExpanded) {
     return item;
   }
 

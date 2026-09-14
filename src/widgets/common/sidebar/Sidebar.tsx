@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import type { ComponentPropsWithoutRef } from 'react';
 
 import { usePathname } from 'next/navigation';
 
@@ -18,10 +19,18 @@ import { cn } from '@/shared/styles/utils/cn';
 import styles from './Sidebar.module.css';
 import { SidebarItem } from './SidebarItem';
 
-import type { SidebarProps, SidebarVariant } from './Sidebar.types';
+type SidebarVariant = 'compact' | 'full';
 
-const isPathActive = (pathname: string, href: string, includeChildren = true) =>
-  pathname === href || (includeChildren && pathname.startsWith(`${href}/`));
+interface SidebarProps extends ComponentPropsWithoutRef<'aside'> {
+  writingId: string;
+  onDelete?: () => void;
+  onVersionClick?: () => void;
+  pathname?: string;
+  variant?: SidebarVariant;
+}
+
+const isPathActive = (pathname: string, href: string) =>
+  pathname === href || pathname.startsWith(`${href}/`);
 
 const handlePendingVersionClick = () => {
   // TODO: 버전 관리 모달 구현 후 연결합니다.

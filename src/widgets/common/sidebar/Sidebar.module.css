@@ -65,10 +65,6 @@
   .menuItemEntering:nth-child(7) {
     animation-delay: 150ms;
   }
-
-  .menuItemEntering:nth-child(8) {
-    animation-delay: 170ms;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

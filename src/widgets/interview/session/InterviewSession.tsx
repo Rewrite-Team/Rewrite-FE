@@ -199,43 +199,41 @@ export function InterviewSession({ writingId }: InterviewSessionProps) {
       className="mt-5 w-full pb-8 sm:mt-6 sm:pb-12"
       inert={!isReady}
     >
-      <div className="w-full">
-        <div className="relative aspect-video min-h-80 max-h-[min(36rem,52dvh)] w-full overflow-hidden rounded-lg bg-gray-900">
-          <InterviewConversation
-            isQuestionPanelOpen={isQuestionPanelOpen}
-            listRef={conversationRef}
-            messages={activeQuestion.messages}
-          />
-          <InterviewQuestionPanel
-            activeQuestionId={activeQuestionId}
-            isOpen={isQuestionPanelOpen}
-            listRef={questionListRef}
-            onAdd={handleQuestionAdd}
-            onSelect={handleQuestionSelect}
-            onToggle={handleQuestionPanelToggle}
-            questions={questions}
-          />
-        </div>
-
-        <InterviewAnswerForm onSubmit={(event) => void handleSubmit(event)}>
-          {isRecordingActive ? (
-            <VoiceRecordingControls
-              onCancel={handleRecordingCancel}
-              onComplete={() => void handleRecordingComplete()}
-              status={recordingStatus}
-              transcript={recordingTranscript}
-              waveformRef={waveformRef}
-            />
-          ) : (
-            <InterviewTextAnswerControls
-              answer={answer}
-              isVoiceInputSupported={isVoiceInputSupported}
-              onAnswerChange={setAnswer}
-              onRecordingStart={() => void handleRecordingStart()}
-            />
-          )}
-        </InterviewAnswerForm>
+      <div className="relative aspect-video min-h-80 max-h-[min(36rem,52dvh)] w-full overflow-hidden rounded-lg bg-gray-900">
+        <InterviewConversation
+          isQuestionPanelOpen={isQuestionPanelOpen}
+          listRef={conversationRef}
+          messages={activeQuestion.messages}
+        />
+        <InterviewQuestionPanel
+          activeQuestionId={activeQuestionId}
+          isOpen={isQuestionPanelOpen}
+          listRef={questionListRef}
+          onAdd={handleQuestionAdd}
+          onSelect={handleQuestionSelect}
+          onToggle={handleQuestionPanelToggle}
+          questions={questions}
+        />
       </div>
+
+      <InterviewAnswerForm onSubmit={(event) => void handleSubmit(event)}>
+        {isRecordingActive ? (
+          <VoiceRecordingControls
+            onCancel={handleRecordingCancel}
+            onComplete={() => void handleRecordingComplete()}
+            status={recordingStatus}
+            transcript={recordingTranscript}
+            waveformRef={waveformRef}
+          />
+        ) : (
+          <InterviewTextAnswerControls
+            answer={answer}
+            isVoiceInputSupported={isVoiceInputSupported}
+            onAnswerChange={setAnswer}
+            onRecordingStart={() => void handleRecordingStart()}
+          />
+        )}
+      </InterviewAnswerForm>
     </section>
   );
 }
