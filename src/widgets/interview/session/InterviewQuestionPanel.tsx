@@ -1,11 +1,10 @@
 import type { RefObject } from 'react';
 
+import type { InterviewQuestion } from '@/entities/interview';
 import { SideBarIcon } from '@/shared/assets/icons/interview';
 import { cn } from '@/shared/styles/utils/cn';
 import { Button } from '@/shared/ui/button';
 import { Tooltip } from '@/shared/ui/tooltip';
-
-import type { InterviewQuestion } from './types';
 
 interface InterviewQuestionPanelProps {
   activeQuestionId: number;
@@ -44,7 +43,7 @@ export function InterviewQuestionPanel({
           aria-controls="interview-question-list"
           aria-expanded={false}
           aria-label="질문 목록 열기"
-          className="absolute top-3 right-3 z-20 size-8 rounded-lg bg-gray-700/90 p-0 text-gray-200 hover:bg-gray-600 hover:text-primary-500"
+          className="absolute top-3 right-3 z-(--z-index-local-control) size-8 rounded-lg bg-gray-700/90 p-0 text-gray-200 hover:bg-gray-600 hover:text-primary-500"
           iconOnly
           onClick={onToggle}
           variant="ghost"
@@ -57,7 +56,7 @@ export function InterviewQuestionPanel({
         aria-hidden={!isOpen}
         aria-labelledby="interview-question-list-title"
         className={cn(
-          'absolute inset-y-0 right-0 z-10 w-[min(90%,20rem)] overflow-hidden rounded-2xl bg-gray-500 transition-transform duration-300 ease-out motion-reduce:transition-none',
+          'absolute inset-y-0 right-0 z-(--z-index-local-overlay) w-[min(90%,20rem)] overflow-hidden rounded-lg bg-gray-500 transition-transform duration-300 ease-out motion-reduce:transition-none',
           isOpen ? 'translate-x-0' : 'translate-x-full'
         )}
         id="interview-question-list"

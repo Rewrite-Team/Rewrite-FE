@@ -8,7 +8,15 @@ import { InterviewSession } from '@/widgets/interview';
  * @description
  * 선택한 자기소개서를 기반으로 AI와 채팅형 모의 면접을 진행하는 세션 페이지입니다.
  */
-export default function WritingInterviewSessionPage() {
+interface WritingInterviewSessionPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function WritingInterviewSessionPage({
+  params,
+}: WritingInterviewSessionPageProps) {
+  const { id } = await params;
+
   return (
     <div className="writing-detail-content" data-layout-footer="hidden">
       {/* TODO: 자기소개서 상세 API 연결 후 회사, 직무, 제목 정보를 교체합니다. */}
@@ -25,7 +33,7 @@ export default function WritingInterviewSessionPage() {
         title="자기소개서 제목"
         titleClassName="heading-18"
       />
-      <InterviewSession />
+      <InterviewSession key={id} writingId={id} />
     </div>
   );
 }

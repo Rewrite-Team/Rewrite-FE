@@ -1,3 +1,5 @@
+import type { InterviewQuestion } from './types';
+
 const MOCK_INTERVIEW_QUESTION_PROMPTS = [
   '지원 동기와 입사 후 이루고 싶은 목표를 말씀해 주세요.',
   '프로젝트에서 가장 어려웠던 문제와 해결 과정을 설명해 주세요.',
@@ -20,4 +22,4 @@ export const MOCK_INTERVIEW_QUESTIONS = MOCK_INTERVIEW_QUESTION_PROMPTS.map((pro
           { id: 4, role: 'user' as const, content: '답변답변' },
         ]
       : [{ id: 1, role: 'assistant' as const, content: prompt }],
-}));
+})) satisfies InterviewQuestion[];

@@ -3,9 +3,13 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 
-import { MOCK_INTERVIEW_QUESTIONS } from '@/shared/mocks';
+import { requestPersistentInterviewStorage, saveInterviewRecording } from '@/entities/interview';
+import { useInterviewRecorder } from '@/features/interview/voice-answer';
+import type { CompletedInterviewRecording } from '@/features/interview/voice-answer';
+import { appToast } from '@/shared/lib/toast';
 
 import { useInterviewAutoScroll } from './hooks/useInterviewAutoScroll';
+import { usePersistedInterviewSession } from './hooks/usePersistedInterviewSession';
 import {
   InterviewAnswerForm,
   InterviewRecordingControls,
@@ -14,7 +18,21 @@ import {
 import { InterviewConversation } from './InterviewConversation';
 import { InterviewQuestionPanel } from './InterviewQuestionPanel';
 
-import type { InterviewQuestion } from './types';
+interface InterviewSessionProps {
+  writingId: string;
+}
+
+function getRecordingStartErrorMessage(error: unknown) {
+  if (error instanceof DOMException && error.name === 'NotAllowedError') {
+    return '음성 입력을 사용하려면 마이크 권한을 허용해 주세요.';
+  }
+
+  if (error instanceof DOMException && error.name === 'NotFoundError') {
+    return '사용할 수 있는 마이크를 찾지 못했습니다.';
+  }
+
+  return '음성 입력을 시작하지 못했습니다. 다시 시도해 주세요.';
+}
 
 /**
  * ## InterviewSession
@@ -29,12 +47,24 @@ import type { InterviewQuestion } from './types';
  * 접근성 이름을 사용합니다. 닫힌 질문 목록은 키보드 탐색에서 제외합니다.
  *
  */
-export function InterviewSession() {
+export function InterviewSession({ writingId }: InterviewSessionProps) {
   const [answer, setAnswer] = useState('');
-  const [activeQuestionId, setActiveQuestionId] = useState(MOCK_INTERVIEW_QUESTIONS[0].id);
+  const [pendingRecording, setPendingRecording] = useState<CompletedInterviewRecording | null>(
+    null
+  );
   const [isQuestionPanelOpen, setIsQuestionPanelOpen] = useState(true);
-  const [isRecording, setIsRecording] = useState(false);
-  const [questions, setQuestions] = useState<InterviewQuestion[]>(MOCK_INTERVIEW_QUESTIONS);
+  const { activeQuestionId, isReady, questions, setActiveQuestionId, setQuestions } =
+    usePersistedInterviewSession(writingId);
+  const {
+    cancelRecording,
+    completeRecording,
+    isSupported: isVoiceInputSupported,
+    startRecording,
+    status: recordingStatus,
+    transcript: recordingTranscript,
+    waveformRef,
+  } = useInterviewRecorder();
+  const isRecordingActive = recordingStatus !== 'idle';
   const activeQuestion =
     questions.find((question) => question.id === activeQuestionId) ?? questions[0];
   const activeMessageCount = activeQuestion.messages.length;
@@ -48,16 +78,35 @@ export function InterviewSession() {
     setIsQuestionPanelOpen((wasOpen) => !wasOpen);
   };
 
-  const handleRecordingStart = () => {
-    setIsRecording(true);
+  const handleRecordingStart = async () => {
+    try {
+      setPendingRecording(null);
+      void requestPersistentInterviewStorage();
+      await startRecording();
+    } catch (error) {
+      appToast.error(getRecordingStartErrorMessage(error));
+    }
   };
 
   const handleRecordingCancel = () => {
-    setIsRecording(false);
+    cancelRecording();
   };
 
-  const handleRecordingComplete = () => {
-    setIsRecording(false);
+  const handleRecordingComplete = async () => {
+    try {
+      const recording = await completeRecording();
+      const recognizedAnswer = recording.transcript.trim();
+
+      if (!recognizedAnswer) {
+        appToast.error('음성을 인식하지 못했습니다. 다시 녹음해 주세요.');
+        return;
+      }
+
+      setPendingRecording(recording);
+      setAnswer(recognizedAnswer);
+    } catch {
+      appToast.error('음성 답변을 처리하지 못했습니다. 다시 시도해 주세요.');
+    }
   };
 
   const handleQuestionAdd = () => {
@@ -76,17 +125,23 @@ export function InterviewSession() {
     ]);
     setActiveQuestionId(nextQuestionId);
     setAnswer('');
-    setIsRecording(false);
+    setPendingRecording(null);
+    if (isRecordingActive) {
+      cancelRecording();
+    }
   };
 
   const handleQuestionSelect = (questionId: number) => {
     setActiveQuestionId(questionId);
     setAnswer('');
-    setIsRecording(false);
+    setPendingRecording(null);
+    if (isRecordingActive) {
+      cancelRecording();
+    }
     setIsQuestionPanelOpen(false);
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmedAnswer = answer.trim();
@@ -95,15 +150,40 @@ export function InterviewSession() {
       return;
     }
 
+    const questionId = activeQuestion.id;
+    const nextMessageId = activeQuestion.messages.length + 1;
+    let recordingId: string | undefined;
+
+    if (pendingRecording) {
+      recordingId = window.crypto.randomUUID();
+
+      try {
+        await saveInterviewRecording({
+          audioBlob: pendingRecording.audioBlob,
+          createdAt: Date.now(),
+          durationMs: pendingRecording.durationMs,
+          id: recordingId,
+          messageId: nextMessageId,
+          mimeType: pendingRecording.audioBlob.type,
+          questionId,
+          writingId,
+        });
+      } catch {
+        appToast.error('녹음 파일을 저장하지 못했습니다. 다시 시도해 주세요.');
+        return;
+      }
+    }
+
     setQuestions((currentQuestions) =>
       currentQuestions.map((question) =>
-        question.id === activeQuestionId
+        question.id === questionId
           ? {
               ...question,
               messages: [
                 ...question.messages,
                 {
-                  id: question.messages.length + 1,
+                  id: nextMessageId,
+                  recordingId,
                   role: 'user',
                   content: trimmedAnswer,
                 },
@@ -113,11 +193,16 @@ export function InterviewSession() {
       )
     );
     setAnswer('');
-    setIsRecording(false);
+    setPendingRecording(null);
   };
 
   return (
-    <section aria-label="AI 면접 대화" className="mt-5 w-full pb-8 sm:mt-6 sm:pb-12">
+    <section
+      aria-busy={!isReady}
+      aria-label="AI 면접 대화"
+      className="mt-5 w-full pb-8 sm:mt-6 sm:pb-12"
+      inert={!isReady}
+    >
       <div className="w-full">
         <div className="relative aspect-video min-h-80 max-h-[min(36rem,52dvh)] w-full overflow-hidden rounded-lg bg-gray-900">
           <InterviewConversation
@@ -136,17 +221,21 @@ export function InterviewSession() {
           />
         </div>
 
-        <InterviewAnswerForm onSubmit={handleSubmit}>
-          {isRecording ? (
+        <InterviewAnswerForm onSubmit={(event) => void handleSubmit(event)}>
+          {isRecordingActive ? (
             <InterviewRecordingControls
               onCancel={handleRecordingCancel}
-              onComplete={handleRecordingComplete}
+              onComplete={() => void handleRecordingComplete()}
+              status={recordingStatus}
+              transcript={recordingTranscript}
+              waveformRef={waveformRef}
             />
           ) : (
             <InterviewTextAnswerControls
               answer={answer}
+              isVoiceInputSupported={isVoiceInputSupported}
               onAnswerChange={setAnswer}
-              onRecordingStart={handleRecordingStart}
+              onRecordingStart={() => void handleRecordingStart()}
             />
           )}
         </InterviewAnswerForm>

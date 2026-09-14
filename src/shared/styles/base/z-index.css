@@ -4,9 +4,12 @@
     사용법: z-(--z-index-{name})
     예시: z-(--z-index-surface-content)
   */
+  --z-index-raised-content: 1;
   --z-index-form-floating: 10;
+  --z-index-local-overlay: 10;
   --z-index-sidebar-backdrop: 15;
   --z-index-sidebar: 20;
+  --z-index-local-control: 20;
   --z-index-header: 30;
   --z-index-surface-overlay: 40;
   --z-index-surface-content: 50;
