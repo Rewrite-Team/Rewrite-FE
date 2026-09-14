@@ -8,6 +8,7 @@ import ChevronLeftIcon from './ic-chevron-left.svg';
 import ChevronRightIcon from './ic-chevron-right.svg';
 import GithubIcon from './ic-github.svg';
 import LogoutIcon from './ic-logout.svg';
+import SearchIcon from './ic-search.svg';
 
 export {
   AltArrowDownIcon,
@@ -20,4 +21,5 @@ export {
   ChevronRightIcon,
   GithubIcon,
   LogoutIcon,
+  SearchIcon,
 };
