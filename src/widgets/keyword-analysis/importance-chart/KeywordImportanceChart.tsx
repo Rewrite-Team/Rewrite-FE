@@ -98,7 +98,7 @@ export function KeywordImportanceChart({
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_12%,rgba(118,186,255,0.1),transparent_34%)]"
       />
 
-      <header className="absolute inset-x-4 top-3 z-10 flex items-center">
+      <header className="absolute inset-x-4 top-3 z-(--z-index-local-overlay) flex items-center">
         <h3 className="body-14 font-semibold text-gray-50" id={`${chartId}-title`}>
           키워드 TOP{KEYWORD_ANALYSIS_MAX_KEYWORD_COUNT}
         </h3>

@@ -17,7 +17,7 @@ export function KeywordBubbleTooltip({ bounds, tooltip }: KeywordBubbleTooltipPr
 
   return (
     <div
-      className={`pointer-events-none absolute z-10 flex min-w-28 -translate-x-1/2 flex-col items-center justify-center gap-0.5 rounded-lg border border-primary-300/15 bg-gray-800/95 px-3 py-2 body-12 text-gray-100 shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur-sm ${
+      className={`pointer-events-none absolute z-(--z-index-local-overlay) flex min-w-28 -translate-x-1/2 flex-col items-center justify-center gap-0.5 rounded-lg border border-primary-300/15 bg-gray-800/95 px-3 py-2 body-12 text-gray-100 shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur-sm ${
         tooltip.placement === 'top' ? '-translate-y-full' : ''
       }`}
       role="tooltip"
