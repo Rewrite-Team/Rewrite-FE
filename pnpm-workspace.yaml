@@ -2,6 +2,7 @@ ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
 overrides:
+  '@svgr/plugin-svgo>svgo': ^4.1.0
   baseline-browser-mapping@>=2.0.0 <2.11.0: '>=2.11.0'
   browserslist@<=4.28.6: '>=4.28.7'
   fast-uri@>=3.0.0 <3.1.6: '>=3.1.6'
