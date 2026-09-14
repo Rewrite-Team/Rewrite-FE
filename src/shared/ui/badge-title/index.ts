@@ -1,0 +1,1 @@
+export { BadgeTitle } from './BadgeTitle';

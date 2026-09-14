@@ -1,0 +1,70 @@
+import { expect, fn, userEvent, within } from 'storybook/test';
+
+import { Sidebar } from './Sidebar';
+
+import type { Meta, StoryObj } from '@storybook/nextjs';
+
+const meta = {
+  title: 'Widgets/Common/Sidebar',
+  component: Sidebar,
+  parameters: { layout: 'centered' },
+  args: {
+    writingId: '1',
+  },
+} satisfies Meta<typeof Sidebar>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const WritingDetail: Story = {
+  args: { pathname: '/writing/1' },
+};
+
+export const KeywordAnalysis: Story = {
+  args: { pathname: '/writing/1/keyword-analysis' },
+};
+
+export const AIInterview: Story = {
+  args: { pathname: '/writing/1/interview' },
+};
+
+export const FullActions: Story = {
+  args: {
+    onDelete: fn(),
+    onVersionClick: fn(),
+    pathname: '/writing/1',
+    variant: 'full',
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(canvas.getByRole('button', { name: '버전 관리' }));
+    await expect(args.onVersionClick).toHaveBeenCalledOnce();
+
+    await userEvent.click(canvas.getByRole('button', { name: '자기소개서 삭제' }));
+    await expect(args.onDelete).toHaveBeenCalledOnce();
+  },
+};
+
+export const Interactions: Story = {
+  args: { pathname: '/writing/1' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const aiEditLink = canvas.getByRole('link', { name: 'AI 첨삭' });
+    const keywordAnalysisLink = canvas.getByRole('link', { name: '키워드 분석' });
+    const interviewLink = canvas.getByRole('link', { name: 'AI 면접' });
+
+    await expect(aiEditLink).toHaveAttribute('href', '/writing/1');
+    await expect(keywordAnalysisLink).toHaveAttribute('href', '/writing/1/keyword-analysis');
+    await expect(interviewLink).toHaveAttribute('href', '/writing/1/interview');
+
+    const sidebarTrigger = canvas.getByRole('button', { name: '사이드바 펼치기' });
+
+    await expect(sidebarTrigger).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(sidebarTrigger);
+    await expect(canvas.getByRole('button', { name: '메뉴 접기' })).toHaveAttribute(
+      'aria-expanded',
+      'true'
+    );
+  },
+};

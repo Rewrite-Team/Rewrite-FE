@@ -1,0 +1,83 @@
+@keyframes recording-icon-glow {
+  0%,
+  100% {
+    color: var(--color-primary-400);
+    filter: drop-shadow(0 0 0.125rem rgb(118 186 255 / 20%));
+    opacity: 0.78;
+  }
+
+  50% {
+    color: var(--color-primary-100);
+    filter: drop-shadow(0 0 0.375rem rgb(118 186 255 / 65%));
+    opacity: 1;
+  }
+}
+
+.recordingIcon {
+  display: flex;
+  flex: none;
+  color: var(--color-primary-400);
+  filter: drop-shadow(0 0 0.125rem rgb(118 186 255 / 20%));
+  animation: recording-icon-glow 1.4s ease-in-out infinite;
+  will-change: filter, opacity;
+}
+
+.recordingWaveform {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  height: 1.5rem;
+  flex: 1;
+  align-items: center;
+  gap: 0.125rem;
+  justify-content: space-between;
+  overflow: hidden;
+  padding-inline: 0.25rem;
+  mask-image: linear-gradient(to right, transparent, black 0.75rem);
+}
+
+.recordingWaveform::before {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 0.125rem;
+  background-image: radial-gradient(
+    circle,
+    var(--color-primary-200) 0.0625rem,
+    transparent 0.078125rem
+  );
+  background-position: center;
+  background-repeat: repeat-x;
+  background-size: 0.375rem 0.125rem;
+  content: '';
+  opacity: 0.7;
+  transform: translateY(-50%);
+}
+
+.recordingWaveform > span {
+  z-index: var(--z-index-raised-content);
+  width: 0.1875rem;
+  max-height: 1.25rem;
+  flex: 0 0 0.1875rem;
+  border-radius: 9999px;
+  background: linear-gradient(to bottom, var(--color-primary-50), var(--color-primary-400));
+  box-shadow: 0 0 0.25rem rgb(118 186 255 / 24%);
+  opacity: 0.9;
+  transition:
+    height 70ms ease-out,
+    opacity 70ms ease-out;
+  will-change: height;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recordingIcon,
+  .recordingWaveform > span {
+    animation: none;
+    opacity: 0.85;
+  }
+
+  .recordingWaveform > span {
+    transition: none;
+  }
+}

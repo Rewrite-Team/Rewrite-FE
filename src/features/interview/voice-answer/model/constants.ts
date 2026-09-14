@@ -1,0 +1,10 @@
+/** 녹음 중 표시하는 실시간 파형의 막대 개수입니다. */
+export const INTERVIEW_WAVEFORM_BAR_COUNT = 64;
+export const INTERVIEW_WAVEFORM_MAX_HEIGHT = 20;
+export const INTERVIEW_WAVEFORM_MIN_HEIGHT = 2;
+export const INTERVIEW_WAVEFORM_UPDATE_INTERVAL_MS = 50;
+
+export const INITIAL_INTERVIEW_WAVEFORM_LEVELS = Array.from(
+  { length: INTERVIEW_WAVEFORM_BAR_COUNT },
+  () => INTERVIEW_WAVEFORM_MIN_HEIGHT
+);

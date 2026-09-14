@@ -1,0 +1,77 @@
+@import 'tailwindcss';
+
+/* Design tokens */
+@import './base/fonts.css';
+@import './base/colors.css';
+@import './base/shadows.css';
+@import './base/z-index.css';
+
+/* Global foundations */
+@import './base/scroll.css';
+@import './components/focus.css';
+@import './components/surface.css';
+
+html,
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-smooth: never;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* 몰입형 화면은 페이지에서 전역 푸터를 숨기도록 레이아웃 의도를 표시합니다. */
+body:has([data-layout-footer='hidden']) > footer {
+  display: none;
+}
+
+/* 랜딩 첫 단에서는 Header를 히어로 위에 겹쳐 Figma의 몰입형 구성을 유지합니다. */
+body:has([data-layout-header='overlay']) > header {
+  position: absolute;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+body:has([data-layout-content='full-bleed']) > main > div {
+  max-width: none;
+}
+
+body:has([data-layout-content='full-bleed']) > main {
+  padding-inline: 0;
+}
+
+body:has([data-layout-header='overlay']) > header > div {
+  padding-inline: 3rem;
+}
+
+body:has([data-layout-header='overlay']) > header [data-header-logo] svg {
+  height: 0.9375rem;
+}
+
+body:has([data-layout-header='overlay']) > header [data-header-login] {
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-gray-100);
+  font-size: 0.75rem;
+  font-weight: 400;
+  padding: 0.35rem 0;
+}
+
+body:has([data-layout-header='overlay']) > header [data-header-login][data-disabled='false']:hover {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-primary-300);
+  transform: none;
+}
