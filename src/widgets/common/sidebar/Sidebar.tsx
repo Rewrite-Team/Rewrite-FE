@@ -15,6 +15,7 @@ import {
 } from '@/shared/assets/icons/side-menu';
 import { ROUTES } from '@/shared/constants/routes';
 import { cn } from '@/shared/styles/utils/cn';
+import { ConfirmModal } from '@/shared/ui/confirm-modal';
 
 import styles from './Sidebar.module.css';
 import { SidebarItem } from './SidebarItem';
@@ -34,10 +35,6 @@ const isPathActive = (pathname: string, href: string) =>
 
 const handlePendingVersionClick = () => {
   // TODO: 버전 관리 모달 구현 후 연결합니다.
-};
-
-const handlePendingDelete = () => {
-  // TODO: 자기소개서 삭제 확인 모달 구현 후 연결합니다.
 };
 
 /**
@@ -82,6 +79,7 @@ export function Sidebar({
   const shouldRestoreToggleFocusRef = useRef(false);
   const sidebarToggleRef = useRef<HTMLButtonElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const isDetailActive = pathname === routes.detail;
   const isKeywordActive = isPathActive(pathname, routes.keywordAnalysis);
   const isInterviewActive = isPathActive(pathname, routes.interview);
@@ -96,6 +94,22 @@ export function Sidebar({
 
   const handleSidebarClose = () => {
     setIsExpanded(false);
+  };
+
+  const handleDeleteClick = () => {
+    setIsExpanded(false);
+
+    if (onDelete) {
+      onDelete();
+      return;
+    }
+
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    setIsDeleteModalOpen(false);
+    // TODO: 자기소개서 삭제 API mutation 실행 후 목록 화면으로 이동한다.
   };
 
   useEffect(() => {
@@ -189,7 +203,7 @@ export function Sidebar({
                     icon={DeleteIcon}
                     isExpanded={isExpanded}
                     label="자기소개서 삭제"
-                    onClick={onDelete ?? handlePendingDelete}
+                    onClick={handleDeleteClick}
                     showMobileLabel={shouldShowMobileLabel}
                   />
                 </li>
@@ -243,6 +257,16 @@ export function Sidebar({
           </ul>
         </nav>
       </aside>
+
+      <ConfirmModal
+        cancelLabel="아니오"
+        confirmLabel="삭제하기"
+        description="삭제 후 복구할 수 없습니다."
+        onConfirm={handleDeleteConfirm}
+        onOpenChange={setIsDeleteModalOpen}
+        open={isDeleteModalOpen}
+        title="해당 자기소개서 삭제하시겠습니까?"
+      />
     </>
   );
 }
