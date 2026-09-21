@@ -98,7 +98,7 @@ export function ConfirmModal({
           <Surface.Footer className="grid w-full grid-cols-2 gap-2">
             <Surface.Close aria-label={cancelLabel} asChild>
               <Button
-                className="h-10 w-full"
+                className="h-10 w-full bg-gray-800 data-[disabled=false]:hover:bg-gray-900 data-[disabled=false]:active:bg-black"
                 disabled={isLoading}
                 onClick={onCancel}
                 size="sm"
