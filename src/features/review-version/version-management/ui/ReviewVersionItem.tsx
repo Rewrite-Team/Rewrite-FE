@@ -6,9 +6,11 @@ import { Spinner } from '@/shared/ui/spinner';
 import { formatDateTime } from '@/shared/utils/formatDate';
 
 interface ReviewVersionItemProps {
+  isLast: boolean;
   isSelected: boolean;
   onSelect: () => void;
   version: ReviewVersionSummary;
+  verticalLineBackground: string;
 }
 
 const STATUS_LABEL: Record<Exclude<ReviewVersionStatus, 'COMPLETED'>, string> = {
@@ -45,6 +47,20 @@ const markerCenterVariants = cva('size-1.5 rounded-full', {
       COMPLETED: 'bg-white',
       FAILED: 'bg-white',
       GENERATING: 'bg-gray-100',
+    },
+  },
+});
+
+const connectorColorVariants = cva('', {
+  variants: {
+    status: {
+      COMPLETED: 'bg-gray-400',
+      FAILED: 'bg-error-400',
+      GENERATING: 'bg-gray-400',
+    },
+    selected: {
+      false: null,
+      true: 'bg-primary-500',
     },
   },
 });
@@ -86,14 +102,28 @@ function VersionProgress({ status }: { status: Exclude<ReviewVersionStatus, 'COM
   );
 }
 
-export function ReviewVersionItem({ isSelected, onSelect, version }: ReviewVersionItemProps) {
+export function ReviewVersionItem({
+  isLast,
+  isSelected,
+  onSelect,
+  version,
+  verticalLineBackground,
+}: ReviewVersionItemProps) {
   const isSelectable = version.status === 'COMPLETED';
   const markerColorClassName = cn(
     markerColorVariants({ selected: isSelected, status: version.status })
   );
+  const connectorColorClassName = cn(
+    connectorColorVariants({ selected: isSelected, status: version.status })
+  );
 
   return (
     <li className="relative min-h-18 pl-9 last:min-h-0">
+      <span
+        aria-hidden="true"
+        className={cn('absolute top-4 left-3 w-0.5 -translate-x-1/2', isLast ? 'bottom-0' : 'h-18')}
+        style={{ background: verticalLineBackground }}
+      />
       <span
         aria-hidden="true"
         className={cn(
@@ -107,7 +137,7 @@ export function ReviewVersionItem({ isSelected, onSelect, version }: ReviewVersi
         aria-hidden="true"
         className={cn(
           'absolute top-3.75 left-5 z-1 h-0.5 w-4.5 rounded-full',
-          markerColorClassName
+          connectorColorClassName
         )}
       />
 
