@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { type ChangeEvent, useId, useState } from 'react';
 
 import { EditIcon } from '@/shared/assets/icons/common';
 import { Button } from '@/shared/ui/button';
@@ -10,6 +10,7 @@ import { Title } from '@/shared/ui/title';
 interface FinalDraftSectionProps {
   characterLimit: number;
   initialValue: string;
+  onDraftDirtyChange?: (isDirty: boolean) => void;
   onSave?: (value: string) => void;
   questionId: string;
 }
@@ -18,6 +19,7 @@ interface FinalDraftSectionProps {
 export function FinalDraftSection({
   characterLimit,
   initialValue,
+  onDraftDirtyChange,
   onSave,
   questionId,
 }: FinalDraftSectionProps) {
@@ -35,11 +37,20 @@ export function FinalDraftSection({
   const handleCancel = () => {
     setDraftValue(savedValue);
     setIsEditing(false);
+    onDraftDirtyChange?.(false);
+  };
+
+  const handleDraftChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    const nextValue = event.currentTarget.value;
+
+    setDraftValue(nextValue);
+    onDraftDirtyChange?.(nextValue !== savedValue);
   };
 
   const handleSave = () => {
     setSavedValue(draftValue);
     setIsEditing(false);
+    onDraftDirtyChange?.(false);
     onSave?.(draftValue);
     // TODO: 최종 작성본 수정 API 연결 시 저장 mutation으로 교체한다.
   };
@@ -83,7 +94,7 @@ export function FinalDraftSection({
           <TextArea.Label className="sr-only">최종 작성본</TextArea.Label>
           <TextArea.Field
             autoFocus
-            onChange={(event) => setDraftValue(event.currentTarget.value)}
+            onChange={handleDraftChange}
             recommendedLength={characterLimit}
             showCount
             value={draftValue}

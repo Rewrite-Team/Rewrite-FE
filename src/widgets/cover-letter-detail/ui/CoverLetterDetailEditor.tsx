@@ -19,7 +19,22 @@ const createFinalAnswerMap = (questions: CoverLetterQuestionDetail[]) =>
 export function CoverLetterDetailEditor({ questions, version }: CoverLetterDetailEditorProps) {
   const persistedAnswersRef = useRef(createFinalAnswerMap(questions));
   const currentAnswersRef = useRef(createFinalAnswerMap(questions));
+  const [dirtyDraftQuestionIds, setDirtyDraftQuestionIds] = useState<Set<string>>(() => new Set());
   const [dirtyQuestionIds, setDirtyQuestionIds] = useState<Set<string>>(() => new Set());
+
+  const handleFinalDraftDirtyChange = (questionId: string, isDirty: boolean) => {
+    setDirtyDraftQuestionIds((previousIds) => {
+      const nextIds = new Set(previousIds);
+
+      if (isDirty) {
+        nextIds.add(questionId);
+      } else {
+        nextIds.delete(questionId);
+      }
+
+      return nextIds;
+    });
+  };
 
   const handleFinalDraftSave = (questionId: string, value: string) => {
     currentAnswersRef.current[questionId] = value;
@@ -48,6 +63,7 @@ export function CoverLetterDetailEditor({ questions, version }: CoverLetterDetai
         {questions.map((question, index) => (
           <CoverLetterQuestionCard
             key={question.id}
+            onFinalDraftDirtyChange={handleFinalDraftDirtyChange}
             onFinalDraftSave={handleFinalDraftSave}
             question={question}
             questionNumber={index + 1}
@@ -56,7 +72,7 @@ export function CoverLetterDetailEditor({ questions, version }: CoverLetterDetai
       </div>
 
       <CoverLetterDetailActions
-        hasUnsavedChanges={dirtyQuestionIds.size > 0}
+        hasUnsavedChanges={dirtyQuestionIds.size > 0 || dirtyDraftQuestionIds.size > 0}
         onSave={handleDetailSave}
         version={version}
       />
