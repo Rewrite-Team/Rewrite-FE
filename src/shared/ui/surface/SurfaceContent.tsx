@@ -17,7 +17,7 @@ const surfaceContentVariants = cva(
         modal:
           'surface-modal-animation top-1/2 left-1/2 max-h-[calc(100dvh-2rem)] w-[min(37.5rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-2xl data-closed:pointer-events-none',
         panel:
-          'top-0 right-0 h-dvh w-[min(27.5rem,100vw)] rounded-l-2xl transition-opacity duration-150 data-closed:pointer-events-none data-closed:opacity-0 data-open:opacity-100',
+          'surface-panel-animation top-0 right-0 h-dvh w-[min(27.5rem,100vw)] rounded-l-2xl data-closed:pointer-events-none',
       },
     },
   }
