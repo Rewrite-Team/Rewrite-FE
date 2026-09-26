@@ -8,15 +8,17 @@ import { ConfirmModal } from '@/shared/ui/confirm-modal';
 
 interface CoverLetterDetailActionsProps {
   hasUnsavedChanges?: boolean;
+  onRereview?: (requirement: string) => void;
   onSave?: () => void;
   version: string;
 }
 
 type OpenModal = 'requirement' | 'rereview' | 'save' | null;
 
-/** 자기소개서 저장과 AI 재첨삭 요청 전 확인 절차를 제공합니다. */
+/** 자기소개서 저장과 AI 재첨삭 요구사항 및 미저장 변경 경고 절차를 제공합니다. */
 export function CoverLetterDetailActions({
   hasUnsavedChanges = false,
+  onRereview,
   onSave,
   version,
 }: CoverLetterDetailActionsProps) {
@@ -29,14 +31,24 @@ export function CoverLetterDetailActions({
     // TODO: 최종 작성본 저장 API mutation을 실행한다.
   };
 
-  const handleRereviewConfirm = () => {
+  const handleRereviewRequest = (requirement: string) => {
+    onRereview?.(requirement);
     setOpenModal(null);
-    // TODO: reviewRequirement를 포함해 AI 재첨삭 API mutation을 실행한다.
+  };
+
+  const handleRereviewConfirm = () => {
+    handleRereviewRequest(reviewRequirement);
   };
 
   const handleRequirementConfirm = (requirement: string) => {
     setReviewRequirement(requirement);
-    setOpenModal('rereview');
+
+    if (hasUnsavedChanges) {
+      setOpenModal('rereview');
+      return;
+    }
+
+    handleRereviewRequest(requirement);
   };
 
   return (
@@ -89,9 +101,7 @@ export function CoverLetterDetailActions({
       <ConfirmModal
         cancelLabel="아니오"
         confirmLabel="다시 받기"
-        description={
-          hasUnsavedChanges ? '저장하지 않은 내용은 삭제됩니다.' : '저장한 버전은 유지됩니다.'
-        }
+        description="저장하지 않은 내용은 삭제됩니다."
         onConfirm={handleRereviewConfirm}
         onOpenChange={(open) =>
           setOpenModal((currentModal) =>
