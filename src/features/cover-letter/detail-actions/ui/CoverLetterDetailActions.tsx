@@ -33,6 +33,7 @@ export function CoverLetterDetailActions({
 
   const handleRereviewRequest = (requirement: string) => {
     onRereview?.(requirement);
+    setReviewRequirement('');
     setOpenModal(null);
   };
 
