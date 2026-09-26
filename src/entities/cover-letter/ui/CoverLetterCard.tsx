@@ -38,7 +38,6 @@ export function CoverLetterCard({ coverLetter }: CoverLetterCardProps) {
           <span className={styles.paperBack} />
           <span className={styles.paperMiddle} />
           <span className={styles.paperFront} />
-          <span className={styles.paperPocketShadow} />
         </div>
 
         <BadgeGroup
