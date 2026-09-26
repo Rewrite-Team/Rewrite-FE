@@ -6,6 +6,7 @@ import CancelIcon from './ic-cancel.svg';
 import CheckIcon from './ic-check.svg';
 import ChevronLeftIcon from './ic-chevron-left.svg';
 import ChevronRightIcon from './ic-chevron-right.svg';
+import EditIcon from './ic-edit.svg';
 import GithubIcon from './ic-github.svg';
 import LogoutIcon from './ic-logout.svg';
 import SearchIcon from './ic-search.svg';
@@ -19,6 +20,7 @@ export {
   CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  EditIcon,
   GithubIcon,
   LogoutIcon,
   SearchIcon,
