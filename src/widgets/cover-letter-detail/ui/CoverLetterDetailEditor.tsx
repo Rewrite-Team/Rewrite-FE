@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 
 import type { CoverLetterQuestionDetail } from '@/entities/cover-letter';
 import { CoverLetterDetailActions } from '@/features/cover-letter/detail-actions';
+import { appToast } from '@/shared/lib/toast';
 
 import { CoverLetterQuestionCard } from './CoverLetterQuestionCard';
 
@@ -57,6 +58,12 @@ export function CoverLetterDetailEditor({ questions, version }: CoverLetterDetai
     setDirtyQuestionIds(new Set());
   };
 
+  const handleRereview = () => {
+    appToast.info('현재 AI 재첨삭을 요청할 수 없습니다.');
+
+    return false;
+  };
+
   return (
     <>
       <div className="flex flex-col gap-15">
@@ -73,6 +80,7 @@ export function CoverLetterDetailEditor({ questions, version }: CoverLetterDetai
 
       <CoverLetterDetailActions
         hasUnsavedChanges={dirtyQuestionIds.size > 0 || dirtyDraftQuestionIds.size > 0}
+        onRereview={handleRereview}
         onSave={handleDetailSave}
         version={version}
       />

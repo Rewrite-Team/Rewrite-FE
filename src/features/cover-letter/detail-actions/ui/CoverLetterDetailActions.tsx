@@ -8,7 +8,7 @@ import { ConfirmModal } from '@/shared/ui/confirm-modal';
 
 interface CoverLetterDetailActionsProps {
   hasUnsavedChanges?: boolean;
-  onRereview?: (requirement: string) => void;
+  onRereview: (requirement: string) => boolean;
   onSave?: () => void;
   version: string;
 }
@@ -32,7 +32,12 @@ export function CoverLetterDetailActions({
   };
 
   const handleRereviewRequest = (requirement: string) => {
-    onRereview?.(requirement);
+    const isRequested = onRereview(requirement);
+
+    if (!isRequested) {
+      return;
+    }
+
     setReviewRequirement('');
     setOpenModal(null);
   };
