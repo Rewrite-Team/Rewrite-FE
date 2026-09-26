@@ -75,6 +75,33 @@ describe('Sidebar', () => {
     expect(container.querySelectorAll('li[aria-hidden="true"]')).toHaveLength(1);
   });
 
+  it('버전 패널이 열리면 버전 관리 버튼의 펼침 상태를 표시한다', () => {
+    render(<Sidebar isVersionPanelOpen pathname="/writing/1" variant="full" writingId="1" />);
+
+    expect(screen.getByRole('button', { name: '버전 관리' })).toHaveAttribute(
+      'aria-expanded',
+      'true'
+    );
+  });
+
+  it('모바일에서 버전 관리를 열면 펼친 사이드바를 닫는다', () => {
+    const onVersionClick = jest.fn();
+    window.matchMedia = jest.fn().mockReturnValue({ matches: true });
+    render(
+      <Sidebar onVersionClick={onVersionClick} pathname="/writing/1" variant="full" writingId="1" />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '사이드바 펼치기' }));
+    fireEvent.click(screen.getByRole('button', { name: '버전 관리' }));
+
+    expect(onVersionClick).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button', { name: '사이드바 펼치기' })).toHaveAttribute(
+      'aria-expanded',
+      'false'
+    );
+    expect(screen.queryByRole('button', { name: '사이드바 닫기' })).not.toBeInTheDocument();
+  });
+
   it('탐색 링크를 선택하면 펼친 사이드바를 닫는다', () => {
     render(<Sidebar writingId="1" />);
 

@@ -12,6 +12,7 @@ interface CoverLetterQuestionCardProps {
   onFinalDraftSave?: (questionId: string, value: string) => void;
   question: CoverLetterQuestionDetail;
   questionNumber: number;
+  readOnly?: boolean;
 }
 
 /** 질문, 원문, AI 첨삭 결과와 최종 작성본을 하나의 접이식 문항 카드로 표시합니다. */
@@ -20,6 +21,7 @@ export function CoverLetterQuestionCard({
   onFinalDraftSave,
   question,
   questionNumber,
+  readOnly = false,
 }: CoverLetterQuestionCardProps) {
   const headingId = `cover-letter-question-${question.id}`;
 
@@ -63,6 +65,7 @@ export function CoverLetterQuestionCard({
             onDraftDirtyChange={(isDirty) => onFinalDraftDirtyChange?.(question.id, isDirty)}
             onSave={(value) => onFinalDraftSave?.(question.id, value)}
             questionId={question.id}
+            readOnly={readOnly}
           />
         </Accordion.Content>
       </Accordion>

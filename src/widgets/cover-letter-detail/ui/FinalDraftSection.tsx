@@ -13,6 +13,7 @@ interface FinalDraftSectionProps {
   onDraftDirtyChange?: (isDirty: boolean) => void;
   onSave?: (value: string) => void;
   questionId: string;
+  readOnly?: boolean;
 }
 
 /** 최종 작성본을 읽고 로컬에서 편집할 수 있는 문항별 섹션입니다. */
@@ -22,6 +23,7 @@ export function FinalDraftSection({
   onDraftDirtyChange,
   onSave,
   questionId,
+  readOnly = false,
 }: FinalDraftSectionProps) {
   const generatedId = useId();
   const titleId = `final-draft-title-${generatedId}`;
@@ -76,7 +78,7 @@ export function FinalDraftSection({
               저장
             </Button>
           </div>
-        ) : (
+        ) : readOnly ? null : (
           <Button
             aria-label="최종 작성본 편집"
             className="size-8"

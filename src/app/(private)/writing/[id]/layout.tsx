@@ -1,6 +1,8 @@
-import { Sidebar } from '@/widgets/common/sidebar';
+import { getMockReviewVersions } from '@/features/review-version/version-management';
 
 import '@/shared/styles/layouts/writing-detail.css';
+
+import { WritingDetailLayoutClient } from './_components/WritingDetailLayoutClient';
 
 /**
  * ## WritingDetailLayout
@@ -17,16 +19,17 @@ export default async function WritingDetailLayout({
   params: Promise<{ id: string }>;
 }>) {
   const { id } = await params;
+  const versions = getMockReviewVersions(id);
+  const initialSelectedVersionId =
+    versions.findLast((version) => version.status === 'COMPLETED')?.id ?? versions[0]?.id ?? '';
 
   return (
-    <div className="mx-auto flex min-h-full w-full max-w-275 flex-1">
-      <Sidebar
-        className="fixed right-5 bottom-5 lg:sticky lg:top-39.5 lg:right-auto lg:bottom-auto lg:self-start"
-        writingId={id}
-      />
-      <section aria-label="자기소개서 콘텐츠" className="min-w-0 flex-1">
-        {children}
-      </section>
-    </div>
+    <WritingDetailLayoutClient
+      initialSelectedVersionId={initialSelectedVersionId}
+      versions={versions}
+      writingId={id}
+    >
+      {children}
+    </WritingDetailLayoutClient>
   );
 }
