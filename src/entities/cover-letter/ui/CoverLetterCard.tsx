@@ -1,10 +1,15 @@
+import { useId } from 'react';
+
 import Link from 'next/link';
 
 import type { CoverLetterSummary } from '@/entities/cover-letter/model/types';
 import { CoverLetterStatus } from '@/entities/cover-letter/ui/CoverLetterStatus';
 import { ROUTES } from '@/shared/constants/routes';
-import { BadgeTitle } from '@/shared/ui/badge-title';
+import { BadgeGroup } from '@/shared/ui/badge';
+import { Title } from '@/shared/ui/title';
 import { formatDate } from '@/shared/utils/formatDate';
+
+import styles from './CoverLetterCard.module.css';
 
 interface CoverLetterCardProps {
   coverLetter: CoverLetterSummary;
@@ -19,30 +24,64 @@ interface CoverLetterCardProps {
  */
 export function CoverLetterCard({ coverLetter }: CoverLetterCardProps) {
   const { companyName, createdAt, displayStatus, id, positionTitle, title } = coverLetter;
+  const folderGradientId = useId();
 
   return (
     <li className="min-w-0">
       <Link
         aria-label={`${title} 자기소개서 상세 보기`}
-        className="focus-ring group flex min-h-38.5 flex-col rounded-2xl bg-gray-700 px-6 py-5 text-white transition-[background-color,transform] duration-150 hover:-translate-y-0.5 hover:bg-gray-600"
+        className={`${styles.card} focus-ring group text-white`}
+        data-status={displayStatus}
         href={ROUTES.WRITING_DETAIL(id)}
       >
-        <BadgeTitle
-          badgeGroupClassName="min-w-0 flex-nowrap gap-1.5"
-          className="gap-4"
-          companyBadgeClassName="max-w-36 truncate"
+        <div aria-hidden="true" className={styles.paperStack}>
+          <span className={styles.paperBack} />
+          <span className={styles.paperMiddle} />
+          <span className={styles.paperFront} />
+          <span className={styles.paperPocketShadow} />
+        </div>
+
+        <BadgeGroup
+          className={`${styles.badges} min-w-0 flex-nowrap gap-0`}
+          companyBadgeClassName={`${styles.folderBadge} max-w-36 truncate body-14`}
           companyName={companyName}
-          jobBadgeClassName="max-w-36 truncate"
+          jobBadgeClassName={`${styles.folderBadge} max-w-36 truncate body-14`}
           jobName={positionTitle}
-          title={title}
-          titleClassName="truncate body-16"
         />
 
-        <div className="mt-auto flex items-center justify-between gap-4 pt-9 body-12">
-          <CoverLetterStatus displayStatus={displayStatus} />
-          <time className="shrink-0 text-white" dateTime={createdAt}>
-            {formatDate(createdAt)}
-          </time>
+        <svg
+          aria-hidden="true"
+          className={styles.folderFront}
+          preserveAspectRatio="none"
+          viewBox="0 0 100 100"
+        >
+          <defs>
+            <linearGradient id={folderGradientId} x1="0" x2="1" y1="0" y2="1">
+              <stop className={styles.folderFrontStart} offset="0" />
+              <stop className={styles.folderFrontEnd} offset="0.72" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M0 0 H42 Q44 0 45.5 2.5 L51.5 14.5 Q53 17 56 17 H100 V100 H0 Z"
+            fill={`url(#${folderGradientId})`}
+          />
+        </svg>
+
+        <div className={styles.content}>
+          <Title
+            as="h2"
+            className="line-clamp-2 break-keep text-balance body-18 font-semibold"
+            title={title}
+          >
+            {title}
+          </Title>
+
+          <div className="mt-auto flex items-center justify-between gap-4 pt-5 body-12">
+            <CoverLetterStatus displayStatus={displayStatus} />
+            <time className="shrink-0 text-gray-50" dateTime={createdAt}>
+              {formatDate(createdAt)}
+            </time>
+          </div>
         </div>
       </Link>
     </li>

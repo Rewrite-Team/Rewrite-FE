@@ -1,4 +1,4 @@
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 6;
 const TOTAL_ITEMS = 21;
 
 const DISPLAY_STATUSES = ['WRITING', 'REVIEWING', 'REVIEWED', 'REVIEW_FAILED'] as const;
