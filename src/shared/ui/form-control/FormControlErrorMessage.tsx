@@ -58,7 +58,7 @@ export function FormControlErrorMessage({
   return (
     <p
       {...props}
-      className={cn('mt-2 mb-0 body-14 text-error-500', className)}
+      className={cn('mt-2 mb-0 body-14 text-error-400', className)}
       id={errorMessageId}
       role="alert"
     >
