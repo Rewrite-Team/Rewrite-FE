@@ -54,11 +54,17 @@ export function ReviewVersionPanel({ onOpenChange, open }: ReviewVersionPanelPro
           </Surface.Header>
 
           <Surface.Body className="min-h-0 flex-1 overflow-y-auto px-6 py-8">
-            <ReviewVersionTimeline
-              onSelect={handleVersionSelect}
-              selectedVersionId={selectedVersionId}
-              versions={versions}
-            />
+            {versions.length === 0 ? (
+              <p className="m-0 body-14 text-gray-200" role="status">
+                저장된 버전이 없습니다.
+              </p>
+            ) : (
+              <ReviewVersionTimeline
+                onSelect={handleVersionSelect}
+                selectedVersionId={selectedVersionId}
+                versions={versions}
+              />
+            )}
           </Surface.Body>
         </Surface.Content>
       </Surface.Portal>

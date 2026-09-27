@@ -1,6 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
+
+import { useSearchParams } from 'next/navigation';
 
 import type { ReviewVersionSummary } from '@/entities/review-version';
 
@@ -13,9 +15,6 @@ interface UseReviewVersionQueryParams {
 
 const VERSION_QUERY_KEY = 'versionId';
 
-const getRequestedVersionId = () =>
-  new URL(window.location.href).searchParams.get(VERSION_QUERY_KEY);
-
 const replaceVersionQuery = (versionId: string) => {
   const url = new URL(window.location.href);
   url.searchParams.set(VERSION_QUERY_KEY, versionId);
@@ -27,32 +26,22 @@ export function useReviewVersionQuery({
   fallbackVersionId,
   versions,
 }: UseReviewVersionQueryParams) {
-  const [selectedVersionId, setSelectedVersionId] = useState(fallbackVersionId);
+  const searchParams = useSearchParams();
+  const requestedVersionId = searchParams.get(VERSION_QUERY_KEY);
+  const requestedVersionKey = requestedVersionId ?? '';
+  const selectedVersionId = isSelectableReviewVersion(versions, requestedVersionId)
+    ? requestedVersionId
+    : fallbackVersionId;
 
   const selectVersion = useCallback((versionId: string) => {
-    setSelectedVersionId(versionId);
     replaceVersionQuery(versionId);
   }, []);
 
   useEffect(() => {
-    const syncVersionFromUrl = () => {
-      const requestedVersionId = getRequestedVersionId();
-      const nextVersionId = isSelectableReviewVersion(versions, requestedVersionId)
-        ? requestedVersionId
-        : fallbackVersionId;
-
-      setSelectedVersionId(nextVersionId);
-
-      if (requestedVersionId !== nextVersionId) {
-        replaceVersionQuery(nextVersionId);
-      }
-    };
-
-    syncVersionFromUrl();
-    window.addEventListener('popstate', syncVersionFromUrl);
-
-    return () => window.removeEventListener('popstate', syncVersionFromUrl);
-  }, [fallbackVersionId, versions]);
+    if (requestedVersionKey !== selectedVersionId) {
+      replaceVersionQuery(selectedVersionId);
+    }
+  }, [requestedVersionKey, selectedVersionId]);
 
   return { selectedVersionId, selectVersion };
 }

@@ -5,6 +5,10 @@ import { useReviewVersion } from '@/features/review-version/version-management';
 
 import { WritingDetailLayoutClient } from './WritingDetailLayoutClient';
 
+jest.mock('next/navigation', () => ({
+  useSearchParams: () => new URLSearchParams(window.location.search),
+}));
+
 jest.mock('@/shared/assets/icons/version', () => ({
   PanelCloseIcon: 'svg',
 }));
@@ -44,7 +48,7 @@ describe('WritingDetailLayoutClient', () => {
   it('URL의 완료 버전을 복원하고 선택 변경을 URL에 기록한다', async () => {
     window.history.replaceState({}, '', '/writing/1?versionId=1-v001');
 
-    render(
+    const view = render(
       <WritingDetailLayoutClient
         initialSelectedVersionId="1-v002"
         versions={versions}
@@ -57,8 +61,17 @@ describe('WritingDetailLayoutClient', () => {
     expect(await screen.findByText('선택 버전: 1-v001')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'V.0.2 선택' }));
+    view.rerender(
+      <WritingDetailLayoutClient
+        initialSelectedVersionId="1-v002"
+        versions={versions}
+        writingId="1"
+      >
+        <SelectedVersionProbe />
+      </WritingDetailLayoutClient>
+    );
 
-    expect(screen.getByText('선택 버전: 1-v002')).toBeInTheDocument();
+    expect(await screen.findByText('선택 버전: 1-v002')).toBeInTheDocument();
     expect(new URL(window.location.href).searchParams.get('versionId')).toBe('1-v002');
   });
 
@@ -78,5 +91,34 @@ describe('WritingDetailLayoutClient', () => {
     await waitFor(() => {
       expect(new URL(window.location.href).searchParams.get('versionId')).toBe('1-v002');
     });
+  });
+
+  it('같은 경로에서 쿼리만 변경되어도 선택 버전을 동기화한다', async () => {
+    window.history.replaceState({}, '', '/writing/1?versionId=1-v001');
+
+    const view = render(
+      <WritingDetailLayoutClient
+        initialSelectedVersionId="1-v002"
+        versions={versions}
+        writingId="1"
+      >
+        <SelectedVersionProbe />
+      </WritingDetailLayoutClient>
+    );
+
+    expect(await screen.findByText('선택 버전: 1-v001')).toBeInTheDocument();
+
+    window.history.pushState({}, '', '/writing/1?versionId=1-v002');
+    view.rerender(
+      <WritingDetailLayoutClient
+        initialSelectedVersionId="1-v002"
+        versions={versions}
+        writingId="1"
+      >
+        <SelectedVersionProbe />
+      </WritingDetailLayoutClient>
+    );
+
+    expect(await screen.findByText('선택 버전: 1-v002')).toBeInTheDocument();
   });
 });

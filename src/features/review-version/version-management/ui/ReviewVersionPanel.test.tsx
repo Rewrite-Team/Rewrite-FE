@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import type { ReviewVersionSummary } from '@/entities/review-version';
 
@@ -36,9 +36,13 @@ const versions: ReviewVersionSummary[] = [
   },
 ];
 
-const renderPanel = (onOpenChange = jest.fn()) =>
+const renderPanel = (onOpenChange = jest.fn(), reviewVersions: ReviewVersionSummary[] = versions) =>
   render(
-    <ReviewVersionProvider editableVersionId="v2" initialSelectedVersionId="v1" versions={versions}>
+    <ReviewVersionProvider
+      editableVersionId="v2"
+      initialSelectedVersionId="v1"
+      versions={reviewVersions}
+    >
       <ReviewVersionPanel onOpenChange={onOpenChange} open />
     </ReviewVersionProvider>
   );
@@ -54,6 +58,14 @@ describe('ReviewVersionPanel', () => {
     expect(screen.getByRole('button', { name: /V\.0\.2/ })).toBeEnabled();
     expect(screen.getByRole('button', { name: /V\.0\.3/ })).toBeDisabled();
     expect(screen.getByRole('button', { name: /V\.0\.4/ })).toBeDisabled();
+    expect(within(screen.getByRole('button', { name: /V\.0\.2/ })).getByText('최신')).toBeVisible();
+    expect(within(screen.getByRole('button', { name: /V\.0\.1/ })).queryByText('최신')).toBeNull();
+  });
+
+  it('저장된 버전이 없으면 안내 문구를 표시한다', () => {
+    renderPanel(jest.fn(), []);
+
+    expect(screen.getByRole('status')).toHaveTextContent('저장된 버전이 없습니다.');
   });
 
   it('모바일에서 완료 버전을 선택하면 패널을 닫는다', () => {

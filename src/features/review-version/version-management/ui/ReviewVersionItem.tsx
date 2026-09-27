@@ -7,6 +7,7 @@ import { formatDateTime } from '@/shared/utils/formatDate';
 
 interface ReviewVersionItemProps {
   isLast: boolean;
+  isLatestCompleted: boolean;
   isSelected: boolean;
   onSelect: () => void;
   version: ReviewVersionSummary;
@@ -104,6 +105,7 @@ function VersionProgress({ status }: { status: Exclude<ReviewVersionStatus, 'COM
 
 export function ReviewVersionItem({
   isLast,
+  isLatestCompleted,
   isSelected,
   onSelect,
   version,
@@ -148,10 +150,15 @@ export function ReviewVersionItem({
         onClick={onSelect}
         type="button"
       >
-        <span
-          className={cn(versionLabelVariants({ selected: isSelected, status: version.status }))}
-        >
-          {version.label}
+        <span className="flex items-center gap-2">
+          <span
+            className={cn(versionLabelVariants({ selected: isSelected, status: version.status }))}
+          >
+            {version.label}
+          </span>
+          {isLatestCompleted ? (
+            <span className="rounded-full bg-gray-600 px-2 py-0.5 body-12 text-gray-100">최신</span>
+          ) : null}
         </span>
         <time className="mt-0.5 body-12 text-gray-200" dateTime={version.createdAt}>
           {formatDateTime(version.createdAt)}

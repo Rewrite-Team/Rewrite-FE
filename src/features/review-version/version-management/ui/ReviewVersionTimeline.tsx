@@ -17,6 +17,10 @@ export function ReviewVersionTimeline({
   selectedVersionId,
   versions,
 }: ReviewVersionTimelineProps) {
+  const latestCompletedVersionId = versions.findLast(
+    (version) => version.status === 'COMPLETED'
+  )?.id;
+
   return (
     <ol className="relative m-0 list-none p-0">
       {versions.map((version, index) => {
@@ -25,6 +29,7 @@ export function ReviewVersionTimeline({
         return (
           <ReviewVersionItem
             isLast={!nextVersion}
+            isLatestCompleted={version.id === latestCompletedVersionId}
             isSelected={version.id === selectedVersionId}
             key={version.id}
             onSelect={() => onSelect(version.id)}
