@@ -1,13 +1,35 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import type { ReviewVersionSummary } from '@/entities/review-version';
 import { useReviewVersion } from '@/features/review-version/version-management';
 
 import { WritingDetailLayoutClient } from './WritingDetailLayoutClient';
 
-jest.mock('next/navigation', () => ({
-  useSearchParams: () => new URLSearchParams(window.location.search),
-}));
+jest.mock('next/navigation', () => {
+  const { useSyncExternalStore } = jest.requireActual<typeof import('react')>('react');
+  const listeners = new Set<() => void>();
+  const subscribe = (listener: () => void) => {
+    listeners.add(listener);
+
+    return () => listeners.delete(listener);
+  };
+
+  return {
+    navigateWithSearchParams: (url: string) => {
+      window.history.pushState({}, '', url);
+      listeners.forEach((listener) => listener());
+    },
+    useSearchParams: () => {
+      const search = useSyncExternalStore(
+        subscribe,
+        () => window.location.search,
+        () => ''
+      );
+
+      return new URLSearchParams(search);
+    },
+  };
+});
 
 jest.mock('@/shared/assets/icons/version', () => ({
   PanelCloseIcon: 'svg',
@@ -32,6 +54,14 @@ const versions: ReviewVersionSummary[] = [
   { id: '1-v002', label: 'V.0.2', createdAt: '2026-05-21T14:00:00', status: 'COMPLETED' },
   { id: '1-v003', label: 'V.0.3', createdAt: '2026-05-22T14:00:00', status: 'GENERATING' },
 ];
+
+const navigateWithSearchParams = (url: string) => {
+  const navigation = jest.requireMock<{
+    navigateWithSearchParams: (nextUrl: string) => void;
+  }>('next/navigation');
+
+  navigation.navigateWithSearchParams(url);
+};
 
 function SelectedVersionProbe() {
   const { selectedVersionId, selectVersion } = useReviewVersion();
@@ -98,7 +128,7 @@ describe('WritingDetailLayoutClient', () => {
   it('같은 경로에서 쿼리만 변경되어도 선택 버전을 동기화한다', async () => {
     window.history.replaceState({}, '', '/writing/1?versionId=1-v001');
 
-    const view = render(
+    render(
       <WritingDetailLayoutClient
         initialSelectedVersionId="1-v002"
         versions={versions}
@@ -110,16 +140,7 @@ describe('WritingDetailLayoutClient', () => {
 
     expect(await screen.findByText('선택 버전: 1-v001')).toBeInTheDocument();
 
-    window.history.pushState({}, '', '/writing/1?versionId=1-v002');
-    view.rerender(
-      <WritingDetailLayoutClient
-        initialSelectedVersionId="1-v002"
-        versions={versions}
-        writingId="1"
-      >
-        <SelectedVersionProbe />
-      </WritingDetailLayoutClient>
-    );
+    act(() => navigateWithSearchParams('/writing/1?versionId=1-v002'));
 
     expect(await screen.findByText('선택 버전: 1-v002')).toBeInTheDocument();
   });
