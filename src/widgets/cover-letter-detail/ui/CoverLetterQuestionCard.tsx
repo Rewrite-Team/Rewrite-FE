@@ -1,7 +1,6 @@
 'use client';
 
-import type { CoverLetterQuestionDetail } from '@/entities/cover-letter';
-import { CoverLetterDiff } from '@/entities/review-version';
+import { CoverLetterDiff, type CoverLetterQuestionDetail } from '@/entities/cover-letter';
 import { Accordion } from '@/shared/ui/accordion';
 
 import { CoverLetterContentSection } from './CoverLetterContentSection';

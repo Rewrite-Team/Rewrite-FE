@@ -2,9 +2,9 @@ import { useId } from 'react';
 
 import { Title } from '@/shared/ui/title';
 
-import { createTextDiff } from '../../model/createTextDiff';
+import { createTextDiff } from '../model/createTextDiff';
 
-import type { TextDiffPart } from '../../model/createTextDiff';
+import type { TextDiffPart } from '../model/createTextDiff';
 
 interface CoverLetterDiffProps {
   original: string;

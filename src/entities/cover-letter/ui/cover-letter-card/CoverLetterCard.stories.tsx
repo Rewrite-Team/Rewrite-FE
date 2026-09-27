@@ -2,7 +2,8 @@ import type {
   CoverLetterDisplayStatus,
   CoverLetterSummary,
 } from '@/entities/cover-letter/model/types';
-import { CoverLetterCard } from '@/entities/cover-letter/ui/CoverLetterCard';
+
+import { CoverLetterCard } from './CoverLetterCard';
 
 import type { Meta, StoryObj } from '@storybook/nextjs';
 

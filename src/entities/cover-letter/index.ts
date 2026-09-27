@@ -1,3 +1,4 @@
 export { getMockCoverLetterDetail } from './model/mockCoverLetterDetail';
-export { CoverLetterCard } from './ui/CoverLetterCard';
+export { CoverLetterCard } from './ui/cover-letter-card/CoverLetterCard';
+export { CoverLetterDiff } from './ui/CoverLetterDiff';
 export type { CoverLetterDetail, CoverLetterQuestionDetail } from './model/types';
