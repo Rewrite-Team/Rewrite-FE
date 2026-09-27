@@ -47,4 +47,18 @@ describe('FinalDraftSection', () => {
 
     expect(handleDraftDirtyChange).toHaveBeenLastCalledWith(false);
   });
+
+  it('읽기 전용 버전에서는 편집 버튼을 표시하지 않는다', () => {
+    render(
+      <FinalDraftSection
+        characterLimit={700}
+        initialValue="이전 버전 작성본"
+        questionId="question-1"
+        readOnly
+      />
+    );
+
+    expect(screen.getByText('이전 버전 작성본')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '최종 작성본 편집' })).not.toBeInTheDocument();
+  });
 });

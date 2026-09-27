@@ -8,7 +8,7 @@ import { COVER_LETTER_STEP_CONFIG } from '@/widgets/cover-letter-create';
 
 import { WritingCreateStepShell } from './WritingCreateStepShell';
 
-import type { CoverLetterCreateStepSegment } from './types';
+import type { CoverLetterCreateStepSegment } from '../types';
 
 interface WritingCreateStepLayoutClientProps {
   children: ReactNode;

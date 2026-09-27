@@ -10,6 +10,7 @@ import { CoverLetterQuestionCard } from './CoverLetterQuestionCard';
 
 interface CoverLetterDetailEditorProps {
   questions: CoverLetterQuestionDetail[];
+  readOnly?: boolean;
   version: string;
 }
 
@@ -17,7 +18,11 @@ const createFinalAnswerMap = (questions: CoverLetterQuestionDetail[]) =>
   Object.fromEntries(questions.map((question) => [question.id, question.finalAnswer]));
 
 /** 문항별 최종 작성본과 상세 화면의 저장·재첨삭 상태를 함께 관리합니다. */
-export function CoverLetterDetailEditor({ questions, version }: CoverLetterDetailEditorProps) {
+export function CoverLetterDetailEditor({
+  questions,
+  readOnly = false,
+  version,
+}: CoverLetterDetailEditorProps) {
   const persistedAnswersRef = useRef(createFinalAnswerMap(questions));
   const currentAnswersRef = useRef(createFinalAnswerMap(questions));
   const [dirtyDraftQuestionIds, setDirtyDraftQuestionIds] = useState<Set<string>>(() => new Set());
@@ -74,16 +79,19 @@ export function CoverLetterDetailEditor({ questions, version }: CoverLetterDetai
             onFinalDraftSave={handleFinalDraftSave}
             question={question}
             questionNumber={index + 1}
+            readOnly={readOnly}
           />
         ))}
       </div>
 
-      <CoverLetterDetailActions
-        hasUnsavedChanges={dirtyQuestionIds.size > 0 || dirtyDraftQuestionIds.size > 0}
-        onRereview={handleRereview}
-        onSave={handleDetailSave}
-        version={version}
-      />
+      {readOnly ? null : (
+        <CoverLetterDetailActions
+          hasUnsavedChanges={dirtyQuestionIds.size > 0 || dirtyDraftQuestionIds.size > 0}
+          onRereview={handleRereview}
+          onSave={handleDetailSave}
+          version={version}
+        />
+      )}
     </>
   );
 }

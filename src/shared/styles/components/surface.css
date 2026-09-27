@@ -42,6 +42,30 @@
   }
 }
 
+@keyframes surface-panel-slide-in {
+  from {
+    opacity: 0.85;
+    transform: translate3d(105%, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes surface-panel-slide-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    opacity: 0.85;
+    transform: translate3d(105%, 0, 0);
+  }
+}
+
 .surface-modal-overlay-animation[data-open] {
   animation: surface-overlay-fade-in 350ms ease-out both;
 }
@@ -58,11 +82,21 @@
   animation: surface-modal-slide-down 150ms ease-in both;
 }
 
+.surface-panel-animation[data-open] {
+  animation: surface-panel-slide-in 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.surface-panel-animation[data-closed] {
+  animation: surface-panel-slide-out 280ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .surface-modal-overlay-animation[data-open],
   .surface-modal-overlay-animation[data-closed],
   .surface-modal-animation[data-open],
-  .surface-modal-animation[data-closed] {
+  .surface-modal-animation[data-closed],
+  .surface-panel-animation[data-open],
+  .surface-panel-animation[data-closed] {
     animation: none;
   }
 }

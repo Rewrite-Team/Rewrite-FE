@@ -169,7 +169,16 @@ entities/
 ├── cover-letter/
 │   ├── api/
 │   ├── model/
-│   └── ui/
+│   │   ├── createTextDiff.ts
+│   │   └── types.ts
+│   ├── ui/
+│   │   ├── cover-letter-card/
+│   │   │   ├── CoverLetterCard.tsx
+│   │   │   ├── CoverLetterCard.module.css
+│   │   │   └── CoverLetterCard.stories.tsx
+│   │   ├── CoverLetterDiff.tsx
+│   │   └── CoverLetterStatus.tsx
+│   └── index.ts
 ├── review-version/
 │   ├── api/
 │   ├── model/
@@ -191,13 +200,22 @@ entities/
 | Entity | 역할 |
 |---|---|
 | `user` | 로그인 사용자, 프로필, 접근 권한 |
-| `cover-letter` | 자기소개서 기본 정보, 우대사항, 문항, 답변, 제출 상태 |
-| `review-version` | AI 첨삭 버전, 선택 버전, 최종 작성본 |
+| `cover-letter` | 자기소개서 기본 정보, 우대사항, 문항, 원문·첨삭본·최종 작성본, 콘텐츠 비교, 제출 상태 |
+| `review-version` | 저장된 버전의 ID·버전명·생성 시각·생성 상태와 선택 버전 |
 | `keyword-analysis` | 키워드 빈도, 워드 클라우드 데이터, 분석 상태 |
 | `interview` | 면접 세션, 질문, 대화방, 메시지, 피드백 |
 | `llm-job` | AI 작업 상태, 스트림 진행 상태 |
 
 라우트는 사용자 언어에 맞춰 `/writing`을 유지하지만, 코드 내부 도메인은 백엔드 리소스에 맞춰 `cover-letter`를 사용한다.
+
+자기소개서 생성 폼, 목록, 상세 화면처럼 페이지를 구성하는 큰 블록은 `widgets/cover-letter-*`에 둔다.
+문항과 답변, 원문과 AI 첨삭본 비교처럼 자기소개서 콘텐츠 자체를 표현하는 모델과 작은 UI는
+`entities/cover-letter`가 담당한다. `entities/review-version`은 버전 목록에 필요한 메타데이터를
+담고, 버전 선택과 URL 동기화 같은 사용자 동작은 `features/review-version`에서 처리한다.
+
+단일 파일로 완결되는 `CoverLetterDiff`, `CoverLetterStatus`는 `ui` 바로 아래에 둔다.
+스타일과 Storybook 파일을 함께 관리하는 `CoverLetterCard`는 `ui/cover-letter-card` 폴더에
+관련 파일을 모아 둔다.
 
 백엔드 리소스와 프론트 entity의 대응은 다음을 기준으로 한다.
 

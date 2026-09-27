@@ -24,6 +24,7 @@ type SidebarVariant = 'compact' | 'full';
 
 interface SidebarProps extends ComponentPropsWithoutRef<'aside'> {
   writingId: string;
+  isVersionPanelOpen?: boolean;
   onDelete?: () => void;
   onVersionClick?: () => void;
   pathname?: string;
@@ -60,6 +61,7 @@ const handlePendingVersionClick = () => {
  */
 export function Sidebar({
   className,
+  isVersionPanelOpen = false,
   onDelete,
   onVersionClick,
   pathname: pathnameProp,
@@ -105,6 +107,14 @@ export function Sidebar({
     }
 
     setIsDeleteModalOpen(true);
+  };
+
+  const handleVersionClick = () => {
+    (onVersionClick ?? handlePendingVersionClick)();
+
+    if (window.matchMedia?.('(max-width: 63.999rem)').matches) {
+      setIsExpanded(false);
+    }
   };
 
   const handleDeleteConfirm = () => {
@@ -191,10 +201,12 @@ export function Sidebar({
               <>
                 <li className={mobileMenuItemClassName}>
                   <SidebarItem
+                    ariaExpanded={isVersionPanelOpen}
                     icon={VersionIcon}
+                    isActive={isVersionPanelOpen}
                     isExpanded={isExpanded}
                     label="버전 관리"
-                    onClick={onVersionClick ?? handlePendingVersionClick}
+                    onClick={handleVersionClick}
                     showMobileLabel={shouldShowMobileLabel}
                   />
                 </li>
