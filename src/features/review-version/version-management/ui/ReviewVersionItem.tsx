@@ -1,9 +1,16 @@
-import { cva } from 'class-variance-authority';
-
 import type { ReviewVersionStatus, ReviewVersionSummary } from '@/entities/review-version';
 import { cn } from '@/shared/styles/utils/cn';
 import { Spinner } from '@/shared/ui/spinner';
 import { formatDateTime } from '@/shared/utils/formatDate';
+
+import {
+  connectorVariants,
+  markerCenterVariants,
+  markerVariants,
+  progressVariants,
+  versionActionVariants,
+  versionLabelVariants,
+} from './reviewVersionStyles';
 
 interface ReviewVersionItemProps {
   isLast: boolean;
@@ -19,79 +26,6 @@ const STATUS_LABEL: Record<Exclude<ReviewVersionStatus, 'COMPLETED'>, string> = 
   GENERATING: '생성 중',
 } as const;
 
-const progressVariants = cva('mt-1 flex items-center gap-1.5 body-12', {
-  variants: {
-    status: {
-      FAILED: 'text-error-400',
-      GENERATING: 'text-gray-300',
-    },
-  },
-});
-
-const markerColorVariants = cva('', {
-  variants: {
-    status: {
-      COMPLETED: 'bg-gray-400',
-      FAILED: 'bg-error-400',
-      GENERATING: 'bg-gray-500',
-    },
-    selected: {
-      false: null,
-      true: 'bg-primary-500',
-    },
-  },
-});
-
-const markerCenterVariants = cva('size-1.5 rounded-full', {
-  variants: {
-    status: {
-      COMPLETED: 'bg-white',
-      FAILED: 'bg-white',
-      GENERATING: 'bg-gray-100',
-    },
-  },
-});
-
-const connectorVariants = cva('', {
-  variants: {
-    status: {
-      COMPLETED: 'bg-gray-400',
-      FAILED: 'bg-error-400',
-      GENERATING: 'bg-gray-400',
-    },
-    selected: {
-      false: null,
-      true: 'bg-primary-500',
-    },
-  },
-});
-
-const versionActionVariants = cva(
-  'focus-ring -mt-1 flex w-full flex-col items-start rounded-lg px-2 py-1 text-left transition-colors',
-  {
-    variants: {
-      selectable: {
-        false: 'cursor-not-allowed opacity-75',
-        true: 'hover:bg-white/6',
-      },
-    },
-  }
-);
-
-const versionLabelVariants = cva('body-16 font-medium', {
-  variants: {
-    status: {
-      COMPLETED: 'text-white',
-      FAILED: 'text-white',
-      GENERATING: 'text-gray-100',
-    },
-    selected: {
-      false: null,
-      true: 'text-primary-300',
-    },
-  },
-});
-
 function VersionProgress({ status }: { status: Exclude<ReviewVersionStatus, 'COMPLETED'> }) {
   const isPending = status === 'GENERATING';
 
@@ -103,10 +37,12 @@ function VersionProgress({ status }: { status: Exclude<ReviewVersionStatus, 'COM
   );
 }
 
+/** 최신 버전임을 나타내는 뱃지 컴포넌트입니다. */
 function LatestVersionBadge() {
   return <span className="rounded-full bg-gray-600 px-2 py-0.5 body-12 text-gray-100">최신</span>;
 }
 
+/** 타임라인의 버전 상태, 선택 여부, 최신 표시와 선택 액션을 렌더링합니다. */
 export function ReviewVersionItem({
   isLast,
   isLatestCompleted,
@@ -116,9 +52,7 @@ export function ReviewVersionItem({
   verticalLineBackground,
 }: ReviewVersionItemProps) {
   const isSelectable = version.status === 'COMPLETED';
-  const markerColorClassName = cn(
-    markerColorVariants({ selected: isSelected, status: version.status })
-  );
+  const markerColorClassName = cn(markerVariants({ selected: isSelected, status: version.status }));
   const connectorClassName = cn(
     connectorVariants({ selected: isSelected, status: version.status })
   );

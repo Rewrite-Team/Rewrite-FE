@@ -1,11 +1,13 @@
 import { getMockCoverLetterDetail, type CoverLetterDetail } from '@/entities/cover-letter';
 import type { ReviewVersionSummary } from '@/entities/review-version';
 
+/** 목업 상세 데이터와 버전 ID를 연결하는 레코드입니다. */
 export interface CoverLetterVersionRecord {
   detail: CoverLetterDetail;
   versionId: string;
 }
 
+/** 자기소개서 ID에 대응하는 시간순 버전 목록 목업을 생성합니다. */
 export const getMockReviewVersions = (writingId: string): ReviewVersionSummary[] => [
   {
     id: `${writingId}-v001`,
@@ -27,6 +29,7 @@ export const getMockReviewVersions = (writingId: string): ReviewVersionSummary[]
   },
 ];
 
+/** 선택한 버전에 따라 표시할 자기소개서 상세 목업을 생성합니다. */
 export const getMockCoverLetterVersionRecords = (writingId: string): CoverLetterVersionRecord[] => {
   const currentDetail = getMockCoverLetterDetail(writingId);
 

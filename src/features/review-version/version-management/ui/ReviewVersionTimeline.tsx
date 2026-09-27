@@ -1,10 +1,7 @@
 import type { ReviewVersionSummary } from '@/entities/review-version';
 
 import { ReviewVersionItem } from './ReviewVersionItem';
-import {
-  createReviewVersionSegmentGradient,
-  getReviewVersionColor,
-} from '../utils/reviewVersionTimeline';
+import { createReviewVersionSegmentGradient, getReviewVersionColor } from './reviewVersionStyles';
 
 interface ReviewVersionTimelineProps {
   onSelect: (versionId: string) => void;
@@ -12,6 +9,7 @@ interface ReviewVersionTimelineProps {
   versions: ReviewVersionSummary[];
 }
 
+/** 버전을 시간순으로 배치하고 인접한 원 사이의 상태 색상을 연결합니다. */
 export function ReviewVersionTimeline({
   onSelect,
   selectedVersionId,

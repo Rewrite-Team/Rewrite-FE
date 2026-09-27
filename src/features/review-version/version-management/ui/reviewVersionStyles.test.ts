@@ -1,6 +1,6 @@
 import type { ReviewVersionSummary } from '@/entities/review-version';
 
-import { createReviewVersionSegmentGradient, getReviewVersionColor } from './reviewVersionTimeline';
+import { createReviewVersionSegmentGradient, getReviewVersionColor } from './reviewVersionStyles';
 
 const versions: ReviewVersionSummary[] = [
   { id: 'v1', label: 'V.0.1', createdAt: '2026-05-20T14:00:00', status: 'COMPLETED' },
@@ -9,7 +9,7 @@ const versions: ReviewVersionSummary[] = [
   { id: 'v4', label: 'V.0.4', createdAt: '2026-05-23T14:00:00', status: 'FAILED' },
 ];
 
-describe('reviewVersionTimeline', () => {
+describe('reviewVersionStyles', () => {
   it('선택, 완료, 생성 중, 실패 버전에 대응하는 색상을 반환한다', () => {
     expect(getReviewVersionColor(versions[0], 'v1')).toBe('var(--color-primary-500)');
     expect(getReviewVersionColor(versions[1], 'v1')).toBe('var(--color-gray-400)');

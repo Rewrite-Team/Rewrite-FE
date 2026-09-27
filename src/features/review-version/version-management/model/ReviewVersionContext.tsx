@@ -62,6 +62,7 @@ export function ReviewVersionProvider({
   return <ReviewVersionContext value={value}>{children}</ReviewVersionContext>;
 }
 
+/** 가장 가까운 Provider에서 현재 버전 선택 상태와 선택 액션을 반환합니다. */
 export function useReviewVersion() {
   const context = use(ReviewVersionContext);
 
