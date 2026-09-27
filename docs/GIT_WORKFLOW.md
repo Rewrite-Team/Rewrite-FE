@@ -18,6 +18,7 @@
 🔧 Chore: eslint와 prettier 설정 추가
 📝 Docs: 아키텍처 문서 추가
 ✨ Feat: 자기소개서 목록 페이지 추가
+✅ Test: 버전 쿼리 탐색 구독 검증
 ```
 
 현재 commitlint 설정에서 허용하는 타입은 다음과 같다.
@@ -27,6 +28,7 @@
 🐛 Fix
 ♻️ Refactor
 🔧 Chore
+✅ Test
 🎨 Style
 📝 Docs
 🚚 Rename
@@ -42,6 +44,7 @@
 | `🐛 Fix` | 버그 수정 |
 | `♻️ Refactor` | 동작 변경 없는 코드 리팩토링 |
 | `🔧 Chore` | 설정, 빌드, 패키지, 아이콘, 이미지 추가 |
+| `✅ Test` | 테스트 추가·수정 또는 회귀 검증 범위 개선 |
 | `🎨 Style` | 스타일 또는 포맷팅 변경 |
 | `📝 Docs` | 문서 또는 주석 수정 |
 | `🚚 Rename` | 파일 또는 디렉토리명 변경, 파일 이동 |
