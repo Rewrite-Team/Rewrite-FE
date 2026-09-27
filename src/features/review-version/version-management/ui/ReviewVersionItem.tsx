@@ -52,7 +52,7 @@ const markerCenterVariants = cva('size-1.5 rounded-full', {
   },
 });
 
-const connectorColorVariants = cva('', {
+const connectorVariants = cva('', {
   variants: {
     status: {
       COMPLETED: 'bg-gray-400',
@@ -66,7 +66,7 @@ const connectorColorVariants = cva('', {
   },
 });
 
-const versionButtonVariants = cva(
+const versionActionVariants = cva(
   'focus-ring -mt-1 flex w-full flex-col items-start rounded-lg px-2 py-1 text-left transition-colors',
   {
     variants: {
@@ -103,6 +103,10 @@ function VersionProgress({ status }: { status: Exclude<ReviewVersionStatus, 'COM
   );
 }
 
+function LatestVersionBadge() {
+  return <span className="rounded-full bg-gray-600 px-2 py-0.5 body-12 text-gray-100">최신</span>;
+}
+
 export function ReviewVersionItem({
   isLast,
   isLatestCompleted,
@@ -115,8 +119,8 @@ export function ReviewVersionItem({
   const markerColorClassName = cn(
     markerColorVariants({ selected: isSelected, status: version.status })
   );
-  const connectorColorClassName = cn(
-    connectorColorVariants({ selected: isSelected, status: version.status })
+  const connectorClassName = cn(
+    connectorVariants({ selected: isSelected, status: version.status })
   );
 
   return (
@@ -137,15 +141,12 @@ export function ReviewVersionItem({
       </span>
       <span
         aria-hidden="true"
-        className={cn(
-          'absolute top-3.75 left-5 z-1 h-0.5 w-4.5 rounded-full',
-          connectorColorClassName
-        )}
+        className={cn('absolute top-3.75 left-5 z-1 h-0.5 w-4.5 rounded-full', connectorClassName)}
       />
 
       <button
         aria-current={isSelected ? 'true' : undefined}
-        className={versionButtonVariants({ selectable: isSelectable })}
+        className={versionActionVariants({ selectable: isSelectable })}
         disabled={!isSelectable}
         onClick={onSelect}
         type="button"
@@ -156,9 +157,7 @@ export function ReviewVersionItem({
           >
             {version.label}
           </span>
-          {isLatestCompleted ? (
-            <span className="rounded-full bg-gray-600 px-2 py-0.5 body-12 text-gray-100">최신</span>
-          ) : null}
+          {isLatestCompleted ? <LatestVersionBadge /> : null}
         </span>
         <time className="mt-0.5 body-12 text-gray-200" dateTime={version.createdAt}>
           {formatDateTime(version.createdAt)}
