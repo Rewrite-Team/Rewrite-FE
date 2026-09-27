@@ -47,6 +47,7 @@ function SelectedVersionProbe() {
 describe('WritingDetailLayoutClient', () => {
   it('URL의 완료 버전을 복원하고 선택 변경을 URL에 기록한다', async () => {
     window.history.replaceState({}, '', '/writing/1?versionId=1-v001');
+    const replaceStateSpy = jest.spyOn(window.history, 'replaceState');
 
     const view = render(
       <WritingDetailLayoutClient
@@ -73,6 +74,7 @@ describe('WritingDetailLayoutClient', () => {
 
     expect(await screen.findByText('선택 버전: 1-v002')).toBeInTheDocument();
     expect(new URL(window.location.href).searchParams.get('versionId')).toBe('1-v002');
+    expect(replaceStateSpy).toHaveBeenLastCalledWith(null, '', '/writing/1?versionId=1-v002');
   });
 
   it('진행 중이거나 잘못된 URL 버전은 최신 완료 버전으로 정규화한다', async () => {
@@ -120,5 +122,19 @@ describe('WritingDetailLayoutClient', () => {
     );
 
     expect(await screen.findByText('선택 버전: 1-v002')).toBeInTheDocument();
+  });
+
+  it('버전 목록이 비어 있으면 잘못된 버전 쿼리를 제거한다', async () => {
+    window.history.replaceState({}, '', '/writing/1?versionId=unknown');
+
+    render(
+      <WritingDetailLayoutClient initialSelectedVersionId="" versions={[]} writingId="1">
+        <SelectedVersionProbe />
+      </WritingDetailLayoutClient>
+    );
+
+    await waitFor(() => {
+      expect(new URL(window.location.href).searchParams.has('versionId')).toBe(false);
+    });
   });
 });

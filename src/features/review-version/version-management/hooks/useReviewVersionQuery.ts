@@ -17,8 +17,14 @@ const VERSION_QUERY_KEY = 'versionId';
 
 const replaceVersionQuery = (versionId: string) => {
   const url = new URL(window.location.href);
-  url.searchParams.set(VERSION_QUERY_KEY, versionId);
-  window.history.replaceState(window.history.state, '', url);
+
+  if (versionId) {
+    url.searchParams.set(VERSION_QUERY_KEY, versionId);
+  } else {
+    url.searchParams.delete(VERSION_QUERY_KEY);
+  }
+
+  window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
 };
 
 /** 선택 버전을 URL 쿼리와 양방향으로 동기화합니다. */
