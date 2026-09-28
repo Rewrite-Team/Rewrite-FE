@@ -29,10 +29,14 @@
   --color-gray-700: #2b2b2b;
   --color-gray-800: #222222;
   --color-gray-900: #1a1a1a;
+  --color-gray-950: #0d0e12;
 
   /* Yellow Colors */
   --color-yellow-50: #fff0ce;
   --color-yellow-500: #ffb300;
+  --color-kakao: #fee500;
+  --color-kakao-hover: #fada0a;
+  --color-kakao-active: #efd000;
 
   /* Semantic Colors */
   --color-success-500: #2f7656;

@@ -1,7 +1,13 @@
+import { AppShell } from '@/widgets/common/app-shell';
+
 export default function PrivateLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <div className="flex min-h-full flex-1 flex-col py-15">{children}</div>;
+  return (
+    <AppShell>
+      <div className="flex min-h-full flex-1 flex-col py-15">{children}</div>
+    </AppShell>
+  );
 }

@@ -6,7 +6,7 @@ import {
   LandingProcess,
 } from '@/widgets/landing';
 
-export default function PublicHomePage() {
+export default function LandingPage() {
   return (
     <>
       <LandingHero />
