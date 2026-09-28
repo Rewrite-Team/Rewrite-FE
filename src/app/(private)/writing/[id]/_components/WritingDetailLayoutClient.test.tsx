@@ -15,7 +15,7 @@ jest.mock('next/navigation', () => {
   };
 
   return {
-    navigateWithSearchParams: (url: string) => {
+    navigateTo: (url: string) => {
       window.history.pushState({}, '', url);
       listeners.forEach((listener) => listener());
     },
@@ -28,6 +28,12 @@ jest.mock('next/navigation', () => {
 
       return new URLSearchParams(search);
     },
+    usePathname: () =>
+      useSyncExternalStore(
+        subscribe,
+        () => window.location.pathname,
+        () => '/writing/1'
+      ),
   };
 });
 
@@ -55,12 +61,12 @@ const versions: ReviewVersionSummary[] = [
   { id: '1-v003', label: 'V.0.3', createdAt: '2026-05-22T14:00:00', status: 'GENERATING' },
 ];
 
-const navigateWithSearchParams = (url: string) => {
+const navigateTo = (url: string) => {
   const navigation = jest.requireMock<{
-    navigateWithSearchParams: (nextUrl: string) => void;
+    navigateTo: (nextUrl: string) => void;
   }>('next/navigation');
 
-  navigation.navigateWithSearchParams(url);
+  navigation.navigateTo(url);
 };
 
 function SelectedVersionProbe() {
@@ -140,7 +146,7 @@ describe('WritingDetailLayoutClient', () => {
 
     expect(await screen.findByText('선택 버전: 1-v001')).toBeInTheDocument();
 
-    act(() => navigateWithSearchParams('/writing/1?versionId=1-v002'));
+    act(() => navigateTo('/writing/1?versionId=1-v002'));
 
     expect(await screen.findByText('선택 버전: 1-v002')).toBeInTheDocument();
   });
@@ -157,5 +163,34 @@ describe('WritingDetailLayoutClient', () => {
     await waitFor(() => {
       expect(new URL(window.location.href).searchParams.has('versionId')).toBe(false);
     });
+  });
+
+  it('상세 페이지를 벗어나면 버전 패널을 닫고 재진입해도 닫힌 상태를 유지한다', () => {
+    window.history.replaceState({}, '', '/writing/1');
+
+    render(
+      <WritingDetailLayoutClient
+        initialSelectedVersionId="1-v002"
+        versions={versions}
+        writingId="1"
+      >
+        <SelectedVersionProbe />
+      </WritingDetailLayoutClient>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '버전 관리' }));
+    expect(screen.getByRole('dialog', { name: '버전 관리' })).toBeInTheDocument();
+
+    act(() => navigateTo('/writing/1/keyword-analysis'));
+
+    expect(screen.queryByRole('dialog', { name: '버전 관리' })).not.toBeInTheDocument();
+
+    act(() => navigateTo('/writing/1'));
+
+    expect(screen.getByRole('button', { name: '버전 관리' })).toHaveAttribute(
+      'aria-expanded',
+      'false'
+    );
+    expect(screen.queryByRole('dialog', { name: '버전 관리' })).not.toBeInTheDocument();
   });
 });
