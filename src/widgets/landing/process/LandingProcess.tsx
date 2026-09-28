@@ -87,12 +87,20 @@ export function LandingProcess() {
           ]),
         ];
 
-        gsap
+        const timeline = gsap
           .timeline({
             scrollTrigger: {
               trigger: section,
-              start: 'top 72%',
-              once: true,
+              start: 'top 75%',
+              end: 'top -35%',
+              scrub: 1.1,
+              fastScrollEnd: true,
+              invalidateOnRefresh: true,
+              onUpdate: ({ progress }) => {
+                if (progress < 0.999) {
+                  ambientTweens.forEach((tween) => tween.pause());
+                }
+              },
             },
             onComplete: () => {
               ambientTweens.forEach((tween) => tween.play());
@@ -108,12 +116,14 @@ export function LandingProcess() {
             { autoAlpha: 0, scale: 0 },
             { autoAlpha: 1, scale: 1, duration: 0.38, ease: 'back.out(2)' },
             '-=0.16'
-          )
-          .fromTo(
-            bubbles,
+          );
+
+        bubbles.forEach((bubble, index) => {
+          timeline.fromTo(
+            bubble,
             {
               autoAlpha: 0,
-              x: (index) => (index % 2 === 0 ? -52 : 52),
+              x: index % 2 === 0 ? -52 : 52,
               y: 18,
               scale: 0.93,
             },
@@ -122,12 +132,12 @@ export function LandingProcess() {
               x: 0,
               y: 0,
               scale: 1,
-              duration: 1.05,
+              duration: 0.58,
               ease: 'power3.out',
-              stagger: 0.28,
             },
-            '-=0.05'
+            index === 0 ? '-=0.05' : '+=0.1'
           );
+        });
       }, section);
     }
 
