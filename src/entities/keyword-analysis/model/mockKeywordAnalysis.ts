@@ -1,4 +1,4 @@
-/** 키워드 분석 결과 API가 연결되기 전 버블 클라우드와 중요도 차트에서 공유하는 목 데이터입니다. */
+/** 키워드 분석 API 연결 전에 사용하는 도메인 목 데이터입니다. */
 export const MOCK_KEYWORD_ANALYSIS_KEYWORDS = [
   { keyword: '사용자 경험', frequency: 20, importance: 98 },
   { keyword: 'React', frequency: 19, importance: 95 },

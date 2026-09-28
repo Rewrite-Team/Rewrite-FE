@@ -1,4 +1,4 @@
-import { getMockCoverLetterListResponse } from './coverLetterList';
+import { getMockCoverLetterListResponse } from './mockCoverLetterList';
 
 describe('getMockCoverLetterListResponse', () => {
   it('백엔드와 동일한 페이지 메타데이터와 첫 페이지 항목을 반환한다', () => {

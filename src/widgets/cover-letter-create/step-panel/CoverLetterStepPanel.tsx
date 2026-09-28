@@ -1,7 +1,6 @@
+import { WRITING_CREATE_STEPS, type WritingCreateStep } from '@/features/cover-letter/create-flow';
 import { CheckIcon } from '@/shared/assets/icons/common';
-import { WRITING_CREATE_STEPS } from '@/shared/constants/writingCreate';
 import { cn } from '@/shared/styles/utils/cn';
-import type { WritingCreateStep } from '@/shared/types/writingCreate';
 import { COVER_LETTER_STEP_CONFIG } from '@/widgets/cover-letter-create/constants/stepConfig';
 
 import { StepActionButton } from './StepActionButton';

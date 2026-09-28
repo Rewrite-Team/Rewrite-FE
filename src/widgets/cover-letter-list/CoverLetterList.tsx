@@ -1,6 +1,5 @@
-import { CoverLetterCard } from '@/entities/cover-letter';
+import { CoverLetterCard, getMockCoverLetterListResponse } from '@/entities/cover-letter';
 import { ROUTES } from '@/shared/constants/routes';
-import { getMockCoverLetterListResponse } from '@/shared/mocks';
 import { Pagination } from '@/shared/ui/pagination';
 import { EmptyState } from '@/shared/ui/state-feedback';
 

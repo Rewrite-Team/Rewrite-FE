@@ -4,9 +4,8 @@ import type { ReactNode } from 'react';
 
 import { useRouter } from 'next/navigation';
 
+import { WRITING_CREATE_STEPS, type WritingCreateStep } from '@/features/cover-letter/create-flow';
 import { ROUTES } from '@/shared/constants/routes';
-import { WRITING_CREATE_STEPS } from '@/shared/constants/writingCreate';
-import type { WritingCreateStep } from '@/shared/types/writingCreate';
 import { PageHeader } from '@/shared/ui/page-header';
 import { COVER_LETTER_STEP_CONFIG, CoverLetterStepPanel } from '@/widgets/cover-letter-create';
 
