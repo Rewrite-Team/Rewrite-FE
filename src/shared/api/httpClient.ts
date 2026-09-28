@@ -18,6 +18,12 @@ const resolveUrl = (url: string) => {
   return new URL(url, getApiBaseUrl()).toString();
 };
 
+const isJsonContentType = (contentType: string | null) => {
+  const mediaType = contentType?.split(';', 1)[0]?.trim().toLowerCase();
+
+  return mediaType === 'application/json' || mediaType?.endsWith('+json') === true;
+};
+
 const parseResponseBody = async (response: Response): Promise<unknown> => {
   if (response.status === 204 || response.status === 205) {
     return undefined;
@@ -25,7 +31,7 @@ const parseResponseBody = async (response: Response): Promise<unknown> => {
 
   const contentType = response.headers.get('content-type');
 
-  if (contentType?.includes('application/json')) {
+  if (isJsonContentType(contentType)) {
     return response.json();
   }
 
@@ -38,7 +44,17 @@ const parseResponseBody = async (response: Response): Promise<unknown> => {
  */
 export async function httpClient<T>(url: string, options: RequestInit): Promise<T> {
   const response = await fetch(resolveUrl(url), options);
-  const data = await parseResponseBody(response);
+  let data: unknown;
+
+  try {
+    data = await parseResponseBody(response);
+  } catch (error) {
+    if (!response.ok) {
+      throw new ApiError(response.status);
+    }
+
+    throw error;
+  }
 
   if (!response.ok) {
     throw new ApiError(response.status, data);

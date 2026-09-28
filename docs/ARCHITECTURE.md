@@ -375,6 +375,7 @@ DTO를 공유하게 되면 공통 모델 분리를 별도로 검토한다.
 백엔드 명세는 `openapi/rewrite.openapi.json`에 저장하고 Orval로 entity별 `api/api.ts`와
 `api/types.ts`를 만든다.
 공통 HTTP 동작과 API 오류는 `shared/api`에서 처리하며, 인증과 CSRF 처리는 인증 연동 시 추가한다.
+SSE와 브라우저 redirect endpoint는 일반 HTTP 생성 대상에서 제외하고 용도에 맞는 전용 연결 방식을 사용한다.
 query key는 `entities/<entity>/api/queryKeys.ts`에 entity별로 둔다.
 
 ```txt

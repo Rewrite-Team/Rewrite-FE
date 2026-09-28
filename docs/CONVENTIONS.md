@@ -274,6 +274,10 @@ pnpm api:sync      # 명세 저장 후 코드 생성
 `api.ts`와 `types.ts`는 직접 수정하지 않는다. 생성되는 함수명과 타입명은 백엔드 `operationId`를
 따르므로 의미 없는 이름은 프론트에서 수동으로 고치지 않고 백엔드 명세 수정 후 다시 생성한다.
 
+`text/event-stream` SSE와 3xx 브라우저 redirect operation은 일반 `httpClient` 요청 함수 생성에서
+제외한다. 경로 helper만 entity에서 공개하고 SSE는 `EventSource` 또는 `ReadableStream`, redirect는
+`href`나 `window.location`으로 처리한다.
+
 수동으로 API 함수를 추가해야 하는 경우 함수명은 `get`, `create`, `update`, `delete`를 기준으로 작성한다.
 
 ```ts

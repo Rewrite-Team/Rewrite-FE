@@ -13,9 +13,6 @@ import type {
   ErrorResponse,
   CurrentUserResponse,
   CsrfTokenResponse,
-  HandleKakaoCallbackParams,
-  StartKakaoLoginParams,
-  StartKakaoLoginTarget,
 } from './types';
 
 export const getRefreshAuthTokensUrl = () => {
@@ -128,107 +125,6 @@ export const getCurrentUser = async (
   options?: Parameters<typeof httpClient>[1]
 ): Promise<CurrentUserResponse> => {
   return httpClient<CurrentUserResponse>(getGetCurrentUserUrl(), {
-    ...options,
-    method: 'GET',
-  });
-};
-
-export const getHandleKakaoCallbackUrl = (params?: HandleKakaoCallbackParams) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value));
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `/auth/kakao/callback?${stringifiedParams}`
-    : `/auth/kakao/callback`;
-};
-
-/**
- * > 인증: 불필요 · CSRF: 불필요
- *
- * ### 사용 목적
- * 카카오 인가 결과를 검증하고 성공 시 Rewrite 인증 Cookie를 발급한다.
- *
- * ### 사용 화면
- * 로그인
- *
- * ### 호출 시점
- * 카카오가 로그인·동의 처리 후 브라우저를 callback으로 돌려보낼 때 호출된다.
- *
- * ### 주요 동작
- * 프론트엔드가 직접 호출하지 않는 브라우저 redirect endpoint다. state와 nonce를 일회성으로 검증하고 state에 결합된 local 또는 production 목적지를 선택하며 모든 결과에서 nonce Cookie를 만료한다.
- *
- * ### 성공 후 처리
- * 302로 앱에 이동하며 access_token과 refresh_token HttpOnly Cookie를 발급한다.
- *
- * ### 오류
- * | HTTP | 오류 코드 | 발생 조건 | 처리 |
- * |---:|---|---|---|
- * | 302 | `KAKAO_LOGIN_CANCELED` | 사용자가 카카오 로그인 또는 동의를 취소함 | 취소 안내를 표시하고 로그인 버튼을 다시 활성화한다. |
- * | 302 | `KAKAO_LOGIN_FAILED` | state·nonce 검증, code 교환, 사용자 조회 또는 저장 실패 | 일반 로그인 실패 안내를 표시하고 내부 원인은 노출하지 않으며 자동 재시도하지 않는다. |
- * @summary API-002 · 카카오 OAuth callback
- */
-export const handleKakaoCallback = async (
-  params?: HandleKakaoCallbackParams,
-  options?: Parameters<typeof httpClient>[1]
-): Promise<unknown> => {
-  return httpClient<unknown>(getHandleKakaoCallbackUrl(params), {
-    ...options,
-    method: 'GET',
-  });
-};
-
-export const getStartKakaoLoginUrl = (params?: StartKakaoLoginParams) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value));
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `/auth/kakao/authorize?${stringifiedParams}`
-    : `/auth/kakao/authorize`;
-};
-
-/**
- * > 인증: 불필요 · CSRF: 불필요
- *
- * ### 사용 목적
- * 카카오 OAuth 인가를 시작하고 요청 브라우저 검증용 nonce Cookie를 발급한다.
- *
- * ### 사용 화면
- * 로그인
- *
- * ### 호출 시점
- * 사용자가 카카오 로그인 버튼을 누를 때 브라우저를 이 endpoint로 이동시킨다.
- *
- * ### 주요 동작
- * JSON 호출이 아니라 302 redirect 흐름이다. target은 local 또는 production만 허용하고 OAuth state에 결합한다. oauth_login_nonce Cookie는 HttpOnly로 발급하며 프론트엔드가 읽지 않는다.
- *
- * ### 성공 후 처리
- * 302 Location의 카카오 인가 화면으로 이동하고 로그인 버튼 중복 클릭을 막는다.
- *
- * ### 오류
- * | HTTP | 오류 코드 | 발생 조건 | 처리 |
- * |---:|---|---|---|
- * | 302 | `KAKAO_LOGIN_FAILED` | 카카오 인가 URL 생성 등 로그인 시작 처리 실패 | 로그인 화면에서 일반 실패 안내를 표시하고 버튼을 다시 활성화하며 자동 재시도하지 않는다. |
- * @summary API-001 · 카카오 로그인 시작
- */
-export const startKakaoLogin = async (
-  params?: StartKakaoLoginParams,
-  options?: Parameters<typeof httpClient>[1]
-): Promise<unknown> => {
-  return httpClient<unknown>(getStartKakaoLoginUrl(params), {
     ...options,
     method: 'GET',
   });
