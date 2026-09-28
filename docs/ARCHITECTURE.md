@@ -25,25 +25,48 @@ app
 
 ## 2. Current Folder Baseline
 
-현재 프로젝트는 Feature-Sliced Design 계열 구조를 이미 가지고 있다.
+현재 프로젝트는 Next.js App Router에 맞춘 Feature-Sliced Design 구조를 사용한다.
+Next.js의 `app` 디렉터리는 라우팅 파일을 소유하므로 FSD의 `app`과 `pages` 역할을 함께 담당한다.
 
 ```txt
 src/
-├── app/
-│   ├── (auth)/
-│   ├── (landing)/
-│   └── (private)/
+├── app/                         # Next.js 라우팅 + FSD app/pages 역할
 ├── widgets/
 ├── features/
+│   └── cover-letter/
+│       └── create-flow/
+│           ├── model/
+│           ├── ui/
+│           └── index.ts
 ├── entities/
+│   ├── cover-letter/
+│   │   ├── api/
+│   │   │   ├── api.ts
+│   │   │   ├── types.ts
+│   │   │   └── queryKeys.ts
+│   │   ├── model/               # 필요할 때만 생성
+│   │   ├── ui/
+│   │   └── index.ts
+│   ├── interview/
+│   ├── keyword-analysis/
+│   ├── review-version/
+│   ├── user/
+│   └── llm-job/
 └── shared/
+    ├── api/                     # httpClient, ApiError
     ├── assets/
-    ├── constants/
+    ├── lib/
     ├── providers/
     ├── styles/
+    ├── ui/
+    ├── constants/
+    ├── hooks/
     ├── types/
     └── utils/
 ```
+
+위 트리는 핵심 배치를 보여주는 기준이다. `shared/hooks`, `shared/constants`, `shared/types`,
+`shared/utils`처럼 도메인을 모르는 공통 코드가 실제로 필요하면 유지한다.
 
 ## 3. Route Architecture
 
@@ -173,10 +196,16 @@ features/
 entities/
 ├── user/
 │   ├── api/
+│   │   ├── api.ts
+│   │   └── types.ts
 │   ├── model/
-│   └── ui/
+│   ├── ui/
+│   └── index.ts
 ├── cover-letter/
 │   ├── api/
+│   │   ├── api.ts
+│   │   ├── types.ts
+│   │   └── queryKeys.ts
 │   ├── model/
 │   │   ├── createTextDiff.ts
 │   │   └── types.ts
@@ -190,18 +219,26 @@ entities/
 │   └── index.ts
 ├── review-version/
 │   ├── api/
+│   │   ├── api.ts
+│   │   └── types.ts
 │   ├── model/
 │   └── ui/
 ├── keyword-analysis/
 │   ├── api/
+│   │   ├── api.ts
+│   │   └── types.ts
 │   ├── model/
 │   └── ui/
 ├── interview/
 │   ├── api/
+│   │   ├── api.ts
+│   │   └── types.ts
 │   ├── model/
 │   └── ui/
 └── llm-job/
     ├── api/
+    │   ├── api.ts
+    │   └── types.ts
     ├── model/
     └── ui/
 ```
@@ -268,7 +305,7 @@ shared/
 | `lib` | 외부 라이브러리 설정, adapter, 인스턴스 생성 로직 |
 | `hooks` | 도메인을 모르는 공통 React hook |
 | `stores` | 앱 전역에서 공유되는 최소한의 전역 store |
-| `constants` | route, query key, 공통 상수 |
+| `constants` | route처럼 앱 전반에서 쓰는 도메인 비종속 상수 |
 | `providers` | QueryProvider처럼 앱 전역 Provider |
 | `styles` | global CSS, token, font, style utility |
 | `types` | 전역 타입 선언, 외부 모듈 타입 보강 |
@@ -281,13 +318,16 @@ shared/
 - `shared/hooks`는 특정 entity나 feature를 모르는 hook만 둔다.
 - `shared/stores`는 앱 전체에서 필요한 상태에만 사용하고, 도메인 상태는 entity 또는 feature에 둔다.
 - `shared/lib`는 라이브러리 연결과 adapter를 담당하고, 단순 순수 함수는 `shared/utils`에 둔다.
+- 특정 도메인의 mock, 타입, 상수, 스타일은 `shared`에 두지 않고 해당 entity, feature, widget에 둔다.
+- query key는 해당 entity의 `api/queryKeys.ts`에서 관리한다.
 
 ## 5. Slice Internal Structure
 
 각 slice는 필요할 때만 폴더를 만든다. 모든 slice에 모든 폴더를 강제로 만들지 않는다.
 
 entity 또는 feature의 도메인 모델 타입, 상태, 스키마와 도메인 계산은 `model`에 둔다.
-API 요청·응답 형태를 표현하는 DTO 타입은 `api`에 두고, 필요한 경우 `model`의 도메인 타입으로 변환한다.
+API 요청 함수는 `api/api.ts`, 요청·응답 DTO는 `api/types.ts`에 자동 생성한다.
+현재는 생성된 DTO와 요청 함수를 직접 사용하고, 화면 요구사항과 API 형태 사이에 실제 변환이 필요해질 때만 `model`에 변환 계층을 추가한다.
 여러 화면 블록을 조립하는 widget은 별도 model 계층이 필요하지 않고, 둘 이상의 하위 폴더에서 공유하거나 외부로 공개하는 타입만 slice 루트의 `types.ts`에 둘 수 있다.
 하위 폴더 전용 타입은 해당 폴더에 둔다.
 
@@ -296,6 +336,9 @@ API 요청·응답 형태를 표현하는 DTO 타입은 `api`에 두고, 필요�
 ```txt
 slice-name/
 ├── api/
+│   ├── api.ts
+│   ├── types.ts
+│   └── queryKeys.ts
 ├── model/
 ├── ui/
 ├── hooks/
@@ -307,7 +350,7 @@ slice-name/
 
 | 폴더 | 역할 |
 |---|---|
-| `api` | 서버 통신 함수, 요청·응답 DTO 타입, query/mutation 옵션 |
+| `api` | OpenAPI로 생성한 요청 함수·DTO, query key, query/mutation 옵션 |
 | `model` | 도메인 모델 타입, 상태, schema, 도메인 계산 |
 | `ui` | slice 전용 UI 컴포넌트 |
 | `hooks` | 해당 slice 내부에서만 쓰는 React hook |
@@ -321,11 +364,27 @@ import { CoverLetterCard } from '@/entities/cover-letter';
 import { DeleteCoverLetterButton } from '@/features/cover-letter/delete-cover-letter';
 ```
 
+OpenAPI 생성 파일인 `api.ts`와 `types.ts`는 직접 수정하지 않는다. API가 20개 이하인 entity는
+두 파일로 관리하고, API와 DTO가 크게 늘어난 entity만 생성 파일을 더 나눈다. 여러 entity가 같은
+DTO를 공유하게 되면 공통 모델 분리를 별도로 검토한다.
+
 ## 6. Data Flow
 
 서버 상태는 TanStack Query를 기준으로 관리한다.
 
-API 상세 구조, query key, request/response 정책은 백엔드 API 스펙이 확정된 뒤 별도 문서에서 정의한다.
+백엔드 명세는 `openapi/rewrite.openapi.json`에 저장하고 Orval로 entity별 `api/api.ts`와
+`api/types.ts`를 만든다.
+공통 HTTP 동작과 API 오류는 `shared/api`에서 처리하며, 인증과 CSRF 처리는 인증 연동 시 추가한다.
+query key는 `entities/<entity>/api/queryKeys.ts`에 entity별로 둔다.
+
+```txt
+OpenAPI 명세
+  -> entities/*/api/types.ts
+  -> entities/*/api/api.ts
+  -> entities/*/api/queryKeys.ts + TanStack Query
+  -> features/widgets
+  -> app route
+```
 
 ## 7. Component Policy
 
