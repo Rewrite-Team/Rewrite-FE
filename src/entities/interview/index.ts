@@ -1,3 +1,5 @@
+export * from './api/api';
+export * from './api/types';
 export {
   getInterviewRecording,
   getInterviewSessionSnapshot,

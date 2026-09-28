@@ -40,5 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# temporary OpenAPI generator output
+src/entities/**/api/__generated.ts
+
 *storybook.log
 storybook-static
