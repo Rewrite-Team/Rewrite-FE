@@ -33,22 +33,22 @@ export interface SaveQuestionsRequest {
 }
 
 export interface SuccessResponse {
-  success?: boolean;
+  success: boolean;
 }
 
 export interface ErrorDetail {
-  field?: string;
-  reason?: string;
+  field: string;
+  reason: string;
 }
 
 export interface ErrorBody {
-  code?: string;
-  message?: string;
-  details?: ErrorDetail[];
+  code: string;
+  message: string;
+  details: ErrorDetail[];
 }
 
 export interface ErrorResponse {
-  error?: ErrorBody;
+  error: ErrorBody;
 }
 
 export interface SavePreferencesRequest {
@@ -98,25 +98,29 @@ export const CoverLetterListItemResponseDisplayStatus = {
 } as const;
 
 export interface CoverLetterListItemResponse {
-  id?: string;
-  title?: string;
-  companyName?: string;
-  positionTitle?: string;
-  displayStatus?: CoverLetterListItemResponseDisplayStatus;
-  createdAt?: string;
-  latestReviewedVersionId?: string;
+  id: string;
+  /** @nullable */
+  title: string | null;
+  /** @nullable */
+  companyName: string | null;
+  /** @nullable */
+  positionTitle: string | null;
+  displayStatus: CoverLetterListItemResponseDisplayStatus;
+  createdAt: string;
+  /** @nullable */
+  latestReviewedVersionId: string | null;
 }
 
 export interface CoverLetterListResponse {
-  items?: CoverLetterListItemResponse[];
-  page?: number;
-  size?: number;
-  totalItems?: number;
-  totalPages?: number;
+  items: CoverLetterListItemResponse[];
+  page: number;
+  size: number;
+  totalItems: number;
+  totalPages: number;
 }
 
 export interface CreateCoverLetterResponse {
-  id?: string;
+  id: string;
 }
 
 export type SubmitCoverLetterResponseDisplayStatus = typeof SubmitCoverLetterResponseDisplayStatus[keyof typeof SubmitCoverLetterResponseDisplayStatus];
@@ -130,36 +134,43 @@ export const SubmitCoverLetterResponseDisplayStatus = {
 } as const;
 
 export interface SubmitCoverLetterResponse {
-  displayStatus?: SubmitCoverLetterResponseDisplayStatus;
-  jobId?: string;
+  displayStatus: SubmitCoverLetterResponseDisplayStatus;
+  /** @nullable */
+  jobId: string | null;
 }
 
-export type CoverLetterResponseDisplayStatus = typeof CoverLetterResponseDisplayStatus[keyof typeof CoverLetterResponseDisplayStatus];
+export type CoverLetterDetailCoverLetterResponseDisplayStatus = typeof CoverLetterDetailCoverLetterResponseDisplayStatus[keyof typeof CoverLetterDetailCoverLetterResponseDisplayStatus];
 
 
-export const CoverLetterResponseDisplayStatus = {
+export const CoverLetterDetailCoverLetterResponseDisplayStatus = {
   WRITING: 'WRITING',
   REVIEWING: 'REVIEWING',
   REVIEWED: 'REVIEWED',
   REVIEW_FAILED: 'REVIEW_FAILED',
 } as const;
 
-export interface CoverLetterResponse {
-  id?: string;
-  title?: string;
-  companyName?: string;
-  positionTitle?: string;
-  jobPostingUrl?: string;
-  preferences?: string;
-  displayStatus?: CoverLetterResponseDisplayStatus;
+export interface CoverLetterDetailCoverLetterResponse {
+  id: string;
+  /** @nullable */
+  title: string | null;
+  /** @nullable */
+  companyName: string | null;
+  /** @nullable */
+  positionTitle: string | null;
+  /** @nullable */
+  jobPostingUrl: string | null;
+  /** @nullable */
+  preferences: string | null;
+  displayStatus: CoverLetterDetailCoverLetterResponseDisplayStatus;
 }
 
-export interface ReviewVersionResponse {
-  id?: string;
-  version?: string;
-  isLatest?: boolean;
-  requestInstruction?: string;
-  createdAt?: string;
+export interface CoverLetterDetailReviewVersionResponse {
+  id: string;
+  version: string;
+  isLatest: boolean;
+  /** @nullable */
+  requestInstruction: string | null;
+  createdAt: string;
 }
 
 export type ReviewJobResponseStatus = typeof ReviewJobResponseStatus[keyof typeof ReviewJobResponseStatus];
@@ -173,42 +184,57 @@ export const ReviewJobResponseStatus = {
   CANCELED: 'CANCELED',
 } as const;
 
-export interface ProgressResponse {
-  current?: number;
-  total?: number;
-  message?: string;
+export interface CoverLetterDetailProgressResponse {
+  current: number;
+  total: number;
+  message: string;
+}
+
+export interface CoverLetterDetailJobErrorResponse {
+  code: string;
+  message: string;
 }
 
 export interface ReviewJobResponse {
-  id?: string;
-  status?: ReviewJobResponseStatus;
-  progress?: ProgressResponse;
-  error?: ErrorResponse;
+  id: string;
+  status: ReviewJobResponseStatus;
+  progress: CoverLetterDetailProgressResponse;
+  error: CoverLetterDetailJobErrorResponse | null;
 }
 
 export interface QuestionResponse {
-  questionResultId?: string;
-  questionId?: string;
-  order?: number;
-  question?: string;
-  maxAnswerLength?: number;
-  originalAnswer?: string;
-  originalAnswerLength?: number;
-  aiReport?: string;
-  rewrittenAnswer?: string;
-  rewrittenAnswerLength?: number;
-  finalAnswer?: string;
-  finalAnswerLength?: number;
+  /** @nullable */
+  questionResultId: string | null;
+  questionId: string;
+  order: number;
+  /** @nullable */
+  question: string | null;
+  /** @nullable */
+  maxAnswerLength: number | null;
+  /** @nullable */
+  originalAnswer: string | null;
+  /** @nullable */
+  originalAnswerLength: number | null;
+  /** @nullable */
+  aiReport: string | null;
+  /** @nullable */
+  rewrittenAnswer: string | null;
+  /** @nullable */
+  rewrittenAnswerLength: number | null;
+  /** @nullable */
+  finalAnswer: string | null;
+  /** @nullable */
+  finalAnswerLength: number | null;
 }
 
 export interface CoverLetterDetailResponse {
-  coverLetter?: CoverLetterResponse;
-  reviewVersion?: ReviewVersionResponse;
-  reviewJob?: ReviewJobResponse;
-  questions?: QuestionResponse[];
+  coverLetter: CoverLetterDetailCoverLetterResponse;
+  reviewVersion: CoverLetterDetailReviewVersionResponse | null;
+  reviewJob: ReviewJobResponse | null;
+  questions: QuestionResponse[];
 }
 
-export type Api007Params = {
+export type ListCoverLettersParams = {
 page?: number;
 size?: number;
 };

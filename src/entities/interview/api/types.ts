@@ -6,34 +6,35 @@
  * OpenAPI spec version: v1
  */
 export interface InterviewQuestionResponse {
-  id?: string;
-  order?: number;
-  question?: string;
-  threadId?: string;
+  id: string;
+  order: number;
+  question: string;
+  threadId: string;
 }
 
 export interface InterviewQuestionListResponse {
-  items?: InterviewQuestionResponse[];
-  nextCursor?: string;
+  items: InterviewQuestionResponse[];
+  /** @nullable */
+  nextCursor: string | null;
 }
 
 export interface ErrorDetail {
-  field?: string;
-  reason?: string;
+  field: string;
+  reason: string;
 }
 
 export interface ErrorBody {
-  code?: string;
-  message?: string;
-  details?: ErrorDetail[];
+  code: string;
+  message: string;
+  details: ErrorDetail[];
 }
 
 export interface ErrorResponse {
-  error?: ErrorBody;
+  error: ErrorBody;
 }
 
 export interface AddInterviewQuestionResponse {
-  jobId?: string;
+  jobId: string;
 }
 
 export type InterviewMessageResponseRole = typeof InterviewMessageResponseRole[keyof typeof InterviewMessageResponseRole];
@@ -45,16 +46,18 @@ export const InterviewMessageResponseRole = {
 } as const;
 
 export interface InterviewMessageResponse {
-  id?: string;
-  role?: InterviewMessageResponseRole;
-  content?: string;
-  score?: number;
-  createdAt?: string;
+  id: string;
+  role: InterviewMessageResponseRole;
+  content: string;
+  /** @nullable */
+  score: number | null;
+  createdAt: string;
 }
 
 export interface InterviewMessageListResponse {
-  jobId?: string;
-  items?: InterviewMessageResponse[];
+  /** @nullable */
+  jobId: string | null;
+  items: InterviewMessageResponse[];
 }
 
 export interface SendInterviewMessageRequest {
@@ -67,8 +70,8 @@ export interface SendInterviewMessageRequest {
 }
 
 export interface SendInterviewMessageResponse {
-  userMessageId?: string;
-  jobId?: string;
+  userMessageId: string;
+  jobId: string;
 }
 
 export type StartInterviewResponseStatus = typeof StartInterviewResponseStatus[keyof typeof StartInterviewResponseStatus];
@@ -81,29 +84,20 @@ export const StartInterviewResponseStatus = {
 } as const;
 
 export interface StartInterviewResponse {
-  interviewSessionId?: string;
-  jobId?: string;
-  status?: StartInterviewResponseStatus;
+  interviewSessionId: string;
+  /** @nullable */
+  jobId: string | null;
+  status: StartInterviewResponseStatus;
 }
 
-export type CoverLetterResponseDisplayStatus = typeof CoverLetterResponseDisplayStatus[keyof typeof CoverLetterResponseDisplayStatus];
-
-
-export const CoverLetterResponseDisplayStatus = {
-  WRITING: 'WRITING',
-  REVIEWING: 'REVIEWING',
-  REVIEWED: 'REVIEWED',
-  REVIEW_FAILED: 'REVIEW_FAILED',
-} as const;
-
-export interface CoverLetterResponse {
-  id?: string;
-  title?: string;
-  companyName?: string;
-  positionTitle?: string;
-  jobPostingUrl?: string;
-  preferences?: string;
-  displayStatus?: CoverLetterResponseDisplayStatus;
+export interface CurrentInterviewCoverLetterResponse {
+  id: string;
+  /** @nullable */
+  title: string | null;
+  /** @nullable */
+  companyName: string | null;
+  /** @nullable */
+  positionTitle: string | null;
 }
 
 export type InterviewSessionResponseStatus = typeof InterviewSessionResponseStatus[keyof typeof InterviewSessionResponseStatus];
@@ -116,19 +110,20 @@ export const InterviewSessionResponseStatus = {
 } as const;
 
 export interface InterviewSessionResponse {
-  id?: string;
-  initialSourceReviewVersionId?: string;
-  status?: InterviewSessionResponseStatus;
-  jobId?: string;
-  createdAt?: string;
+  id: string;
+  initialSourceReviewVersionId: string;
+  status: InterviewSessionResponseStatus;
+  /** @nullable */
+  jobId: string | null;
+  createdAt: string;
 }
 
 export interface CurrentInterviewResponse {
-  coverLetter?: CoverLetterResponse;
-  interviewSession?: InterviewSessionResponse;
+  coverLetter: CurrentInterviewCoverLetterResponse;
+  interviewSession: InterviewSessionResponse | null;
 }
 
-export type Api026Params = {
+export type ListInterviewQuestionsParams = {
 cursor?: string;
 size?: number;
 };

@@ -5,10 +5,10 @@
  * API 번호, 사용 화면, 호출 흐름과 오류 조건을 확인하는 Rewrite 백엔드 핵심 API 문서
  * OpenAPI spec version: v1
  */
-import { httpClient } from '../../../shared/api/httpClient';
-import type { SuccessResponse, ErrorDetail, ErrorBody, ErrorResponse, CurrentUserResponse, CsrfTokenResponse, Api002Params, Api001Params, Api001Target } from './types';
+import { httpClient } from '@/shared/api/httpClient';
+import type { SuccessResponse, ErrorDetail, ErrorBody, ErrorResponse, CurrentUserResponse, CsrfTokenResponse, HandleKakaoCallbackParams, StartKakaoLoginParams, StartKakaoLoginTarget } from './types';
 
-export const getApi004Url = () => {
+export const getRefreshAuthTokensUrl = () => {
 
 
 
@@ -42,9 +42,9 @@ export const getApi004Url = () => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-004 · 토큰 갱신
  */
-export const api004 = async ( options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
+export const refreshAuthTokens = async ( options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
 
-  return httpClient<SuccessResponse>(getApi004Url(),
+  return httpClient<SuccessResponse>(getRefreshAuthTokensUrl(),
   {
     ...options,
     method: 'POST'
@@ -55,7 +55,7 @@ export const api004 = async ( options?: Parameters<typeof httpClient>[1]): Promi
 
 
 
-export const getApi006Url = () => {
+export const getLogoutUrl = () => {
 
 
 
@@ -88,9 +88,9 @@ export const getApi006Url = () => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-006 · 로그아웃
  */
-export const api006 = async ( options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
+export const logout = async ( options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
 
-  return httpClient<SuccessResponse>(getApi006Url(),
+  return httpClient<SuccessResponse>(getLogoutUrl(),
   {
     ...options,
     method: 'POST'
@@ -101,7 +101,7 @@ export const api006 = async ( options?: Parameters<typeof httpClient>[1]): Promi
 
 
 
-export const getApi005Url = () => {
+export const getGetCurrentUserUrl = () => {
 
 
 
@@ -134,9 +134,9 @@ export const getApi005Url = () => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-005 · 내 정보 조회
  */
-export const api005 = async ( options?: Parameters<typeof httpClient>[1]): Promise<CurrentUserResponse> => {
+export const getCurrentUser = async ( options?: Parameters<typeof httpClient>[1]): Promise<CurrentUserResponse> => {
 
-  return httpClient<CurrentUserResponse>(getApi005Url(),
+  return httpClient<CurrentUserResponse>(getGetCurrentUserUrl(),
   {
     ...options,
     method: 'GET'
@@ -147,7 +147,7 @@ export const api005 = async ( options?: Parameters<typeof httpClient>[1]): Promi
 
 
 
-export const getApi002Url = (params?: Api002Params,) => {
+export const getHandleKakaoCallbackUrl = (params?: HandleKakaoCallbackParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -187,9 +187,9 @@ export const getApi002Url = (params?: Api002Params,) => {
  * | 302 | `KAKAO_LOGIN_FAILED` | state·nonce 검증, code 교환, 사용자 조회 또는 저장 실패 | 일반 로그인 실패 안내를 표시하고 내부 원인은 노출하지 않으며 자동 재시도하지 않는다. |
  * @summary API-002 · 카카오 OAuth callback
  */
-export const api002 = async (params?: Api002Params, options?: Parameters<typeof httpClient>[1]): Promise<unknown> => {
+export const handleKakaoCallback = async (params?: HandleKakaoCallbackParams, options?: Parameters<typeof httpClient>[1]): Promise<unknown> => {
 
-  return httpClient<unknown>(getApi002Url(params),
+  return httpClient<unknown>(getHandleKakaoCallbackUrl(params),
   {
     ...options,
     method: 'GET'
@@ -200,7 +200,7 @@ export const api002 = async (params?: Api002Params, options?: Parameters<typeof 
 
 
 
-export const getApi001Url = (params?: Api001Params,) => {
+export const getStartKakaoLoginUrl = (params?: StartKakaoLoginParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -239,9 +239,9 @@ export const getApi001Url = (params?: Api001Params,) => {
  * | 302 | `KAKAO_LOGIN_FAILED` | 카카오 인가 URL 생성 등 로그인 시작 처리 실패 | 로그인 화면에서 일반 실패 안내를 표시하고 버튼을 다시 활성화하며 자동 재시도하지 않는다. |
  * @summary API-001 · 카카오 로그인 시작
  */
-export const api001 = async (params?: Api001Params, options?: Parameters<typeof httpClient>[1]): Promise<unknown> => {
+export const startKakaoLogin = async (params?: StartKakaoLoginParams, options?: Parameters<typeof httpClient>[1]): Promise<unknown> => {
 
-  return httpClient<unknown>(getApi001Url(params),
+  return httpClient<unknown>(getStartKakaoLoginUrl(params),
   {
     ...options,
     method: 'GET'
@@ -252,7 +252,7 @@ export const api001 = async (params?: Api001Params, options?: Parameters<typeof 
 
 
 
-export const getApi003Url = () => {
+export const getGetCsrfTokenUrl = () => {
 
 
 
@@ -284,9 +284,9 @@ export const getApi003Url = () => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-003 · CSRF 토큰 조회
  */
-export const api003 = async ( options?: Parameters<typeof httpClient>[1]): Promise<CsrfTokenResponse> => {
+export const getCsrfToken = async ( options?: Parameters<typeof httpClient>[1]): Promise<CsrfTokenResponse> => {
 
-  return httpClient<CsrfTokenResponse>(getApi003Url(),
+  return httpClient<CsrfTokenResponse>(getGetCsrfTokenUrl(),
   {
     ...options,
     method: 'GET'

@@ -15,62 +15,50 @@ export const StartKeywordAnalysisResponseStatus = {
 } as const;
 
 export interface StartKeywordAnalysisResponse {
-  status?: StartKeywordAnalysisResponseStatus;
-  jobId?: string;
+  status: StartKeywordAnalysisResponseStatus;
+  jobId: string;
 }
 
 export interface ErrorDetail {
-  field?: string;
-  reason?: string;
+  field: string;
+  reason: string;
 }
 
 export interface ErrorBody {
-  code?: string;
-  message?: string;
-  details?: ErrorDetail[];
+  code: string;
+  message: string;
+  details: ErrorDetail[];
 }
 
 export interface ErrorResponse {
-  error?: ErrorBody;
+  error: ErrorBody;
 }
 
-export type CoverLetterResponseDisplayStatus = typeof CoverLetterResponseDisplayStatus[keyof typeof CoverLetterResponseDisplayStatus];
-
-
-export const CoverLetterResponseDisplayStatus = {
-  WRITING: 'WRITING',
-  REVIEWING: 'REVIEWING',
-  REVIEWED: 'REVIEWED',
-  REVIEW_FAILED: 'REVIEW_FAILED',
-} as const;
-
-export interface CoverLetterResponse {
-  id?: string;
-  title?: string;
-  companyName?: string;
-  positionTitle?: string;
-  jobPostingUrl?: string;
-  preferences?: string;
-  displayStatus?: CoverLetterResponseDisplayStatus;
+export interface KeywordAnalysisCoverLetterResponse {
+  id: string;
+  /** @nullable */
+  title: string | null;
+  /** @nullable */
+  companyName: string | null;
+  /** @nullable */
+  positionTitle: string | null;
 }
 
-export interface ReviewVersionResponse {
-  id?: string;
-  version?: string;
-  isLatest?: boolean;
-  requestInstruction?: string;
-  createdAt?: string;
+export interface KeywordAnalysisReviewVersionResponse {
+  id: string;
+  version: string;
 }
 
 export interface KeywordResponse {
-  keyword?: string;
-  importance?: number;
+  keyword: string;
+  importance: number;
 }
 
 export interface LatestKeywordAnalysisResponse {
-  coverLetter?: CoverLetterResponse;
-  sourceReviewVersion?: ReviewVersionResponse;
-  status?: string;
-  jobId?: string;
-  keywords?: KeywordResponse[];
+  coverLetter: KeywordAnalysisCoverLetterResponse;
+  sourceReviewVersion: KeywordAnalysisReviewVersionResponse | null;
+  status: string;
+  /** @nullable */
+  jobId: string | null;
+  keywords: KeywordResponse[];
 }

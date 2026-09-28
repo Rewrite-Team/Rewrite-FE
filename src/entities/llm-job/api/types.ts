@@ -16,35 +16,40 @@ export const LlmJobStateResponseStatus = {
   CANCELED: 'CANCELED',
 } as const;
 
-export interface ProgressResponse {
-  current?: number;
-  total?: number;
-  message?: string;
+export interface LlmJobProgressResponse {
+  current: number;
+  total: number;
+  message: string;
 }
 
 export interface ResultRefResponse {
-  type?: string;
-  id?: string;
+  type: string;
+  id: string;
 }
 
-export interface ErrorDetail {
-  field?: string;
-  reason?: string;
-}
-
-export interface ErrorBody {
-  code?: string;
-  message?: string;
-  details?: ErrorDetail[];
-}
-
-export interface ErrorResponse {
-  error?: ErrorBody;
+export interface LlmJobErrorResponse {
+  code: string;
+  message: string;
 }
 
 export interface LlmJobStateResponse {
-  status?: LlmJobStateResponseStatus;
-  progress?: ProgressResponse;
-  resultRef?: ResultRefResponse;
-  error?: ErrorResponse;
+  status: LlmJobStateResponseStatus;
+  progress: LlmJobProgressResponse;
+  resultRef: ResultRefResponse | null;
+  error: LlmJobErrorResponse | null;
+}
+
+export interface ErrorDetail {
+  field: string;
+  reason: string;
+}
+
+export interface ErrorBody {
+  code: string;
+  message: string;
+  details: ErrorDetail[];
+}
+
+export interface ErrorResponse {
+  error: ErrorBody;
 }

@@ -6,53 +6,54 @@
  * OpenAPI spec version: v1
  */
 export interface SuccessResponse {
-  success?: boolean;
+  success: boolean;
 }
 
 export interface ErrorDetail {
-  field?: string;
-  reason?: string;
+  field: string;
+  reason: string;
 }
 
 export interface ErrorBody {
-  code?: string;
-  message?: string;
-  details?: ErrorDetail[];
+  code: string;
+  message: string;
+  details: ErrorDetail[];
 }
 
 export interface ErrorResponse {
-  error?: ErrorBody;
+  error: ErrorBody;
 }
 
 export interface CurrentUserResponse {
-  id?: string;
-  nickname?: string;
-  profileImageUrl?: string;
-  provider?: string;
-  createdAt?: string;
+  id: string;
+  nickname: string;
+  /** @nullable */
+  profileImageUrl: string | null;
+  provider: string;
+  createdAt: string;
 }
 
 export interface CsrfTokenResponse {
-  csrfToken?: string;
+  csrfToken: string;
 }
 
-export type Api002Params = {
+export type HandleKakaoCallbackParams = {
 code?: string;
 error?: string;
 state?: string;
 };
 
-export type Api001Params = {
+export type StartKakaoLoginParams = {
 /**
  * 로그인 완료 후 이동할 프론트엔드 환경
  */
-target?: Api001Target;
+target?: StartKakaoLoginTarget;
 };
 
-export type Api001Target = typeof Api001Target[keyof typeof Api001Target];
+export type StartKakaoLoginTarget = typeof StartKakaoLoginTarget[keyof typeof StartKakaoLoginTarget];
 
 
-export const Api001Target = {
+export const StartKakaoLoginTarget = {
   local: 'local',
   production: 'production',
 } as const;

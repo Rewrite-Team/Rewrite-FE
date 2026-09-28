@@ -5,10 +5,10 @@
  * API 번호, 사용 화면, 호출 흐름과 오류 조건을 확인하는 Rewrite 백엔드 핵심 API 문서
  * OpenAPI spec version: v1
  */
-import { httpClient } from '../../../shared/api/httpClient';
-import type { LlmJobStateResponseStatus, ProgressResponse, ResultRefResponse, ErrorDetail, ErrorBody, ErrorResponse, LlmJobStateResponse } from './types';
+import { httpClient } from '@/shared/api/httpClient';
+import type { LlmJobStateResponseStatus, LlmJobProgressResponse, ResultRefResponse, LlmJobErrorResponse, LlmJobStateResponse, ErrorDetail, ErrorBody, ErrorResponse } from './types';
 
-export const getApi015Url = (jobId: string,) => {
+export const getGetLlmJobStatusUrl = (jobId: string,) => {
 
 
 
@@ -42,9 +42,9 @@ export const getApi015Url = (jobId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-015 · Job 상태 조회
  */
-export const api015 = async (jobId: string, options?: Parameters<typeof httpClient>[1]): Promise<LlmJobStateResponse> => {
+export const getLlmJobStatus = async (jobId: string, options?: Parameters<typeof httpClient>[1]): Promise<LlmJobStateResponse> => {
 
-  return httpClient<LlmJobStateResponse>(getApi015Url(jobId),
+  return httpClient<LlmJobStateResponse>(getGetLlmJobStatusUrl(jobId),
   {
     ...options,
     method: 'GET'
@@ -55,7 +55,7 @@ export const api015 = async (jobId: string, options?: Parameters<typeof httpClie
 
 
 
-export const getApi016Url = (jobId: string,) => {
+export const getStreamLlmJobEventsUrl = (jobId: string,) => {
 
 
 
@@ -92,9 +92,9 @@ export const getApi016Url = (jobId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-016 · Job 스트림
  */
-export const api016 = async (jobId: string, options?: Parameters<typeof httpClient>[1]): Promise<string> => {
+export const streamLlmJobEvents = async (jobId: string, options?: Parameters<typeof httpClient>[1]): Promise<string> => {
 
-  return httpClient<string>(getApi016Url(jobId),
+  return httpClient<string>(getStreamLlmJobEventsUrl(jobId),
   {
     ...options,
     method: 'GET'

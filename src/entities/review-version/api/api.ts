@@ -5,10 +5,10 @@
  * API 번호, 사용 화면, 호출 흐름과 오류 조건을 확인하는 Rewrite 백엔드 핵심 API 문서
  * OpenAPI spec version: v1
  */
-import { httpClient } from '../../../shared/api/httpClient';
-import type { AnswerRequest, SaveFinalAnswersRequest, SuccessResponse, ErrorDetail, ErrorBody, ErrorResponse, ReviewVersionListItemResponse, ReviewVersionListResponse, RequestReReviewRequest, RequestReReviewResponseDisplayStatus, RequestReReviewResponse, CoverLetterResponseDisplayStatus, CoverLetterResponse, ReviewVersionResponse, ReviewJobResponseStatus, ProgressResponse, ReviewJobResponse, QuestionResponse, CoverLetterDetailResponse } from './types';
+import { httpClient } from '@/shared/api/httpClient';
+import type { AnswerRequest, SaveFinalAnswersRequest, SuccessResponse, ErrorDetail, ErrorBody, ErrorResponse, ReviewVersionListItemResponse, ReviewVersionListResponse, RequestReReviewRequest, RequestReReviewResponseDisplayStatus, RequestReReviewResponse, CoverLetterDetailCoverLetterResponseDisplayStatus, CoverLetterDetailCoverLetterResponse, CoverLetterDetailReviewVersionResponse, ReviewJobResponseStatus, CoverLetterDetailProgressResponse, CoverLetterDetailJobErrorResponse, ReviewJobResponse, QuestionResponse, CoverLetterDetailResponse } from './types';
 
-export const getApi019Url = (coverLetterId: string,
+export const getSaveFinalAnswersUrl = (coverLetterId: string,
     versionId: string,) => {
 
 
@@ -46,7 +46,7 @@ export const getApi019Url = (coverLetterId: string,
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-019 · 최종 작성본 일괄 저장
  */
-export const api019 = async (coverLetterId: string,
+export const saveFinalAnswers = async (coverLetterId: string,
     versionId: string,
     saveFinalAnswersRequest: SaveFinalAnswersRequest, options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
 
@@ -64,7 +64,7 @@ export const api019 = async (coverLetterId: string,
     }
     return headers;
   };
-return httpClient<SuccessResponse>(getApi019Url(coverLetterId,versionId),
+return httpClient<SuccessResponse>(getSaveFinalAnswersUrl(coverLetterId,versionId),
   {
     ...options,
     method: 'PUT',
@@ -75,7 +75,7 @@ return httpClient<SuccessResponse>(getApi019Url(coverLetterId,versionId),
 
 
 
-export const getApi017Url = (coverLetterId: string,) => {
+export const getListReviewVersionsUrl = (coverLetterId: string,) => {
 
 
 
@@ -109,9 +109,9 @@ export const getApi017Url = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-017 · 첨삭 버전 목록 조회
  */
-export const api017 = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<ReviewVersionListResponse> => {
+export const listReviewVersions = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<ReviewVersionListResponse> => {
 
-  return httpClient<ReviewVersionListResponse>(getApi017Url(coverLetterId),
+  return httpClient<ReviewVersionListResponse>(getListReviewVersionsUrl(coverLetterId),
   {
     ...options,
     method: 'GET'
@@ -122,7 +122,7 @@ export const api017 = async (coverLetterId: string, options?: Parameters<typeof 
 
 
 
-export const getApi024Url = (coverLetterId: string,) => {
+export const getRequestReReviewUrl = (coverLetterId: string,) => {
 
 
 
@@ -160,7 +160,7 @@ export const getApi024Url = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-024 · AI 첨삭 다시받기
  */
-export const api024 = async (coverLetterId: string,
+export const requestReReview = async (coverLetterId: string,
     requestReReviewRequest?: RequestReReviewRequest, options?: Parameters<typeof httpClient>[1]): Promise<RequestReReviewResponse> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
@@ -177,7 +177,7 @@ export const api024 = async (coverLetterId: string,
     }
     return headers;
   };
-return httpClient<RequestReReviewResponse>(getApi024Url(coverLetterId),
+return httpClient<RequestReReviewResponse>(getRequestReReviewUrl(coverLetterId),
   {
     ...options,
     method: 'POST',
@@ -188,7 +188,7 @@ return httpClient<RequestReReviewResponse>(getApi024Url(coverLetterId),
 
 
 
-export const getApi018Url = (coverLetterId: string,
+export const getGetReviewVersionDetailUrl = (coverLetterId: string,
     versionId: string,) => {
 
 
@@ -223,10 +223,10 @@ export const getApi018Url = (coverLetterId: string,
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-018 · 첨삭 버전 상세 조회
  */
-export const api018 = async (coverLetterId: string,
+export const getReviewVersionDetail = async (coverLetterId: string,
     versionId: string, options?: Parameters<typeof httpClient>[1]): Promise<CoverLetterDetailResponse> => {
 
-  return httpClient<CoverLetterDetailResponse>(getApi018Url(coverLetterId,versionId),
+  return httpClient<CoverLetterDetailResponse>(getGetReviewVersionDetailUrl(coverLetterId,versionId),
   {
     ...options,
     method: 'GET'

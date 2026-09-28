@@ -5,10 +5,10 @@
  * API 번호, 사용 화면, 호출 흐름과 오류 조건을 확인하는 Rewrite 백엔드 핵심 API 문서
  * OpenAPI spec version: v1
  */
-import { httpClient } from '../../../shared/api/httpClient';
-import type { StartKeywordAnalysisResponseStatus, StartKeywordAnalysisResponse, ErrorDetail, ErrorBody, ErrorResponse, CoverLetterResponseDisplayStatus, CoverLetterResponse, ReviewVersionResponse, KeywordResponse, LatestKeywordAnalysisResponse } from './types';
+import { httpClient } from '@/shared/api/httpClient';
+import type { StartKeywordAnalysisResponseStatus, StartKeywordAnalysisResponse, ErrorDetail, ErrorBody, ErrorResponse, KeywordAnalysisCoverLetterResponse, KeywordAnalysisReviewVersionResponse, KeywordResponse, LatestKeywordAnalysisResponse } from './types';
 
-export const getApi020Url = (coverLetterId: string,) => {
+export const getStartKeywordAnalysisUrl = (coverLetterId: string,) => {
 
 
 
@@ -45,9 +45,9 @@ export const getApi020Url = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-020 · 키워드 분석 시작 또는 재분석
  */
-export const api020 = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<StartKeywordAnalysisResponse> => {
+export const startKeywordAnalysis = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<StartKeywordAnalysisResponse> => {
 
-  return httpClient<StartKeywordAnalysisResponse>(getApi020Url(coverLetterId),
+  return httpClient<StartKeywordAnalysisResponse>(getStartKeywordAnalysisUrl(coverLetterId),
   {
     ...options,
     method: 'POST'
@@ -58,7 +58,7 @@ export const api020 = async (coverLetterId: string, options?: Parameters<typeof 
 
 
 
-export const getApi021Url = (coverLetterId: string,) => {
+export const getGetLatestKeywordAnalysisUrl = (coverLetterId: string,) => {
 
 
 
@@ -92,9 +92,9 @@ export const getApi021Url = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-021 · 최신 키워드 분석 조회
  */
-export const api021 = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<LatestKeywordAnalysisResponse> => {
+export const getLatestKeywordAnalysis = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<LatestKeywordAnalysisResponse> => {
 
-  return httpClient<LatestKeywordAnalysisResponse>(getApi021Url(coverLetterId),
+  return httpClient<LatestKeywordAnalysisResponse>(getGetLatestKeywordAnalysisUrl(coverLetterId),
   {
     ...options,
     method: 'GET'

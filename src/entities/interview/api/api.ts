@@ -5,11 +5,11 @@
  * API 번호, 사용 화면, 호출 흐름과 오류 조건을 확인하는 Rewrite 백엔드 핵심 API 문서
  * OpenAPI spec version: v1
  */
-import { httpClient } from '../../../shared/api/httpClient';
-import type { InterviewQuestionResponse, InterviewQuestionListResponse, ErrorDetail, ErrorBody, ErrorResponse, AddInterviewQuestionResponse, InterviewMessageResponseRole, InterviewMessageResponse, InterviewMessageListResponse, SendInterviewMessageRequest, SendInterviewMessageResponse, StartInterviewResponseStatus, StartInterviewResponse, CoverLetterResponseDisplayStatus, CoverLetterResponse, InterviewSessionResponseStatus, InterviewSessionResponse, CurrentInterviewResponse, Api026Params } from './types';
+import { httpClient } from '@/shared/api/httpClient';
+import type { InterviewQuestionResponse, InterviewQuestionListResponse, ErrorDetail, ErrorBody, ErrorResponse, AddInterviewQuestionResponse, InterviewMessageResponseRole, InterviewMessageResponse, InterviewMessageListResponse, SendInterviewMessageRequest, SendInterviewMessageResponse, StartInterviewResponseStatus, StartInterviewResponse, CurrentInterviewCoverLetterResponse, InterviewSessionResponseStatus, InterviewSessionResponse, CurrentInterviewResponse, ListInterviewQuestionsParams } from './types';
 
-export const getApi026Url = (interviewSessionId: string,
-    params?: Api026Params,) => {
+export const getListInterviewQuestionsUrl = (interviewSessionId: string,
+    params?: ListInterviewQuestionsParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -51,10 +51,10 @@ export const getApi026Url = (interviewSessionId: string,
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-026 · 면접 질문 목록 조회
  */
-export const api026 = async (interviewSessionId: string,
-    params?: Api026Params, options?: Parameters<typeof httpClient>[1]): Promise<InterviewQuestionListResponse> => {
+export const listInterviewQuestions = async (interviewSessionId: string,
+    params?: ListInterviewQuestionsParams, options?: Parameters<typeof httpClient>[1]): Promise<InterviewQuestionListResponse> => {
 
-  return httpClient<InterviewQuestionListResponse>(getApi026Url(interviewSessionId,params),
+  return httpClient<InterviewQuestionListResponse>(getListInterviewQuestionsUrl(interviewSessionId,params),
   {
     ...options,
     method: 'GET'
@@ -65,7 +65,7 @@ export const api026 = async (interviewSessionId: string,
 
 
 
-export const getApi027Url = (interviewSessionId: string,) => {
+export const getGenerateInterviewQuestionsUrl = (interviewSessionId: string,) => {
 
 
 
@@ -102,9 +102,9 @@ export const getApi027Url = (interviewSessionId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-027 · 면접 질문 추가 생성
  */
-export const api027 = async (interviewSessionId: string, options?: Parameters<typeof httpClient>[1]): Promise<AddInterviewQuestionResponse> => {
+export const generateInterviewQuestions = async (interviewSessionId: string, options?: Parameters<typeof httpClient>[1]): Promise<AddInterviewQuestionResponse> => {
 
-  return httpClient<AddInterviewQuestionResponse>(getApi027Url(interviewSessionId),
+  return httpClient<AddInterviewQuestionResponse>(getGenerateInterviewQuestionsUrl(interviewSessionId),
   {
     ...options,
     method: 'POST'
@@ -115,7 +115,7 @@ export const api027 = async (interviewSessionId: string, options?: Parameters<ty
 
 
 
-export const getApi029Url = (threadId: string,) => {
+export const getListInterviewMessagesUrl = (threadId: string,) => {
 
 
 
@@ -149,9 +149,9 @@ export const getApi029Url = (threadId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-029 · 대화 메시지 조회
  */
-export const api029 = async (threadId: string, options?: Parameters<typeof httpClient>[1]): Promise<InterviewMessageListResponse> => {
+export const listInterviewMessages = async (threadId: string, options?: Parameters<typeof httpClient>[1]): Promise<InterviewMessageListResponse> => {
 
-  return httpClient<InterviewMessageListResponse>(getApi029Url(threadId),
+  return httpClient<InterviewMessageListResponse>(getListInterviewMessagesUrl(threadId),
   {
     ...options,
     method: 'GET'
@@ -162,7 +162,7 @@ export const api029 = async (threadId: string, options?: Parameters<typeof httpC
 
 
 
-export const getApi023Url = (threadId: string,) => {
+export const getSendInterviewMessageUrl = (threadId: string,) => {
 
 
 
@@ -199,7 +199,7 @@ export const getApi023Url = (threadId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-023 · 사용자 답변 전송
  */
-export const api023 = async (threadId: string,
+export const sendInterviewMessage = async (threadId: string,
     sendInterviewMessageRequest?: SendInterviewMessageRequest, options?: Parameters<typeof httpClient>[1]): Promise<SendInterviewMessageResponse> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
@@ -216,7 +216,7 @@ export const api023 = async (threadId: string,
     }
     return headers;
   };
-return httpClient<SendInterviewMessageResponse>(getApi023Url(threadId),
+return httpClient<SendInterviewMessageResponse>(getSendInterviewMessageUrl(threadId),
   {
     ...options,
     method: 'POST',
@@ -227,7 +227,7 @@ return httpClient<SendInterviewMessageResponse>(getApi023Url(threadId),
 
 
 
-export const getApi022Url = (coverLetterId: string,) => {
+export const getStartInterviewUrl = (coverLetterId: string,) => {
 
 
 
@@ -264,9 +264,9 @@ export const getApi022Url = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-022 · 모의면접 시작
  */
-export const api022 = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<StartInterviewResponse> => {
+export const startInterview = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<StartInterviewResponse> => {
 
-  return httpClient<StartInterviewResponse>(getApi022Url(coverLetterId),
+  return httpClient<StartInterviewResponse>(getStartInterviewUrl(coverLetterId),
   {
     ...options,
     method: 'POST'
@@ -277,7 +277,7 @@ export const api022 = async (coverLetterId: string, options?: Parameters<typeof 
 
 
 
-export const getApi025Url = (coverLetterId: string,) => {
+export const getGetCurrentInterviewUrl = (coverLetterId: string,) => {
 
 
 
@@ -311,9 +311,9 @@ export const getApi025Url = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-025 · 현재 면접 세션 조회
  */
-export const api025 = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<CurrentInterviewResponse> => {
+export const getCurrentInterview = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<CurrentInterviewResponse> => {
 
-  return httpClient<CurrentInterviewResponse>(getApi025Url(coverLetterId),
+  return httpClient<CurrentInterviewResponse>(getGetCurrentInterviewUrl(coverLetterId),
   {
     ...options,
     method: 'GET'

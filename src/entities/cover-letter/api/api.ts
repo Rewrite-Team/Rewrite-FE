@@ -5,10 +5,10 @@
  * API 번호, 사용 화면, 호출 흐름과 오류 조건을 확인하는 Rewrite 백엔드 핵심 API 문서
  * OpenAPI spec version: v1
  */
-import { httpClient } from '../../../shared/api/httpClient';
-import type { QuestionRequest, SaveQuestionsRequest, SuccessResponse, ErrorDetail, ErrorBody, ErrorResponse, SavePreferencesRequest, SaveBasicInfoRequest, CoverLetterListItemResponseDisplayStatus, CoverLetterListItemResponse, CoverLetterListResponse, CreateCoverLetterResponse, SubmitCoverLetterResponseDisplayStatus, SubmitCoverLetterResponse, CoverLetterResponseDisplayStatus, CoverLetterResponse, ReviewVersionResponse, ReviewJobResponseStatus, ProgressResponse, ReviewJobResponse, QuestionResponse, CoverLetterDetailResponse, Api007Params } from './types';
+import { httpClient } from '@/shared/api/httpClient';
+import type { QuestionRequest, SaveQuestionsRequest, SuccessResponse, ErrorDetail, ErrorBody, ErrorResponse, SavePreferencesRequest, SaveBasicInfoRequest, CoverLetterListItemResponseDisplayStatus, CoverLetterListItemResponse, CoverLetterListResponse, CreateCoverLetterResponse, SubmitCoverLetterResponseDisplayStatus, SubmitCoverLetterResponse, CoverLetterDetailCoverLetterResponseDisplayStatus, CoverLetterDetailCoverLetterResponse, CoverLetterDetailReviewVersionResponse, ReviewJobResponseStatus, CoverLetterDetailProgressResponse, CoverLetterDetailJobErrorResponse, ReviewJobResponse, QuestionResponse, CoverLetterDetailResponse, ListCoverLettersParams } from './types';
 
-export const getApi011Url = (coverLetterId: string,) => {
+export const getSaveCoverLetterQuestionsUrl = (coverLetterId: string,) => {
 
 
 
@@ -45,7 +45,7 @@ export const getApi011Url = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-011 · 질문과 답변 저장
  */
-export const api011 = async (coverLetterId: string,
+export const saveCoverLetterQuestions = async (coverLetterId: string,
     saveQuestionsRequest: SaveQuestionsRequest, options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
@@ -62,7 +62,7 @@ export const api011 = async (coverLetterId: string,
     }
     return headers;
   };
-return httpClient<SuccessResponse>(getApi011Url(coverLetterId),
+return httpClient<SuccessResponse>(getSaveCoverLetterQuestionsUrl(coverLetterId),
   {
     ...options,
     method: 'PUT',
@@ -73,7 +73,7 @@ return httpClient<SuccessResponse>(getApi011Url(coverLetterId),
 
 
 
-export const getApi010Url = (coverLetterId: string,) => {
+export const getSaveCoverLetterPreferencesUrl = (coverLetterId: string,) => {
 
 
 
@@ -110,7 +110,7 @@ export const getApi010Url = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-010 · 채용 우대사항 저장
  */
-export const api010 = async (coverLetterId: string,
+export const saveCoverLetterPreferences = async (coverLetterId: string,
     savePreferencesRequest: SavePreferencesRequest, options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
@@ -127,7 +127,7 @@ export const api010 = async (coverLetterId: string,
     }
     return headers;
   };
-return httpClient<SuccessResponse>(getApi010Url(coverLetterId),
+return httpClient<SuccessResponse>(getSaveCoverLetterPreferencesUrl(coverLetterId),
   {
     ...options,
     method: 'PUT',
@@ -138,7 +138,7 @@ return httpClient<SuccessResponse>(getApi010Url(coverLetterId),
 
 
 
-export const getApi009Url = (coverLetterId: string,) => {
+export const getSaveCoverLetterBasicInfoUrl = (coverLetterId: string,) => {
 
 
 
@@ -177,7 +177,7 @@ export const getApi009Url = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-009 · 기본 정보 저장
  */
-export const api009 = async (coverLetterId: string,
+export const saveCoverLetterBasicInfo = async (coverLetterId: string,
     saveBasicInfoRequest: SaveBasicInfoRequest, options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
@@ -194,7 +194,7 @@ export const api009 = async (coverLetterId: string,
     }
     return headers;
   };
-return httpClient<SuccessResponse>(getApi009Url(coverLetterId),
+return httpClient<SuccessResponse>(getSaveCoverLetterBasicInfoUrl(coverLetterId),
   {
     ...options,
     method: 'PUT',
@@ -205,7 +205,7 @@ return httpClient<SuccessResponse>(getApi009Url(coverLetterId),
 
 
 
-export const getApi007Url = (params?: Api007Params,) => {
+export const getListCoverLettersUrl = (params?: ListCoverLettersParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -246,9 +246,9 @@ export const getApi007Url = (params?: Api007Params,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-007 · 내 자기소개서 목록 조회
  */
-export const api007 = async (params?: Api007Params, options?: Parameters<typeof httpClient>[1]): Promise<CoverLetterListResponse> => {
+export const listCoverLetters = async (params?: ListCoverLettersParams, options?: Parameters<typeof httpClient>[1]): Promise<CoverLetterListResponse> => {
 
-  return httpClient<CoverLetterListResponse>(getApi007Url(params),
+  return httpClient<CoverLetterListResponse>(getListCoverLettersUrl(params),
   {
     ...options,
     method: 'GET'
@@ -259,7 +259,7 @@ export const api007 = async (params?: Api007Params, options?: Parameters<typeof 
 
 
 
-export const getApi008Url = () => {
+export const getCreateCoverLetterUrl = () => {
 
 
 
@@ -293,9 +293,9 @@ export const getApi008Url = () => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-008 · 자기소개서 생성
  */
-export const api008 = async ( options?: Parameters<typeof httpClient>[1]): Promise<CreateCoverLetterResponse> => {
+export const createCoverLetter = async ( options?: Parameters<typeof httpClient>[1]): Promise<CreateCoverLetterResponse> => {
 
-  return httpClient<CreateCoverLetterResponse>(getApi008Url(),
+  return httpClient<CreateCoverLetterResponse>(getCreateCoverLetterUrl(),
   {
     ...options,
     method: 'POST'
@@ -306,7 +306,7 @@ export const api008 = async ( options?: Parameters<typeof httpClient>[1]): Promi
 
 
 
-export const getApi014Url = (coverLetterId: string,) => {
+export const getSubmitCoverLetterUrl = (coverLetterId: string,) => {
 
 
 
@@ -347,9 +347,9 @@ export const getApi014Url = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-014 · 자기소개서 제출 및 최초 AI 첨삭 요청
  */
-export const api014 = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<SubmitCoverLetterResponse> => {
+export const submitCoverLetter = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<SubmitCoverLetterResponse> => {
 
-  return httpClient<SubmitCoverLetterResponse>(getApi014Url(coverLetterId),
+  return httpClient<SubmitCoverLetterResponse>(getSubmitCoverLetterUrl(coverLetterId),
   {
     ...options,
     method: 'POST'
@@ -360,7 +360,7 @@ export const api014 = async (coverLetterId: string, options?: Parameters<typeof 
 
 
 
-export const getApi012Url = (coverLetterId: string,) => {
+export const getGetCoverLetterDetailUrl = (coverLetterId: string,) => {
 
 
 
@@ -394,9 +394,9 @@ export const getApi012Url = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-012 · 자기소개서 상세 조회
  */
-export const api012 = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<CoverLetterDetailResponse> => {
+export const getCoverLetterDetail = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<CoverLetterDetailResponse> => {
 
-  return httpClient<CoverLetterDetailResponse>(getApi012Url(coverLetterId),
+  return httpClient<CoverLetterDetailResponse>(getGetCoverLetterDetailUrl(coverLetterId),
   {
     ...options,
     method: 'GET'
@@ -407,7 +407,7 @@ export const api012 = async (coverLetterId: string, options?: Parameters<typeof 
 
 
 
-export const getApi013Url = (coverLetterId: string,) => {
+export const getDeleteCoverLetterUrl = (coverLetterId: string,) => {
 
 
 
@@ -442,9 +442,9 @@ export const getApi013Url = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-013 · 자기소개서 삭제
  */
-export const api013 = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
+export const deleteCoverLetter = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
 
-  return httpClient<SuccessResponse>(getApi013Url(coverLetterId),
+  return httpClient<SuccessResponse>(getDeleteCoverLetterUrl(coverLetterId),
   {
     ...options,
     method: 'DELETE'
@@ -455,7 +455,7 @@ export const api013 = async (coverLetterId: string, options?: Parameters<typeof 
 
 
 
-export const getApi030Url = () => {
+export const getStreamCoverLetterReviewStatusesUrl = () => {
 
 
 
@@ -488,9 +488,9 @@ export const getApi030Url = () => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-030 · 내 자기소개서 첨삭 상태 스트림
  */
-export const api030 = async ( options?: Parameters<typeof httpClient>[1]): Promise<string> => {
+export const streamCoverLetterReviewStatuses = async ( options?: Parameters<typeof httpClient>[1]): Promise<string> => {
 
-  return httpClient<string>(getApi030Url(),
+  return httpClient<string>(getStreamCoverLetterReviewStatusesUrl(),
   {
     ...options,
     method: 'GET'

@@ -16,7 +16,7 @@ const createEntityConfig = (tag: string, entity: string) => ({
         includeHttpResponseReturnType: false,
       },
       mutator: {
-        path: './src/shared/api/httpClient.ts',
+        path: '@/shared/api/httpClient',
         name: 'httpClient',
       },
     },
@@ -24,10 +24,10 @@ const createEntityConfig = (tag: string, entity: string) => ({
 });
 
 export default defineConfig({
-  user: createEntityConfig('인증', 'user'),
-  coverLetter: createEntityConfig('자기소개서', 'cover-letter'),
-  reviewVersion: createEntityConfig('첨삭 버전', 'review-version'),
-  keywordAnalysis: createEntityConfig('키워드 분석', 'keyword-analysis'),
-  interview: createEntityConfig('AI 면접', 'interview'),
-  llmJob: createEntityConfig('LLM Job', 'llm-job'),
+  user: createEntityConfig('Auth', 'user'),
+  coverLetter: createEntityConfig('CoverLetters', 'cover-letter'),
+  reviewVersion: createEntityConfig('ReviewVersions', 'review-version'),
+  keywordAnalysis: createEntityConfig('KeywordAnalysis', 'keyword-analysis'),
+  interview: createEntityConfig('Interviews', 'interview'),
+  llmJob: createEntityConfig('LLMJobs', 'llm-job'),
 });
