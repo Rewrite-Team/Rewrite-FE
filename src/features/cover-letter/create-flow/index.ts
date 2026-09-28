@@ -15,3 +15,5 @@ export type {
   CoverLetterStep4Input,
   CoverLetterStep4Values,
 } from './model/schemas/coverLetterCreateSchemas';
+export { WRITING_CREATE_STEPS } from './model/writingCreateStep';
+export type { WritingCreateStep } from './model/writingCreateStep';

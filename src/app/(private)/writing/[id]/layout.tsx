@@ -1,6 +1,6 @@
 import { getMockReviewVersions } from '@/features/review-version/version-management';
 
-import '@/shared/styles/layouts/writing-detail.css';
+import '@/widgets/cover-letter-detail/writing-detail.css';
 
 import { WritingDetailLayoutClient } from './_components/WritingDetailLayoutClient';
 

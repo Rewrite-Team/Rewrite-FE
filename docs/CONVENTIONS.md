@@ -147,6 +147,8 @@ import { DeleteWritingButton } from '@/features/writing/delete-writing';
 ```
 
 `export *`는 사용하지 않는다. 공개할 항목을 명시적으로 export한다.
+단, OpenAPI에서 매번 공개 항목이 바뀌는 `api/api.ts`, `api/types.ts`를 entity의 public API로
+다시 내보내는 경우에는 해당 생성 파일에 한해 `export *`를 허용한다.
 
 ```ts
 export { WritingCard } from './ui/WritingCard';
@@ -168,7 +170,9 @@ widgets/slice-name/
 
 entities/entity-name/
 ├── api/
-│   └── types.ts      # API 요청·응답 DTO 타입
+│   ├── api.ts        # 자동 생성된 API 요청 함수
+│   ├── types.ts      # 자동 생성된 요청·응답 DTO
+│   └── queryKeys.ts  # entity별 TanStack Query key
 └── model/
     └── types.ts      # 도메인 모델 타입
 
@@ -238,10 +242,12 @@ const getButtonLabel = () => '저장';
 
 서버 상태는 TanStack Query를 사용한다.
 
-query key는 한 파일에서 관리한다.
+query key는 entity별 `api/queryKeys.ts`에서 관리한다. 서로 다른 entity의 query key를
+`shared/constants` 한 파일에 모으지 않는다.
 
 ```txt
-src/shared/constants/queryKey.ts
+src/entities/cover-letter/api/queryKeys.ts
+src/entities/interview/api/queryKeys.ts
 ```
 
 Zustand는 전역 상태가 필요할 때만 사용한다.
@@ -255,7 +261,24 @@ Zustand는 전역 상태가 필요할 때만 사용한다.
 
 ## 7. API
 
-API 함수명은 `get`, `create`, `update`, `delete`를 기준으로 작성한다.
+백엔드 OpenAPI 명세를 Orval로 생성하며, entity당 API가 약 20개 이하이면 요청 함수는
+`api/api.ts`, DTO는 `api/types.ts`로 관리한다. API와 DTO가 수십~수백 개로 늘어나면 해당 entity
+안에서 생성 파일을 더 나누고, 생성 DTO를 여러 entity가 실제로 공유하면 공통 모델 분리를 검토한다.
+
+```bash
+pnpm api:spec      # 원격 OpenAPI 명세 저장
+pnpm api:generate  # 저장된 명세로 코드 생성
+pnpm api:sync      # 명세 저장 후 코드 생성
+```
+
+`api.ts`와 `types.ts`는 직접 수정하지 않는다. 생성되는 함수명과 타입명은 백엔드 `operationId`를
+따르므로 의미 없는 이름은 프론트에서 수동으로 고치지 않고 백엔드 명세 수정 후 다시 생성한다.
+
+`text/event-stream` SSE와 3xx 브라우저 redirect operation은 일반 `httpClient` 요청 함수 생성에서
+제외한다. 경로 helper만 entity에서 공개하고 SSE는 `EventSource` 또는 `ReadableStream`, redirect는
+`href`나 `window.location`으로 처리한다.
+
+수동으로 API 함수를 추가해야 하는 경우 함수명은 `get`, `create`, `update`, `delete`를 기준으로 작성한다.
 
 ```ts
 getWritingList();
@@ -265,7 +288,7 @@ updateWriting();
 deleteWriting();
 ```
 
-API 함수는 가능하면 entity의 `api` 폴더에 둔다.
+API 함수는 entity의 `api` 폴더에 둔다.
 
 ```txt
 entities/writing/api/getWritingList.ts

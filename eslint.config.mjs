@@ -150,6 +150,9 @@ const eslintConfig = defineConfig([
     'build/**',
     'storybook-static/**',
     'next-env.d.ts',
+    'src/entities/**/api/api.ts',
+    'src/entities/**/api/types.ts',
+    'src/entities/**/api/__generated.ts',
   ]),
   prettier,
   ...storybookConfigs['flat/recommended'],
@@ -160,6 +163,9 @@ const eslintConfig = defineConfig([
     'build/**',
     'storybook-static/**',
     'next-env.d.ts',
+    'src/entities/**/api/api.ts',
+    'src/entities/**/api/types.ts',
+    'src/entities/**/api/__generated.ts',
   ]),
 ]);
 

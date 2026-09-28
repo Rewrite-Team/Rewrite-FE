@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from 'react';
 
-import type { KeywordAnalysisKeyword } from '@/entities/keyword-analysis';
-import { MOCK_KEYWORD_ANALYSIS_KEYWORDS } from '@/shared/mocks';
+import {
+  MOCK_KEYWORD_ANALYSIS_KEYWORDS,
+  type KeywordAnalysisKeyword,
+} from '@/entities/keyword-analysis';
 import { Title } from '@/shared/ui/title';
 
 import { KeywordBubbleCloud } from '../bubble-cloud/KeywordBubbleCloud';

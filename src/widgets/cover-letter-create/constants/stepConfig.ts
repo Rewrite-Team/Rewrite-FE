@@ -1,4 +1,4 @@
-import type { WritingCreateStep } from '@/shared/types/writingCreate';
+import type { WritingCreateStep } from '@/features/cover-letter/create-flow';
 
 interface CoverLetterStepDisplayConfig {
   description: string;

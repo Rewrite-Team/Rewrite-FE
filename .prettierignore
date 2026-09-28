@@ -22,3 +22,8 @@ node_modules
 
 # 문서 파일
 *.md
+
+# OpenAPI 자동 생성 코드
+src/entities/**/api/api.ts
+src/entities/**/api/types.ts
+src/entities/**/api/__generated.ts
