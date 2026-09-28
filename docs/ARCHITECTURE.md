@@ -30,7 +30,8 @@ app
 ```txt
 src/
 ├── app/
-│   ├── (public)/
+│   ├── (auth)/
+│   ├── (landing)/
 │   └── (private)/
 ├── widgets/
 ├── features/
@@ -50,7 +51,11 @@ src/
 
 ```txt
 src/app/
-├── (public)/
+├── (auth)/
+│   ├── layout.tsx
+│   └── login/page.tsx
+├── (landing)/
+│   ├── layout.tsx
 │   └── page.tsx
 └── (private)/
     ├── layout.tsx
@@ -84,7 +89,11 @@ Next.js 라우팅, 레이아웃, 메타데이터, 서버/클라이언트 경계 
 ```txt
 app/
 ├── layout.tsx
-├── (public)/
+├── (auth)/
+│   ├── layout.tsx
+│   └── login/page.tsx
+├── (landing)/
+│   ├── layout.tsx
 │   └── page.tsx
 └── (private)/
     ├── layout.tsx

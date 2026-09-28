@@ -81,7 +81,7 @@ export function Header({
         ) : (
           <nav aria-label="게스트 메뉴" className="flex items-center">
             <LinkButton
-              className="h-9 w-auto rounded-full border border-primary-300/40 bg-primary-500 px-5 text-white shadow-header-login-button transition-all duration-200 hover:-translate-y-0.5 hover:border-primary-100 hover:bg-primary-400 hover:shadow-header-login-button-hover active:translate-y-0 active:bg-primary-600"
+              className="h-9 w-auto rounded-full border border-primary-300/40 bg-primary-500 px-5 text-white transition-colors duration-200 hover:border-primary-100 hover:bg-primary-400 active:bg-primary-600"
               href={loginHref}
               size="sm"
               variant="primary"
