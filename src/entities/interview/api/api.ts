@@ -6,23 +6,45 @@
  * OpenAPI spec version: v1
  */
 import { httpClient } from '@/shared/api/httpClient';
-import type { InterviewQuestionResponse, InterviewQuestionListResponse, ErrorDetail, ErrorBody, ErrorResponse, AddInterviewQuestionResponse, InterviewMessageResponseRole, InterviewMessageResponse, InterviewMessageListResponse, SendInterviewMessageRequest, SendInterviewMessageResponse, StartInterviewResponseStatus, StartInterviewResponse, CurrentInterviewCoverLetterResponse, InterviewSessionResponseStatus, InterviewSessionResponse, CurrentInterviewResponse, ListInterviewQuestionsParams } from './types';
+import type {
+  InterviewQuestionResponse,
+  InterviewQuestionListResponse,
+  ErrorDetail,
+  ErrorBody,
+  ErrorResponse,
+  AddInterviewQuestionResponse,
+  InterviewMessageResponseRole,
+  InterviewMessageResponse,
+  InterviewMessageListResponse,
+  SendInterviewMessageRequest,
+  SendInterviewMessageResponse,
+  StartInterviewResponseStatus,
+  StartInterviewResponse,
+  CurrentInterviewCoverLetterResponse,
+  InterviewSessionResponseStatus,
+  InterviewSessionResponse,
+  CurrentInterviewResponse,
+  ListInterviewQuestionsParams,
+} from './types';
 
-export const getListInterviewQuestionsUrl = (interviewSessionId: string,
-    params?: ListInterviewQuestionsParams,) => {
+export const getListInterviewQuestionsUrl = (
+  interviewSessionId: string,
+  params?: ListInterviewQuestionsParams
+) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value))
+      normalizedParams.append(key, value === null ? 'null' : String(value));
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/interviews/${interviewSessionId}/questions?${stringifiedParams}` : `/interviews/${interviewSessionId}/questions`
-}
+  return stringifiedParams.length > 0
+    ? `/interviews/${interviewSessionId}/questions?${stringifiedParams}`
+    : `/interviews/${interviewSessionId}/questions`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 불필요
@@ -51,27 +73,23 @@ export const getListInterviewQuestionsUrl = (interviewSessionId: string,
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-026 · 면접 질문 목록 조회
  */
-export const listInterviewQuestions = async (interviewSessionId: string,
-    params?: ListInterviewQuestionsParams, options?: Parameters<typeof httpClient>[1]): Promise<InterviewQuestionListResponse> => {
+export const listInterviewQuestions = async (
+  interviewSessionId: string,
+  params?: ListInterviewQuestionsParams,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<InterviewQuestionListResponse> => {
+  return httpClient<InterviewQuestionListResponse>(
+    getListInterviewQuestionsUrl(interviewSessionId, params),
+    {
+      ...options,
+      method: 'GET',
+    }
+  );
+};
 
-  return httpClient<InterviewQuestionListResponse>(getListInterviewQuestionsUrl(interviewSessionId,params),
-  {
-    ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
-
-export const getGenerateInterviewQuestionsUrl = (interviewSessionId: string,) => {
-
-
-
-
-  return `/interviews/${interviewSessionId}/questions`
-}
+export const getGenerateInterviewQuestionsUrl = (interviewSessionId: string) => {
+  return `/interviews/${interviewSessionId}/questions`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 필요
@@ -102,26 +120,22 @@ export const getGenerateInterviewQuestionsUrl = (interviewSessionId: string,) =>
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-027 · 면접 질문 추가 생성
  */
-export const generateInterviewQuestions = async (interviewSessionId: string, options?: Parameters<typeof httpClient>[1]): Promise<AddInterviewQuestionResponse> => {
+export const generateInterviewQuestions = async (
+  interviewSessionId: string,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<AddInterviewQuestionResponse> => {
+  return httpClient<AddInterviewQuestionResponse>(
+    getGenerateInterviewQuestionsUrl(interviewSessionId),
+    {
+      ...options,
+      method: 'POST',
+    }
+  );
+};
 
-  return httpClient<AddInterviewQuestionResponse>(getGenerateInterviewQuestionsUrl(interviewSessionId),
-  {
-    ...options,
-    method: 'POST'
-
-
-  }
-);}
-
-
-
-export const getListInterviewMessagesUrl = (threadId: string,) => {
-
-
-
-
-  return `/interview-threads/${threadId}/messages`
-}
+export const getListInterviewMessagesUrl = (threadId: string) => {
+  return `/interview-threads/${threadId}/messages`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 불필요
@@ -149,26 +163,19 @@ export const getListInterviewMessagesUrl = (threadId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-029 · 대화 메시지 조회
  */
-export const listInterviewMessages = async (threadId: string, options?: Parameters<typeof httpClient>[1]): Promise<InterviewMessageListResponse> => {
-
-  return httpClient<InterviewMessageListResponse>(getListInterviewMessagesUrl(threadId),
-  {
+export const listInterviewMessages = async (
+  threadId: string,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<InterviewMessageListResponse> => {
+  return httpClient<InterviewMessageListResponse>(getListInterviewMessagesUrl(threadId), {
     ...options,
-    method: 'GET'
+    method: 'GET',
+  });
+};
 
-
-  }
-);}
-
-
-
-export const getSendInterviewMessageUrl = (threadId: string,) => {
-
-
-
-
-  return `/interview-threads/${threadId}/messages`
-}
+export const getSendInterviewMessageUrl = (threadId: string) => {
+  return `/interview-threads/${threadId}/messages`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 필요
@@ -199,15 +206,22 @@ export const getSendInterviewMessageUrl = (threadId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-023 · 사용자 답변 전송
  */
-export const sendInterviewMessage = async (threadId: string,
-    sendInterviewMessageRequest?: SendInterviewMessageRequest, options?: Parameters<typeof httpClient>[1]): Promise<SendInterviewMessageResponse> => {
-
-    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+export const sendInterviewMessage = async (
+  threadId: string,
+  sendInterviewMessageRequest?: SendInterviewMessageRequest,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<SendInterviewMessageResponse> => {
+  const getHeaders = (
+    h?: NonNullable<RequestInit['headers']>
+  ): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
-        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+        Array.from(
+          h as Iterable<Iterable<string>>,
+          (entry) => Array.from(entry) as [string, string]
+        )
       );
     }
     const headers: Record<string, string | readonly string[]> = {};
@@ -216,24 +230,17 @@ export const sendInterviewMessage = async (threadId: string,
     }
     return headers;
   };
-return httpClient<SendInterviewMessageResponse>(getSendInterviewMessageUrl(threadId),
-  {
+  return httpClient<SendInterviewMessageResponse>(getSendInterviewMessageUrl(threadId), {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(sendInterviewMessageRequest)
-  }
-);}
+    body: JSON.stringify(sendInterviewMessageRequest),
+  });
+};
 
-
-
-export const getStartInterviewUrl = (coverLetterId: string,) => {
-
-
-
-
-  return `/cover-letters/${coverLetterId}/interviews`
-}
+export const getStartInterviewUrl = (coverLetterId: string) => {
+  return `/cover-letters/${coverLetterId}/interviews`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 필요
@@ -264,26 +271,19 @@ export const getStartInterviewUrl = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-022 · 모의면접 시작
  */
-export const startInterview = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<StartInterviewResponse> => {
-
-  return httpClient<StartInterviewResponse>(getStartInterviewUrl(coverLetterId),
-  {
+export const startInterview = async (
+  coverLetterId: string,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<StartInterviewResponse> => {
+  return httpClient<StartInterviewResponse>(getStartInterviewUrl(coverLetterId), {
     ...options,
-    method: 'POST'
+    method: 'POST',
+  });
+};
 
-
-  }
-);}
-
-
-
-export const getGetCurrentInterviewUrl = (coverLetterId: string,) => {
-
-
-
-
-  return `/cover-letters/${coverLetterId}/interview`
-}
+export const getGetCurrentInterviewUrl = (coverLetterId: string) => {
+  return `/cover-letters/${coverLetterId}/interview`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 불필요
@@ -311,13 +311,12 @@ export const getGetCurrentInterviewUrl = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-025 · 현재 면접 세션 조회
  */
-export const getCurrentInterview = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<CurrentInterviewResponse> => {
-
-  return httpClient<CurrentInterviewResponse>(getGetCurrentInterviewUrl(coverLetterId),
-  {
+export const getCurrentInterview = async (
+  coverLetterId: string,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<CurrentInterviewResponse> => {
+  return httpClient<CurrentInterviewResponse>(getGetCurrentInterviewUrl(coverLetterId), {
     ...options,
-    method: 'GET'
-
-
-  }
-);}
+    method: 'GET',
+  });
+};

@@ -6,15 +6,21 @@
  * OpenAPI spec version: v1
  */
 import { httpClient } from '@/shared/api/httpClient';
-import type { SuccessResponse, ErrorDetail, ErrorBody, ErrorResponse, CurrentUserResponse, CsrfTokenResponse, HandleKakaoCallbackParams, StartKakaoLoginParams, StartKakaoLoginTarget } from './types';
+import type {
+  SuccessResponse,
+  ErrorDetail,
+  ErrorBody,
+  ErrorResponse,
+  CurrentUserResponse,
+  CsrfTokenResponse,
+  HandleKakaoCallbackParams,
+  StartKakaoLoginParams,
+  StartKakaoLoginTarget,
+} from './types';
 
 export const getRefreshAuthTokensUrl = () => {
-
-
-
-
-  return `/auth/refresh`
-}
+  return `/auth/refresh`;
+};
 
 /**
  * > 인증: 불필요 · CSRF: 필요
@@ -42,26 +48,18 @@ export const getRefreshAuthTokensUrl = () => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-004 · 토큰 갱신
  */
-export const refreshAuthTokens = async ( options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
-
-  return httpClient<SuccessResponse>(getRefreshAuthTokensUrl(),
-  {
+export const refreshAuthTokens = async (
+  options?: Parameters<typeof httpClient>[1]
+): Promise<SuccessResponse> => {
+  return httpClient<SuccessResponse>(getRefreshAuthTokensUrl(), {
     ...options,
-    method: 'POST'
-
-
-  }
-);}
-
-
+    method: 'POST',
+  });
+};
 
 export const getLogoutUrl = () => {
-
-
-
-
-  return `/auth/logout`
-}
+  return `/auth/logout`;
+};
 
 /**
  * > 인증: 불필요 · CSRF: 필요
@@ -88,26 +86,18 @@ export const getLogoutUrl = () => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-006 · 로그아웃
  */
-export const logout = async ( options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
-
-  return httpClient<SuccessResponse>(getLogoutUrl(),
-  {
+export const logout = async (
+  options?: Parameters<typeof httpClient>[1]
+): Promise<SuccessResponse> => {
+  return httpClient<SuccessResponse>(getLogoutUrl(), {
     ...options,
-    method: 'POST'
-
-
-  }
-);}
-
-
+    method: 'POST',
+  });
+};
 
 export const getGetCurrentUserUrl = () => {
-
-
-
-
-  return `/user/me`
-}
+  return `/user/me`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 불필요
@@ -134,33 +124,30 @@ export const getGetCurrentUserUrl = () => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-005 · 내 정보 조회
  */
-export const getCurrentUser = async ( options?: Parameters<typeof httpClient>[1]): Promise<CurrentUserResponse> => {
-
-  return httpClient<CurrentUserResponse>(getGetCurrentUserUrl(),
-  {
+export const getCurrentUser = async (
+  options?: Parameters<typeof httpClient>[1]
+): Promise<CurrentUserResponse> => {
+  return httpClient<CurrentUserResponse>(getGetCurrentUserUrl(), {
     ...options,
-    method: 'GET'
+    method: 'GET',
+  });
+};
 
-
-  }
-);}
-
-
-
-export const getHandleKakaoCallbackUrl = (params?: HandleKakaoCallbackParams,) => {
+export const getHandleKakaoCallbackUrl = (params?: HandleKakaoCallbackParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value))
+      normalizedParams.append(key, value === null ? 'null' : String(value));
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/auth/kakao/callback?${stringifiedParams}` : `/auth/kakao/callback`
-}
+  return stringifiedParams.length > 0
+    ? `/auth/kakao/callback?${stringifiedParams}`
+    : `/auth/kakao/callback`;
+};
 
 /**
  * > 인증: 불필요 · CSRF: 불필요
@@ -187,33 +174,31 @@ export const getHandleKakaoCallbackUrl = (params?: HandleKakaoCallbackParams,) =
  * | 302 | `KAKAO_LOGIN_FAILED` | state·nonce 검증, code 교환, 사용자 조회 또는 저장 실패 | 일반 로그인 실패 안내를 표시하고 내부 원인은 노출하지 않으며 자동 재시도하지 않는다. |
  * @summary API-002 · 카카오 OAuth callback
  */
-export const handleKakaoCallback = async (params?: HandleKakaoCallbackParams, options?: Parameters<typeof httpClient>[1]): Promise<unknown> => {
-
-  return httpClient<unknown>(getHandleKakaoCallbackUrl(params),
-  {
+export const handleKakaoCallback = async (
+  params?: HandleKakaoCallbackParams,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<unknown> => {
+  return httpClient<unknown>(getHandleKakaoCallbackUrl(params), {
     ...options,
-    method: 'GET'
+    method: 'GET',
+  });
+};
 
-
-  }
-);}
-
-
-
-export const getStartKakaoLoginUrl = (params?: StartKakaoLoginParams,) => {
+export const getStartKakaoLoginUrl = (params?: StartKakaoLoginParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value))
+      normalizedParams.append(key, value === null ? 'null' : String(value));
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/auth/kakao/authorize?${stringifiedParams}` : `/auth/kakao/authorize`
-}
+  return stringifiedParams.length > 0
+    ? `/auth/kakao/authorize?${stringifiedParams}`
+    : `/auth/kakao/authorize`;
+};
 
 /**
  * > 인증: 불필요 · CSRF: 불필요
@@ -239,26 +224,19 @@ export const getStartKakaoLoginUrl = (params?: StartKakaoLoginParams,) => {
  * | 302 | `KAKAO_LOGIN_FAILED` | 카카오 인가 URL 생성 등 로그인 시작 처리 실패 | 로그인 화면에서 일반 실패 안내를 표시하고 버튼을 다시 활성화하며 자동 재시도하지 않는다. |
  * @summary API-001 · 카카오 로그인 시작
  */
-export const startKakaoLogin = async (params?: StartKakaoLoginParams, options?: Parameters<typeof httpClient>[1]): Promise<unknown> => {
-
-  return httpClient<unknown>(getStartKakaoLoginUrl(params),
-  {
+export const startKakaoLogin = async (
+  params?: StartKakaoLoginParams,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<unknown> => {
+  return httpClient<unknown>(getStartKakaoLoginUrl(params), {
     ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
+    method: 'GET',
+  });
+};
 
 export const getGetCsrfTokenUrl = () => {
-
-
-
-
-  return `/auth/csrf-token`
-}
+  return `/auth/csrf-token`;
+};
 
 /**
  * > 인증: 불필요 · CSRF: 불필요
@@ -284,13 +262,11 @@ export const getGetCsrfTokenUrl = () => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-003 · CSRF 토큰 조회
  */
-export const getCsrfToken = async ( options?: Parameters<typeof httpClient>[1]): Promise<CsrfTokenResponse> => {
-
-  return httpClient<CsrfTokenResponse>(getGetCsrfTokenUrl(),
-  {
+export const getCsrfToken = async (
+  options?: Parameters<typeof httpClient>[1]
+): Promise<CsrfTokenResponse> => {
+  return httpClient<CsrfTokenResponse>(getGetCsrfTokenUrl(), {
     ...options,
-    method: 'GET'
-
-
-  }
-);}
+    method: 'GET',
+  });
+};

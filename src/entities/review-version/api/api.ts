@@ -6,16 +6,32 @@
  * OpenAPI spec version: v1
  */
 import { httpClient } from '@/shared/api/httpClient';
-import type { AnswerRequest, SaveFinalAnswersRequest, SuccessResponse, ErrorDetail, ErrorBody, ErrorResponse, ReviewVersionListItemResponse, ReviewVersionListResponse, RequestReReviewRequest, RequestReReviewResponseDisplayStatus, RequestReReviewResponse, CoverLetterDetailCoverLetterResponseDisplayStatus, CoverLetterDetailCoverLetterResponse, CoverLetterDetailReviewVersionResponse, ReviewJobResponseStatus, CoverLetterDetailProgressResponse, CoverLetterDetailJobErrorResponse, ReviewJobResponse, QuestionResponse, CoverLetterDetailResponse } from './types';
+import type {
+  AnswerRequest,
+  SaveFinalAnswersRequest,
+  SuccessResponse,
+  ErrorDetail,
+  ErrorBody,
+  ErrorResponse,
+  ReviewVersionListItemResponse,
+  ReviewVersionListResponse,
+  RequestReReviewRequest,
+  RequestReReviewResponseDisplayStatus,
+  RequestReReviewResponse,
+  CoverLetterDetailCoverLetterResponseDisplayStatus,
+  CoverLetterDetailCoverLetterResponse,
+  CoverLetterDetailReviewVersionResponse,
+  ReviewJobResponseStatus,
+  CoverLetterDetailProgressResponse,
+  CoverLetterDetailJobErrorResponse,
+  ReviewJobResponse,
+  QuestionResponse,
+  CoverLetterDetailResponse,
+} from './types';
 
-export const getSaveFinalAnswersUrl = (coverLetterId: string,
-    versionId: string,) => {
-
-
-
-
-  return `/cover-letters/${coverLetterId}/review-versions/${versionId}/final-answers`
-}
+export const getSaveFinalAnswersUrl = (coverLetterId: string, versionId: string) => {
+  return `/cover-letters/${coverLetterId}/review-versions/${versionId}/final-answers`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 필요
@@ -46,16 +62,23 @@ export const getSaveFinalAnswersUrl = (coverLetterId: string,
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-019 · 최종 작성본 일괄 저장
  */
-export const saveFinalAnswers = async (coverLetterId: string,
-    versionId: string,
-    saveFinalAnswersRequest: SaveFinalAnswersRequest, options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
-
-    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+export const saveFinalAnswers = async (
+  coverLetterId: string,
+  versionId: string,
+  saveFinalAnswersRequest: SaveFinalAnswersRequest,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<SuccessResponse> => {
+  const getHeaders = (
+    h?: NonNullable<RequestInit['headers']>
+  ): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
-        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+        Array.from(
+          h as Iterable<Iterable<string>>,
+          (entry) => Array.from(entry) as [string, string]
+        )
       );
     }
     const headers: Record<string, string | readonly string[]> = {};
@@ -64,24 +87,17 @@ export const saveFinalAnswers = async (coverLetterId: string,
     }
     return headers;
   };
-return httpClient<SuccessResponse>(getSaveFinalAnswersUrl(coverLetterId,versionId),
-  {
+  return httpClient<SuccessResponse>(getSaveFinalAnswersUrl(coverLetterId, versionId), {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(saveFinalAnswersRequest)
-  }
-);}
+    body: JSON.stringify(saveFinalAnswersRequest),
+  });
+};
 
-
-
-export const getListReviewVersionsUrl = (coverLetterId: string,) => {
-
-
-
-
-  return `/cover-letters/${coverLetterId}/review-versions`
-}
+export const getListReviewVersionsUrl = (coverLetterId: string) => {
+  return `/cover-letters/${coverLetterId}/review-versions`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 불필요
@@ -109,26 +125,19 @@ export const getListReviewVersionsUrl = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-017 · 첨삭 버전 목록 조회
  */
-export const listReviewVersions = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<ReviewVersionListResponse> => {
-
-  return httpClient<ReviewVersionListResponse>(getListReviewVersionsUrl(coverLetterId),
-  {
+export const listReviewVersions = async (
+  coverLetterId: string,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<ReviewVersionListResponse> => {
+  return httpClient<ReviewVersionListResponse>(getListReviewVersionsUrl(coverLetterId), {
     ...options,
-    method: 'GET'
+    method: 'GET',
+  });
+};
 
-
-  }
-);}
-
-
-
-export const getRequestReReviewUrl = (coverLetterId: string,) => {
-
-
-
-
-  return `/cover-letters/${coverLetterId}/review-versions`
-}
+export const getRequestReReviewUrl = (coverLetterId: string) => {
+  return `/cover-letters/${coverLetterId}/review-versions`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 필요
@@ -160,15 +169,22 @@ export const getRequestReReviewUrl = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-024 · AI 첨삭 다시받기
  */
-export const requestReReview = async (coverLetterId: string,
-    requestReReviewRequest?: RequestReReviewRequest, options?: Parameters<typeof httpClient>[1]): Promise<RequestReReviewResponse> => {
-
-    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+export const requestReReview = async (
+  coverLetterId: string,
+  requestReReviewRequest?: RequestReReviewRequest,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<RequestReReviewResponse> => {
+  const getHeaders = (
+    h?: NonNullable<RequestInit['headers']>
+  ): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
-        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+        Array.from(
+          h as Iterable<Iterable<string>>,
+          (entry) => Array.from(entry) as [string, string]
+        )
       );
     }
     const headers: Record<string, string | readonly string[]> = {};
@@ -177,25 +193,17 @@ export const requestReReview = async (coverLetterId: string,
     }
     return headers;
   };
-return httpClient<RequestReReviewResponse>(getRequestReReviewUrl(coverLetterId),
-  {
+  return httpClient<RequestReReviewResponse>(getRequestReReviewUrl(coverLetterId), {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(requestReReviewRequest)
-  }
-);}
+    body: JSON.stringify(requestReReviewRequest),
+  });
+};
 
-
-
-export const getGetReviewVersionDetailUrl = (coverLetterId: string,
-    versionId: string,) => {
-
-
-
-
-  return `/cover-letters/${coverLetterId}/review-versions/${versionId}`
-}
+export const getGetReviewVersionDetailUrl = (coverLetterId: string, versionId: string) => {
+  return `/cover-letters/${coverLetterId}/review-versions/${versionId}`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 불필요
@@ -223,14 +231,16 @@ export const getGetReviewVersionDetailUrl = (coverLetterId: string,
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-018 · 첨삭 버전 상세 조회
  */
-export const getReviewVersionDetail = async (coverLetterId: string,
-    versionId: string, options?: Parameters<typeof httpClient>[1]): Promise<CoverLetterDetailResponse> => {
-
-  return httpClient<CoverLetterDetailResponse>(getGetReviewVersionDetailUrl(coverLetterId,versionId),
-  {
-    ...options,
-    method: 'GET'
-
-
-  }
-);}
+export const getReviewVersionDetail = async (
+  coverLetterId: string,
+  versionId: string,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<CoverLetterDetailResponse> => {
+  return httpClient<CoverLetterDetailResponse>(
+    getGetReviewVersionDetailUrl(coverLetterId, versionId),
+    {
+      ...options,
+      method: 'GET',
+    }
+  );
+};

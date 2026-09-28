@@ -6,15 +6,36 @@
  * OpenAPI spec version: v1
  */
 import { httpClient } from '@/shared/api/httpClient';
-import type { QuestionRequest, SaveQuestionsRequest, SuccessResponse, ErrorDetail, ErrorBody, ErrorResponse, SavePreferencesRequest, SaveBasicInfoRequest, CoverLetterListItemResponseDisplayStatus, CoverLetterListItemResponse, CoverLetterListResponse, CreateCoverLetterResponse, SubmitCoverLetterResponseDisplayStatus, SubmitCoverLetterResponse, CoverLetterDetailCoverLetterResponseDisplayStatus, CoverLetterDetailCoverLetterResponse, CoverLetterDetailReviewVersionResponse, ReviewJobResponseStatus, CoverLetterDetailProgressResponse, CoverLetterDetailJobErrorResponse, ReviewJobResponse, QuestionResponse, CoverLetterDetailResponse, ListCoverLettersParams } from './types';
+import type {
+  QuestionRequest,
+  SaveQuestionsRequest,
+  SuccessResponse,
+  ErrorDetail,
+  ErrorBody,
+  ErrorResponse,
+  SavePreferencesRequest,
+  SaveBasicInfoRequest,
+  CoverLetterListItemResponseDisplayStatus,
+  CoverLetterListItemResponse,
+  CoverLetterListResponse,
+  CreateCoverLetterResponse,
+  SubmitCoverLetterResponseDisplayStatus,
+  SubmitCoverLetterResponse,
+  CoverLetterDetailCoverLetterResponseDisplayStatus,
+  CoverLetterDetailCoverLetterResponse,
+  CoverLetterDetailReviewVersionResponse,
+  ReviewJobResponseStatus,
+  CoverLetterDetailProgressResponse,
+  CoverLetterDetailJobErrorResponse,
+  ReviewJobResponse,
+  QuestionResponse,
+  CoverLetterDetailResponse,
+  ListCoverLettersParams,
+} from './types';
 
-export const getSaveCoverLetterQuestionsUrl = (coverLetterId: string,) => {
-
-
-
-
-  return `/cover-letters/${coverLetterId}/questions`
-}
+export const getSaveCoverLetterQuestionsUrl = (coverLetterId: string) => {
+  return `/cover-letters/${coverLetterId}/questions`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 필요
@@ -45,15 +66,22 @@ export const getSaveCoverLetterQuestionsUrl = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-011 · 질문과 답변 저장
  */
-export const saveCoverLetterQuestions = async (coverLetterId: string,
-    saveQuestionsRequest: SaveQuestionsRequest, options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
-
-    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+export const saveCoverLetterQuestions = async (
+  coverLetterId: string,
+  saveQuestionsRequest: SaveQuestionsRequest,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<SuccessResponse> => {
+  const getHeaders = (
+    h?: NonNullable<RequestInit['headers']>
+  ): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
-        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+        Array.from(
+          h as Iterable<Iterable<string>>,
+          (entry) => Array.from(entry) as [string, string]
+        )
       );
     }
     const headers: Record<string, string | readonly string[]> = {};
@@ -62,24 +90,17 @@ export const saveCoverLetterQuestions = async (coverLetterId: string,
     }
     return headers;
   };
-return httpClient<SuccessResponse>(getSaveCoverLetterQuestionsUrl(coverLetterId),
-  {
+  return httpClient<SuccessResponse>(getSaveCoverLetterQuestionsUrl(coverLetterId), {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(saveQuestionsRequest)
-  }
-);}
+    body: JSON.stringify(saveQuestionsRequest),
+  });
+};
 
-
-
-export const getSaveCoverLetterPreferencesUrl = (coverLetterId: string,) => {
-
-
-
-
-  return `/cover-letters/${coverLetterId}/preferences`
-}
+export const getSaveCoverLetterPreferencesUrl = (coverLetterId: string) => {
+  return `/cover-letters/${coverLetterId}/preferences`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 필요
@@ -110,15 +131,22 @@ export const getSaveCoverLetterPreferencesUrl = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-010 · 채용 우대사항 저장
  */
-export const saveCoverLetterPreferences = async (coverLetterId: string,
-    savePreferencesRequest: SavePreferencesRequest, options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
-
-    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+export const saveCoverLetterPreferences = async (
+  coverLetterId: string,
+  savePreferencesRequest: SavePreferencesRequest,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<SuccessResponse> => {
+  const getHeaders = (
+    h?: NonNullable<RequestInit['headers']>
+  ): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
-        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+        Array.from(
+          h as Iterable<Iterable<string>>,
+          (entry) => Array.from(entry) as [string, string]
+        )
       );
     }
     const headers: Record<string, string | readonly string[]> = {};
@@ -127,24 +155,17 @@ export const saveCoverLetterPreferences = async (coverLetterId: string,
     }
     return headers;
   };
-return httpClient<SuccessResponse>(getSaveCoverLetterPreferencesUrl(coverLetterId),
-  {
+  return httpClient<SuccessResponse>(getSaveCoverLetterPreferencesUrl(coverLetterId), {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(savePreferencesRequest)
-  }
-);}
+    body: JSON.stringify(savePreferencesRequest),
+  });
+};
 
-
-
-export const getSaveCoverLetterBasicInfoUrl = (coverLetterId: string,) => {
-
-
-
-
-  return `/cover-letters/${coverLetterId}/basic-info`
-}
+export const getSaveCoverLetterBasicInfoUrl = (coverLetterId: string) => {
+  return `/cover-letters/${coverLetterId}/basic-info`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 필요
@@ -177,15 +198,22 @@ export const getSaveCoverLetterBasicInfoUrl = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-009 · 기본 정보 저장
  */
-export const saveCoverLetterBasicInfo = async (coverLetterId: string,
-    saveBasicInfoRequest: SaveBasicInfoRequest, options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
-
-    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+export const saveCoverLetterBasicInfo = async (
+  coverLetterId: string,
+  saveBasicInfoRequest: SaveBasicInfoRequest,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<SuccessResponse> => {
+  const getHeaders = (
+    h?: NonNullable<RequestInit['headers']>
+  ): Record<string, string | readonly string[]> => {
     if (!h) return {};
     if (h instanceof Headers) return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
-        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+        Array.from(
+          h as Iterable<Iterable<string>>,
+          (entry) => Array.from(entry) as [string, string]
+        )
       );
     }
     const headers: Record<string, string | readonly string[]> = {};
@@ -194,31 +222,27 @@ export const saveCoverLetterBasicInfo = async (coverLetterId: string,
     }
     return headers;
   };
-return httpClient<SuccessResponse>(getSaveCoverLetterBasicInfoUrl(coverLetterId),
-  {
+  return httpClient<SuccessResponse>(getSaveCoverLetterBasicInfoUrl(coverLetterId), {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(saveBasicInfoRequest)
-  }
-);}
+    body: JSON.stringify(saveBasicInfoRequest),
+  });
+};
 
-
-
-export const getListCoverLettersUrl = (params?: ListCoverLettersParams,) => {
+export const getListCoverLettersUrl = (params?: ListCoverLettersParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value))
+      normalizedParams.append(key, value === null ? 'null' : String(value));
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/cover-letters?${stringifiedParams}` : `/cover-letters`
-}
+  return stringifiedParams.length > 0 ? `/cover-letters?${stringifiedParams}` : `/cover-letters`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 불필요
@@ -246,26 +270,19 @@ export const getListCoverLettersUrl = (params?: ListCoverLettersParams,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-007 · 내 자기소개서 목록 조회
  */
-export const listCoverLetters = async (params?: ListCoverLettersParams, options?: Parameters<typeof httpClient>[1]): Promise<CoverLetterListResponse> => {
-
-  return httpClient<CoverLetterListResponse>(getListCoverLettersUrl(params),
-  {
+export const listCoverLetters = async (
+  params?: ListCoverLettersParams,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<CoverLetterListResponse> => {
+  return httpClient<CoverLetterListResponse>(getListCoverLettersUrl(params), {
     ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
+    method: 'GET',
+  });
+};
 
 export const getCreateCoverLetterUrl = () => {
-
-
-
-
-  return `/cover-letters`
-}
+  return `/cover-letters`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 필요
@@ -293,26 +310,18 @@ export const getCreateCoverLetterUrl = () => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-008 · 자기소개서 생성
  */
-export const createCoverLetter = async ( options?: Parameters<typeof httpClient>[1]): Promise<CreateCoverLetterResponse> => {
-
-  return httpClient<CreateCoverLetterResponse>(getCreateCoverLetterUrl(),
-  {
+export const createCoverLetter = async (
+  options?: Parameters<typeof httpClient>[1]
+): Promise<CreateCoverLetterResponse> => {
+  return httpClient<CreateCoverLetterResponse>(getCreateCoverLetterUrl(), {
     ...options,
-    method: 'POST'
+    method: 'POST',
+  });
+};
 
-
-  }
-);}
-
-
-
-export const getSubmitCoverLetterUrl = (coverLetterId: string,) => {
-
-
-
-
-  return `/cover-letters/${coverLetterId}/submit`
-}
+export const getSubmitCoverLetterUrl = (coverLetterId: string) => {
+  return `/cover-letters/${coverLetterId}/submit`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 필요
@@ -347,26 +356,19 @@ export const getSubmitCoverLetterUrl = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-014 · 자기소개서 제출 및 최초 AI 첨삭 요청
  */
-export const submitCoverLetter = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<SubmitCoverLetterResponse> => {
-
-  return httpClient<SubmitCoverLetterResponse>(getSubmitCoverLetterUrl(coverLetterId),
-  {
+export const submitCoverLetter = async (
+  coverLetterId: string,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<SubmitCoverLetterResponse> => {
+  return httpClient<SubmitCoverLetterResponse>(getSubmitCoverLetterUrl(coverLetterId), {
     ...options,
-    method: 'POST'
+    method: 'POST',
+  });
+};
 
-
-  }
-);}
-
-
-
-export const getGetCoverLetterDetailUrl = (coverLetterId: string,) => {
-
-
-
-
-  return `/cover-letters/${coverLetterId}`
-}
+export const getGetCoverLetterDetailUrl = (coverLetterId: string) => {
+  return `/cover-letters/${coverLetterId}`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 불필요
@@ -394,26 +396,19 @@ export const getGetCoverLetterDetailUrl = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-012 · 자기소개서 상세 조회
  */
-export const getCoverLetterDetail = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<CoverLetterDetailResponse> => {
-
-  return httpClient<CoverLetterDetailResponse>(getGetCoverLetterDetailUrl(coverLetterId),
-  {
+export const getCoverLetterDetail = async (
+  coverLetterId: string,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<CoverLetterDetailResponse> => {
+  return httpClient<CoverLetterDetailResponse>(getGetCoverLetterDetailUrl(coverLetterId), {
     ...options,
-    method: 'GET'
+    method: 'GET',
+  });
+};
 
-
-  }
-);}
-
-
-
-export const getDeleteCoverLetterUrl = (coverLetterId: string,) => {
-
-
-
-
-  return `/cover-letters/${coverLetterId}`
-}
+export const getDeleteCoverLetterUrl = (coverLetterId: string) => {
+  return `/cover-letters/${coverLetterId}`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 필요
@@ -442,26 +437,19 @@ export const getDeleteCoverLetterUrl = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-013 · 자기소개서 삭제
  */
-export const deleteCoverLetter = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<SuccessResponse> => {
-
-  return httpClient<SuccessResponse>(getDeleteCoverLetterUrl(coverLetterId),
-  {
+export const deleteCoverLetter = async (
+  coverLetterId: string,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<SuccessResponse> => {
+  return httpClient<SuccessResponse>(getDeleteCoverLetterUrl(coverLetterId), {
     ...options,
-    method: 'DELETE'
-
-
-  }
-);}
-
-
+    method: 'DELETE',
+  });
+};
 
 export const getStreamCoverLetterReviewStatusesUrl = () => {
-
-
-
-
-  return `/cover-letters/stream`
-}
+  return `/cover-letters/stream`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 불필요
@@ -488,13 +476,11 @@ export const getStreamCoverLetterReviewStatusesUrl = () => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-030 · 내 자기소개서 첨삭 상태 스트림
  */
-export const streamCoverLetterReviewStatuses = async ( options?: Parameters<typeof httpClient>[1]): Promise<string> => {
-
-  return httpClient<string>(getStreamCoverLetterReviewStatusesUrl(),
-  {
+export const streamCoverLetterReviewStatuses = async (
+  options?: Parameters<typeof httpClient>[1]
+): Promise<string> => {
+  return httpClient<string>(getStreamCoverLetterReviewStatusesUrl(), {
     ...options,
-    method: 'GET'
-
-
-  }
-);}
+    method: 'GET',
+  });
+};

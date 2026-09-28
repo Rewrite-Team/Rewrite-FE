@@ -9,6 +9,7 @@ const createEntityConfig = (tag: string, entity: string) => ({
   },
   output: {
     client: 'fetch' as const,
+    formatter: 'prettier' as const,
     mode: 'single' as const,
     target: `./src/entities/${entity}/api/__generated.ts`,
     override: {

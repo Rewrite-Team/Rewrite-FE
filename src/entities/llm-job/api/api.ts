@@ -6,15 +6,20 @@
  * OpenAPI spec version: v1
  */
 import { httpClient } from '@/shared/api/httpClient';
-import type { LlmJobStateResponseStatus, LlmJobProgressResponse, ResultRefResponse, LlmJobErrorResponse, LlmJobStateResponse, ErrorDetail, ErrorBody, ErrorResponse } from './types';
+import type {
+  LlmJobStateResponseStatus,
+  LlmJobProgressResponse,
+  ResultRefResponse,
+  LlmJobErrorResponse,
+  LlmJobStateResponse,
+  ErrorDetail,
+  ErrorBody,
+  ErrorResponse,
+} from './types';
 
-export const getGetLlmJobStatusUrl = (jobId: string,) => {
-
-
-
-
-  return `/llm-jobs/${jobId}`
-}
+export const getGetLlmJobStatusUrl = (jobId: string) => {
+  return `/llm-jobs/${jobId}`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 불필요
@@ -42,26 +47,19 @@ export const getGetLlmJobStatusUrl = (jobId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-015 · Job 상태 조회
  */
-export const getLlmJobStatus = async (jobId: string, options?: Parameters<typeof httpClient>[1]): Promise<LlmJobStateResponse> => {
-
-  return httpClient<LlmJobStateResponse>(getGetLlmJobStatusUrl(jobId),
-  {
+export const getLlmJobStatus = async (
+  jobId: string,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<LlmJobStateResponse> => {
+  return httpClient<LlmJobStateResponse>(getGetLlmJobStatusUrl(jobId), {
     ...options,
-    method: 'GET'
+    method: 'GET',
+  });
+};
 
-
-  }
-);}
-
-
-
-export const getStreamLlmJobEventsUrl = (jobId: string,) => {
-
-
-
-
-  return `/llm-jobs/${jobId}/stream`
-}
+export const getStreamLlmJobEventsUrl = (jobId: string) => {
+  return `/llm-jobs/${jobId}/stream`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 불필요
@@ -92,13 +90,12 @@ export const getStreamLlmJobEventsUrl = (jobId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-016 · Job 스트림
  */
-export const streamLlmJobEvents = async (jobId: string, options?: Parameters<typeof httpClient>[1]): Promise<string> => {
-
-  return httpClient<string>(getStreamLlmJobEventsUrl(jobId),
-  {
+export const streamLlmJobEvents = async (
+  jobId: string,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<string> => {
+  return httpClient<string>(getStreamLlmJobEventsUrl(jobId), {
     ...options,
-    method: 'GET'
-
-
-  }
-);}
+    method: 'GET',
+  });
+};

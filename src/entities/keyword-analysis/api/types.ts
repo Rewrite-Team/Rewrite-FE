@@ -5,8 +5,8 @@
  * API 번호, 사용 화면, 호출 흐름과 오류 조건을 확인하는 Rewrite 백엔드 핵심 API 문서
  * OpenAPI spec version: v1
  */
-export type StartKeywordAnalysisResponseStatus = typeof StartKeywordAnalysisResponseStatus[keyof typeof StartKeywordAnalysisResponseStatus];
-
+export type StartKeywordAnalysisResponseStatus =
+  (typeof StartKeywordAnalysisResponseStatus)[keyof typeof StartKeywordAnalysisResponseStatus];
 
 export const StartKeywordAnalysisResponseStatus = {
   PROCESSING: 'PROCESSING',

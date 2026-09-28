@@ -38,20 +38,20 @@ export interface CsrfTokenResponse {
 }
 
 export type HandleKakaoCallbackParams = {
-code?: string;
-error?: string;
-state?: string;
+  code?: string;
+  error?: string;
+  state?: string;
 };
 
 export type StartKakaoLoginParams = {
-/**
- * 로그인 완료 후 이동할 프론트엔드 환경
- */
-target?: StartKakaoLoginTarget;
+  /**
+   * 로그인 완료 후 이동할 프론트엔드 환경
+   */
+  target?: StartKakaoLoginTarget;
 };
 
-export type StartKakaoLoginTarget = typeof StartKakaoLoginTarget[keyof typeof StartKakaoLoginTarget];
-
+export type StartKakaoLoginTarget =
+  (typeof StartKakaoLoginTarget)[keyof typeof StartKakaoLoginTarget];
 
 export const StartKakaoLoginTarget = {
   local: 'local',

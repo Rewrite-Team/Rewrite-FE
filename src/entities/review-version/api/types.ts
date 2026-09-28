@@ -9,10 +9,10 @@ export interface AnswerRequest {
   /** 저장할 첨삭 문항 결과 ID */
   questionResultId: string;
   /**
-     * 최종 작성본. trim 후 1자 이상 5000자 이하
-     * @minLength 1
-     * @maxLength 5000
-     */
+   * 최종 작성본. trim 후 1자 이상 5000자 이하
+   * @minLength 1
+   * @maxLength 5000
+   */
   finalAnswer: string;
 }
 
@@ -53,15 +53,15 @@ export interface ReviewVersionListResponse {
 
 export interface RequestReReviewRequest {
   /**
-     * 재첨삭 요구사항. 값이 있으면 trim 후 최대 1000자
-     * @maxLength 1000
-     * @nullable
-     */
+   * 재첨삭 요구사항. 값이 있으면 trim 후 최대 1000자
+   * @maxLength 1000
+   * @nullable
+   */
   requestInstruction?: string | null;
 }
 
-export type RequestReReviewResponseDisplayStatus = typeof RequestReReviewResponseDisplayStatus[keyof typeof RequestReReviewResponseDisplayStatus];
-
+export type RequestReReviewResponseDisplayStatus =
+  (typeof RequestReReviewResponseDisplayStatus)[keyof typeof RequestReReviewResponseDisplayStatus];
 
 export const RequestReReviewResponseDisplayStatus = {
   WRITING: 'WRITING',
@@ -75,8 +75,8 @@ export interface RequestReReviewResponse {
   jobId: string;
 }
 
-export type CoverLetterDetailCoverLetterResponseDisplayStatus = typeof CoverLetterDetailCoverLetterResponseDisplayStatus[keyof typeof CoverLetterDetailCoverLetterResponseDisplayStatus];
-
+export type CoverLetterDetailCoverLetterResponseDisplayStatus =
+  (typeof CoverLetterDetailCoverLetterResponseDisplayStatus)[keyof typeof CoverLetterDetailCoverLetterResponseDisplayStatus];
 
 export const CoverLetterDetailCoverLetterResponseDisplayStatus = {
   WRITING: 'WRITING',
@@ -109,8 +109,8 @@ export interface CoverLetterDetailReviewVersionResponse {
   createdAt: string;
 }
 
-export type ReviewJobResponseStatus = typeof ReviewJobResponseStatus[keyof typeof ReviewJobResponseStatus];
-
+export type ReviewJobResponseStatus =
+  (typeof ReviewJobResponseStatus)[keyof typeof ReviewJobResponseStatus];
 
 export const ReviewJobResponseStatus = {
   PENDING: 'PENDING',

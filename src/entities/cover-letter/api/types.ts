@@ -7,23 +7,23 @@
  */
 export interface QuestionRequest {
   /**
-     * 자기소개서 문항. 값이 있으면 trim 후 최대 300자
-     * @maxLength 300
-     * @nullable
-     */
+   * 자기소개서 문항. 값이 있으면 trim 후 최대 300자
+   * @maxLength 300
+   * @nullable
+   */
   question?: string | null;
   /**
-     * 최대 답변 글자 수. 값이 있으면 100 이상 5000 이하
-     * @minimum 100
-     * @maximum 5000
-     * @nullable
-     */
+   * 최대 답변 글자 수. 값이 있으면 100 이상 5000 이하
+   * @minimum 100
+   * @maximum 5000
+   * @nullable
+   */
   maxAnswerLength?: number | null;
   /**
-     * 첨삭 전 원본 답변. 값이 있으면 trim 후 최대 5000자
-     * @maxLength 5000
-     * @nullable
-     */
+   * 첨삭 전 원본 답변. 값이 있으면 trim 후 최대 5000자
+   * @maxLength 5000
+   * @nullable
+   */
   originalAnswer?: string | null;
 }
 
@@ -53,42 +53,42 @@ export interface ErrorResponse {
 
 export interface SavePreferencesRequest {
   /**
-     * 채용 우대사항. 값이 있으면 trim 후 최대 3000자
-     * @maxLength 3000
-     * @nullable
-     */
+   * 채용 우대사항. 값이 있으면 trim 후 최대 3000자
+   * @maxLength 3000
+   * @nullable
+   */
   preferences?: string | null;
 }
 
 export interface SaveBasicInfoRequest {
   /**
-     * 자기소개서 제목. 값이 있으면 trim 후 최대 50자
-     * @maxLength 50
-     * @nullable
-     */
+   * 자기소개서 제목. 값이 있으면 trim 후 최대 50자
+   * @maxLength 50
+   * @nullable
+   */
   title?: string | null;
   /**
-     * 지원 회사명. 값이 있으면 trim 후 최대 30자
-     * @maxLength 30
-     * @nullable
-     */
+   * 지원 회사명. 값이 있으면 trim 후 최대 30자
+   * @maxLength 30
+   * @nullable
+   */
   companyName?: string | null;
   /**
-     * 지원 직무명. 값이 있으면 trim 후 최대 30자
-     * @maxLength 30
-     * @nullable
-     */
+   * 지원 직무명. 값이 있으면 trim 후 최대 30자
+   * @maxLength 30
+   * @nullable
+   */
   positionTitle?: string | null;
   /**
-     * 채용 공고 URL. 값이 있으면 trim 후 최대 500자
-     * @maxLength 500
-     * @nullable
-     */
+   * 채용 공고 URL. 값이 있으면 trim 후 최대 500자
+   * @maxLength 500
+   * @nullable
+   */
   jobPostingUrl?: string | null;
 }
 
-export type CoverLetterListItemResponseDisplayStatus = typeof CoverLetterListItemResponseDisplayStatus[keyof typeof CoverLetterListItemResponseDisplayStatus];
-
+export type CoverLetterListItemResponseDisplayStatus =
+  (typeof CoverLetterListItemResponseDisplayStatus)[keyof typeof CoverLetterListItemResponseDisplayStatus];
 
 export const CoverLetterListItemResponseDisplayStatus = {
   WRITING: 'WRITING',
@@ -123,8 +123,8 @@ export interface CreateCoverLetterResponse {
   id: string;
 }
 
-export type SubmitCoverLetterResponseDisplayStatus = typeof SubmitCoverLetterResponseDisplayStatus[keyof typeof SubmitCoverLetterResponseDisplayStatus];
-
+export type SubmitCoverLetterResponseDisplayStatus =
+  (typeof SubmitCoverLetterResponseDisplayStatus)[keyof typeof SubmitCoverLetterResponseDisplayStatus];
 
 export const SubmitCoverLetterResponseDisplayStatus = {
   WRITING: 'WRITING',
@@ -139,8 +139,8 @@ export interface SubmitCoverLetterResponse {
   jobId: string | null;
 }
 
-export type CoverLetterDetailCoverLetterResponseDisplayStatus = typeof CoverLetterDetailCoverLetterResponseDisplayStatus[keyof typeof CoverLetterDetailCoverLetterResponseDisplayStatus];
-
+export type CoverLetterDetailCoverLetterResponseDisplayStatus =
+  (typeof CoverLetterDetailCoverLetterResponseDisplayStatus)[keyof typeof CoverLetterDetailCoverLetterResponseDisplayStatus];
 
 export const CoverLetterDetailCoverLetterResponseDisplayStatus = {
   WRITING: 'WRITING',
@@ -173,8 +173,8 @@ export interface CoverLetterDetailReviewVersionResponse {
   createdAt: string;
 }
 
-export type ReviewJobResponseStatus = typeof ReviewJobResponseStatus[keyof typeof ReviewJobResponseStatus];
-
+export type ReviewJobResponseStatus =
+  (typeof ReviewJobResponseStatus)[keyof typeof ReviewJobResponseStatus];
 
 export const ReviewJobResponseStatus = {
   PENDING: 'PENDING',
@@ -235,6 +235,6 @@ export interface CoverLetterDetailResponse {
 }
 
 export type ListCoverLettersParams = {
-page?: number;
-size?: number;
+  page?: number;
+  size?: number;
 };

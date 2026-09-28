@@ -1,6 +1,8 @@
 import { readFile, unlink, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
+import { format, resolveConfig } from 'prettier';
+
 const ENTITY_NAMES = [
   'user',
   'cover-letter',
@@ -13,6 +15,7 @@ const ENTITY_NAMES = [
 const HTTP_CLIENT_IMPORT_PATTERN = /^import \{ httpClient \} from ['"][^'"]+['"];\r?\n/m;
 const FIRST_ENDPOINT_PATTERN = /\nexport const get[A-Za-z0-9_$]+Url\s*=/;
 const EXPORTED_TYPE_PATTERN = /^export (?:interface|type) ([A-Za-z0-9_$]+)/gm;
+const prettierConfig = (await resolveConfig(resolve('orval.config.ts'))) ?? {};
 
 const splitEntityOutput = async (entityName) => {
   const apiDirectory = resolve(`src/entities/${entityName}/api`);
@@ -40,14 +43,18 @@ const splitEntityOutput = async (entityName) => {
   const typeImport = exportedTypeNames.length
     ? `\nimport type { ${exportedTypeNames.join(', ')} } from './types';\n`
     : '';
+  const typesSource = await format(`${header}\n${typesBody}\n`, {
+    ...prettierConfig,
+    parser: 'typescript',
+  });
+  const apiSource = await format(
+    `${header}\n${httpClientImport[0].trim()}${typeImport}\n${apiBody}\n`,
+    { ...prettierConfig, parser: 'typescript' }
+  );
 
   await Promise.all([
-    writeFile(resolve(apiDirectory, 'types.ts'), `${header}\n${typesBody}\n`, 'utf8'),
-    writeFile(
-      resolve(apiDirectory, 'api.ts'),
-      `${header}\n${httpClientImport[0].trim()}${typeImport}\n${apiBody}\n`,
-      'utf8'
-    ),
+    writeFile(resolve(apiDirectory, 'types.ts'), typesSource, 'utf8'),
+    writeFile(resolve(apiDirectory, 'api.ts'), apiSource, 'utf8'),
   ]);
 
   await unlink(generatedPath);

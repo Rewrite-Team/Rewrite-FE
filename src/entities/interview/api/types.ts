@@ -37,8 +37,8 @@ export interface AddInterviewQuestionResponse {
   jobId: string;
 }
 
-export type InterviewMessageResponseRole = typeof InterviewMessageResponseRole[keyof typeof InterviewMessageResponseRole];
-
+export type InterviewMessageResponseRole =
+  (typeof InterviewMessageResponseRole)[keyof typeof InterviewMessageResponseRole];
 
 export const InterviewMessageResponseRole = {
   USER: 'USER',
@@ -62,10 +62,10 @@ export interface InterviewMessageListResponse {
 
 export interface SendInterviewMessageRequest {
   /**
-     * 면접 질문에 대한 사용자 답변. trim 후 1자 이상 2000자 이하
-     * @minLength 1
-     * @maxLength 2000
-     */
+   * 면접 질문에 대한 사용자 답변. trim 후 1자 이상 2000자 이하
+   * @minLength 1
+   * @maxLength 2000
+   */
   content: string;
 }
 
@@ -74,8 +74,8 @@ export interface SendInterviewMessageResponse {
   jobId: string;
 }
 
-export type StartInterviewResponseStatus = typeof StartInterviewResponseStatus[keyof typeof StartInterviewResponseStatus];
-
+export type StartInterviewResponseStatus =
+  (typeof StartInterviewResponseStatus)[keyof typeof StartInterviewResponseStatus];
 
 export const StartInterviewResponseStatus = {
   QUESTION_GENERATING: 'QUESTION_GENERATING',
@@ -100,8 +100,8 @@ export interface CurrentInterviewCoverLetterResponse {
   positionTitle: string | null;
 }
 
-export type InterviewSessionResponseStatus = typeof InterviewSessionResponseStatus[keyof typeof InterviewSessionResponseStatus];
-
+export type InterviewSessionResponseStatus =
+  (typeof InterviewSessionResponseStatus)[keyof typeof InterviewSessionResponseStatus];
 
 export const InterviewSessionResponseStatus = {
   QUESTION_GENERATING: 'QUESTION_GENERATING',
@@ -124,6 +124,6 @@ export interface CurrentInterviewResponse {
 }
 
 export type ListInterviewQuestionsParams = {
-cursor?: string;
-size?: number;
+  cursor?: string;
+  size?: number;
 };

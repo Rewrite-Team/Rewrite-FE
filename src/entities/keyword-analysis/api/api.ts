@@ -6,15 +6,21 @@
  * OpenAPI spec version: v1
  */
 import { httpClient } from '@/shared/api/httpClient';
-import type { StartKeywordAnalysisResponseStatus, StartKeywordAnalysisResponse, ErrorDetail, ErrorBody, ErrorResponse, KeywordAnalysisCoverLetterResponse, KeywordAnalysisReviewVersionResponse, KeywordResponse, LatestKeywordAnalysisResponse } from './types';
+import type {
+  StartKeywordAnalysisResponseStatus,
+  StartKeywordAnalysisResponse,
+  ErrorDetail,
+  ErrorBody,
+  ErrorResponse,
+  KeywordAnalysisCoverLetterResponse,
+  KeywordAnalysisReviewVersionResponse,
+  KeywordResponse,
+  LatestKeywordAnalysisResponse,
+} from './types';
 
-export const getStartKeywordAnalysisUrl = (coverLetterId: string,) => {
-
-
-
-
-  return `/cover-letters/${coverLetterId}/keyword-analysis`
-}
+export const getStartKeywordAnalysisUrl = (coverLetterId: string) => {
+  return `/cover-letters/${coverLetterId}/keyword-analysis`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 필요
@@ -45,26 +51,19 @@ export const getStartKeywordAnalysisUrl = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-020 · 키워드 분석 시작 또는 재분석
  */
-export const startKeywordAnalysis = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<StartKeywordAnalysisResponse> => {
-
-  return httpClient<StartKeywordAnalysisResponse>(getStartKeywordAnalysisUrl(coverLetterId),
-  {
+export const startKeywordAnalysis = async (
+  coverLetterId: string,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<StartKeywordAnalysisResponse> => {
+  return httpClient<StartKeywordAnalysisResponse>(getStartKeywordAnalysisUrl(coverLetterId), {
     ...options,
-    method: 'POST'
+    method: 'POST',
+  });
+};
 
-
-  }
-);}
-
-
-
-export const getGetLatestKeywordAnalysisUrl = (coverLetterId: string,) => {
-
-
-
-
-  return `/cover-letters/${coverLetterId}/keyword-analysis/latest`
-}
+export const getGetLatestKeywordAnalysisUrl = (coverLetterId: string) => {
+  return `/cover-letters/${coverLetterId}/keyword-analysis/latest`;
+};
 
 /**
  * > 인증: 필요 · CSRF: 불필요
@@ -92,13 +91,12 @@ export const getGetLatestKeywordAnalysisUrl = (coverLetterId: string,) => {
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-021 · 최신 키워드 분석 조회
  */
-export const getLatestKeywordAnalysis = async (coverLetterId: string, options?: Parameters<typeof httpClient>[1]): Promise<LatestKeywordAnalysisResponse> => {
-
-  return httpClient<LatestKeywordAnalysisResponse>(getGetLatestKeywordAnalysisUrl(coverLetterId),
-  {
+export const getLatestKeywordAnalysis = async (
+  coverLetterId: string,
+  options?: Parameters<typeof httpClient>[1]
+): Promise<LatestKeywordAnalysisResponse> => {
+  return httpClient<LatestKeywordAnalysisResponse>(getGetLatestKeywordAnalysisUrl(coverLetterId), {
     ...options,
-    method: 'GET'
-
-
-  }
-);}
+    method: 'GET',
+  });
+};
