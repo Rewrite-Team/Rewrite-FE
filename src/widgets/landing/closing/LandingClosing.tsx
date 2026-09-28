@@ -36,8 +36,8 @@ export function LandingClosing() {
           .timeline({
             scrollTrigger: {
               trigger: section,
-              start: 'top 78%',
-              end: 'top 8%',
+              start: 'top 65%',
+              end: 'top -5%',
               scrub: 0.8,
               invalidateOnRefresh: true,
             },
