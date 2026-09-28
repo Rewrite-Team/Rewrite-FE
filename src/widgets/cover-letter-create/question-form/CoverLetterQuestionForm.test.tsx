@@ -94,17 +94,42 @@ describe('CoverLetterQuestionForm', () => {
       target: { value: '세 번째 질문' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: '2번 자기소개서 문항 삭제' }));
+    const secondDeleteButton = screen.getByRole('button', {
+      name: '2번 자기소개서 문항 삭제',
+    });
+
+    secondDeleteButton.focus();
+    fireEvent.click(secondDeleteButton);
 
     expect(screen.getAllByRole('textbox', { name: '질문' })).toHaveLength(2);
     expect(screen.getAllByRole('textbox', { name: '질문' })[0]).toHaveValue('첫 번째 질문');
     expect(screen.getAllByRole('textbox', { name: '질문' })[1]).toHaveValue('세 번째 질문');
-    expect(
-      screen.getByRole('button', { name: '2번 자기소개서 문항 접기 또는 펼치기' })
-    ).toHaveAttribute('aria-expanded', 'true');
+    const remainingSecondTrigger = screen.getByRole('button', {
+      name: '2번 자기소개서 문항 접기 또는 펼치기',
+    });
+
+    expect(remainingSecondTrigger).toHaveAttribute('aria-expanded', 'true');
+    expect(remainingSecondTrigger).toHaveFocus();
     expect(
       screen.queryByRole('button', { name: '3번 자기소개서 문항 삭제' })
     ).not.toBeInTheDocument();
+  });
+
+  it('마지막 문항을 삭제하면 남은 문항의 펼치기 버튼으로 포커스를 이동한다', () => {
+    render(<CoverLetterQuestionForm />);
+
+    fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
+    const lastDeleteButton = screen.getByRole('button', {
+      name: '2번 자기소개서 문항 삭제',
+    });
+
+    lastDeleteButton.focus();
+    fireEvent.click(lastDeleteButton);
+
+    expect(
+      screen.getByRole('button', { name: '1번 자기소개서 문항 접기 또는 펼치기' })
+    ).toHaveFocus();
+    expect(screen.getByRole('button', { name: '1번 자기소개서 문항 삭제' })).toBeDisabled();
   });
 
   it('문항 삭제 후 적용한 글자 수를 남은 문항과 동기화한다', async () => {

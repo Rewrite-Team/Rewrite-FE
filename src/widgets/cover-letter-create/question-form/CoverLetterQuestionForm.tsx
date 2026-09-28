@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState, type Ref } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -36,6 +36,7 @@ interface CoverLetterQuestionFieldsProps {
   onApplyLength: () => void;
   onDelete: () => void;
   onOpenChange: (open: boolean) => void;
+  triggerRef: Ref<HTMLButtonElement>;
 }
 
 const EMPTY_QUESTION: CoverLetterStep3FormInput['questions'][number] = {
@@ -58,6 +59,7 @@ function CoverLetterQuestionFields({
   onApplyLength,
   onDelete,
   onOpenChange,
+  triggerRef,
 }: CoverLetterQuestionFieldsProps) {
   const questionNumber = index + 1;
 
@@ -73,6 +75,7 @@ function CoverLetterQuestionFields({
                 <div className="flex items-center gap-2">
                   <Accordion.Trigger
                     aria-label={`${questionNumber}번 자기소개서 문항 접기 또는 펼치기`}
+                    ref={triggerRef}
                   />
                   <Accordion.Label asChild>
                     <Input.Label>질문</Input.Label>
@@ -163,6 +166,7 @@ function CoverLetterQuestionFields({
  */
 export function CoverLetterQuestionForm() {
   const router = useRouter();
+  const questionTriggerRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(0);
   const [answerLengths, setAnswerLengths] = useState<Array<number | undefined>>([undefined]);
   const { control, getValues, handleSubmit, trigger } = useForm<
@@ -203,6 +207,9 @@ export function CoverLetterQuestionForm() {
   const handleDeleteQuestion = (index: number) => () => {
     if (fields.length <= 1) return;
 
+    const focusTarget =
+      questionTriggerRefs.current[index + 1] ?? questionTriggerRefs.current[index - 1];
+
     remove(index);
     setAnswerLengths((currentLengths) =>
       currentLengths.filter((_, lengthIndex) => lengthIndex !== index)
@@ -213,6 +220,7 @@ export function CoverLetterQuestionForm() {
 
       return Math.min(index, fields.length - 2);
     });
+    focusTarget?.focus();
   };
 
   const handleValidSubmit: SubmitHandler<CoverLetterStep3Values> = () => {
@@ -251,6 +259,9 @@ export function CoverLetterQuestionForm() {
           onApplyLength={handleApplyLength(index)}
           onDelete={handleDeleteQuestion(index)}
           onOpenChange={handleOpenChange(index)}
+          triggerRef={(element) => {
+            questionTriggerRefs.current[index] = element;
+          }}
         />
       ))}
 
