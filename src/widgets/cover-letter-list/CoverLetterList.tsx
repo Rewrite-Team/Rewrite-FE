@@ -23,7 +23,7 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
     <>
       {hasCoverLetters ? (
         <>
-          <ul className="mt-9 grid grid-cols-1 content-start gap-6 sm:grid-cols-2 lg:min-h-127.5 lg:grid-cols-3">
+          <ul className="mt-9 grid grid-cols-1 content-start gap-7 sm:grid-cols-2 lg:grid-cols-3">
             {coverLetters.map((coverLetter) => (
               <CoverLetterCard coverLetter={coverLetter} key={coverLetter.id} />
             ))}

@@ -6,18 +6,18 @@ describe('getMockCoverLetterListResponse', () => {
 
     expect(response).toMatchObject({
       page: 1,
-      size: 9,
+      size: 6,
       totalItems: 21,
-      totalPages: 3,
+      totalPages: 4,
     });
-    expect(response.items).toHaveLength(9);
+    expect(response.items).toHaveLength(6);
   });
 
   it('마지막 페이지에는 남은 항목만 반환한다', () => {
-    expect(getMockCoverLetterListResponse(3).items).toHaveLength(3);
+    expect(getMockCoverLetterListResponse(4).items).toHaveLength(3);
   });
 
   it('전체 페이지를 초과한 요청은 마지막 페이지로 정규화한다', () => {
-    expect(getMockCoverLetterListResponse(10).page).toBe(3);
+    expect(getMockCoverLetterListResponse(10).page).toBe(4);
   });
 });

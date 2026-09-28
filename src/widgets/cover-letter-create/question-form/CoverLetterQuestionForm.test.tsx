@@ -17,6 +17,10 @@ jest.mock('@/shared/assets/icons/common', () => ({
   AltArrowDownIcon: (props: ComponentPropsWithoutRef<'svg'>) => <svg {...props} />,
 }));
 
+jest.mock('@/shared/assets/icons/side-menu', () => ({
+  DeleteIcon: (props: ComponentPropsWithoutRef<'svg'>) => <svg {...props} />,
+}));
+
 describe('CoverLetterQuestionForm', () => {
   beforeEach(() => {
     mockPush.mockClear();
@@ -67,6 +71,113 @@ describe('CoverLetterQuestionForm', () => {
     expect(
       screen.getByRole('button', { name: '2번 자기소개서 문항 접기 또는 펼치기' })
     ).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('문항이 하나뿐이면 삭제 버튼을 비활성화한다', () => {
+    render(<CoverLetterQuestionForm />);
+
+    expect(screen.getByRole('button', { name: '1번 자기소개서 문항 삭제' })).toBeDisabled();
+  });
+
+  it('문항을 삭제하면 폼 값과 순서를 함께 업데이트한다', () => {
+    render(<CoverLetterQuestionForm />);
+
+    fireEvent.change(screen.getByRole('textbox', { name: '질문' }), {
+      target: { value: '첫 번째 질문' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
+    fireEvent.change(screen.getAllByRole('textbox', { name: '질문' })[1], {
+      target: { value: '두 번째 질문' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
+    fireEvent.change(screen.getAllByRole('textbox', { name: '질문' })[2], {
+      target: { value: '세 번째 질문' },
+    });
+
+    const secondDeleteButton = screen.getByRole('button', {
+      name: '2번 자기소개서 문항 삭제',
+    });
+
+    secondDeleteButton.focus();
+    fireEvent.click(secondDeleteButton);
+
+    expect(screen.getAllByRole('textbox', { name: '질문' })).toHaveLength(2);
+    expect(screen.getAllByRole('textbox', { name: '질문' })[0]).toHaveValue('첫 번째 질문');
+    expect(screen.getAllByRole('textbox', { name: '질문' })[1]).toHaveValue('세 번째 질문');
+    const remainingSecondTrigger = screen.getByRole('button', {
+      name: '2번 자기소개서 문항 접기 또는 펼치기',
+    });
+
+    expect(remainingSecondTrigger).toHaveAttribute('aria-expanded', 'true');
+    expect(remainingSecondTrigger).toHaveFocus();
+    expect(
+      screen.queryByRole('button', { name: '3번 자기소개서 문항 삭제' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('마지막 문항을 삭제하면 남은 문항의 펼치기 버튼으로 포커스를 이동한다', () => {
+    render(<CoverLetterQuestionForm />);
+
+    fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
+    const lastDeleteButton = screen.getByRole('button', {
+      name: '2번 자기소개서 문항 삭제',
+    });
+
+    lastDeleteButton.focus();
+    fireEvent.click(lastDeleteButton);
+
+    expect(
+      screen.getByRole('button', { name: '1번 자기소개서 문항 접기 또는 펼치기' })
+    ).toHaveFocus();
+    expect(screen.getByRole('button', { name: '1번 자기소개서 문항 삭제' })).toBeDisabled();
+  });
+
+  it('문항 삭제 후 적용한 글자 수를 남은 문항과 동기화한다', async () => {
+    render(<CoverLetterQuestionForm />);
+
+    fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
+    fireEvent.change(screen.getByRole('spinbutton', { name: '자기소개서 글자 수' }), {
+      target: { value: '900' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '적용' }));
+
+    expect(
+      await screen.findByText(
+        (_, element) => element?.tagName === 'P' && element.textContent === '0/900자'
+      )
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '1번 자기소개서 문항 삭제' }));
+
+    expect(screen.getByRole('spinbutton', { name: '자기소개서 글자 수' })).toHaveValue(900);
+    expect(
+      screen.getByText(
+        (_, element) => element?.tagName === 'P' && element.textContent === '0/900자'
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '1번 자기소개서 문항 삭제' })).toBeDisabled();
+  });
+
+  it('오류가 있는 문항을 삭제하면 남은 폼 상태만 검증한다', async () => {
+    render(<CoverLetterQuestionForm />);
+
+    fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
+    fireEvent.submit(screen.getByRole('form', { name: '자기소개서 문항 및 답변' }));
+
+    expect(await screen.findAllByText('자기소개서 질문을 입력해주세요.')).toHaveLength(2);
+
+    fireEvent.click(screen.getByRole('button', { name: '2번 자기소개서 문항 삭제' }));
+    fireEvent.change(screen.getByRole('textbox', { name: '질문' }), {
+      target: { value: '지원 동기를 작성해주세요.' },
+    });
+    fireEvent.change(screen.getByRole('textbox', { name: '자기소개서 내용' }), {
+      target: { value: '지원 동기에 대한 답변입니다.' },
+    });
+    fireEvent.submit(screen.getByRole('form', { name: '자기소개서 문항 및 답변' }));
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(ROUTES.WRITING_CREATE_STEP(4));
+    });
   });
 
   it('입력한 글자 수를 답변의 권장 길이에 적용한다', async () => {

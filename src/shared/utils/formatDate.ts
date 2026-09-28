@@ -14,3 +14,9 @@
  * ```
  */
 export const formatDate = (date: string) => date.slice(0, 10).replaceAll('-', '.');
+
+/** ISO 8601 문자열을 `YYYY.MM.DD HH:mm` 형식으로 변환합니다. */
+export const formatDateTime = (date: string) => {
+  const [, time = ''] = date.split('T');
+  return `${formatDate(date)} ${time.slice(0, 5)}`.trim();
+};

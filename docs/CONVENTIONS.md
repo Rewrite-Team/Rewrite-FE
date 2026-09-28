@@ -26,6 +26,22 @@ keyword-analysis
 
 숫자가 들어가는 파일명은 `01`, `02`, `03`처럼 두 자리로 맞춘다.
 
+### Component Directory
+
+단일 파일로 완결되는 컴포넌트는 `ui` 바로 아래에 둔다. CSS Module, Storybook, 테스트처럼
+함께 관리할 관련 파일이 있는 컴포넌트는 컴포넌트 이름의 `kebab-case` 폴더로 묶는다.
+
+```txt
+ui/
+├── CoverLetterStatus.tsx
+└── cover-letter-card/
+    ├── CoverLetterCard.tsx
+    ├── CoverLetterCard.module.css
+    └── CoverLetterCard.stories.tsx
+```
+
+관련 파일이 추가되거나 없어지면 이 기준에 맞춰 폴더를 만들거나 평탄화한다.
+
 ### Asset
 
 아이콘, 이미지, 로고는 용량이 큰 경우 경량화한다.

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { WritingCreateStepLayoutClient } from './WritingCreateStepLayoutClient';
+import { WritingCreateStepLayoutClient } from './_components/WritingCreateStepLayoutClient';
 
 interface WritingCreateLayoutProps {
   children: ReactNode;

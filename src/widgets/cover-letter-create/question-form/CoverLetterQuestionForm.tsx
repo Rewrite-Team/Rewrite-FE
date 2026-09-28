@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState, type Ref } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -18,6 +18,7 @@ import {
   type CoverLetterStep3FormInput,
   type CoverLetterStep3Values,
 } from '@/features/cover-letter/create-flow';
+import { DeleteIcon } from '@/shared/assets/icons/side-menu';
 import { ROUTES } from '@/shared/constants/routes';
 import { Accordion } from '@/shared/ui/accordion';
 import { Button } from '@/shared/ui/button';
@@ -30,9 +31,12 @@ interface CoverLetterQuestionFieldsProps {
   answerLength?: number;
   control: Control<CoverLetterStep3FormInput, unknown, CoverLetterStep3Values>;
   index: number;
+  isDeleteDisabled: boolean;
   isOpen: boolean;
   onApplyLength: () => void;
+  onDelete: () => void;
   onOpenChange: (open: boolean) => void;
+  triggerRef: Ref<HTMLButtonElement>;
 }
 
 const EMPTY_QUESTION: CoverLetterStep3FormInput['questions'][number] = {
@@ -50,9 +54,12 @@ function CoverLetterQuestionFields({
   answerLength,
   control,
   index,
+  isDeleteDisabled,
   isOpen,
   onApplyLength,
+  onDelete,
   onOpenChange,
+  triggerRef,
 }: CoverLetterQuestionFieldsProps) {
   const questionNumber = index + 1;
 
@@ -64,13 +71,27 @@ function CoverLetterQuestionFields({
           name={`questions.${index}.question`}
           render={({ errorMessage, field, invalid }) => (
             <Input id={`cover-letter-question-${questionNumber}`} invalid={invalid} required>
-              <div className="flex items-center gap-2 text-white">
-                <Accordion.Trigger
-                  aria-label={`${questionNumber}번 자기소개서 문항 접기 또는 펼치기`}
-                />
-                <Accordion.Label asChild>
-                  <Input.Label>질문</Input.Label>
-                </Accordion.Label>
+              <div className="flex items-center justify-between gap-3 text-white">
+                <div className="flex items-center gap-2">
+                  <Accordion.Trigger
+                    aria-label={`${questionNumber}번 자기소개서 문항 접기 또는 펼치기`}
+                    ref={triggerRef}
+                  />
+                  <Accordion.Label asChild>
+                    <Input.Label>질문</Input.Label>
+                  </Accordion.Label>
+                </div>
+
+                <Button
+                  aria-label={`${questionNumber}번 자기소개서 문항 삭제`}
+                  disabled={isDeleteDisabled}
+                  iconOnly
+                  onClick={onDelete}
+                  type="button"
+                  variant="ghost"
+                >
+                  <DeleteIcon aria-hidden="true" className="size-5" />
+                </Button>
               </div>
 
               <div className="pt-3">
@@ -145,6 +166,7 @@ function CoverLetterQuestionFields({
  */
 export function CoverLetterQuestionForm() {
   const router = useRouter();
+  const questionTriggerRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(0);
   const [answerLengths, setAnswerLengths] = useState<Array<number | undefined>>([undefined]);
   const { control, getValues, handleSubmit, trigger } = useForm<
@@ -155,7 +177,7 @@ export function CoverLetterQuestionForm() {
     defaultValues: DEFAULT_FORM_VALUES,
     resolver: zodResolver(coverLetterStep3Schema),
   });
-  const { append, fields } = useFieldArray({
+  const { append, fields, remove } = useFieldArray({
     control,
     name: 'questions',
   });
@@ -180,6 +202,25 @@ export function CoverLetterQuestionForm() {
     append({ ...EMPTY_QUESTION });
     setAnswerLengths((currentLengths) => [...currentLengths, undefined]);
     setOpenQuestionIndex(fields.length);
+  };
+
+  const handleDeleteQuestion = (index: number) => () => {
+    if (fields.length <= 1) return;
+
+    const focusTarget =
+      questionTriggerRefs.current[index + 1] ?? questionTriggerRefs.current[index - 1];
+
+    remove(index);
+    setAnswerLengths((currentLengths) =>
+      currentLengths.filter((_, lengthIndex) => lengthIndex !== index)
+    );
+    setOpenQuestionIndex((currentIndex) => {
+      if (currentIndex === null || currentIndex < index) return currentIndex;
+      if (currentIndex > index) return currentIndex - 1;
+
+      return Math.min(index, fields.length - 2);
+    });
+    focusTarget?.focus();
   };
 
   const handleValidSubmit: SubmitHandler<CoverLetterStep3Values> = () => {
@@ -212,10 +253,15 @@ export function CoverLetterQuestionForm() {
           answerLength={answerLengths[index]}
           control={control}
           index={index}
+          isDeleteDisabled={fields.length <= 1}
           isOpen={openQuestionIndex === index}
           key={field.id}
           onApplyLength={handleApplyLength(index)}
+          onDelete={handleDeleteQuestion(index)}
           onOpenChange={handleOpenChange(index)}
+          triggerRef={(element) => {
+            questionTriggerRefs.current[index] = element;
+          }}
         />
       ))}
 

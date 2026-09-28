@@ -1,0 +1,247 @@
+.card {
+  --folder-tab: var(--color-gray-500);
+  --folder-front-start: var(--color-gray-500);
+  --folder-front-end: var(--color-gray-600);
+  --folder-hover-tab: var(--color-gray-400);
+  --folder-hover-front-start: var(--color-gray-400);
+  --folder-hover-front-end: var(--color-gray-500);
+  --shadow-folder-card-hover-color: rgb(15 23 42 / 14%);
+
+  position: relative;
+  isolation: isolate;
+  display: block;
+  min-height: 18rem;
+  overflow: hidden;
+  perspective: 60rem;
+  border: 0;
+  border-radius: 2rem;
+  background: linear-gradient(135deg, rgb(255 255 255 / 12%), transparent 48%), var(--folder-tab);
+  box-shadow: var(--shadow-folder-card-highlight), var(--shadow-folder-card-elevation);
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.paperStack {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  left: 1.5rem;
+  z-index: 1;
+  height: 8.75rem;
+  transition:
+    filter 260ms ease,
+    transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.paperBack,
+.paperMiddle,
+.paperFront {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: 1.5rem 1.5rem 0.75rem 0.75rem;
+  transform-origin: bottom center;
+}
+
+.paperBack {
+  inset: 0.1rem 0.45rem 0;
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--color-primary-300) 52%, var(--color-gray-300)),
+    color-mix(in srgb, var(--color-primary-200) 44%, var(--color-gray-400))
+  );
+  box-shadow: var(--shadow-folder-paper-back);
+  transform: rotate(-2.5deg) translateY(0.2rem);
+}
+
+.paperMiddle {
+  inset: 0.4rem 0.2rem 0;
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--color-primary-100) 72%, var(--color-gray-200)),
+    color-mix(in srgb, var(--color-primary-50) 65%, var(--color-gray-200))
+  );
+  box-shadow: var(--shadow-folder-paper-middle);
+  transform: rotate(-0.75deg);
+}
+
+.paperFront {
+  inset: 0.8rem 0.4rem 0;
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--color-primary-50) 70%, var(--color-gray-100)),
+    color-mix(in srgb, var(--color-primary-100) 55%, var(--color-gray-100))
+  );
+  transform: rotate(1deg);
+}
+
+.badges {
+  position: absolute;
+  top: 3.3rem;
+  left: 3rem;
+  z-index: 2;
+  max-width: calc(100% - 6rem);
+  align-items: center;
+  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.badges > li {
+  min-width: 0;
+}
+
+.badges > li + li {
+  display: flex;
+  align-items: center;
+  margin-left: 0.55rem;
+}
+
+.badges > li + li::before {
+  margin-right: 0.55rem;
+  color: var(--color-gray-400);
+  content: '·';
+}
+
+.badges .folderBadge {
+  height: auto;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--color-gray-800);
+  font-weight: 500;
+}
+
+.folderFront {
+  position: absolute;
+  inset: 6.25rem 0 0;
+  z-index: 3;
+  width: 100%;
+  height: calc(100% - 6.25rem);
+  transform-origin: bottom center;
+  transition: transform 360ms cubic-bezier(0.16, 1, 0.3, 1) 30ms;
+}
+
+.folderFrontStart,
+.folderFrontEnd {
+  transition: stop-color 180ms ease;
+}
+
+.folderFrontStart {
+  stop-color: var(--folder-front-start);
+}
+
+.folderFrontEnd {
+  stop-color: var(--folder-front-end);
+}
+
+.content {
+  position: absolute;
+  inset: 9.25rem 1.5rem 1.5rem;
+  z-index: 4;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1) 40ms;
+}
+
+.card:hover,
+.card:focus-visible {
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 16%), transparent 48%), var(--folder-hover-tab);
+  box-shadow: var(--shadow-folder-card-hover-highlight), var(--shadow-folder-card-hover-elevation);
+  transform: translateY(-0.25rem);
+}
+
+.card:hover .paperStack,
+.card:focus-visible .paperStack {
+  filter: drop-shadow(var(--shadow-folder-paper-lift));
+  transform: translateY(-0.45rem) rotate(-0.35deg) scale(1.01);
+}
+
+.card:hover .badges,
+.card:focus-visible .badges {
+  transform: translateY(-0.45rem);
+}
+
+.card:hover .folderFront,
+.card:focus-visible .folderFront {
+  transform: translateY(0.3rem) rotateX(-9deg) scaleY(0.97);
+}
+
+.card:hover .content,
+.card:focus-visible .content {
+  transform: translateY(0.35rem);
+}
+
+.card:hover .folderFrontStart,
+.card:focus-visible .folderFrontStart {
+  stop-color: var(--folder-hover-front-start);
+}
+
+.card:hover .folderFrontEnd,
+.card:focus-visible .folderFrontEnd {
+  stop-color: var(--folder-hover-front-end);
+}
+
+.card[data-status='REVIEWING'] {
+  --folder-tab: color-mix(in srgb, var(--color-primary-900) 78%, var(--color-gray-500));
+  --folder-front-start: color-mix(in srgb, var(--color-primary-900) 68%, var(--color-gray-500));
+  --folder-front-end: color-mix(in srgb, var(--color-primary-900) 60%, var(--color-gray-600));
+  --folder-hover-tab: var(--color-primary-800);
+  --folder-hover-front-start: var(--color-primary-800);
+  --folder-hover-front-end: var(--color-primary-900);
+  --shadow-folder-card-hover-color: color-mix(in srgb, var(--color-primary-900) 42%, transparent);
+}
+
+.card[data-status='REVIEWED'] {
+  --folder-tab: color-mix(in srgb, var(--color-success-500) 42%, var(--color-gray-600));
+  --folder-front-start: color-mix(in srgb, var(--color-success-500) 34%, var(--color-gray-600));
+  --folder-front-end: color-mix(in srgb, var(--color-success-500) 28%, var(--color-gray-700));
+  --folder-hover-tab: color-mix(in srgb, var(--color-success-500) 32%, var(--color-gray-500));
+  --folder-hover-front-start: color-mix(
+    in srgb,
+    var(--color-success-500) 26%,
+    var(--color-gray-500)
+  );
+  --folder-hover-front-end: color-mix(in srgb, var(--color-success-500) 22%, var(--color-gray-600));
+  --shadow-folder-card-hover-color: color-mix(in srgb, var(--color-success-500) 25%, transparent);
+}
+
+.card[data-status='REVIEW_FAILED'] {
+  --folder-tab: color-mix(in srgb, var(--color-error-500) 34%, var(--color-gray-600));
+  --folder-front-start: color-mix(in srgb, var(--color-error-500) 28%, var(--color-gray-600));
+  --folder-front-end: color-mix(in srgb, var(--color-error-500) 22%, var(--color-gray-700));
+  --folder-hover-tab: color-mix(in srgb, var(--color-error-500) 26%, var(--color-gray-500));
+  --folder-hover-front-start: color-mix(in srgb, var(--color-error-500) 22%, var(--color-gray-500));
+  --folder-hover-front-end: color-mix(in srgb, var(--color-error-500) 18%, var(--color-gray-600));
+  --shadow-folder-card-hover-color: color-mix(in srgb, var(--color-error-500) 25%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .paperStack,
+  .badges,
+  .folderFront,
+  .folderFrontStart,
+  .folderFrontEnd,
+  .content {
+    transition: none;
+  }
+
+  .card:hover,
+  .card:focus-visible {
+    transform: none;
+  }
+
+  .card:hover .paperStack,
+  .card:focus-visible .paperStack,
+  .card:hover .badges,
+  .card:focus-visible .badges,
+  .card:hover .folderFront,
+  .card:focus-visible .folderFront,
+  .card:hover .content,
+  .card:focus-visible .content {
+    filter: none;
+    transform: none;
+  }
+}

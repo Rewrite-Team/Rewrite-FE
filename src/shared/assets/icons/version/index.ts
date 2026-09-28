@@ -1,3 +1,3 @@
-import PannelCloseIcon from './ic-pannel-close.svg';
+import PanelCloseIcon from './ic-panel-close.svg';
 
-export { PannelCloseIcon };
+export { PanelCloseIcon };

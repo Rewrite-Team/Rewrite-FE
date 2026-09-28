@@ -10,7 +10,7 @@ import type { WritingCreateStep } from '@/shared/types/writingCreate';
 import { PageHeader } from '@/shared/ui/page-header';
 import { COVER_LETTER_STEP_CONFIG, CoverLetterStepPanel } from '@/widgets/cover-letter-create';
 
-import type { CoverLetterCreateStepSegment } from './types';
+import type { CoverLetterCreateStepSegment } from '../types';
 
 interface WritingCreateStepShellProps {
   children: ReactNode;

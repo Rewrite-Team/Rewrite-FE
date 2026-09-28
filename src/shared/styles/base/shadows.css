@@ -4,10 +4,17 @@
     사용법: shadow-{name} | shadow-(--shadow-{name})
     예시: shadow-sidebar-active | shadow-(--shadow-tooltip)
   */
-  --shadow-header-login-button: 0 0 24px rgba(118, 186, 255, 0.28);
-  --shadow-header-login-button-hover: 0 8px 28px rgba(118, 186, 255, 0.36);
   --shadow-sidebar-active: 0 0 18px rgba(118, 186, 255, 0.16);
   --shadow-tooltip-arrow: 0 0 16px rgba(118, 186, 255, 0.18);
   --shadow-tooltip: 0 14px 44px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(118, 186, 255, 0.08);
   --shadow-toast: 0 14px 44px rgba(0, 0, 0, 0.42);
+
+  /* Folder card */
+  --shadow-folder-card-highlight: inset 0 1px rgb(255 255 255 / 14%);
+  --shadow-folder-card-elevation: 0 1rem 2.5rem rgb(0 0 0 / 22%);
+  --shadow-folder-card-hover-highlight: inset 0 1px rgb(255 255 255 / 18%);
+  --shadow-folder-card-hover-elevation: 0 1.25rem 3rem var(--shadow-folder-card-hover-color);
+  --shadow-folder-paper-back: 0 0.8rem 1.5rem rgb(0 0 0 / 14%);
+  --shadow-folder-paper-middle: 0 0.5rem 1rem rgb(0 0 0 / 8%);
+  --shadow-folder-paper-lift: 0 0.75rem 0.8rem rgb(0 0 0 / 12%);
 }

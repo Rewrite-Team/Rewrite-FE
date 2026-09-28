@@ -133,8 +133,16 @@ export function LandingPreparation() {
         const timeline = gsap.timeline({
           scrollTrigger: {
             trigger: section,
-            start: 'top 72%',
-            once: true,
+            start: 'top 75%',
+            end: 'top -15%',
+            scrub: 1,
+            fastScrollEnd: true,
+            invalidateOnRefresh: true,
+            onUpdate: ({ progress }) => {
+              if (progress < 0.999) {
+                floatingTweens.forEach((tween) => tween.pause());
+              }
+            },
           },
           onComplete: () => {
             hasCompletedEntry = true;
@@ -169,7 +177,7 @@ export function LandingPreparation() {
               duration: 0.95,
               ease: 'power3.out',
             },
-            index === 0 ? 0 : `-=${0.7 - index * 0.05}`
+            index === 0 ? 0 : '-=0.45'
           );
         });
 

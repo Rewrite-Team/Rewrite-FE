@@ -18,6 +18,7 @@ const config = {
         '🐛 Fix',
         '♻️ Refactor',
         '🔧 Chore',
+        '✅ Test',
         '🎨 Style',
         '📝 Docs',
         '🚚 Rename',
