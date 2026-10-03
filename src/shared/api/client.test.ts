@@ -1,5 +1,5 @@
 import { ApiError } from './ApiError';
-import { httpClient } from './httpClient';
+import { httpClient } from './client';
 
 interface MockResponseOptions {
   body?: unknown;

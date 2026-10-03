@@ -53,7 +53,7 @@ src/
 │   ├── user/
 │   └── llm-job/
 └── shared/
-    ├── api/                     # httpClient, ApiError
+    ├── api/                     # client, ApiError
     ├── assets/
     ├── lib/
     ├── providers/
