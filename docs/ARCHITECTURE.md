@@ -53,7 +53,11 @@ src/
 │   ├── user/
 │   └── llm-job/
 └── shared/
-    ├── api/                     # client, ApiError
+    ├── api/
+    │   ├── core.ts              # 공통 URL, 응답 파싱, 오류 처리
+    │   ├── client.ts            # 브라우저 쿠키·CSRF 요청 어댑터
+    │   ├── server.ts            # 요청 쿠키를 전달하는 서버 어댑터
+    │   └── ApiError.ts
     ├── assets/
     ├── lib/
     ├── providers/
@@ -314,7 +318,8 @@ shared/
 원칙:
 
 - `shared/ui`는 도메인 문구나 도메인 로직을 알지 않는다.
-- `shared/api`는 HTTP 클라이언트, 공통 에러 처리, 인증 헤더 주입만 담당한다.
+- `shared/api/core.ts`는 환경에 종속되지 않는 HTTP 요청과 공통 응답·오류 처리를 담당한다.
+- `shared/api/client.ts`와 `shared/api/server.ts`는 각 실행 환경의 쿠키·인증 요청 설정을 담당한다.
 - `shared/hooks`는 특정 entity나 feature를 모르는 hook만 둔다.
 - `shared/stores`는 앱 전체에서 필요한 상태에만 사용하고, 도메인 상태는 entity 또는 feature에 둔다.
 - `shared/lib`는 라이브러리 연결과 adapter를 담당하고, 단순 순수 함수는 `shared/utils`에 둔다.
@@ -374,7 +379,8 @@ DTO를 공유하게 되면 공통 모델 분리를 별도로 검토한다.
 
 백엔드 명세는 `openapi/rewrite.openapi.json`에 저장하고 Orval로 entity별 `api/api.ts`와
 `api/types.ts`를 만든다.
-공통 HTTP 동작과 API 오류는 `shared/api`에서 처리하며, 인증과 CSRF 처리는 인증 연동 시 추가한다.
+공통 HTTP 동작과 API 오류는 `shared/api/core.ts`에서 처리한다. 브라우저 인증·CSRF와 서버의
+요청별 쿠키 전달은 각각 `client.ts`, `server.ts` 어댑터에서 처리한다.
 SSE와 브라우저 redirect endpoint는 일반 HTTP 생성 대상에서 제외하고 용도에 맞는 전용 연결 방식을 사용한다.
 query key는 `entities/<entity>/api/queryKeys.ts`에 entity별로 둔다.
 
