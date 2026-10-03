@@ -57,7 +57,7 @@ src/
     │   ├── core.ts              # 공통 URL, 응답 파싱, 오류 처리
     │   ├── client.ts            # 브라우저 쿠키·CSRF 요청 어댑터
     │   ├── server.ts            # 요청 쿠키를 전달하는 서버 어댑터
-    │   └── ApiError.ts
+    │   └── apiError.ts
     ├── assets/
     ├── lib/
     ├── providers/

@@ -1,6 +1,6 @@
 'use client';
 
-import { ApiError } from './ApiError';
+import { ApiError } from './apiError';
 import { request } from './core';
 
 interface CsrfTokenResponse {

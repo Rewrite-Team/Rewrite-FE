@@ -1,4 +1,4 @@
-import { ApiError } from './ApiError';
+import { ApiError } from './apiError';
 
 const isJsonContentType = (contentType: string | null) => {
   const mediaType = contentType?.split(';', 1)[0]?.trim().toLowerCase();

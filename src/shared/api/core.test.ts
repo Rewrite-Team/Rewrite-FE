@@ -1,5 +1,5 @@
-import { ApiError } from './ApiError';
-import { httpClient } from './client';
+import { ApiError } from './apiError';
+import { request } from './core';
 
 interface MockResponseOptions {
   body?: unknown;
@@ -28,7 +28,7 @@ const createMockResponse = ({
     text: jest.fn(() => Promise.resolve(text)),
   }) as unknown as Response;
 
-describe('httpClient', () => {
+describe('request', () => {
   const fetchMock = jest.fn();
   const originalFetch = globalThis.fetch;
 
@@ -56,7 +56,9 @@ describe('httpClient', () => {
       const response = createMockResponse({ body, contentType });
       fetchMock.mockResolvedValue(response);
 
-      await expect(httpClient('https://example.com/test', {})).resolves.toEqual(body);
+      await expect(
+        request('https://example.com/test', {}, 'https://api.example.com')
+      ).resolves.toEqual(body);
       expect(response.json).toHaveBeenCalledTimes(1);
       expect(response.text).not.toHaveBeenCalled();
     }
@@ -70,7 +72,9 @@ describe('httpClient', () => {
     });
     fetchMock.mockResolvedValue(response);
 
-    await expect(httpClient('https://example.com/test', {})).rejects.toMatchObject({
+    await expect(
+      request('https://example.com/test', {}, 'https://api.example.com')
+    ).rejects.toMatchObject({
       name: 'ApiError',
       status: 502,
     } satisfies Partial<ApiError>);
@@ -80,6 +84,8 @@ describe('httpClient', () => {
     const jsonError = new SyntaxError('Unexpected end of JSON input');
     fetchMock.mockResolvedValue(createMockResponse({ jsonError }));
 
-    await expect(httpClient('https://example.com/test', {})).rejects.toBe(jsonError);
+    await expect(request('https://example.com/test', {}, 'https://api.example.com')).rejects.toBe(
+      jsonError
+    );
   });
 });
