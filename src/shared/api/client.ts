@@ -1,6 +1,7 @@
 'use client';
 
 import { ApiError } from './apiError';
+import { getClientApiBaseUrl } from './config';
 import { request } from './core';
 
 interface CsrfTokenResponse {
@@ -15,16 +16,6 @@ let csrfToken: string | undefined;
 // 동시에 시작된 요청은 하나의 토큰 발급 요청을 공유합니다.
 let csrfTokenRequest: Promise<string> | undefined;
 
-const getApiBaseUrl = () => {
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-
-  if (!apiBaseUrl) {
-    throw new Error('NEXT_PUBLIC_API_BASE_URL 환경변수가 설정되지 않았습니다.');
-  }
-
-  return apiBaseUrl;
-};
-
 /** 메모리에 보관한 CSRF 토큰을 반환하고, 없으면 동시 요청을 합쳐 발급받습니다. */
 const getCsrfToken = async (): Promise<string> => {
   if (csrfToken) {
@@ -35,7 +26,7 @@ const getCsrfToken = async (): Promise<string> => {
     csrfTokenRequest = request<CsrfTokenResponse>(
       CSRF_TOKEN_URL,
       { method: 'GET', credentials: 'include' },
-      getApiBaseUrl()
+      getClientApiBaseUrl()
     )
       .then(({ csrfToken: nextCsrfToken }) => {
         csrfToken = nextCsrfToken;
@@ -96,7 +87,7 @@ export async function httpClient<T>(url: string, options: RequestInit): Promise<
   }
 
   const method = (options.method ?? 'GET').toUpperCase();
-  const baseUrl = getApiBaseUrl();
+  const baseUrl = getClientApiBaseUrl();
 
   if (!MUTATING_METHODS.has(method)) {
     return request<T>(url, { ...options, credentials: 'include' }, baseUrl);
