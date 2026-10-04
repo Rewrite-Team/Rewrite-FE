@@ -40,10 +40,23 @@ export interface ErrorResponse {
   error: ErrorBody;
 }
 
+export type ReviewVersionListItemResponseStatus =
+  (typeof ReviewVersionListItemResponseStatus)[keyof typeof ReviewVersionListItemResponseStatus];
+
+export const ReviewVersionListItemResponseStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  CANCELED: 'CANCELED',
+} as const;
+
 export interface ReviewVersionListItemResponse {
   id: string;
   version: string;
+  status: ReviewVersionListItemResponseStatus;
   isLatest: boolean;
+  isLatestReviewed: boolean;
   createdAt: string;
 }
 
@@ -100,10 +113,23 @@ export interface CoverLetterDetailCoverLetterResponse {
   displayStatus: CoverLetterDetailCoverLetterResponseDisplayStatus;
 }
 
+export type CoverLetterDetailReviewVersionResponseStatus =
+  (typeof CoverLetterDetailReviewVersionResponseStatus)[keyof typeof CoverLetterDetailReviewVersionResponseStatus];
+
+export const CoverLetterDetailReviewVersionResponseStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  CANCELED: 'CANCELED',
+} as const;
+
 export interface CoverLetterDetailReviewVersionResponse {
   id: string;
   version: string;
+  status: CoverLetterDetailReviewVersionResponseStatus;
   isLatest: boolean;
+  isLatestReviewed: boolean;
   /** @nullable */
   requestInstruction: string | null;
   createdAt: string;

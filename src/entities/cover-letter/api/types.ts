@@ -164,10 +164,23 @@ export interface CoverLetterDetailCoverLetterResponse {
   displayStatus: CoverLetterDetailCoverLetterResponseDisplayStatus;
 }
 
+export type CoverLetterDetailReviewVersionResponseStatus =
+  (typeof CoverLetterDetailReviewVersionResponseStatus)[keyof typeof CoverLetterDetailReviewVersionResponseStatus];
+
+export const CoverLetterDetailReviewVersionResponseStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  CANCELED: 'CANCELED',
+} as const;
+
 export interface CoverLetterDetailReviewVersionResponse {
   id: string;
   version: string;
+  status: CoverLetterDetailReviewVersionResponseStatus;
   isLatest: boolean;
+  isLatestReviewed: boolean;
   /** @nullable */
   requestInstruction: string | null;
   createdAt: string;
