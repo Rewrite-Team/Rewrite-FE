@@ -48,7 +48,7 @@ const createEntityConfig = (tag: string, entity: string) => ({
         includeHttpResponseReturnType: false,
       },
       mutator: {
-        path: '@/shared/api/httpClient',
+        path: '@/shared/api/client',
         name: 'httpClient',
       },
     },

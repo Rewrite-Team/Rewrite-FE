@@ -1,2 +1,2 @@
-export { ApiError } from './ApiError';
-export type { ApiErrorDetail } from './ApiError';
+export { ApiError } from './apiError';
+export type { ApiErrorDetail } from './apiError';
