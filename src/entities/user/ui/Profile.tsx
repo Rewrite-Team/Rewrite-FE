@@ -28,7 +28,11 @@ export function Profile({
 }: ProfileProps) {
   return (
     <div className="flex items-center gap-3">
-      <ProfileImage alt={imageAlt} fallbackSrc={fallbackImageSrc} src={profileImageUrl} />
+      <ProfileImage
+        alt={imageAlt}
+        fallbackSrc={fallbackImageSrc}
+        src={profileImageUrl ?? fallbackImageSrc}
+      />
       <span className="body-16 truncate font-medium text-white">{name}</span>
     </div>
   );

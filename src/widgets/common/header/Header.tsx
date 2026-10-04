@@ -11,6 +11,7 @@ import { TextLogo } from '@/shared/ui/logo';
 
 interface HeaderProps extends ComponentPropsWithoutRef<'header'> {
   user?: UserProfile | null;
+  isUserLoading?: boolean;
   logoHref?: string;
   loginHref?: string;
   authenticatedLogoHref?: string;
@@ -26,6 +27,7 @@ interface HeaderProps extends ComponentPropsWithoutRef<'header'> {
  * 게스트는 로그인 CTA를, 로그인 사용자는 프로필을 표시합니다.
  *
  * @param user - 로그인 사용자 정보. 없으면 게스트 Header로 렌더링합니다.
+ * @param isUserLoading - 로그인 상태를 확인하는 동안 게스트 CTA를 숨깁니다.
  * @param logoHref - 로고 클릭 시 이동할 경로. 기본값은 로그인 여부에 따라 결정합니다.
  * @param authenticatedLogoHref - 로그인 상태일 때 로고 클릭 시 이동할 기본 경로입니다.
  * @param isBackgroundBlurred - 전달하면 스크롤 감지 대신 blur 상태를 외부에서 제어합니다.
@@ -36,6 +38,7 @@ export function Header({
   blurThreshold = 0,
   className,
   isBackgroundBlurred,
+  isUserLoading = false,
   loginHref = ROUTES.LOGIN,
   logoHref,
   user,
@@ -78,6 +81,13 @@ export function Header({
 
         {user ? (
           <Profile name={user.name} profileImageUrl={user.profileImageUrl} />
+        ) : isUserLoading ? (
+          <div
+            aria-busy="true"
+            aria-label="로그인 상태 확인 중"
+            className="h-9 w-20"
+            role="status"
+          />
         ) : (
           <nav aria-label="게스트 메뉴" className="flex items-center">
             <LinkButton

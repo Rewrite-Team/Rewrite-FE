@@ -8,11 +8,11 @@ import type { ImageProps } from 'next/image';
 interface ProfileImageProps {
   alt: string;
   fallbackSrc: ImageProps['src'];
-  src: string;
+  src: ImageProps['src'];
 }
 
 export function ProfileImage({ alt, fallbackSrc, src }: ProfileImageProps) {
-  const [failedImageSrc, setFailedImageSrc] = useState<string | null>(null);
+  const [failedImageSrc, setFailedImageSrc] = useState<ImageProps['src'] | null>(null);
   const imageSrc = failedImageSrc === src ? fallbackSrc : src;
 
   const handleError = () => {
