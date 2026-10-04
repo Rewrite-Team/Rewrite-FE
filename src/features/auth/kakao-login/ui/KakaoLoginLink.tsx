@@ -1,5 +1,6 @@
 import type { ComponentPropsWithoutRef } from 'react';
 
+import { getStartKakaoLoginUrl, type KakaoLoginTarget } from '@/entities/user';
 import { KakaoSymbolIcon } from '@/shared/assets/icons/common';
 import { cn } from '@/shared/styles/utils/cn';
 
@@ -7,12 +8,14 @@ interface KakaoLoginLinkProps extends Omit<ComponentPropsWithoutRef<'a'>, 'child
   href?: string;
 }
 
-const DEFAULT_KAKAO_LOGIN_URL = '/api/auth/kakao';
+const KAKAO_LOGIN_TARGET: KakaoLoginTarget =
+  process.env.NODE_ENV === 'development' ? 'local' : 'production';
+const KAKAO_LOGIN_URL = getStartKakaoLoginUrl({ target: KAKAO_LOGIN_TARGET });
 
 /** 카카오 OAuth 인증을 시작하는 로그인 링크입니다. */
 export function KakaoLoginLink({
   className,
-  href = DEFAULT_KAKAO_LOGIN_URL,
+  href = KAKAO_LOGIN_URL,
   ...props
 }: KakaoLoginLinkProps) {
   return (

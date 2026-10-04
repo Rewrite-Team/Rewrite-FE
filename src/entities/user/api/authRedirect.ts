@@ -1,18 +1,19 @@
+import { getClientApiBaseUrl } from '@/shared/api/config';
+
 export type KakaoLoginTarget = 'local' | 'production';
 
 export interface StartKakaoLoginParams {
-  target?: KakaoLoginTarget;
+  target: KakaoLoginTarget;
 }
 
-/** 브라우저 이동에 사용하는 카카오 로그인 시작 경로를 반환합니다. */
-export const getStartKakaoLoginUrl = (params?: StartKakaoLoginParams) => {
+/** 백엔드 카카오 로그인 시작 endpoint의 브라우저 이동 URL을 반환합니다. */
+export const getStartKakaoLoginUrl = (params: StartKakaoLoginParams) => {
+  const url = new URL('/auth/kakao/authorize', getClientApiBaseUrl());
   const searchParams = new URLSearchParams();
 
-  if (params?.target) {
-    searchParams.set('target', params.target);
-  }
+  searchParams.set('target', params.target);
 
-  const query = searchParams.toString();
+  url.search = searchParams.toString();
 
-  return query ? `/auth/kakao/authorize?${query}` : '/auth/kakao/authorize';
+  return url.toString();
 };
