@@ -25,6 +25,7 @@ const getApiBaseUrl = () => {
   return apiBaseUrl;
 };
 
+/** 메모리에 보관한 CSRF 토큰을 반환하고, 없으면 동시 요청을 합쳐 발급받습니다. */
 const getCsrfToken = async (): Promise<string> => {
   if (csrfToken) {
     return csrfToken;
@@ -68,7 +69,27 @@ const getFreshCsrfToken = async (rejectedToken: string) => {
 const isCsrfError = (error: unknown): error is ApiError =>
   error instanceof ApiError && error.status === 403 && error.code === 'CSRF_TOKEN_INVALID';
 
-/** 브라우저 요청에서 쿠키와 CSRF 토큰을 처리하는 Orval mutator입니다. */
+/**
+ * ## httpClient
+ *
+ * @description
+ * Orval 생성 API가 사용하는 브라우저 전용 HTTP mutator입니다. API 기본 주소를 적용하고 쿠키를 포함합니다.
+ * POST, PUT, PATCH, DELETE 요청에는 메모리에 보관한 CSRF 토큰을 추가하며,
+ * `CSRF_TOKEN_INVALID` 오류가 발생한 경우 토큰을 다시 발급받아 원 요청을 한 번 재시도합니다.
+ *
+ * 서버 컴포넌트나 서버 함수에서는 사용하지 말고 `serverHttpClient`를 사용합니다.
+ *
+ * @param url - API 경로 또는 절대 URL입니다.
+ * @param options - HTTP 메서드, 본문, 헤더 등 fetch 요청 옵션입니다.
+ * @returns 응답 본문을 Orval이 지정한 타입으로 반환합니다.
+ * @throws {ApiError} HTTP 오류 응답이 발생하고, CSRF 토큰 오류는 재발급 후 재시도도 실패하면 전달됩니다.
+ * @throws 환경변수가 없거나 네트워크·응답 파싱 오류가 발생할 때 오류를 전달합니다.
+ *
+ * @example
+ * ```ts
+ * const user = await httpClient<{ id: string }>('/user/me', { method: 'GET' });
+ * ```
+ */
 export async function httpClient<T>(url: string, options: RequestInit): Promise<T> {
   if (typeof window === 'undefined') {
     throw new Error('브라우저 API 요청은 client 어댑터에서만 사용할 수 있습니다.');
