@@ -1,16 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { ComponentPropsWithoutRef } from 'react';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 
 import { Profile, type UserProfile } from '@/entities/user';
 import { ROUTES } from '@/shared/constants/routes';
 import { cn } from '@/shared/styles/utils/cn';
 import { LinkButton } from '@/shared/ui/button';
 import { TextLogo } from '@/shared/ui/logo';
+import { Skeleton } from '@/shared/ui/skeleton';
 
 interface HeaderProps extends ComponentPropsWithoutRef<'header'> {
   user?: UserProfile | null;
+  authenticatedAction?: ReactNode;
   isUserLoading?: boolean;
   logoHref?: string;
   loginHref?: string;
@@ -35,6 +37,7 @@ interface HeaderProps extends ComponentPropsWithoutRef<'header'> {
  */
 export function Header({
   authenticatedLogoHref = ROUTES.WRITING,
+  authenticatedAction,
   blurThreshold = 0,
   className,
   isBackgroundBlurred,
@@ -80,14 +83,23 @@ export function Header({
         <TextLogo aria-label="Re:write 홈으로 이동" href={resolvedLogoHref} />
 
         {user ? (
-          <Profile name={user.name} profileImageUrl={user.profileImageUrl} />
+          <div className="flex items-center gap-4">
+            <Profile name={user.name} profileImageUrl={user.profileImageUrl} />
+            {authenticatedAction}
+          </div>
         ) : isUserLoading ? (
           <div
             aria-busy="true"
             aria-label="로그인 상태 확인 중"
-            className="h-9 w-20"
+            className="flex items-center gap-4"
             role="status"
-          />
+          >
+            <div className="flex items-center gap-3">
+              <Skeleton className="size-8 shrink-0 rounded-full border border-white" />
+              <Skeleton className="h-6 w-16 sm:w-20" />
+            </div>
+            <Skeleton className="size-9 shrink-0 rounded-full" />
+          </div>
         ) : (
           <nav aria-label="게스트 메뉴" className="flex items-center">
             <LinkButton

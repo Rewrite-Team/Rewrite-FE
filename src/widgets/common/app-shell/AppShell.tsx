@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { Footer } from '@/widgets/common/footer';
-import { AuthAwareHeader } from '@/widgets/common/header';
+import { SessionHeader } from '@/widgets/common/header';
 
 interface AppShellProps {
   children: ReactNode;
@@ -11,7 +11,7 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   return (
     <>
-      <AuthAwareHeader />
+      <SessionHeader />
       <main className="flex min-h-0 flex-1 flex-col px-5 sm:px-8 lg:px-12">
         <div className="mx-auto flex w-full max-w-277.5 flex-1 flex-col">{children}</div>
       </main>

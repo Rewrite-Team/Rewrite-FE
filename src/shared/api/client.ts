@@ -10,11 +10,18 @@ interface CsrfTokenResponse {
 
 const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const CSRF_TOKEN_URL = '/auth/csrf-token';
+const REFRESH_AUTH_URL = '/auth/refresh';
+const LOGOUT_URL = '/auth/logout';
+export const AUTH_SESSION_EXPIRED_EVENT = 'rewrite:auth-session-expired';
 
 // CSRF 토큰은 명세에 따라 브라우저 메모리에만 보관합니다.
 let csrfToken: string | undefined;
 // 동시에 시작된 요청은 하나의 토큰 발급 요청을 공유합니다.
 let csrfTokenRequest: Promise<string> | undefined;
+// 동시 401은 하나의 refresh 요청을 기다리고, 로그아웃은 해당 refresh가 끝난 뒤 실행합니다.
+let authRefreshRequest: Promise<unknown> | undefined;
+let logoutRequest: Promise<unknown> | undefined;
+let hasNotifiedAuthSessionExpired = false;
 
 /** 메모리에 보관한 CSRF 토큰을 반환하고, 없으면 동시 요청을 합쳐 발급받습니다. */
 const getCsrfToken = async (): Promise<string> => {
@@ -60,13 +67,122 @@ const getFreshCsrfToken = async (rejectedToken: string) => {
 const isCsrfError = (error: unknown): error is ApiError =>
   error instanceof ApiError && error.status === 403 && error.code === 'CSRF_TOKEN_INVALID';
 
+const isEndpoint = (url: string, endpoint: string, baseUrl: string) =>
+  new URL(url, baseUrl).pathname === endpoint;
+
+const requestWithCsrf = async <T>(
+  url: string,
+  options: RequestInit,
+  baseUrl: string
+): Promise<T> => {
+  const method = (options.method ?? 'GET').toUpperCase();
+
+  if (!MUTATING_METHODS.has(method)) {
+    return request<T>(url, { ...options, credentials: 'include' }, baseUrl);
+  }
+
+  const headers = new Headers(options.headers);
+  const requestCsrfToken = await getCsrfToken();
+  headers.set('X-CSRF-Token', requestCsrfToken);
+
+  try {
+    return await request<T>(url, { ...options, headers, credentials: 'include' }, baseUrl);
+  } catch (error) {
+    if (!isCsrfError(error)) {
+      throw error;
+    }
+
+    headers.set('X-CSRF-Token', await getFreshCsrfToken(requestCsrfToken));
+    return request<T>(url, { ...options, headers, credentials: 'include' }, baseUrl);
+  }
+};
+
+const getSharedAuthRefresh = (baseUrl: string): Promise<unknown> => {
+  if (logoutRequest) {
+    return Promise.reject(new ApiError(401));
+  }
+
+  if (!authRefreshRequest) {
+    authRefreshRequest = requestWithCsrf(REFRESH_AUTH_URL, { method: 'POST' }, baseUrl)
+      .then((result) => {
+        hasNotifiedAuthSessionExpired = false;
+        return result;
+      })
+      .finally(() => {
+        authRefreshRequest = undefined;
+      });
+  }
+
+  return authRefreshRequest;
+};
+
+const notifyAuthSessionExpired = () => {
+  if (hasNotifiedAuthSessionExpired) {
+    return;
+  }
+
+  hasNotifiedAuthSessionExpired = true;
+  window.dispatchEvent(new Event(AUTH_SESSION_EXPIRED_EVENT));
+};
+
+const requestWithAuthRefresh = async <T>(
+  url: string,
+  options: RequestInit,
+  baseUrl: string
+): Promise<T> => {
+  try {
+    return await requestWithCsrf<T>(url, options, baseUrl);
+  } catch (error) {
+    if (!(error instanceof ApiError) || error.status !== 401 || logoutRequest) {
+      throw error;
+    }
+
+    try {
+      await getSharedAuthRefresh(baseUrl);
+    } catch (refreshError) {
+      if (refreshError instanceof ApiError && refreshError.status === 401) {
+        notifyAuthSessionExpired();
+      }
+
+      throw refreshError;
+    }
+
+    try {
+      return await requestWithCsrf<T>(url, options, baseUrl);
+    } catch (retryError) {
+      if (retryError instanceof ApiError && retryError.status === 401) {
+        notifyAuthSessionExpired();
+      }
+
+      throw retryError;
+    }
+  }
+};
+
+const requestLogout = <T>(url: string, options: RequestInit, baseUrl: string): Promise<T> => {
+  if (logoutRequest) {
+    return logoutRequest as Promise<T>;
+  }
+
+  logoutRequest = (async () => {
+    // refresh 도중 logout이 시작되어도 토큰 회전과 쿠키 만료 요청이 겹치지 않습니다.
+    await authRefreshRequest?.catch(() => undefined);
+    return requestWithCsrf<T>(url, options, baseUrl);
+  })().finally(() => {
+    logoutRequest = undefined;
+  });
+
+  return logoutRequest as Promise<T>;
+};
+
 /**
  * ## httpClient
  *
  * @description
  * Orval 생성 API가 사용하는 브라우저 전용 HTTP mutator입니다. API 기본 주소를 적용하고 쿠키를 포함합니다.
- * POST, PUT, PATCH, DELETE 요청에는 메모리에 보관한 CSRF 토큰을 추가하며,
- * `CSRF_TOKEN_INVALID` 오류가 발생한 경우 토큰을 다시 발급받아 원 요청을 한 번 재시도합니다.
+ * 모든 요청에 쿠키를 포함합니다. 상태 변경 요청은 메모리에 보관한 CSRF 토큰을 추가하고,
+ * 보호 API의 401은 refresh single-flight 뒤 원 요청을 한 번 재시도합니다.
+ * 로그아웃과 refresh는 직렬화하며, refresh 자체의 401은 반복 갱신하지 않습니다.
  *
  * 서버 컴포넌트나 서버 함수에서는 사용하지 말고 `serverHttpClient`를 사용합니다.
  *
@@ -89,25 +205,13 @@ export async function httpClient<T>(url: string, options: RequestInit): Promise<
   const method = (options.method ?? 'GET').toUpperCase();
   const baseUrl = getClientApiBaseUrl();
 
-  if (!MUTATING_METHODS.has(method)) {
-    return request<T>(url, { ...options, credentials: 'include' }, baseUrl);
+  if (isEndpoint(url, REFRESH_AUTH_URL, baseUrl)) {
+    return getSharedAuthRefresh(baseUrl) as Promise<T>;
   }
 
-  // 상태 변경 요청은 CSRF 토큰을 붙여 전송하고, 토큰 오류일 때만 한 번 재시도합니다.
-  const headers = new Headers(options.headers);
-  const requestCsrfToken = await getCsrfToken();
-  headers.set('X-CSRF-Token', requestCsrfToken);
-
-  try {
-    return await request<T>(url, { ...options, headers, credentials: 'include' }, baseUrl);
-  } catch (error) {
-    if (!isCsrfError(error)) {
-      throw error;
-    }
-
-    const freshCsrfToken = await getFreshCsrfToken(requestCsrfToken);
-    headers.set('X-CSRF-Token', freshCsrfToken);
-
-    return request<T>(url, { ...options, headers, credentials: 'include' }, baseUrl);
+  if (isEndpoint(url, LOGOUT_URL, baseUrl)) {
+    return requestLogout<T>(url, { ...options, method }, baseUrl);
   }
+
+  return requestWithAuthRefresh<T>(url, { ...options, method }, baseUrl);
 }

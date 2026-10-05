@@ -1,4 +1,4 @@
-import { RequireAuth } from '@/features/auth/require-auth';
+import { RedirectUnauthenticated } from '@/features/auth/redirect-unauthenticated';
 import { AppShell } from '@/widgets/common/app-shell';
 
 export default function PrivateLayout({
@@ -8,9 +8,9 @@ export default function PrivateLayout({
 }>) {
   return (
     <AppShell>
-      <RequireAuth>
+      <RedirectUnauthenticated>
         <div className="flex min-h-full flex-1 flex-col py-15">{children}</div>
-      </RequireAuth>
+      </RedirectUnauthenticated>
     </AppShell>
   );
 }

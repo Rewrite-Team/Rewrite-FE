@@ -1,2 +1,2 @@
 export { Header } from './Header';
-export { AuthAwareHeader } from './AuthAwareHeader';
+export { SessionHeader } from './SessionHeader';
