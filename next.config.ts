@@ -1,7 +1,15 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // TODO: 백엔드 프로필 이미지 호스트가 확정되면 images.remotePatterns에 허용 도메인 추가 필요
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'img1.kakaocdn.net',
+        pathname: '/thumb/**',
+      },
+    ],
+  },
   turbopack: {
     rules: {
       '*.svg': [

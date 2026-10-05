@@ -33,7 +33,7 @@ export function Profile({
         fallbackSrc={fallbackImageSrc}
         src={profileImageUrl ?? fallbackImageSrc}
       />
-      <span className="body-16 truncate font-medium text-white">{name}</span>
+      <span className="w-16 truncate body-16 font-medium text-white sm:w-20">{name}</span>
     </div>
   );
 }
