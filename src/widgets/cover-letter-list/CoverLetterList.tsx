@@ -15,6 +15,7 @@ import { Pagination } from '@/shared/ui/pagination';
 import { EmptyState, ErrorState } from '@/shared/ui/state-feedback';
 
 import { CoverLetterListSkeleton } from './CoverLetterListSkeleton';
+import { useCoverLetterReviewStatusStream } from './hooks/useCoverLetterReviewStatusStream';
 
 interface CoverLetterListProps {
   requestedPage: number;
@@ -30,6 +31,7 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
   const router = useRouter();
   const { data, isPending, isFetching, isRefetchError, errorUpdatedAt, refetch } =
     useCoverLetterList(requestedPage);
+  useCoverLetterReviewStatusStream();
   const recoveryPage = Math.max(data?.totalPages ?? 0, COVER_LETTER_LIST_DEFAULT_PAGE);
   const isOutOfRange = Boolean(data && requestedPage > recoveryPage);
 

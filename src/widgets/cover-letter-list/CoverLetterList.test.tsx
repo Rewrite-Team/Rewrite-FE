@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-import { listCoverLetters } from '@/entities/cover-letter';
+import { connectCoverLetterReviewStatuses, listCoverLetters } from '@/entities/cover-letter';
 import type { CoverLetterListResponse } from '@/entities/cover-letter';
 import { appToast } from '@/shared/lib/toast';
 
@@ -9,6 +9,10 @@ import { CoverLetterList } from './CoverLetterList';
 
 jest.mock('@/entities/cover-letter/api/api', () => ({
   listCoverLetters: jest.fn(),
+}));
+
+jest.mock('@/entities/cover-letter/api/stream', () => ({
+  connectCoverLetterReviewStatuses: jest.fn(),
 }));
 
 jest.mock('@/shared/assets/icons/common', () => ({
@@ -25,6 +29,7 @@ jest.mock('@/shared/lib/toast', () => ({
 }));
 
 const mockListCoverLetters = jest.mocked(listCoverLetters);
+const mockConnectReviewStatuses = jest.mocked(connectCoverLetterReviewStatuses);
 const mockRouter = { replace: jest.fn() };
 
 jest.mock('next/navigation', () => ({
@@ -61,6 +66,8 @@ const renderList = (requestedPage = 1) =>
 describe('CoverLetterList', () => {
   beforeEach(() => {
     mockListCoverLetters.mockReset();
+    mockConnectReviewStatuses.mockReset();
+    mockConnectReviewStatuses.mockImplementation(() => new Promise(() => {}));
     mockRouter.replace.mockClear();
     jest.mocked(appToast.error).mockClear();
     queryClient = new QueryClient({
@@ -75,7 +82,7 @@ describe('CoverLetterList', () => {
   it('캐시 없는 페이지 이동 시 이전 카드 대신 스켈레톤을 표시하고 페이지별 API를 조회한다', async () => {
     mockListCoverLetters.mockResolvedValueOnce(createResponse(1));
     mockListCoverLetters.mockImplementationOnce(() => new Promise(() => {}));
-    const { container, rerender } = renderList();
+    const { container, rerender, unmount } = renderList();
 
     expect(screen.getByRole('status')).toHaveTextContent('목록을 불러오는 중');
     expect(container.querySelectorAll('[data-slot="skeleton"]')).toHaveLength(6);
@@ -104,6 +111,11 @@ describe('CoverLetterList', () => {
         { signal: expect.any(AbortSignal) }
       );
     });
+    expect(mockConnectReviewStatuses).toHaveBeenCalledTimes(1);
+    const { signal } = mockConnectReviewStatuses.mock.calls[0][0];
+    expect(signal.aborted).toBe(false);
+    unmount();
+    expect(signal.aborted).toBe(true);
   });
 
   it('캐시된 목록의 백그라운드 재조회 중에는 스켈레톤으로 교체하지 않는다', () => {
@@ -213,5 +225,107 @@ describe('CoverLetterList', () => {
     });
     expect(screen.getByText('1페이지 자기소개서')).toBeInTheDocument();
     expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([
+    ['cover-letter.review-status.snapshot', 'REVIEWED', '첨삭 완료'],
+    ['cover-letter.review-status.changed', 'REVIEW_FAILED', '첨삭 실패'],
+  ] as const)(
+    '%s 이벤트를 받으면 카드 상태를 갱신하고 다른 페이지 캐시도 무효화한다',
+    async (event, displayStatus, label) => {
+      const response = createResponse(1);
+      mockListCoverLetters.mockResolvedValueOnce(response);
+      mockListCoverLetters.mockResolvedValueOnce({
+        ...response,
+        items: response.items.map((item) => ({
+          ...item,
+          displayStatus,
+          latestReviewedVersionId: displayStatus === 'REVIEWED' ? 'review-version-1' : null,
+        })),
+      });
+      const otherPageKey = ['cover-letters', 'list', { page: 2, size: 6 }];
+      queryClient.setQueryData(otherPageKey, createResponse(2));
+      renderList();
+      expect(await screen.findByText('작성 중')).toBeInTheDocument();
+
+      act(() => {
+        mockConnectReviewStatuses.mock.calls[0][0].onmessage({
+          event,
+          data: '{}',
+          id: '',
+        });
+      });
+
+      expect(await screen.findByText(label)).toBeInTheDocument();
+      expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
+      expect(queryClient.getQueryState(otherPageKey)?.isInvalidated).toBe(true);
+      expect(mockConnectReviewStatuses).toHaveBeenCalledTimes(1);
+    }
+  );
+
+  it('heartbeat나 알 수 없는 이벤트로 목록을 재조회하지 않는다', async () => {
+    mockListCoverLetters.mockResolvedValue(createResponse(1));
+    renderList();
+    await screen.findByText('작성 중');
+
+    act(() => {
+      const { onmessage } = mockConnectReviewStatuses.mock.calls[0][0];
+      onmessage({ event: 'heartbeat', data: '', id: '' });
+      onmessage({ event: 'unknown', data: 'invalid json', id: '' });
+    });
+
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(1);
+  });
+
+  it('재연결이 세 번 실패하면 일반 목록 조회로 복구하고 이후 실패마다 요청을 반복하지 않는다', async () => {
+    mockListCoverLetters.mockResolvedValue(createResponse(1));
+    renderList();
+    await screen.findByText('작성 중');
+    const { onRetry } = mockConnectReviewStatuses.mock.calls[0][0];
+
+    act(() => {
+      onRetry?.();
+      onRetry?.();
+    });
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      onRetry?.();
+    });
+    await waitFor(() => expect(mockListCoverLetters).toHaveBeenCalledTimes(2));
+
+    act(() => onRetry?.());
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
+  });
+
+  it('화면을 떠난 뒤 지연된 이벤트로 캐시를 갱신하지 않는다', async () => {
+    mockListCoverLetters.mockResolvedValue(createResponse(1));
+    const { unmount } = renderList();
+    await screen.findByText('작성 중');
+    const { onmessage, signal } = mockConnectReviewStatuses.mock.calls[0][0];
+    const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+    unmount();
+
+    onmessage({ event: 'cover-letter.review-status.changed', data: '{}', id: '' });
+
+    expect(signal.aborted).toBe(true);
+    expect(invalidate).not.toHaveBeenCalled();
+  });
+
+  it('스트림 연결이 중단되면 일반 목록 조회로 복구한다', async () => {
+    let rejectStream: (error: Error) => void = () => {};
+    mockConnectReviewStatuses.mockImplementation(
+      () =>
+        new Promise((_resolve, reject) => {
+          rejectStream = reject;
+        })
+    );
+    mockListCoverLetters.mockResolvedValue(createResponse(1));
+    renderList();
+    await screen.findByText('작성 중');
+
+    await act(async () => rejectStream(new Error('연결 중단')));
+
+    await waitFor(() => expect(mockListCoverLetters).toHaveBeenCalledTimes(2));
   });
 });

@@ -14,6 +14,10 @@ export interface EventStreamOptions {
   onmessage: (message: EventSourceMessage) => void;
   /** 401 응답에서 쿠키 인증을 갱신합니다. 갱신 요청은 보통 `refreshAuthTokens`를 전달합니다. */
   refreshAuth: () => Promise<unknown>;
+  /** 네트워크 오류 또는 5xx 응답으로 재연결하기 전에 호출합니다. */
+  onRetry?: () => void;
+  /** 지속적인 상태 구독에서 서버가 연결을 종료하면 다시 연결합니다. 기본값은 false입니다. */
+  reconnectOnClose?: boolean;
 }
 
 class EventStreamHttpError extends Error {
@@ -52,7 +56,8 @@ class AuthRefreshError extends Error {
  * 라이브러리의 재시도 흐름으로 다시 연결합니다. 갱신 후에도 401이면 세션 만료를 알리고 연결을 중단합니다.
  * 다른 4xx 응답은 재시도하지 않고, 네트워크 오류와 5xx 응답은 라이브러리 기본 재시도 정책을 따릅니다.
  *
- * 연결은 서버가 닫거나 `signal`이 abort될 때까지 유지됩니다. 상대 경로는 `NEXT_PUBLIC_API_BASE_URL` 기준으로 해석합니다.
+ * 기본적으로 서버가 닫거나 `signal`이 abort되면 종료합니다. 지속적인 상태 구독은 `reconnectOnClose`로
+ * 서버 종료 후에도 재연결할 수 있습니다. 상대 경로는 `NEXT_PUBLIC_API_BASE_URL` 기준으로 해석합니다.
  *
  * @param path - SSE 엔드포인트 경로 또는 절대 URL입니다.
  * @param options - 이벤트 처리기, 인증 갱신 함수, 연결 취소 신호입니다.
@@ -71,7 +76,7 @@ class AuthRefreshError extends Error {
  */
 export async function connectEventStream(
   path: string,
-  { signal, onmessage, refreshAuth }: EventStreamOptions
+  { signal, onmessage, refreshAuth, onRetry, reconnectOnClose = false }: EventStreamOptions
 ): Promise<void> {
   if (typeof window === 'undefined') {
     throw new Error('SSE 연결은 브라우저에서만 사용할 수 있습니다.');
@@ -125,6 +130,11 @@ export async function connectEventStream(
         throw new EventStreamHandlerError(error);
       }
     },
+    onclose() {
+      if (reconnectOnClose && !signal.aborted) {
+        throw new Error('SSE 연결이 종료되었습니다.');
+      }
+    },
     onerror(error) {
       if (error instanceof AuthRefreshError || error instanceof EventStreamProtocolError) {
         throw error;
@@ -150,6 +160,8 @@ export async function connectEventStream(
           throw error;
         }
       }
+
+      onRetry?.();
     },
   });
 }
