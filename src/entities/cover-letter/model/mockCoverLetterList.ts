@@ -1,4 +1,5 @@
-const PAGE_SIZE = 6;
+import { getCoverLetterListParams } from '../api/listParams';
+
 const TOTAL_ITEMS = 21;
 
 const DISPLAY_STATUSES = ['WRITING', 'REVIEWING', 'REVIEWED', 'REVIEW_FAILED'] as const;
@@ -33,15 +34,16 @@ const MOCK_COVER_LETTERS = Array.from({ length: TOTAL_ITEMS }, (_, index) => {
 
 /** 실제 목록 API가 연결되기 전 페이지 응답 구조를 제공하는 임시 목 함수입니다. */
 export const getMockCoverLetterListResponse = (requestedPage: number) => {
+  const { page: normalizedPage, size } = getCoverLetterListParams(requestedPage);
   const totalItems = MOCK_COVER_LETTERS.length;
-  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
-  const page = Math.min(Math.max(requestedPage, 1), Math.max(totalPages, 1));
-  const startIndex = (page - 1) * PAGE_SIZE;
+  const totalPages = Math.ceil(totalItems / size);
+  const page = Math.min(normalizedPage, Math.max(totalPages, 1));
+  const startIndex = (page - 1) * size;
 
   return {
-    items: MOCK_COVER_LETTERS.slice(startIndex, startIndex + PAGE_SIZE),
+    items: MOCK_COVER_LETTERS.slice(startIndex, startIndex + size),
     page,
-    size: PAGE_SIZE,
+    size,
     totalItems,
     totalPages,
   };
