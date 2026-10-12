@@ -1,9 +1,12 @@
 import { CoverLetterCard } from './CoverLetterCard';
 
-import type { CoverLetterDisplayStatus, CoverLetterSummary } from '../../model/types';
+import type {
+  CoverLetterListItemResponse,
+  CoverLetterListItemResponseDisplayStatus,
+} from '../../api/types';
 import type { Meta, StoryObj } from '@storybook/nextjs';
 
-const DISPLAY_STATUSES: CoverLetterDisplayStatus[] = [
+const DISPLAY_STATUSES: CoverLetterListItemResponseDisplayStatus[] = [
   'WRITING',
   'REVIEWING',
   'REVIEWED',
@@ -11,9 +14,9 @@ const DISPLAY_STATUSES: CoverLetterDisplayStatus[] = [
 ];
 
 const createCoverLetter = (
-  displayStatus: CoverLetterDisplayStatus,
+  displayStatus: CoverLetterListItemResponseDisplayStatus,
   index = 0
-): CoverLetterSummary => ({
+): CoverLetterListItemResponse => ({
   id: `cl_${index + 1}`,
   title: '2026 상반기 백엔드 개발자 자기소개서',
   companyName: 'Rewrite Corp',

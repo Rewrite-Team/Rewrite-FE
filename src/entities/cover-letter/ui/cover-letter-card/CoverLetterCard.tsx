@@ -10,10 +10,10 @@ import { formatDate } from '@/shared/utils/formatDate';
 import styles from './CoverLetterCard.module.css';
 import { CoverLetterStatus } from '../CoverLetterStatus';
 
-import type { CoverLetterSummary } from '../../model/types';
+import type { CoverLetterListItemResponse } from '../../api/types';
 
 interface CoverLetterCardProps {
-  coverLetter: CoverLetterSummary;
+  coverLetter: CoverLetterListItemResponse;
 }
 
 /**
@@ -24,7 +24,8 @@ interface CoverLetterCardProps {
  * 카드 전체가 상세 화면으로 이동하는 링크이며 키보드 포커스 상태를 제공합니다.
  */
 export function CoverLetterCard({ coverLetter }: CoverLetterCardProps) {
-  const { companyName, createdAt, displayStatus, id, positionTitle, title } = coverLetter;
+  const { companyName, createdAt, displayStatus, id, positionTitle } = coverLetter;
+  const title = coverLetter.title?.trim() || '제목 없는 자기소개서';
   const folderGradientId = useId();
 
   return (
@@ -44,9 +45,9 @@ export function CoverLetterCard({ coverLetter }: CoverLetterCardProps) {
         <BadgeGroup
           className={`${styles.badges} min-w-0 flex-nowrap gap-0`}
           companyBadgeClassName={`${styles.folderBadge} max-w-36 truncate body-14`}
-          companyName={companyName}
+          companyName={companyName?.trim() || '회사 미입력'}
           jobBadgeClassName={`${styles.folderBadge} max-w-36 truncate body-14`}
-          jobName={positionTitle}
+          jobName={positionTitle?.trim() || '직무 미입력'}
         />
 
         <svg
