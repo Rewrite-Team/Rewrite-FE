@@ -3,7 +3,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import type { ReviewVersionSummary } from '@/entities/review-version';
 
 import { ReviewVersionPanel } from './ReviewVersionPanel';
-import { ReviewVersionProvider } from '../model/ReviewVersionContext';
+import { ReviewVersionProvider } from '../../model/ReviewVersionContext';
 
 jest.mock('@/shared/assets/icons/version', () => ({
   PanelCloseIcon: 'svg',

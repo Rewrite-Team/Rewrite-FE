@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ComponentProps } from 'react';
 
-import { AIReviewRequirementModal } from '@/entities/review-version/ui/ai-review-requirement-modal/AIReviewRequirementModal';
 import { INPUT_LIMITS } from '@/shared/constants/limits';
 import { Button } from '@/shared/ui/button';
+
+import { AIReviewRequirementModal } from './AIReviewRequirementModal';
 
 import type { Meta, StoryObj } from '@storybook/nextjs';
 
@@ -109,7 +110,7 @@ function LoadingAIReviewRequirementModalExample(args: AIReviewRequirementModalSt
 }
 
 const meta = {
-  title: 'Entities/ReviewVersion/AIReviewRequirementModal',
+  title: 'Features/CoverLetter/DetailActions/AIReviewRequirementModal',
   component: AIReviewRequirementModal,
   tags: ['autodocs'],
   args: {

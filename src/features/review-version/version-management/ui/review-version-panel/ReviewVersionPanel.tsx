@@ -7,8 +7,8 @@ import { Button } from '@/shared/ui/button';
 import { Surface } from '@/shared/ui/surface';
 import { Title } from '@/shared/ui/title';
 
-import { ReviewVersionTimeline } from './ReviewVersionTimeline';
-import { useReviewVersion } from '../model/ReviewVersionContext';
+import { useReviewVersion } from '../../model/ReviewVersionContext';
+import { ReviewVersionTimeline } from '../ReviewVersionTimeline';
 
 interface ReviewVersionPanelProps {
   onOpenChange: (open: boolean) => void;
