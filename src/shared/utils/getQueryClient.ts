@@ -1,14 +1,23 @@
 import { environmentManager, QueryClient } from '@tanstack/react-query';
 
+import { ApiError } from '@/shared/api/apiError';
+
 /**
  * 공통 기본 옵션이 적용된 QueryClient를 생성합니다.
  * 서버와 브라우저에서 QueryClient 생성 방식이 달라질 수 있으므로
  * 직접 생성하지 않고 이 함수에서만 생성 로직을 관리합니다.
  */
-const makeQueryClient = () => {
+const createQueryClient = () => {
   return new QueryClient({
     defaultOptions: {
       queries: {
+        retry: (failureCount, error) => {
+          if (error instanceof ApiError && error.status === 401) {
+            return false;
+          }
+
+          return !environmentManager.isServer() && failureCount < 3;
+        },
         staleTime: 60 * 1000,
       },
     },
@@ -28,10 +37,10 @@ let browserQueryClient: QueryClient | undefined = undefined;
  */
 export const getQueryClient = () => {
   if (environmentManager.isServer()) {
-    return makeQueryClient();
+    return createQueryClient();
   } else {
     if (!browserQueryClient) {
-      browserQueryClient = makeQueryClient();
+      browserQueryClient = createQueryClient();
     }
     return browserQueryClient;
   }
