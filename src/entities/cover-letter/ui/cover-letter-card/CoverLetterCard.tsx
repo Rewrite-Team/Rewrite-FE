@@ -2,14 +2,15 @@ import { useId } from 'react';
 
 import Link from 'next/link';
 
-import type { CoverLetterSummary } from '@/entities/cover-letter/model/types';
-import { CoverLetterStatus } from '@/entities/cover-letter/ui/CoverLetterStatus';
 import { ROUTES } from '@/shared/constants/routes';
 import { BadgeGroup } from '@/shared/ui/badge';
 import { Title } from '@/shared/ui/title';
 import { formatDate } from '@/shared/utils/formatDate';
 
 import styles from './CoverLetterCard.module.css';
+import { CoverLetterStatus } from '../CoverLetterStatus';
+
+import type { CoverLetterSummary } from '../../model/types';
 
 interface CoverLetterCardProps {
   coverLetter: CoverLetterSummary;

@@ -3,7 +3,6 @@
 import { useId } from 'react';
 import type { ComponentProps } from 'react';
 
-import type { AIReviewRequirementModalProps } from '@/entities/review-version/ui/ai-review-requirement-modal/AIReviewRequirementModal.types';
 import { CancelIcon } from '@/shared/assets/icons/common';
 import { INPUT_LIMITS } from '@/shared/constants/limits';
 import { useControllableState } from '@/shared/hooks';
@@ -11,6 +10,8 @@ import { Button } from '@/shared/ui/button';
 import { Surface } from '@/shared/ui/surface';
 import { TextArea } from '@/shared/ui/textarea';
 import { Title } from '@/shared/ui/title';
+
+import type { AIReviewRequirementModalProps } from './types';
 
 const limitRequirementLength = (value: string, maxLength: number) => value.slice(0, maxLength);
 

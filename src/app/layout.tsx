@@ -1,6 +1,7 @@
 import localFont from 'next/font/local';
 
 import { PORTAL_ROOT_ID } from '@/shared/constants/portal';
+import { QueryProvider } from '@/shared/providers/QueryProviders';
 import '@/shared/styles/globals.css';
 import { ToastContainer } from '@/shared/ui/toast';
 
@@ -18,7 +19,7 @@ export default function RootLayout({
   return (
     <html className={`${pretendard.variable} ${pretendard.className}`} lang="ko">
       <body className="flex min-h-dvh flex-col overflow-x-clip bg-black">
-        {children}
+        <QueryProvider>{children}</QueryProvider>
         <div id={PORTAL_ROOT_ID} />
         <ToastContainer />
       </body>

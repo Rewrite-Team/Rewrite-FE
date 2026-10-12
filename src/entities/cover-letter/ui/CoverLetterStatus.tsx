@@ -1,6 +1,6 @@
 import { cva } from 'class-variance-authority';
 
-import type { CoverLetterDisplayStatus } from '@/entities/cover-letter/model/types';
+import type { CoverLetterDisplayStatus } from '../model/types';
 
 interface CoverLetterStatusProps {
   displayStatus: CoverLetterDisplayStatus;

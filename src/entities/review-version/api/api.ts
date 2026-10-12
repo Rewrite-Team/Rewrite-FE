@@ -13,6 +13,7 @@ import type {
   ErrorDetail,
   ErrorBody,
   ErrorResponse,
+  ReviewVersionListItemResponseStatus,
   ReviewVersionListItemResponse,
   ReviewVersionListResponse,
   RequestReReviewRequest,
@@ -20,6 +21,7 @@ import type {
   RequestReReviewResponse,
   CoverLetterDetailCoverLetterResponseDisplayStatus,
   CoverLetterDetailCoverLetterResponse,
+  CoverLetterDetailReviewVersionResponseStatus,
   CoverLetterDetailReviewVersionResponse,
   ReviewJobResponseStatus,
   CoverLetterDetailProgressResponse,
@@ -37,16 +39,16 @@ export const getSaveFinalAnswersUrl = (coverLetterId: string, versionId: string)
  * > 인증: 필요 · CSRF: 필요
  *
  * ### 사용 목적
- * 최신 첨삭 버전의 모든 문항 최종 작성본을 한 번에 저장한다.
+ * 최신 성공 첨삭 버전의 모든 문항 최종 작성본을 한 번에 저장한다.
  *
  * ### 사용 화면
  * 첨삭 결과
  *
  * ### 호출 시점
- * 사용자가 최신 버전의 최종 작성본 편집을 저장할 때 호출한다.
+ * 사용자가 최신 성공 버전의 최종 작성본 편집을 저장할 때 호출한다.
  *
  * ### 주요 동작
- * 모든 문항 포함·중복·소속·빈 값·길이를 검증하고 최신 버전에만 전체 replace로 저장한다.
+ * 모든 문항 포함·중복·소속·빈 값·길이를 검증하고 최신 성공 버전에만 전체 replace로 저장한다.
  *
  * ### 성공 후 처리
  * 로컬 입력을 유지하고 서버 정규화 값을 다시 맞출 필요가 있으면 API-012 또는 API-018을 조회한다.
@@ -58,7 +60,7 @@ export const getSaveFinalAnswersUrl = (coverLetterId: string, versionId: string)
  * | 401 | `UNAUTHORIZED` | access token이 없거나 만료됨 | API-004로 토큰을 한 번 갱신하고 원 요청을 한 번 재시도한다. 실패하면 로그인 화면으로 이동한다. |
  * | 403 | `CSRF_TOKEN_INVALID` | CSRF 토큰 누락·만료·불일치 | API-003으로 토큰을 재발급하고 원 요청을 한 번 재시도한다. |
  * | 404 | `NOT_FOUND` | 자기소개서·버전 없음, 비소유·삭제 | 입력값을 유지하고 대상 없음 안내 후 이전 화면으로 이동한다. |
- * | 409 | `REVIEW_VERSION_NOT_LATEST` | 열린 버전이 더 이상 최신 버전이 아님 | 자동 재전송하지 않고 API-012 또는 API-018로 최신 데이터를 조회한다. |
+ * | 409 | `REVIEW_VERSION_NOT_LATEST` | 열린 버전이 최신 성공 버전이 아니거나 첨삭 미완료 버전임 | 자동 재전송하지 않고 API-012 또는 API-018로 최신 데이터를 조회한다. |
  * | 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 | 공통 일시 오류를 표시하며 상태 변경 요청은 자동 재전송하지 않는다. |
  * @summary API-019 · 최종 작성본 일괄 저장
  */
@@ -103,7 +105,7 @@ export const getListReviewVersionsUrl = (coverLetterId: string) => {
  * > 인증: 필요 · CSRF: 불필요
  *
  * ### 사용 목적
- * 자기소개서의 성공한 첨삭 버전 목록을 과거부터 최신 순으로 조회한다.
+ * 자기소개서에서 시작한 첨삭 버전 목록을 과거부터 최신 순으로 조회한다.
  *
  * ### 사용 화면
  * 첨삭 결과
@@ -112,10 +114,10 @@ export const getListReviewVersionsUrl = (coverLetterId: string) => {
  * 첨삭 결과 화면에서 버전 선택 목록을 구성하거나 완료 후 목록을 갱신할 때 호출한다.
  *
  * ### 주요 동작
- * 성공한 버전만 반환하며 isLatest로 최신 버전의 편집 가능 여부를 구분한다. 성공 버전이 없으면 빈 배열이다.
+ * 진행·성공·실패 버전을 반환한다. status는 첨삭 상태, isLatest는 최신 시도, isLatestReviewed는 최신 성공 결과를 나타낸다.
  *
  * ### 성공 후 처리
- * 선택한 versionId로 API-018을 조회하고 isLatest 버전에만 최종 작성본 편집을 제공한다.
+ * 선택한 versionId로 API-018을 조회하고 완료된 isLatestReviewed 버전에만 최종 작성본 편집을 제공한다.
  *
  * ### 오류
  * | HTTP | 오류 코드 | 발생 조건 | 처리 |
@@ -155,7 +157,7 @@ export const getRequestReReviewUrl = (coverLetterId: string) => {
  * 동일 재첨삭 Job이 진행 중이면 기존 jobId를 반환한다. Job 시작 후 AI 실패는 API-016·015의 FAILED 상태로 전달된다.
  *
  * ### 성공 후 처리
- * displayStatus=REVIEWING을 반영하고 jobId로 API-016에 연결한다. 완료 후 API-017과 상세를 다시 조회한다.
+ * displayStatus=REVIEWING을 반영하고 jobId로 API-016에 연결한다. 새 버전은 시작 시 생성되므로 API-017과 상세에서 진행 상태를 조회할 수 있다.
  *
  * ### 오류
  * | HTTP | 오류 코드 | 발생 조건 | 처리 |
@@ -209,7 +211,7 @@ export const getGetReviewVersionDetailUrl = (coverLetterId: string, versionId: s
  * > 인증: 필요 · CSRF: 불필요
  *
  * ### 사용 목적
- * 선택한 성공 첨삭 버전의 자기소개서와 문항별 결과를 조회한다.
+ * 선택한 첨삭 버전의 상태와 문항별 결과를 조회한다.
  *
  * ### 사용 화면
  * 첨삭 결과
@@ -218,10 +220,10 @@ export const getGetReviewVersionDetailUrl = (coverLetterId: string, versionId: s
  * 사용자가 API-017 버전 목록에서 특정 버전을 선택할 때 호출한다.
  *
  * ### 주요 동작
- * 선택 버전의 aiReport·rewrittenAnswer·finalAnswer와 길이 필드를 공통 상세 구조로 반환한다.
+ * 진행·실패 버전은 완료된 문항의 부분 결과와 Job 상태를, 성공 버전은 확정된 전체 문항 결과를 공통 상세 구조로 반환한다.
  *
  * ### 성공 후 처리
- * 문항을 order로 정렬해 표시하고 최신 버전 여부에 따라 최종 작성본 편집을 제어한다.
+ * 문항을 order로 정렬해 표시하고 완료된 isLatestReviewed 버전에만 최종 작성본 편집을 제공한다.
  *
  * ### 오류
  * | HTTP | 오류 코드 | 발생 조건 | 처리 |

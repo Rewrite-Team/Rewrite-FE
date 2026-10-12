@@ -1,8 +1,10 @@
 import type { ImageProps } from 'next/image';
 
-import type { UserProfile } from '@/entities/user/model/types';
-import { ProfileImage } from '@/entities/user/ui/ProfileImage';
 import { DefaultProfileImage } from '@/shared/assets/images';
+
+import { ProfileImage } from './ProfileImage';
+
+import type { UserProfile } from '../../model/types';
 
 interface ProfileProps extends UserProfile {
   fallbackImageSrc?: ImageProps['src'];
@@ -28,8 +30,12 @@ export function Profile({
 }: ProfileProps) {
   return (
     <div className="flex items-center gap-3">
-      <ProfileImage alt={imageAlt} fallbackSrc={fallbackImageSrc} src={profileImageUrl} />
-      <span className="body-16 truncate font-medium text-white">{name}</span>
+      <ProfileImage
+        alt={imageAlt}
+        fallbackSrc={fallbackImageSrc}
+        src={profileImageUrl ?? fallbackImageSrc}
+      />
+      <span className="w-16 truncate body-16 font-medium text-white sm:w-20">{name}</span>
     </div>
   );
 }

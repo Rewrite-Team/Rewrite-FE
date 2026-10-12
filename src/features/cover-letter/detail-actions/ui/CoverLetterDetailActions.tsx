@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 
-import { AIReviewRequirementModal } from '@/entities/review-version';
 import { Button } from '@/shared/ui/button';
 import { ConfirmModal } from '@/shared/ui/confirm-modal';
+
+import { AIReviewRequirementModal } from './ai-review-requirement-modal/AIReviewRequirementModal';
 
 interface CoverLetterDetailActionsProps {
   hasUnsavedChanges?: boolean;

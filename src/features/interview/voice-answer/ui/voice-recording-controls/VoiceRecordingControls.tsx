@@ -5,9 +5,9 @@ import { VoiceRecordIcon } from '@/shared/assets/icons/interview';
 import { Button } from '@/shared/ui/button';
 
 import styles from './VoiceRecordingControls.module.css';
-import { INITIAL_INTERVIEW_WAVEFORM_LEVELS } from '../model/constants';
+import { INITIAL_INTERVIEW_WAVEFORM_LEVELS } from '../../model/constants';
 
-import type { InterviewRecordingStatus } from '../model/types';
+import type { InterviewRecordingStatus } from '../../model/types';
 
 interface VoiceRecordingControlsProps {
   onCancel: () => void;

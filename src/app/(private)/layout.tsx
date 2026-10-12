@@ -1,3 +1,4 @@
+import { RedirectUnauthenticated } from '@/features/auth/redirect-unauthenticated';
 import { AppShell } from '@/widgets/common/app-shell';
 
 export default function PrivateLayout({
@@ -7,7 +8,9 @@ export default function PrivateLayout({
 }>) {
   return (
     <AppShell>
-      <div className="flex min-h-full flex-1 flex-col py-15">{children}</div>
+      <RedirectUnauthenticated>
+        <div className="flex min-h-full flex-1 flex-col py-15">{children}</div>
+      </RedirectUnauthenticated>
     </AppShell>
   );
 }

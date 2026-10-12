@@ -5,4 +5,4 @@ export {
   getMockReviewVersions,
 } from './model/mockReviewVersions';
 export type { CoverLetterVersionRecord } from './model/mockReviewVersions';
-export { ReviewVersionPanel } from './ui/ReviewVersionPanel';
+export { ReviewVersionPanel } from './ui/review-version-panel/ReviewVersionPanel';
