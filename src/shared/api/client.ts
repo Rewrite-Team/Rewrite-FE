@@ -116,7 +116,11 @@ const getSharedAuthRefresh = (baseUrl: string): Promise<unknown> => {
   return authRefreshRequest;
 };
 
-const notifyAuthSessionExpired = () => {
+export const notifyAuthSessionExpired = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
   if (hasNotifiedAuthSessionExpired) {
     return;
   }

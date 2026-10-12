@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 
 import { usePathname, useRouter } from 'next/navigation';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { currentUserQueryOptions } from '@/entities/user';
 import { ApiError } from '@/shared/api/apiError';
@@ -21,6 +21,7 @@ interface RedirectUnauthenticatedProps {
 export function RedirectUnauthenticated({ children }: RedirectUnauthenticatedProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const hasRedirectedToLogin = useRef(false);
   const { data: user, error } = useQuery(currentUserQueryOptions);
   const isUnauthorized = error instanceof ApiError && error.status === 401;
@@ -39,6 +40,7 @@ export function RedirectUnauthenticated({ children }: RedirectUnauthenticatedPro
         saveReturnTo(currentPath);
       }
 
+      queryClient.clear();
       router.replace(ROUTES.LOGIN);
     };
 
@@ -49,7 +51,7 @@ export function RedirectUnauthenticated({ children }: RedirectUnauthenticatedPro
     }
 
     return () => window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, redirectToLogin);
-  }, [isUnauthorized, router]);
+  }, [isUnauthorized, queryClient, router]);
 
   useEffect(() => {
     if (!user || pathname !== ROUTES.WRITING) {

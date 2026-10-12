@@ -2,6 +2,8 @@
 
 import { fetchEventSource, type EventSourceMessage } from '@microsoft/fetch-event-source';
 
+import { ApiError } from './apiError';
+import { notifyAuthSessionExpired } from './client';
 import { getClientApiBaseUrl } from './config';
 
 /** SSE 연결의 이벤트 처리, 인증 갱신, 취소 동작을 지정합니다. */
@@ -87,6 +89,10 @@ export async function connectEventStream(
       try {
         await refreshRequest;
       } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+          notifyAuthSessionExpired();
+        }
+
         throw new AuthRefreshError(error);
       } finally {
         refreshRequest = undefined;
