@@ -49,8 +49,8 @@ class AuthRefreshError extends Error {
  *
  * @description
  * 브라우저에서 인증 쿠키를 포함해 SSE 연결을 엽니다. 401 응답이면 전달받은 인증 갱신 함수를 한 번 호출한 뒤
- * 라이브러리의 재시도 흐름으로 다시 연결합니다. 다른 4xx 응답은 재시도하지 않고, 네트워크 오류와 5xx 응답은
- * 라이브러리 기본 재시도 정책을 따릅니다.
+ * 라이브러리의 재시도 흐름으로 다시 연결합니다. 갱신 후에도 401이면 세션 만료를 알리고 연결을 중단합니다.
+ * 다른 4xx 응답은 재시도하지 않고, 네트워크 오류와 5xx 응답은 라이브러리 기본 재시도 정책을 따릅니다.
  *
  * 연결은 서버가 닫거나 `signal`이 abort될 때까지 유지됩니다. 상대 경로는 `NEXT_PUBLIC_API_BASE_URL` 기준으로 해석합니다.
  *
@@ -140,6 +140,10 @@ export async function connectEventStream(
           refreshRequest = Promise.resolve().then(refreshAuth);
 
           return 0;
+        }
+
+        if (error.status === 401) {
+          notifyAuthSessionExpired();
         }
 
         if (error.status < 500) {
