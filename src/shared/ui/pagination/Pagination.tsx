@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 
 import { ChevronLeftIcon, ChevronRightIcon } from '@/shared/assets/icons/common';
@@ -8,6 +10,7 @@ import { getPaginationItems } from './getPaginationItems';
 interface PaginationArrowProps {
   direction: 'previous' | 'next';
   href?: string;
+  onPrefetch?: () => void;
 }
 
 interface PaginationProps {
@@ -15,6 +18,8 @@ interface PaginationProps {
   totalPages: number;
   pathname: string;
   className?: string;
+  /** 이동 가능한 페이지 링크에 호버하거나 포커스할 때 데이터를 미리 조회합니다. */
+  onPrefetchPage?: (page: number) => void;
 }
 
 const paginationItemClassName =
@@ -30,7 +35,7 @@ const paginationItemClassName =
  * @param direction - 이전 또는 다음 방향
  * @param href - 이동할 페이지 주소. 없으면 접근성 트리에서 제외된 비활성 표시를 렌더링합니다.
  */
-function PaginationArrow({ direction, href }: PaginationArrowProps) {
+function PaginationArrow({ direction, href, onPrefetch }: PaginationArrowProps) {
   const isPrevious = direction === 'previous';
   const label = isPrevious ? '이전 페이지' : '다음 페이지';
   const Icon = isPrevious ? ChevronLeftIcon : ChevronRightIcon;
@@ -38,7 +43,13 @@ function PaginationArrow({ direction, href }: PaginationArrowProps) {
 
   if (href) {
     return (
-      <Link aria-label={label} className={paginationItemClassName} href={href}>
+      <Link
+        aria-label={label}
+        className={paginationItemClassName}
+        href={href}
+        onFocus={onPrefetch}
+        onMouseEnter={onPrefetch}
+      >
         {icon}
       </Link>
     );
@@ -68,6 +79,7 @@ function PaginationArrow({ direction, href }: PaginationArrowProps) {
  * @param totalPages - 목록의 전체 페이지 수
  * @param pathname - 페이지 번호를 쿼리로 연결할 목록 경로
  * @param className - 페이지네이션 배치를 조정할 외부 스타일
+ * @param onPrefetchPage - 링크 호버·키보드 포커스 시 호출할 선택적 데이터 프리패칭 함수
  *
  * @example
  * ```tsx
@@ -81,7 +93,13 @@ function PaginationArrow({ direction, href }: PaginationArrowProps) {
  * />
  * ```
  */
-export function Pagination({ className, currentPage, pathname, totalPages }: PaginationProps) {
+export function Pagination({
+  className,
+  currentPage,
+  pathname,
+  totalPages,
+  onPrefetchPage,
+}: PaginationProps) {
   const items = getPaginationItems(currentPage, totalPages);
   const getHref = (page: number) => `${pathname}?page=${page}`;
 
@@ -95,6 +113,7 @@ export function Pagination({ className, currentPage, pathname, totalPages }: Pag
           <PaginationArrow
             direction="previous"
             href={currentPage > 1 ? getHref(currentPage - 1) : undefined}
+            onPrefetch={() => onPrefetchPage?.(currentPage - 1)}
           />
         </li>
 
@@ -120,6 +139,8 @@ export function Pagination({ className, currentPage, pathname, totalPages }: Pag
                   item === currentPage && 'bg-primary-500 text-white hover:bg-primary-600'
                 )}
                 href={getHref(item)}
+                onFocus={item !== currentPage ? () => onPrefetchPage?.(item) : undefined}
+                onMouseEnter={item !== currentPage ? () => onPrefetchPage?.(item) : undefined}
               >
                 {item}
               </Link>
@@ -131,6 +152,7 @@ export function Pagination({ className, currentPage, pathname, totalPages }: Pag
           <PaginationArrow
             direction="next"
             href={currentPage < totalPages ? getHref(currentPage + 1) : undefined}
+            onPrefetch={() => onPrefetchPage?.(currentPage + 1)}
           />
         </li>
       </ul>

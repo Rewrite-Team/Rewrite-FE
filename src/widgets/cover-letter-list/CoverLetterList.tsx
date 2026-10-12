@@ -4,9 +4,12 @@ import { useEffect } from 'react';
 
 import { useRouter } from 'next/navigation';
 
+import { useQueryClient } from '@tanstack/react-query';
+
 import {
   COVER_LETTER_LIST_DEFAULT_PAGE,
   CoverLetterCard,
+  coverLetterListQueryOptions,
   useCoverLetterList,
 } from '@/entities/cover-letter';
 import { ROUTES } from '@/shared/constants/routes';
@@ -29,6 +32,7 @@ interface CoverLetterListProps {
  */
 export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data, isPending, isFetching, isRefetchError, errorUpdatedAt, refetch } =
     useCoverLetterList(requestedPage);
   useCoverLetterReviewStatusStream();
@@ -50,6 +54,15 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
 
   const handleRetry = () => {
     void refetch();
+  };
+
+  const handlePrefetchPage = (page: number) => {
+    if (!data || page === data.page || page < 1 || page > data.totalPages) {
+      return;
+    }
+
+    // 같은 query key와 캐시 기준을 사용해 프리패칭 이후 페이지 이동 시 중복 요청을 줄입니다.
+    void queryClient.prefetchQuery(coverLetterListQueryOptions(page));
   };
 
   if (isPending || isOutOfRange) {
@@ -90,6 +103,7 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
         <Pagination
           className="mt-16 lg:mt-20"
           currentPage={page}
+          onPrefetchPage={handlePrefetchPage}
           pathname={ROUTES.WRITING}
           totalPages={totalPages}
         />

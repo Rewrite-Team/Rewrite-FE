@@ -118,6 +118,91 @@ describe('CoverLetterList', () => {
     expect(signal.aborted).toBe(true);
   });
 
+  it.each(['mouseEnter', 'focus'] as const)(
+    '%s 시 이동할 페이지를 미리 조회하고 캐시에서 바로 표시한다',
+    async (event) => {
+      mockListCoverLetters.mockResolvedValueOnce(createResponse(1));
+      mockListCoverLetters.mockResolvedValueOnce(createResponse(2));
+      const { rerender } = renderList();
+      await screen.findByText('1페이지 자기소개서');
+
+      const target = screen.getByRole('link', { name: '2페이지' });
+      fireEvent[event](target);
+
+      await waitFor(() => {
+        expect(queryClient.getQueryData(['cover-letters', 'list', { page: 2, size: 6 }])).toEqual(
+          createResponse(2)
+        );
+      });
+      fireEvent.mouseEnter(target);
+      fireEvent.focus(target);
+      fireEvent.mouseEnter(screen.getByRole('link', { name: '1페이지' }));
+      expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
+      expect(screen.getByText('1페이지 자기소개서')).toBeInTheDocument();
+      expect(mockRouter.replace).not.toHaveBeenCalled();
+
+      rerender(
+        <QueryClientProvider client={queryClient}>
+          <CoverLetterList requestedPage={2} />
+        </QueryClientProvider>
+      );
+
+      expect(screen.getByText('2페이지 자기소개서')).toBeInTheDocument();
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+      expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
+    }
+  );
+
+  it.each([
+    [1, '다음 페이지', 2],
+    [2, '이전 페이지', 1],
+  ] as const)(
+    '%s페이지의 %s 화살표에서도 데이터를 미리 조회한다',
+    async (page, label, targetPage) => {
+      mockListCoverLetters.mockResolvedValueOnce(createResponse(page));
+      mockListCoverLetters.mockResolvedValueOnce(createResponse(targetPage));
+      renderList(page);
+      await screen.findByText(`${page}페이지 자기소개서`);
+
+      fireEvent.focus(screen.getByRole('link', { name: label }));
+
+      await waitFor(() => {
+        expect(mockListCoverLetters).toHaveBeenNthCalledWith(
+          2,
+          { page: targetPage, size: 6 },
+          { signal: expect.any(AbortSignal) }
+        );
+      });
+    }
+  );
+
+  it('프리패칭 실패는 현재 목록에 오류를 표시하지 않고 실제 페이지 이동 시 다시 조회한다', async () => {
+    mockListCoverLetters.mockResolvedValueOnce(createResponse(1));
+    mockListCoverLetters.mockRejectedValueOnce(new Error('프리패칭 실패'));
+    mockListCoverLetters.mockResolvedValueOnce(createResponse(2));
+    const { rerender } = renderList();
+    await screen.findByText('1페이지 자기소개서');
+
+    fireEvent.mouseEnter(screen.getByRole('link', { name: '2페이지' }));
+    await waitFor(() => {
+      expect(
+        queryClient.getQueryState(['cover-letters', 'list', { page: 2, size: 6 }])?.status
+      ).toBe('error');
+    });
+    expect(screen.getByText('1페이지 자기소개서')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(appToast.error).not.toHaveBeenCalled();
+
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <CoverLetterList requestedPage={2} />
+      </QueryClientProvider>
+    );
+
+    expect(await screen.findByText('2페이지 자기소개서')).toBeInTheDocument();
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(3);
+  });
+
   it('캐시된 목록의 백그라운드 재조회 중에는 스켈레톤으로 교체하지 않는다', () => {
     queryClient.setQueryData(['cover-letters', 'list', { page: 1, size: 6 }], createResponse(1));
     mockListCoverLetters.mockImplementation(() => new Promise(() => {}));
