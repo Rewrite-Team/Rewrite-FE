@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { logout } from '@/entities/user';
+import { AUTH_LOGOUT_STATE_EVENT } from '@/shared/api/client';
 import { LogoutIcon } from '@/shared/assets/icons/common';
 import { ROUTES } from '@/shared/constants/routes';
 import { appToast } from '@/shared/lib/toast';
@@ -14,9 +15,15 @@ import { Button } from '@/shared/ui/button';
 export function LogoutButton() {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const notifyLogoutState = (isLoggingOut: boolean) => {
+    window.dispatchEvent(new CustomEvent(AUTH_LOGOUT_STATE_EVENT, { detail: isLoggingOut }));
+  };
   const logoutMutation = useMutation({
     mutationFn: logout,
-    onError: () => appToast.error('로그아웃하지 못했습니다. 다시 시도해 주세요.'),
+    onError: () => {
+      notifyLogoutState(false);
+      appToast.error('로그아웃하지 못했습니다. 다시 시도해 주세요.');
+    },
     onSuccess: () => {
       queryClient.clear();
       appToast.success('로그아웃되었습니다.');
@@ -30,7 +37,10 @@ export function LogoutButton() {
       className="size-9 rounded-full"
       disabled={logoutMutation.isPending}
       iconOnly
-      onClick={() => logoutMutation.mutate(undefined)}
+      onClick={() => {
+        notifyLogoutState(true);
+        logoutMutation.mutate(undefined);
+      }}
       variant="ghost"
     >
       <LogoutIcon aria-hidden className="size-5" focusable={false} />

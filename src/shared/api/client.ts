@@ -13,6 +13,7 @@ const CSRF_TOKEN_URL = '/auth/csrf-token';
 const REFRESH_AUTH_URL = '/auth/refresh';
 const LOGOUT_URL = '/auth/logout';
 export const AUTH_SESSION_EXPIRED_EVENT = 'rewrite:auth-session-expired';
+export const AUTH_LOGOUT_STATE_EVENT = 'rewrite:auth-logout-state';
 
 // CSRF 토큰은 명세에 따라 브라우저 메모리에만 보관합니다.
 let csrfToken: string | undefined;

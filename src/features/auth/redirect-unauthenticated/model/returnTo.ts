@@ -14,6 +14,14 @@ export const saveReturnTo = (path: string) => {
   }
 };
 
+export const clearReturnTo = () => {
+  try {
+    window.sessionStorage.removeItem(RETURN_TO_STORAGE_KEY);
+  } catch {
+    // sessionStorage를 사용할 수 없는 환경에서는 저장된 복귀 경로가 없습니다.
+  }
+};
+
 export const consumeReturnTo = () => {
   try {
     const path = window.sessionStorage.getItem(RETURN_TO_STORAGE_KEY);

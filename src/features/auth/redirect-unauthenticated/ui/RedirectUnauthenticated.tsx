@@ -8,10 +8,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { currentUserQueryOptions } from '@/entities/user';
 import { ApiError } from '@/shared/api/apiError';
-import { AUTH_SESSION_EXPIRED_EVENT } from '@/shared/api/client';
+import { AUTH_LOGOUT_STATE_EVENT, AUTH_SESSION_EXPIRED_EVENT } from '@/shared/api/client';
 import { ROUTES } from '@/shared/constants/routes';
 
-import { consumeReturnTo, saveReturnTo } from '../model/returnTo';
+import { clearReturnTo, consumeReturnTo, saveReturnTo } from '../model/returnTo';
 
 interface RedirectUnauthenticatedProps {
   children: React.ReactNode;
@@ -23,6 +23,7 @@ export function RedirectUnauthenticated({ children }: RedirectUnauthenticatedPro
   const router = useRouter();
   const queryClient = useQueryClient();
   const hasRedirectedToLogin = useRef(false);
+  const isExplicitLogout = useRef(false);
   const { data: user, error } = useQuery(currentUserQueryOptions);
   const isUnauthorized = error instanceof ApiError && error.status === 401;
 
@@ -36,7 +37,7 @@ export function RedirectUnauthenticated({ children }: RedirectUnauthenticatedPro
 
       const currentPath = `${window.location.pathname}${window.location.search}`;
 
-      if (currentPath !== ROUTES.WRITING) {
+      if (!isExplicitLogout.current && currentPath !== ROUTES.WRITING) {
         saveReturnTo(currentPath);
       }
 
@@ -44,13 +45,29 @@ export function RedirectUnauthenticated({ children }: RedirectUnauthenticatedPro
       router.replace(ROUTES.LOGIN);
     };
 
+    const handleLogoutState = (event: Event) => {
+      if (!(event instanceof CustomEvent)) {
+        return;
+      }
+
+      isExplicitLogout.current = event.detail === true;
+
+      if (isExplicitLogout.current) {
+        clearReturnTo();
+      }
+    };
+
     window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, redirectToLogin);
+    window.addEventListener(AUTH_LOGOUT_STATE_EVENT, handleLogoutState);
 
     if (isUnauthorized) {
       redirectToLogin();
     }
 
-    return () => window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, redirectToLogin);
+    return () => {
+      window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, redirectToLogin);
+      window.removeEventListener(AUTH_LOGOUT_STATE_EVENT, handleLogoutState);
+    };
   }, [isUnauthorized, queryClient, router]);
 
   useEffect(() => {
