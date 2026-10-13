@@ -35,15 +35,20 @@ describe('connectEventStream', () => {
     jest.mocked(notifyAuthSessionExpired).mockClear();
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('네트워크 오류와 5xx 응답은 재연결 콜백을 호출한다', async () => {
+    jest.spyOn(Math, 'random').mockReturnValue(0.5);
     const onRetry = jest.fn();
     const options = await openStream({ onRetry });
 
-    expect(options.onerror?.(new Error('네트워크 오류'))).toBeUndefined();
+    expect(options.onerror?.(new Error('네트워크 오류'))).toBe(1500);
     const httpError = await Promise.resolve(
       options.onopen?.({ ok: false, status: 503 } as Response)
     ).catch((error: unknown) => error);
-    expect(options.onerror?.(httpError)).toBeUndefined();
+    expect(options.onerror?.(httpError)).toBe(3000);
     expect(onRetry).toHaveBeenCalledTimes(2);
   });
 

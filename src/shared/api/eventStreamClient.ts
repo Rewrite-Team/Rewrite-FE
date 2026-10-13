@@ -6,6 +6,11 @@ import { ApiError } from './apiError';
 import { notifyAuthSessionExpired } from './client';
 import { getClientApiBaseUrl } from './config';
 
+const INITIAL_RETRY_DELAY_MS = 2000;
+const MAX_RETRY_DELAY_MS = 60_000;
+const RETRY_DELAY_MULTIPLIER = 2;
+const MIN_RETRY_DELAY_RATIO = 0.5;
+
 /** SSE 연결의 이벤트 처리, 인증 갱신, 취소 동작을 지정합니다. */
 export interface EventStreamOptions {
   /** 화면이나 구독 대상이 사라질 때 연결을 닫는 신호입니다. */
@@ -54,7 +59,9 @@ class AuthRefreshError extends Error {
  * @description
  * 브라우저에서 인증 쿠키를 포함해 SSE 연결을 엽니다. 401 응답이면 전달받은 인증 갱신 함수를 한 번 호출한 뒤
  * 라이브러리의 재시도 흐름으로 다시 연결합니다. 갱신 후에도 401이면 세션 만료를 알리고 연결을 중단합니다.
- * 다른 4xx 응답은 재시도하지 않고, 네트워크 오류와 5xx 응답은 라이브러리 기본 재시도 정책을 따릅니다.
+ * 다른 4xx 응답은 재시도하지 않습니다. 네트워크 오류·5xx·재연결 대상 종료에는 최대 60초의
+ * 지수 백오프를 적용하고, 동시 재접속을 분산하기 위해 기준 간격의 50~100%에서 대기합니다.
+ * 정상 이벤트를 처리하면 간격을 초기화합니다. 반환한 간격은 서버의 SSE `retry:` 값보다 우선합니다.
  *
  * 기본적으로 서버가 닫거나 `signal`이 abort되면 종료합니다. 지속적인 상태 구독은 `reconnectOnClose`로
  * 서버 종료 후에도 재연결할 수 있습니다. 상대 경로는 `NEXT_PUBLIC_API_BASE_URL` 기준으로 해석합니다.
@@ -88,6 +95,7 @@ export async function connectEventStream(
 
   let hasRefreshedAfterUnauthorized = false;
   let refreshRequest: Promise<unknown> | undefined;
+  let retryDelayMs = INITIAL_RETRY_DELAY_MS;
 
   const fetchAfterAuthRefresh: typeof fetch = async (input, init) => {
     if (refreshRequest) {
@@ -126,6 +134,8 @@ export async function connectEventStream(
     onmessage(message) {
       try {
         onmessage(message);
+        // 응답 헤더만 성공하고 바로 끊기는 연결은 백오프를 유지합니다.
+        retryDelayMs = INITIAL_RETRY_DELAY_MS;
       } catch (error) {
         throw new EventStreamHandlerError(error);
       }
@@ -162,6 +172,13 @@ export async function connectEventStream(
       }
 
       onRetry?.();
+
+      const delayMs = Math.floor(
+        retryDelayMs * (MIN_RETRY_DELAY_RATIO + Math.random() * (1 - MIN_RETRY_DELAY_RATIO))
+      );
+      retryDelayMs = Math.min(retryDelayMs * RETRY_DELAY_MULTIPLIER, MAX_RETRY_DELAY_MS);
+
+      return delayMs;
     },
   });
 }
