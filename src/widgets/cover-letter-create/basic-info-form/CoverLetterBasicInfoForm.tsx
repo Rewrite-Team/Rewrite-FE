@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form';
@@ -22,6 +22,7 @@ import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constan
  */
 export function CoverLetterBasicInfoForm() {
   const router = useRouter();
+  const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const { control, handleSubmit } = useForm<
     CoverLetterStep1FormInput,
     unknown,
@@ -38,7 +39,7 @@ export function CoverLetterBasicInfoForm() {
 
   const handleValidSubmit: SubmitHandler<CoverLetterStep1Values> = () => {
     // TODO: 기본 정보 저장 API가 연결되면 저장 성공 후 STEP2로 이동한다.
-    router.push(ROUTES.WRITING_CREATE_STEP(2));
+    router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, 2));
   };
 
   return (

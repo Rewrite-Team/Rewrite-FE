@@ -6,8 +6,10 @@ import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constan
 import { CoverLetterPreferredQualificationForm } from './CoverLetterPreferredQualificationForm';
 
 const mockPush = jest.fn();
+const mockCoverLetterId = 'cover-letter-id';
 
 jest.mock('next/navigation', () => ({
+  useParams: () => ({ coverLetterId: mockCoverLetterId }),
   useRouter: () => ({ push: mockPush }),
 }));
 
@@ -48,7 +50,7 @@ describe('CoverLetterPreferredQualificationForm', () => {
     fireEvent.submit(screen.getByRole('form', { name: '채용 공고 우대사항' }));
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(ROUTES.WRITING_CREATE_STEP(3));
+      expect(mockPush).toHaveBeenCalledWith(ROUTES.WRITING_CREATE_STEP(mockCoverLetterId, 3));
     });
   });
 });

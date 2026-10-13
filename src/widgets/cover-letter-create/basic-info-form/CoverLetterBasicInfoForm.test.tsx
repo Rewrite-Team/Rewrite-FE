@@ -6,8 +6,10 @@ import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constan
 import { CoverLetterBasicInfoForm } from './CoverLetterBasicInfoForm';
 
 const mockPush = jest.fn();
+const mockCoverLetterId = 'cover-letter-id';
 
 jest.mock('next/navigation', () => ({
+  useParams: () => ({ coverLetterId: mockCoverLetterId }),
   useRouter: () => ({ push: mockPush }),
 }));
 
@@ -71,7 +73,7 @@ describe('CoverLetterBasicInfoForm', () => {
     fireEvent.submit(screen.getByRole('form', { name: '자기소개서 기본 정보' }));
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(ROUTES.WRITING_CREATE_STEP(2));
+      expect(mockPush).toHaveBeenCalledWith(ROUTES.WRITING_CREATE_STEP(mockCoverLetterId, 2));
     });
   });
 });

@@ -17,3 +17,4 @@ export type {
 } from './model/schemas/coverLetterCreateSchemas';
 export { WRITING_CREATE_STEPS } from './model/writingCreateStep';
 export type { WritingCreateStep } from './model/writingCreateStep';
+export { CreateCoverLetterButton } from './ui/CreateCoverLetterButton';

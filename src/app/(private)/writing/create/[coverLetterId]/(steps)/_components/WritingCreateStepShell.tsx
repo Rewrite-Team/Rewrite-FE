@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 import { WRITING_CREATE_STEPS, type WritingCreateStep } from '@/features/cover-letter/create-flow';
 import { ROUTES } from '@/shared/constants/routes';
@@ -28,6 +28,7 @@ export function WritingCreateStepShell({
   currentStepSegment,
 }: WritingCreateStepShellProps) {
   const router = useRouter();
+  const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const { description, step, title } = COVER_LETTER_STEP_CONFIG[currentStepSegment];
   const currentStepIndex = WRITING_CREATE_STEPS.indexOf(step);
   const nextStep = WRITING_CREATE_STEPS[currentStepIndex + 1];
@@ -37,13 +38,13 @@ export function WritingCreateStepShell({
   const handleNext = () => {
     if (nextStep === undefined) return;
 
-    router.push(ROUTES.WRITING_CREATE_STEP(nextStep));
+    router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, nextStep));
   };
 
   const handleStepSelect = (targetStep: WritingCreateStep) => {
     if (targetStep >= step) return;
 
-    router.push(ROUTES.WRITING_CREATE_STEP(targetStep));
+    router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, targetStep));
   };
 
   const stepPanel =

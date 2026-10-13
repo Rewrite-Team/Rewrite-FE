@@ -2,7 +2,7 @@
 
 import { useRef, useState, type Ref } from 'react';
 
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -166,6 +166,7 @@ function CoverLetterQuestionFields({
  */
 export function CoverLetterQuestionForm() {
   const router = useRouter();
+  const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const questionTriggerRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(0);
   const [answerLengths, setAnswerLengths] = useState<Array<number | undefined>>([undefined]);
@@ -225,7 +226,7 @@ export function CoverLetterQuestionForm() {
 
   const handleValidSubmit: SubmitHandler<CoverLetterStep3Values> = () => {
     // TODO: 문항과 답변 저장 API가 연결되면 저장 성공 후 STEP4로 이동한다.
-    router.push(ROUTES.WRITING_CREATE_STEP(4));
+    router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, 4));
   };
 
   const handleInvalidSubmit: SubmitErrorHandler<CoverLetterStep3FormInput> = (errors) => {

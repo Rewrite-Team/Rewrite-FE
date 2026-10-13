@@ -37,10 +37,10 @@
 |---|---|---|
 | `/` | 랜딩 페이지 | 누구나 접근 가능 |
 | `/writing` | 내 자기소개서 목록 | 로그인 필요 |
-| `/writing/create/step1` | 자기소개서 등록 Step 1 | 로그인 필요 |
-| `/writing/create/step2` | 자기소개서 등록 Step 2 | 로그인 필요 |
-| `/writing/create/step3` | 자기소개서 등록 Step 3 | 로그인 필요 |
-| `/writing/create/step4` | 자기소개서 등록 Step 4 | 로그인 필요 |
+| `/writing/create/{coverLetterId}/step1` | 자기소개서 등록 Step 1 | 로그인 필요 |
+| `/writing/create/{coverLetterId}/step2` | 자기소개서 등록 Step 2 | 로그인 필요 |
+| `/writing/create/{coverLetterId}/step3` | 자기소개서 등록 Step 3 | 로그인 필요 |
+| `/writing/create/{coverLetterId}/step4` | 자기소개서 등록 Step 4 | 로그인 필요 |
 | `/writing/[id]` | 자기소개서 상세 페이지 | 로그인 필요, 본인 글만 접근 |
 | `/writing/[id]/keyword-analysis` | 자기소개서 키워드 분석 | 로그인 필요, 본인 글만 접근 |
 | `/writing/[id]/keyword-analysis/result` | 자기소개서 키워드 분석 결과 | 로그인 필요, 본인 글만 접근 |
@@ -80,7 +80,7 @@
 사용자가 새 자기소개서 작성 버튼을 클릭하면 자기소개서 등록 페이지로 이동합니다.
 
 
-### F-03: 자기소개서 등록 폼(`/writing/create/step1`)
+### F-03: 자기소개서 등록 폼(`/writing/create/{coverLetterId}/step1`)
 
 #### Step Indicator
 

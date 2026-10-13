@@ -89,12 +89,13 @@ src/app/
     └── writing/
         ├── page.tsx
         ├── create/
-        │   └── (steps)/
-        │       ├── layout.tsx
-        │       ├── step1/page.tsx
-        │       ├── step2/page.tsx
-        │       ├── step3/page.tsx
-        │       └── step4/page.tsx
+        │   └── [coverLetterId]/
+        │       └── (steps)/
+        │           ├── layout.tsx
+        │           ├── step1/page.tsx
+        │           ├── step2/page.tsx
+        │           ├── step3/page.tsx
+        │           └── step4/page.tsx
         └── [id]/
             ├── page.tsx
             ├── keyword-analysis/
