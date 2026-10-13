@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { saveCoverLetterBasicInfo } from '@/entities/cover-letter';
+import { ApiError } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
 import { appToast } from '@/shared/lib/toast';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
@@ -76,6 +77,7 @@ describe('CoverLetterBasicInfoForm', () => {
     expect(screen.getByText('회사명을 입력해주세요.')).toBeInTheDocument();
     expect(screen.getByText('희망 직무를 입력해주세요.')).toBeInTheDocument();
     expect(mockPush).not.toHaveBeenCalled();
+    expect(saveCoverLetterBasicInfo).not.toHaveBeenCalled();
   });
 
   it('필수 정보를 입력하면 다음 STEP으로 이동한다', async () => {
@@ -130,5 +132,30 @@ describe('CoverLetterBasicInfoForm', () => {
     await waitFor(() => expect(appToast.error).toHaveBeenCalled());
     expect(screen.getByRole('textbox', { name: '자기소개서 제목' })).toHaveValue('초안');
     expect(mockPush).not.toHaveBeenCalled();
+    expect(appToast.error).toHaveBeenCalledWith(
+      '기본 정보를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+    );
+  });
+
+  it('서버 검증 오류를 해당 필드에 표시하고 입력값을 유지한다', async () => {
+    jest.mocked(saveCoverLetterBasicInfo).mockRejectedValue(
+      new ApiError(400, {
+        error: {
+          code: 'VALIDATION_ERROR',
+          details: [{ field: 'jobPostingUrl', reason: '공고 링크 형식을 확인해주세요.' }],
+        },
+      })
+    );
+    renderForm();
+    fireEvent.change(screen.getByRole('textbox', { name: '직무 공고 사이트 링크' }), {
+      target: { value: '잘못된 링크' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '임시 저장' }));
+    expect(await screen.findByText('공고 링크 형식을 확인해주세요.')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: '직무 공고 사이트 링크' })).toHaveValue(
+      '잘못된 링크'
+    );
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(appToast.error).toHaveBeenCalledWith('입력 내용을 확인하고 다시 저장해 주세요.');
   });
 });

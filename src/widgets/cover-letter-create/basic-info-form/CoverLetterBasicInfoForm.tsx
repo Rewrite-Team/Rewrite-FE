@@ -64,7 +64,8 @@ export function CoverLetterBasicInfoForm() {
         appToast.success('임시 저장되었습니다.');
       }
     } catch (error) {
-      if (error instanceof ApiError) {
+      const isValidationError = error instanceof ApiError && error.code === 'VALIDATION_ERROR';
+      if (isValidationError) {
         for (const detail of error.details) {
           const field = detail.field;
           if (
@@ -80,7 +81,11 @@ export function CoverLetterBasicInfoForm() {
           }
         }
       }
-      appToast.error('기본 정보를 저장하지 못했습니다. 입력 내용을 확인하고 다시 시도해 주세요.');
+      appToast.error(
+        isValidationError
+          ? '입력 내용을 확인하고 다시 저장해 주세요.'
+          : '기본 정보를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+      );
     } finally {
       savingRef.current = false;
     }
