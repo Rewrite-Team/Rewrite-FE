@@ -74,7 +74,7 @@ export function WritingCreateStepShell({
         }
         onStepSelect={handleStepSelect}
         saveDraftAction={{
-          status: (step === 1 || step === 2) && !isSaving ? 'enabled' : 'disabled',
+          status: !isSaving ? 'enabled' : 'disabled',
         }}
       />
     );

@@ -19,6 +19,7 @@ export { WRITING_CREATE_STEPS } from './model/writingCreateStep';
 export type { WritingCreateStep } from './model/writingCreateStep';
 export { CreateCoverLetterButton } from './ui/CreateCoverLetterButton';
 export { useSaveCoverLetterPreferences } from './hooks/useSaveCoverLetterPreferences';
+export { useSaveCoverLetterQuestions } from './hooks/useSaveCoverLetterQuestions';
 export {
   useIsSavingCoverLetterDraft,
   useSaveCoverLetterBasicInfo,

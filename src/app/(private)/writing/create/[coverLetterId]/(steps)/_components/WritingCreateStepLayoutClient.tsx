@@ -32,7 +32,8 @@ const isCoverLetterCreateStepSegment = (
 export function WritingCreateStepLayoutClient({ children }: WritingCreateStepLayoutClientProps) {
   const currentStepSegment = useSelectedLayoutSegment();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
-  const { data, isFetching, isPending, refetch } = useCoverLetterDetail(coverLetterId);
+  const { data, isFetching, isPending, isRefetchError, refetch } =
+    useCoverLetterDetail(coverLetterId);
 
   if (!isCoverLetterCreateStepSegment(currentStepSegment)) return children;
 
@@ -46,7 +47,7 @@ export function WritingCreateStepLayoutClient({ children }: WritingCreateStepLay
     );
   }
 
-  if (!data) {
+  if (!data || (currentStepSegment === 'step4' && isRefetchError)) {
     return (
       <ErrorState
         className="self-center"

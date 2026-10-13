@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type Ref } from 'react';
+import { useRef, useState, type Ref, type SubmitEvent } from 'react';
 
 import { useParams, useRouter } from 'next/navigation';
 
@@ -18,9 +18,12 @@ import {
   type CoverLetterStep3FormInput,
   type CoverLetterStep3Values,
   useCoverLetterCreateDraft,
+  useSaveCoverLetterQuestions,
 } from '@/features/cover-letter/create-flow';
+import { ApiError } from '@/shared/api';
 import { DeleteIcon } from '@/shared/assets/icons/side-menu';
 import { ROUTES } from '@/shared/constants/routes';
+import { appToast } from '@/shared/lib/toast';
 import { Accordion } from '@/shared/ui/accordion';
 import { Button } from '@/shared/ui/button';
 import { FormField } from '@/shared/ui/form-field';
@@ -169,6 +172,8 @@ export function CoverLetterQuestionForm() {
   const router = useRouter();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const draft = useCoverLetterCreateDraft();
+  const saveMutation = useSaveCoverLetterQuestions(coverLetterId);
+  const savingRef = useRef(false);
   const initialQuestions = draft?.questions.length
     ? [...draft.questions]
         .sort((firstQuestion, secondQuestion) => firstQuestion.order - secondQuestion.order)
@@ -185,7 +190,7 @@ export function CoverLetterQuestionForm() {
       question.characterLimit.length > 0 ? Number(question.characterLimit) : undefined
     )
   );
-  const { control, getValues, handleSubmit, trigger } = useForm<
+  const { control, getValues, handleSubmit, trigger, setError, clearErrors } = useForm<
     CoverLetterStep3FormInput,
     unknown,
     CoverLetterStep3Values
@@ -239,10 +244,80 @@ export function CoverLetterQuestionForm() {
     focusTarget?.focus();
   };
 
-  const handleValidSubmit: SubmitHandler<CoverLetterStep3Values> = () => {
-    // TODO: 문항과 답변 저장 API가 연결되면 저장 성공 후 STEP4로 이동한다.
-    router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, 4));
+  const saveQuestions = async (values: CoverLetterStep3FormInput, moveToNext: boolean) => {
+    if (savingRef.current) return;
+    clearErrors();
+    const invalidLengthIndex = values.questions.findIndex(
+      ({ characterLimit }) =>
+        characterLimit.trim() !== '' && !Number.isSafeInteger(Number(characterLimit))
+    );
+    if (invalidLengthIndex >= 0) {
+      setError(`questions.${invalidLengthIndex}.characterLimit`, {
+        type: 'validate',
+        message: '글자 수는 정수로 입력해주세요.',
+      });
+      setOpenQuestionIndex(invalidLengthIndex);
+      return;
+    }
+    savingRef.current = true;
+    try {
+      await saveMutation.mutateAsync({
+        questions: values.questions.map(({ question, answer, characterLimit }) => ({
+          question: question.trim() || null,
+          originalAnswer: answer.trim() || null,
+          maxAnswerLength: characterLimit.trim() === '' ? null : Number(characterLimit),
+        })),
+      });
+      if (moveToNext) {
+        router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, 4));
+      } else {
+        appToast.success('임시 저장되었습니다.');
+      }
+    } catch (error) {
+      const isValidationError = error instanceof ApiError && error.code === 'VALIDATION_ERROR';
+      if (isValidationError) {
+        let firstInvalidIndex: number | undefined;
+        for (const detail of error.details) {
+          const match = detail.field?.match(
+            /^questions\[(\d+)\]\.(question|originalAnswer|maxAnswerLength)$/
+          );
+          if (!match) continue;
+          const index = Number(match[1]);
+          if (index >= values.questions.length) continue;
+          const field =
+            match[2] === 'originalAnswer'
+              ? 'answer'
+              : match[2] === 'maxAnswerLength'
+                ? 'characterLimit'
+                : 'question';
+          setError(`questions.${index}.${field}`, {
+            type: 'server',
+            message: detail.reason ?? '입력값을 확인해 주세요.',
+          });
+          firstInvalidIndex = Math.min(firstInvalidIndex ?? index, index);
+        }
+        if (firstInvalidIndex !== undefined) setOpenQuestionIndex(firstInvalidIndex);
+      }
+      appToast.error(
+        isValidationError
+          ? '입력 내용을 확인하고 다시 저장해 주세요.'
+          : '문항과 답변을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+      );
+    } finally {
+      savingRef.current = false;
+    }
   };
+
+  const handleValidSubmit: SubmitHandler<CoverLetterStep3Values> = (values) =>
+    saveQuestions(
+      {
+        questions: values.questions.map((question) => ({
+          ...question,
+          characterLimit: question.characterLimit?.toString() ?? '',
+        })),
+      },
+      true
+    );
 
   const handleInvalidSubmit: SubmitErrorHandler<CoverLetterStep3FormInput> = (errors) => {
     const questionErrors = errors.questions;
@@ -256,34 +331,47 @@ export function CoverLetterQuestionForm() {
     }
   };
 
+  const handleFormSubmit = (event: SubmitEvent<HTMLFormElement>) => {
+    const submitter = event.nativeEvent.submitter;
+    if (submitter instanceof HTMLButtonElement && submitter.value === 'save-draft') {
+      event.preventDefault();
+      void saveQuestions(getValues(), false);
+      return;
+    }
+    void handleSubmit(handleValidSubmit, handleInvalidSubmit)(event);
+  };
+
   return (
     <form
       aria-label="자기소개서 문항 및 답변"
+      aria-busy={saveMutation.isPending}
       className="flex flex-col gap-12"
       id={COVER_LETTER_STEP_FORM_ID}
       noValidate
-      onSubmit={handleSubmit(handleValidSubmit, handleInvalidSubmit)}
+      onSubmit={handleFormSubmit}
     >
-      {fields.map((field, index) => (
-        <CoverLetterQuestionFields
-          answerLength={answerLengths[index]}
-          control={control}
-          index={index}
-          isDeleteDisabled={fields.length <= 1}
-          isOpen={openQuestionIndex === index}
-          key={field.id}
-          onApplyLength={handleApplyLength(index)}
-          onDelete={handleDeleteQuestion(index)}
-          onOpenChange={handleOpenChange(index)}
-          triggerRef={(element) => {
-            questionTriggerRefs.current[index] = element;
-          }}
-        />
-      ))}
+      <fieldset className="contents" disabled={saveMutation.isPending}>
+        {fields.map((field, index) => (
+          <CoverLetterQuestionFields
+            answerLength={answerLengths[index]}
+            control={control}
+            index={index}
+            isDeleteDisabled={fields.length <= 1}
+            isOpen={openQuestionIndex === index}
+            key={field.id}
+            onApplyLength={handleApplyLength(index)}
+            onDelete={handleDeleteQuestion(index)}
+            onOpenChange={handleOpenChange(index)}
+            triggerRef={(element) => {
+              questionTriggerRefs.current[index] = element;
+            }}
+          />
+        ))}
 
-      <Button className="w-full" onClick={handleAddQuestion} type="button" variant="outline">
-        문항 추가
-      </Button>
+        <Button className="w-full" onClick={handleAddQuestion} type="button" variant="outline">
+          문항 추가
+        </Button>
+      </fieldset>
     </form>
   );
 }
