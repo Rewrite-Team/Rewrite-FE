@@ -1,4 +1,5 @@
 export { CoverLetterBasicInfoForm } from './basic-info-form/CoverLetterBasicInfoForm';
+export { CoverLetterCreateSkeleton } from './CoverLetterCreateSkeleton';
 export { COVER_LETTER_STEP_CONFIG } from './constants/stepConfig';
 export { CoverLetterPreferredQualificationForm } from './preferred-qualification-form/CoverLetterPreferredQualificationForm';
 export { CoverLetterQuestionForm } from './question-form/CoverLetterQuestionForm';

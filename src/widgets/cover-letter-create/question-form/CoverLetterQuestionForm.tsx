@@ -17,6 +17,7 @@ import {
   coverLetterStep3Schema,
   type CoverLetterStep3FormInput,
   type CoverLetterStep3Values,
+  useCoverLetterCreateDraft,
 } from '@/features/cover-letter/create-flow';
 import { DeleteIcon } from '@/shared/assets/icons/side-menu';
 import { ROUTES } from '@/shared/constants/routes';
@@ -167,15 +168,29 @@ function CoverLetterQuestionFields({
 export function CoverLetterQuestionForm() {
   const router = useRouter();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
+  const draft = useCoverLetterCreateDraft();
+  const initialQuestions = draft?.questions.length
+    ? [...draft.questions]
+        .sort((firstQuestion, secondQuestion) => firstQuestion.order - secondQuestion.order)
+        .map((question) => ({
+          answer: question.originalAnswer ?? '',
+          characterLimit: question.maxAnswerLength?.toString() ?? '',
+          question: question.question ?? '',
+        }))
+    : DEFAULT_FORM_VALUES.questions;
   const questionTriggerRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(0);
-  const [answerLengths, setAnswerLengths] = useState<Array<number | undefined>>([undefined]);
+  const [answerLengths, setAnswerLengths] = useState<Array<number | undefined>>(() =>
+    initialQuestions.map((question) =>
+      question.characterLimit.length > 0 ? Number(question.characterLimit) : undefined
+    )
+  );
   const { control, getValues, handleSubmit, trigger } = useForm<
     CoverLetterStep3FormInput,
     unknown,
     CoverLetterStep3Values
   >({
-    defaultValues: DEFAULT_FORM_VALUES,
+    defaultValues: { questions: initialQuestions },
     resolver: zodResolver(coverLetterStep3Schema),
   });
   const { append, fields, remove } = useFieldArray({

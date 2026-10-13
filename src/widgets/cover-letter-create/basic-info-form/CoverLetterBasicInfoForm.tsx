@@ -9,6 +9,7 @@ import {
   coverLetterStep1Schema,
   type CoverLetterStep1FormInput,
   type CoverLetterStep1Values,
+  useCoverLetterCreateDraft,
 } from '@/features/cover-letter/create-flow';
 import { INPUT_LIMITS } from '@/shared/constants/limits';
 import { ROUTES } from '@/shared/constants/routes';
@@ -23,16 +24,17 @@ import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constan
 export function CoverLetterBasicInfoForm() {
   const router = useRouter();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
+  const draft = useCoverLetterCreateDraft();
   const { control, handleSubmit } = useForm<
     CoverLetterStep1FormInput,
     unknown,
     CoverLetterStep1Values
   >({
     defaultValues: {
-      companyName: '',
-      jobPostingUrl: '',
-      positionTitle: '',
-      title: '',
+      companyName: draft?.coverLetter.companyName ?? '',
+      jobPostingUrl: draft?.coverLetter.jobPostingUrl ?? '',
+      positionTitle: draft?.coverLetter.positionTitle ?? '',
+      title: draft?.coverLetter.title ?? '',
     },
     resolver: zodResolver(coverLetterStep1Schema),
   });

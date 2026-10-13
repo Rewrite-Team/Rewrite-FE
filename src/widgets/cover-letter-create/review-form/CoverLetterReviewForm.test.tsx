@@ -2,6 +2,8 @@ import type { ComponentPropsWithoutRef } from 'react';
 
 import { fireEvent, render, screen } from '@testing-library/react';
 
+import type { CoverLetterDetailResponse } from '@/entities/cover-letter';
+import { CoverLetterCreateDraftProvider } from '@/features/cover-letter/create-flow';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
 
 import { CoverLetterReviewForm } from './CoverLetterReviewForm';
@@ -10,9 +12,46 @@ jest.mock('@/shared/assets/icons/common', () => ({
   AltArrowDownIcon: (props: ComponentPropsWithoutRef<'svg'>) => <svg {...props} />,
 }));
 
+const MOCK_DRAFT = {
+  coverLetter: {
+    id: 'cover-letter-id',
+    title: '카카오 자기소개서',
+    companyName: '카카오',
+    positionTitle: '프론트엔드 개발자',
+    jobPostingUrl: 'https://careers.kakao.com/jobs/frontend',
+    preferences: '착하고 착하고 착한 사람 찾아요~!',
+    displayStatus: 'WRITING',
+  },
+  reviewVersion: null,
+  reviewJob: null,
+  questions: [
+    {
+      questionResultId: null,
+      questionId: 'question-id',
+      order: 1,
+      question: '이름이 무엇입니까?',
+      maxAnswerLength: 700,
+      originalAnswer: '이서정입니다람쥐~',
+      originalAnswerLength: null,
+      aiReport: null,
+      rewrittenAnswer: null,
+      rewrittenAnswerLength: null,
+      finalAnswer: null,
+      finalAnswerLength: null,
+    },
+  ],
+} satisfies CoverLetterDetailResponse;
+
+const renderReviewForm = () =>
+  render(
+    <CoverLetterCreateDraftProvider draft={MOCK_DRAFT}>
+      <CoverLetterReviewForm />
+    </CoverLetterCreateDraftProvider>
+  );
+
 describe('CoverLetterReviewForm', () => {
   it('이전 단계의 자기소개서 정보를 읽기 전용으로 표시한다', () => {
-    render(<CoverLetterReviewForm />);
+    renderReviewForm();
 
     const form = screen.getByRole('form', { name: '자기소개서 최종 확인' });
 
@@ -32,7 +71,7 @@ describe('CoverLetterReviewForm', () => {
   });
 
   it('문항과 답변 및 적용된 글자 수를 표시한다', () => {
-    render(<CoverLetterReviewForm />);
+    renderReviewForm();
 
     expect(screen.getByRole('textbox', { name: '질문' })).toHaveValue('이름이 무엇입니까?');
     expect(screen.getByRole('textbox', { name: '자기소개서 글자 수' })).toHaveValue('700');
@@ -47,7 +86,7 @@ describe('CoverLetterReviewForm', () => {
   });
 
   it('자기소개서 문항을 접고 펼칠 수 있다', () => {
-    render(<CoverLetterReviewForm />);
+    renderReviewForm();
 
     const trigger = screen.getByRole('button', {
       name: '1번 자기소개서 문항 접기 또는 펼치기',

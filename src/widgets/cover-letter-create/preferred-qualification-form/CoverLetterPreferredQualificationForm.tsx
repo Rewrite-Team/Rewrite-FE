@@ -9,6 +9,7 @@ import {
   coverLetterStep2Schema,
   type CoverLetterStep2FormInput,
   type CoverLetterStep2Values,
+  useCoverLetterCreateDraft,
 } from '@/features/cover-letter/create-flow';
 import { ROUTES } from '@/shared/constants/routes';
 import { FormField } from '@/shared/ui/form-field';
@@ -25,13 +26,14 @@ import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constan
 export function CoverLetterPreferredQualificationForm() {
   const router = useRouter();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
+  const draft = useCoverLetterCreateDraft();
   const { control, handleSubmit } = useForm<
     CoverLetterStep2FormInput,
     unknown,
     CoverLetterStep2Values
   >({
     defaultValues: {
-      preferredQualification: '',
+      preferredQualification: draft?.coverLetter.preferences ?? '',
     },
     resolver: zodResolver(coverLetterStep2Schema),
   });

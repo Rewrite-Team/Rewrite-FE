@@ -2,39 +2,18 @@
 
 import type { SubmitEvent } from 'react';
 
-import {
-  coverLetterStep4Schema,
-  type CoverLetterStep4Input,
-  type CoverLetterStep4Values,
-} from '@/features/cover-letter/create-flow';
+import { useCoverLetterCreateDraft } from '@/features/cover-letter/create-flow';
 import { Accordion } from '@/shared/ui/accordion';
 import { Input } from '@/shared/ui/input';
 import { TextArea } from '@/shared/ui/textarea';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
 
-type CoverLetterReviewQuestion = CoverLetterStep4Values['questions'][number];
-
-interface CoverLetterReviewQuestionProps extends CoverLetterReviewQuestion {
+interface CoverLetterReviewQuestionProps {
+  answer: string;
+  characterLimit: number | null;
+  question: string;
   questionNumber: number;
 }
-
-const PUBLISHING_REVIEW_INPUT = {
-  companyName: '카카오',
-  jobPostingUrl: 'https://careers.kakao.com/jobs/frontend',
-  positionTitle: '프론트엔드 개발자',
-  preferredQualification: '착하고 착하고 착한 사람 찾아요~!',
-  questions: [
-    {
-      answer: '이서정입니다람쥐~',
-      characterLimit: '700',
-      question: '이름이 무엇입니까?',
-    },
-  ],
-  title: '카카오 자기소개서',
-} satisfies CoverLetterStep4Input;
-
-// TODO: API 연결 시 서버 응답을 STEP4 스키마로 검증한 결과로 교체한다.
-const PUBLISHING_REVIEW_DATA = coverLetterStep4Schema.parse(PUBLISHING_REVIEW_INPUT);
 
 /** 최종 확인 화면에서 하나의 자기소개서 문항과 답변을 표시합니다. */
 function CoverLetterReviewQuestion({
@@ -70,7 +49,7 @@ function CoverLetterReviewQuestion({
 
         <TextArea id={`review-answer-${questionNumber}`} required>
           <TextArea.Label>자기소개서 내용</TextArea.Label>
-          {characterLimit === undefined ? (
+          {characterLimit === null ? (
             <TextArea.Field readOnly showCount value={answer} />
           ) : (
             <TextArea.Field readOnly recommendedLength={characterLimit} showCount value={answer} />
@@ -89,7 +68,15 @@ function CoverLetterReviewQuestion({
  * 읽기 전용으로 확인하는 폼입니다.
  */
 export function CoverLetterReviewForm() {
-  const review = PUBLISHING_REVIEW_DATA;
+  const draft = useCoverLetterCreateDraft();
+  const coverLetter = draft?.coverLetter;
+  const questions = [...(draft?.questions ?? [])]
+    .sort((firstQuestion, secondQuestion) => firstQuestion.order - secondQuestion.order)
+    .map((question) => ({
+      answer: question.originalAnswer ?? '',
+      characterLimit: question.maxAnswerLength,
+      question: question.question ?? '',
+    }));
 
   const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -108,7 +95,7 @@ export function CoverLetterReviewForm() {
       <div className="rounded-2xl bg-gray-800 p-6">
         <Input id="review-title" required>
           <Input.Label>자기소개서 제목</Input.Label>
-          <Input.Field readOnly value={review.title} />
+          <Input.Field readOnly value={coverLetter?.title ?? ''} />
         </Input>
       </div>
 
@@ -124,19 +111,19 @@ export function CoverLetterReviewForm() {
           <div className="mt-3 flex flex-col gap-3">
             <Input id="review-company-name" required>
               <Input.Label className="sr-only">회사명</Input.Label>
-              <Input.Field readOnly value={review.companyName} />
+              <Input.Field readOnly value={coverLetter?.companyName ?? ''} />
             </Input>
 
             <Input id="review-position-title" required>
               <Input.Label className="sr-only">희망 직무</Input.Label>
-              <Input.Field readOnly value={review.positionTitle} />
+              <Input.Field readOnly value={coverLetter?.positionTitle ?? ''} />
             </Input>
           </div>
         </fieldset>
 
         <Input id="review-job-posting-url">
           <Input.Label>직무 공고 사이트 링크</Input.Label>
-          <Input.Field readOnly type="url" value={review.jobPostingUrl} />
+          <Input.Field readOnly type="url" value={coverLetter?.jobPostingUrl ?? ''} />
         </Input>
       </div>
 
@@ -146,12 +133,12 @@ export function CoverLetterReviewForm() {
           <TextArea.Field
             className="h-81.75 min-h-81.75"
             readOnly
-            value={review.preferredQualification}
+            value={coverLetter?.preferences ?? ''}
           />
         </TextArea>
       </div>
 
-      {review.questions.map((question, index) => (
+      {questions.map((question, index) => (
         <CoverLetterReviewQuestion
           key={`${index}-${question.question}`}
           questionNumber={index + 1}

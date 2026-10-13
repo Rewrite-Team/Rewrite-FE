@@ -2,9 +2,12 @@
 
 import type { ReactNode } from 'react';
 
-import { useSelectedLayoutSegment } from 'next/navigation';
+import { useParams, useSelectedLayoutSegment } from 'next/navigation';
 
-import { COVER_LETTER_STEP_CONFIG } from '@/widgets/cover-letter-create';
+import { useCoverLetterDetail } from '@/entities/cover-letter';
+import { CoverLetterCreateDraftProvider } from '@/features/cover-letter/create-flow';
+import { ErrorState } from '@/shared/ui/state-feedback';
+import { COVER_LETTER_STEP_CONFIG, CoverLetterCreateSkeleton } from '@/widgets/cover-letter-create';
 
 import { WritingCreateStepShell } from './WritingCreateStepShell';
 
@@ -27,12 +30,37 @@ const isCoverLetterCreateStepSegment = (
  */
 export function WritingCreateStepLayoutClient({ children }: WritingCreateStepLayoutClientProps) {
   const currentStepSegment = useSelectedLayoutSegment();
+  const { coverLetterId } = useParams<{ coverLetterId: string }>();
+  const { data, isFetching, isPending, refetch } = useCoverLetterDetail(coverLetterId);
 
   if (!isCoverLetterCreateStepSegment(currentStepSegment)) return children;
 
+  if (isPending) {
+    return (
+      <WritingCreateStepShell currentStepSegment={currentStepSegment}>
+        <CoverLetterCreateSkeleton
+          currentStep={COVER_LETTER_STEP_CONFIG[currentStepSegment].step}
+        />
+      </WritingCreateStepShell>
+    );
+  }
+
+  if (!data) {
+    return (
+      <ErrorState
+        className="self-center"
+        description="잠시 후 다시 시도해 주세요."
+        retry={{ onClick: () => void refetch(), isLoading: isFetching, disabled: isFetching }}
+        title="자기소개서를 불러오지 못했어요"
+      />
+    );
+  }
+
   return (
-    <WritingCreateStepShell currentStepSegment={currentStepSegment}>
-      {children}
-    </WritingCreateStepShell>
+    <CoverLetterCreateDraftProvider draft={data}>
+      <WritingCreateStepShell currentStepSegment={currentStepSegment}>
+        {children}
+      </WritingCreateStepShell>
+    </CoverLetterCreateDraftProvider>
   );
 }
