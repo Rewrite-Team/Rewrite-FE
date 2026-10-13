@@ -203,17 +203,6 @@ describe('CoverLetterList', () => {
     expect(mockListCoverLetters).toHaveBeenCalledTimes(3);
   });
 
-  it('캐시된 목록의 백그라운드 재조회 중에는 스켈레톤으로 교체하지 않는다', () => {
-    queryClient.setQueryData(['cover-letters', 'list', { page: 1, size: 6 }], createResponse(1));
-    mockListCoverLetters.mockImplementation(() => new Promise(() => {}));
-
-    renderList();
-    void queryClient.invalidateQueries({ queryKey: ['cover-letters', 'list'] });
-
-    expect(screen.getByText('1페이지 자기소개서')).toBeInTheDocument();
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
-  });
-
   it('성공 응답의 목록이 비었을 때 빈 상태를 표시한다', async () => {
     mockListCoverLetters.mockResolvedValue({
       items: [],

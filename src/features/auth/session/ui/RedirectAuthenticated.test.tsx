@@ -16,12 +16,15 @@ describe('RedirectAuthenticated', () => {
   });
 
   it.each([
-    ['/writing?page=3', 3],
-    ['/writing/cover-letter-1', undefined],
+    [undefined, '/writing', 1],
+    ['/writing?page=3', '/writing?page=3', 3],
+    ['/writing/cover-letter-1', '/writing/cover-letter-1', undefined],
   ] as const)(
-    '로그인 성공 시 최종 목적지 %s로 직접 이동하고 필요한 페이지만 조회한다',
-    (destination, page) => {
-      saveReturnTo(destination);
+    '로그인 성공 시 복귀 경로 %s를 처리하고 필요한 페이지만 조회한다',
+    (returnTo, destination, page) => {
+      if (returnTo) {
+        saveReturnTo(returnTo);
+      }
       const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
       queryClient.setQueryData(currentUserQueryOptions.queryKey, {
         id: 'user-1',
@@ -57,35 +60,6 @@ describe('RedirectAuthenticated', () => {
       queryClient.clear();
     }
   );
-
-  it('인증 확인 후 첫 페이지를 프리패칭하고 완료를 기다리지 않고 이동한다', () => {
-    const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-    queryClient.setQueryData(currentUserQueryOptions.queryKey, {
-      id: 'user-1',
-      nickname: '사용자',
-      profileImageUrl: null,
-      provider: 'KAKAO',
-      createdAt: '2026-10-13T00:00:00Z',
-    });
-    const prefetch = jest
-      .spyOn(queryClient, 'prefetchQuery')
-      .mockImplementation(() => new Promise(() => {}));
-
-    const { unmount } = render(
-      <QueryClientProvider client={queryClient}>
-        <RedirectAuthenticated>로그인 화면</RedirectAuthenticated>
-      </QueryClientProvider>
-    );
-
-    expect(prefetch).toHaveBeenCalledWith(
-      expect.objectContaining({
-        queryKey: ['cover-letters', 'list', { page: 1, size: 6 }],
-      })
-    );
-    expect(mockRouter.replace).toHaveBeenCalledWith('/writing');
-    unmount();
-    queryClient.clear();
-  });
 
   it('인증이 확인되기 전에는 목록을 프리패칭하지 않는다', async () => {
     const queryClient = new QueryClient();
