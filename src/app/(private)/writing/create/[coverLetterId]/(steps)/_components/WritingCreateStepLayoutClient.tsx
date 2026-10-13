@@ -2,10 +2,11 @@
 
 import type { ReactNode } from 'react';
 
-import { useParams, useSelectedLayoutSegment } from 'next/navigation';
+import { redirect, useParams, useSelectedLayoutSegment } from 'next/navigation';
 
 import { useCoverLetterDetail } from '@/entities/cover-letter';
 import { CoverLetterCreateDraftProvider } from '@/features/cover-letter/create-flow';
+import { ROUTES } from '@/shared/constants/routes';
 import { ErrorState } from '@/shared/ui/state-feedback';
 import { COVER_LETTER_STEP_CONFIG, CoverLetterCreateSkeleton } from '@/widgets/cover-letter-create';
 
@@ -54,6 +55,11 @@ export function WritingCreateStepLayoutClient({ children }: WritingCreateStepLay
         title="자기소개서를 불러오지 못했어요"
       />
     );
+  }
+
+  // 제출된 자기소개서는 등록 폼 대신 현재 첨삭 상태를 확인하는 상세 화면으로 이동합니다.
+  if (data.coverLetter.displayStatus !== 'WRITING') {
+    redirect(ROUTES.WRITING_DETAIL(coverLetterId));
   }
 
   return (
