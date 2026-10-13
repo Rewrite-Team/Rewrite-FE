@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 import { connectCoverLetterReviewStatuses, listCoverLetters } from '@/entities/cover-letter';
 import type { CoverLetterListResponse } from '@/entities/cover-letter';
+import { ApiError } from '@/shared/api/apiError';
 import { appToast } from '@/shared/lib/toast';
 
 import { CoverLetterList } from './CoverLetterList';
@@ -77,6 +78,7 @@ describe('CoverLetterList', () => {
 
   afterEach(() => {
     queryClient.clear();
+    jest.useRealTimers();
   });
 
   it('캐시 없는 페이지 이동 시 이전 카드 대신 스켈레톤을 표시하고 페이지별 API를 조회한다', async () => {
@@ -488,5 +490,115 @@ describe('CoverLetterList', () => {
     await act(async () => rejectStream(new Error('연결 중단')));
 
     await waitFor(() => expect(mockListCoverLetters).toHaveBeenCalledTimes(2));
+  });
+
+  it('SSE 갱신의 일시 오류는 3초 후 한 번 재시도하고 대기 중 이벤트를 합친다', async () => {
+    queryClient.setQueryData(['cover-letters', 'list', { page: 1, size: 6 }], createResponse(1));
+    mockListCoverLetters.mockRejectedValueOnce(new TypeError('네트워크 단절'));
+    mockListCoverLetters.mockResolvedValueOnce(createResponse(1));
+    renderList();
+    jest.useFakeTimers();
+    const { onmessage } = mockConnectReviewStatuses.mock.calls[0][0];
+    await act(async () => {
+      onmessage({ event: 'cover-letter.review-status.changed', data: '{}', id: '' });
+      await jest.advanceTimersByTimeAsync(0);
+    });
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(1);
+    expect(appToast.error).not.toHaveBeenCalled();
+    act(() => {
+      onmessage({ event: 'cover-letter.review-status.changed', data: '{}', id: '' });
+      onmessage({ event: 'cover-letter.review-status.changed', data: '{}', id: '' });
+    });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(2999);
+    });
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(1);
+    });
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
+    expect(appToast.error).not.toHaveBeenCalled();
+    expect(screen.getByText('1페이지 자기소개서')).toBeInTheDocument();
+  });
+
+  it('SSE 갱신의 최종 실패에만 토스트를 표시하고 추가로 반복 재시도하지 않는다', async () => {
+    queryClient.setQueryData(['cover-letters', 'list', { page: 1, size: 6 }], createResponse(1));
+    mockListCoverLetters.mockRejectedValue(new ApiError(503));
+    renderList();
+    jest.useFakeTimers();
+    await act(async () => {
+      mockConnectReviewStatuses.mock.calls[0][0].onmessage({
+        event: 'cover-letter.review-status.changed',
+        data: '{}',
+        id: '',
+      });
+      await jest.advanceTimersByTimeAsync(0);
+    });
+    expect(appToast.error).not.toHaveBeenCalled();
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(3000);
+    });
+    expect(appToast.error).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('1페이지 자기소개서')).toBeInTheDocument();
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(10_000);
+    });
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
+  });
+
+  it('SSE 갱신의 403은 재시도하지 않고 화면 이탈 시 일시 오류의 대기도 취소한다', async () => {
+    queryClient.setQueryData(['cover-letters', 'list', { page: 1, size: 6 }], createResponse(1));
+    mockListCoverLetters.mockRejectedValueOnce(new ApiError(403));
+    mockListCoverLetters.mockRejectedValueOnce(new TypeError('단절'));
+    const { unmount } = renderList();
+    jest.useFakeTimers();
+    const { onmessage } = mockConnectReviewStatuses.mock.calls[0][0];
+    await act(async () => {
+      onmessage({ event: 'cover-letter.review-status.changed', data: '{}', id: '' });
+      await jest.advanceTimersByTimeAsync(4000);
+    });
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(1);
+    expect(appToast.error).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      onmessage({ event: 'cover-letter.review-status.changed', data: '{}', id: '' });
+      await jest.advanceTimersByTimeAsync(0);
+    });
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
+    unmount();
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(4000);
+    });
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
+    expect(appToast.error).toHaveBeenCalledTimes(1);
+  });
+
+  it('갱신 요청 중 연속 이벤트는 하나의 후속 조회로 합쳐 최신 응답을 반영한다', async () => {
+    queryClient.setQueryData(['cover-letters', 'list', { page: 1, size: 6 }], createResponse(1));
+    let finishRefresh: (data: CoverLetterListResponse) => void = () => {};
+    mockListCoverLetters.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finishRefresh = resolve;
+        })
+    );
+    const latest = createResponse(1);
+    latest.items[0].displayStatus = 'REVIEWED';
+    mockListCoverLetters.mockResolvedValueOnce(latest);
+    renderList();
+    const { onmessage } = mockConnectReviewStatuses.mock.calls[0][0];
+    await act(async () => {
+      onmessage({ event: 'cover-letter.review-status.changed', data: '{}', id: '' });
+    });
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(1);
+    act(() => {
+      onmessage({ event: 'cover-letter.review-status.changed', data: '{}', id: '' });
+      onmessage({ event: 'cover-letter.review-status.changed', data: '{}', id: '' });
+    });
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      finishRefresh(createResponse(1));
+    });
+    expect(await screen.findByText('첨삭 완료')).toBeInTheDocument();
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
   });
 });

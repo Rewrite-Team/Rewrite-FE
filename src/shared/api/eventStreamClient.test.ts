@@ -16,10 +16,13 @@ jest.mock('./config', () => ({
 }));
 
 const mockFetchEventSource = jest.mocked(fetchEventSource);
+const streamControllers: AbortController[] = [];
 
 const openStream = async (overrides: Partial<EventStreamOptions> = {}) => {
-  await connectEventStream('/cover-letters/stream', {
-    signal: new AbortController().signal,
+  const controller = new AbortController();
+  streamControllers.push(controller);
+  void connectEventStream('/cover-letters/stream', {
+    signal: controller.signal,
     onmessage: jest.fn(),
     refreshAuth: jest.fn().mockResolvedValue(undefined),
     ...overrides,
@@ -31,11 +34,12 @@ const openStream = async (overrides: Partial<EventStreamOptions> = {}) => {
 describe('connectEventStream', () => {
   beforeEach(() => {
     mockFetchEventSource.mockReset();
-    mockFetchEventSource.mockResolvedValue(undefined);
+    mockFetchEventSource.mockImplementation(() => new Promise(() => {}));
     jest.mocked(notifyAuthSessionExpired).mockClear();
   });
 
   afterEach(() => {
+    streamControllers.splice(0).forEach((controller) => controller.abort());
     jest.restoreAllMocks();
   });
 
@@ -92,5 +96,65 @@ describe('connectEventStream', () => {
     expect(onRetry).not.toHaveBeenCalled();
     expect(() => options.onerror?.(httpError)).toThrow();
     expect(notifyAuthSessionExpired).toHaveBeenCalledTimes(1);
+  });
+
+  it('백오프는 상한을 유지하고 정상 메시지를 처리한 뒤 초기화한다', async () => {
+    jest.spyOn(Math, 'random').mockReturnValue(0.5);
+    const options = await openStream({ maxRetryDelayMs: 120_000 });
+    const delays = Array.from({ length: 8 }, () => options.onerror?.(new TypeError('단절')));
+    expect(delays).toEqual([1500, 3000, 6000, 12_000, 24_000, 48_000, 90_000, 90_000]);
+    options.onmessage?.({ event: 'heartbeat', data: '', id: '' });
+    expect(options.onerror?.(new TypeError('단절'))).toBe(1500);
+  });
+
+  it('탭 복귀 후 이전 구독이 늦게 종료돼도 새 구독을 유지하고 이탈 시 정리한다', async () => {
+    const hidden = jest.spyOn(document, 'hidden', 'get').mockReturnValue(false);
+    let finishPrevious: () => void = () => {};
+    mockFetchEventSource.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          finishPrevious = resolve;
+        })
+    );
+    const onmessage = jest.fn();
+    const first = await openStream({ onmessage });
+    expect(first.openWhenHidden).toBe(true);
+    hidden.mockReturnValue(true);
+    document.dispatchEvent(new Event('visibilitychange'));
+    expect(first.signal?.aborted).toBe(true);
+
+    hidden.mockReturnValue(false);
+    document.dispatchEvent(new Event('visibilitychange'));
+    const second = mockFetchEventSource.mock.calls[1][1];
+    finishPrevious();
+    await Promise.resolve();
+    expect(second.signal?.aborted).toBe(false);
+    first.onmessage?.({ event: 'changed', data: '{}', id: '' });
+    expect(onmessage).not.toHaveBeenCalled();
+    document.dispatchEvent(new Event('visibilitychange'));
+    expect(mockFetchEventSource).toHaveBeenCalledTimes(2);
+
+    streamControllers[0].abort();
+    expect(second.signal?.aborted).toBe(true);
+    document.dispatchEvent(new Event('visibilitychange'));
+    expect(mockFetchEventSource).toHaveBeenCalledTimes(2);
+  });
+
+  it('숨겨진 탭에서 시작하면 보일 때만 연결하고 정상 종료 후에는 다시 연결하지 않는다', async () => {
+    const hidden = jest.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+    mockFetchEventSource.mockResolvedValueOnce(undefined);
+    const controller = new AbortController();
+    streamControllers.push(controller);
+    const task = connectEventStream('/cover-letters/stream', {
+      signal: controller.signal,
+      onmessage: jest.fn(),
+      refreshAuth: jest.fn(),
+    });
+    expect(mockFetchEventSource).not.toHaveBeenCalled();
+    hidden.mockReturnValue(false);
+    document.dispatchEvent(new Event('visibilitychange'));
+    await task;
+    document.dispatchEvent(new Event('visibilitychange'));
+    expect(mockFetchEventSource).toHaveBeenCalledTimes(1);
   });
 });

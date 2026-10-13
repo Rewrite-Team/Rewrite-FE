@@ -35,7 +35,7 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
   const queryClient = useQueryClient();
   const { data, isPending, isFetching, isRefetchError, errorUpdatedAt, refetch } =
     useCoverLetterList(requestedPage);
-  useCoverLetterReviewStatusStream();
+  const { isRefreshing: isStreamRefreshing } = useCoverLetterReviewStatusStream();
   const recoveryPage = Math.max(data?.totalPages ?? 0, COVER_LETTER_LIST_DEFAULT_PAGE);
   const isOutOfRange = Boolean(data && requestedPage > recoveryPage);
 
@@ -47,10 +47,10 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
   }, [isOutOfRange, recoveryPage, router]);
 
   useEffect(() => {
-    if (isRefetchError) {
+    if (isRefetchError && !isStreamRefreshing) {
       appToast.error('목록을 새로 불러오지 못했어요. 이전 조회 결과를 표시합니다.');
     }
-  }, [isRefetchError, errorUpdatedAt]);
+  }, [isRefetchError, errorUpdatedAt, isStreamRefreshing]);
 
   const handleRetry = () => {
     void refetch();
@@ -65,7 +65,7 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
     void queryClient.prefetchQuery(coverLetterListQueryOptions(page));
   };
 
-  if (isPending || isOutOfRange) {
+  if (isPending || isOutOfRange || (!data && isStreamRefreshing)) {
     return <CoverLetterListSkeleton />;
   }
 
