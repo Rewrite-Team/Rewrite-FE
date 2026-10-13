@@ -3,52 +3,16 @@
 import { useEffect } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
 
 import {
   connectCoverLetterReviewStatuses,
-  CoverLetterListItemResponseDisplayStatus,
+  matchesCoverLetterReviewStatusSnapshot,
   coverLetterQueryKeys,
 } from '@/entities/cover-letter';
 import type { CoverLetterListResponse } from '@/entities/cover-letter';
 import { refreshAuthTokens } from '@/entities/user';
 
 const FALLBACK_RETRY_COUNT = 3;
-const reviewStatusSnapshotSchema = z.object({
-  items: z.array(
-    z.object({
-      coverLetterId: z.string(),
-      displayStatus: z.enum(CoverLetterListItemResponseDisplayStatus),
-      latestReviewedVersionId: z.string().nullable(),
-    })
-  ),
-});
-
-const matchesCachedLists = (data: string, lists: CoverLetterListResponse[]) => {
-  try {
-    const snapshot = reviewStatusSnapshotSchema.safeParse(JSON.parse(data));
-
-    if (!snapshot.success || lists.length === 0) {
-      return false;
-    }
-
-    const statuses = new Map(snapshot.data.items.map((item) => [item.coverLetterId, item]));
-    return lists.every(
-      (list) =>
-        list.totalItems === statuses.size &&
-        list.items.every((item) => {
-          const status = statuses.get(item.id);
-          return (
-            status?.displayStatus === item.displayStatus &&
-            status.latestReviewedVersionId === item.latestReviewedVersionId
-          );
-        })
-    );
-  } catch {
-    return false;
-  }
-};
-
 /**
  * ## useCoverLetterReviewStatusStream
  *
@@ -64,11 +28,35 @@ export const useCoverLetterReviewStatusStream = () => {
   useEffect(() => {
     const controller = new AbortController();
     let retryCount = 0;
+    let refreshTask: Promise<void> | undefined;
+    let refreshRequested = false;
 
     const refreshLists = () => {
-      if (!controller.signal.aborted) {
-        void queryClient.invalidateQueries({ queryKey: coverLetterQueryKeys.lists() });
+      if (controller.signal.aborted) {
+        return;
       }
+
+      refreshRequested = true;
+      if (refreshTask) {
+        return;
+      }
+
+      refreshTask = (async () => {
+        do {
+          refreshRequested = false;
+          // 이벤트 이전에 시작한 응답이 최신 상태를 덮어쓰지 않도록 먼저 취소합니다.
+          await queryClient.cancelQueries({ queryKey: coverLetterQueryKeys.lists() });
+          if (controller.signal.aborted) {
+            return;
+          }
+          await queryClient.invalidateQueries({ queryKey: coverLetterQueryKeys.lists() });
+        } while (refreshRequested && !controller.signal.aborted);
+      })().finally(() => {
+        refreshTask = undefined;
+        if (refreshRequested && !controller.signal.aborted) {
+          refreshLists();
+        }
+      });
     };
 
     void connectCoverLetterReviewStatuses({
@@ -89,7 +77,7 @@ export const useCoverLetterReviewStatusStream = () => {
               .filter((list) => list !== undefined);
 
             // 프리패칭 결과와 상태가 같으면 스냅샷으로 인한 중복 조회를 생략합니다.
-            if (matchesCachedLists(data, lists)) {
+            if (matchesCoverLetterReviewStatusSnapshot(data, lists)) {
               return;
             }
           }

@@ -399,6 +399,42 @@ describe('CoverLetterList', () => {
     expect(mockListCoverLetters).toHaveBeenCalledTimes(1);
   });
 
+  it('최초 목록 조회 중 SSE 변경이 오면 이전 요청을 취소하고 최신 상태를 다시 조회한다', async () => {
+    let resolveInitial: (data: CoverLetterListResponse) => void = () => {};
+    mockListCoverLetters.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveInitial = resolve;
+        })
+    );
+    const response = createResponse(1);
+    mockListCoverLetters.mockResolvedValueOnce({
+      ...response,
+      items: response.items.map((item) => ({
+        ...item,
+        displayStatus: 'REVIEWED',
+        latestReviewedVersionId: 'review-1',
+      })),
+    });
+    renderList();
+    await waitFor(() => expect(mockListCoverLetters).toHaveBeenCalledTimes(1));
+    const initialSignal = mockListCoverLetters.mock.calls[0][1]?.signal;
+
+    act(() =>
+      mockConnectReviewStatuses.mock.calls[0][0].onmessage({
+        event: 'cover-letter.review-status.changed',
+        data: '{}',
+        id: '',
+      })
+    );
+    expect(await screen.findByText('첨삭 완료')).toBeInTheDocument();
+    expect(initialSignal?.aborted).toBe(true);
+    await act(async () => resolveInitial(response));
+    expect(screen.queryByText('작성 중')).not.toBeInTheDocument();
+    expect(screen.getByText('첨삭 완료')).toBeInTheDocument();
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
+  });
+
   it('heartbeat나 알 수 없는 이벤트로 목록을 재조회하지 않는다', async () => {
     mockListCoverLetters.mockResolvedValue(createResponse(1));
     renderList();

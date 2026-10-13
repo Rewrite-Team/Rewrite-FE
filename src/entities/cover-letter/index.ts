@@ -12,7 +12,7 @@ export {
   connectCoverLetterReviewStatuses,
   getStreamCoverLetterReviewStatusesUrl,
 } from './api/stream';
-export { getMockCoverLetterListResponse } from './model/mockCoverLetterList';
+export { matchesCoverLetterReviewStatusSnapshot } from './model/reviewStatusSnapshot';
 export { getMockCoverLetterDetail } from './model/mockCoverLetterDetail';
 export { CoverLetterCard } from './ui/cover-letter-card/CoverLetterCard';
 export { CoverLetterDiff } from './ui/CoverLetterDiff';

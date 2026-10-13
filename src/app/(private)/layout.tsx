@@ -1,4 +1,4 @@
-import { RedirectUnauthenticated } from '@/features/auth/redirect-unauthenticated';
+import { RedirectUnauthenticated } from '@/features/auth/session';
 import { AppShell } from '@/widgets/common/app-shell';
 
 export default function PrivateLayout({

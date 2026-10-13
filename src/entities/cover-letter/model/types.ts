@@ -1,5 +1,3 @@
-export type CoverLetterDisplayStatus = 'WRITING' | 'REVIEWING' | 'REVIEWED' | 'REVIEW_FAILED';
-
 export interface CoverLetterQuestionDetail {
   id: string;
   question: string;

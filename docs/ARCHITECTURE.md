@@ -419,6 +419,14 @@ OpenAPI 명세
 - 서버 임시 저장이 있으면 백엔드 연동 방식 확정 후 서버 상태로 관리
 - 서버 임시 저장이 없으면 create flow 전용 store 또는 storage adapter 사용
 
+인증 가드와 로그인 복귀 경로 관리는 `features/auth/session`에서 함께 소유한다.
+복귀 경로의 저장·검증은 `model/returnTo.ts`, 최종 목적지 결정과 필요한 목록 프리패칭은
+`hooks/useLoginDestination.ts`에서 처리한다. 두 인증 가드는 이 내부 훅을 재사용하며,
+외부에서는 session의 `index.ts`를 통해 가드 컴포넌트만 사용한다.
+
+자기소개서 SSE 스냅샷의 검증·상태 비교는 `entities/cover-letter/model`에서 처리하고,
+목록 widget의 구독 훅은 연결 수명과 TanStack Query 캐시 갱신을 담당한다.
+
 ## 9. Testing Policy
 
 현재 Jest, Testing Library, Storybook이 설정되어 있다.

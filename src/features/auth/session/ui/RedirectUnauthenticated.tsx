@@ -6,13 +6,13 @@ import { usePathname, useRouter } from 'next/navigation';
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { coverLetterListQueryOptions } from '@/entities/cover-letter';
 import { currentUserQueryOptions } from '@/entities/user';
 import { ApiError } from '@/shared/api/apiError';
 import { AUTH_LOGOUT_STATE_EVENT, AUTH_SESSION_EXPIRED_EVENT } from '@/shared/api/client';
 import { ROUTES } from '@/shared/constants/routes';
 
-import { clearReturnTo, consumeReturnTo, saveReturnTo } from '../model/returnTo';
+import { useLoginDestination } from '../hooks/useLoginDestination';
+import { clearReturnTo, saveReturnTo } from '../model/returnTo';
 
 interface RedirectUnauthenticatedProps {
   children: React.ReactNode;
@@ -23,6 +23,8 @@ export function RedirectUnauthenticated({ children }: RedirectUnauthenticatedPro
   const pathname = usePathname();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const getLoginDestination = useLoginDestination();
+  const hasResolvedLoginDestination = useRef(false);
   const hasRedirectedToLogin = useRef(false);
   const isExplicitLogout = useRef(false);
   const { data: user, error } = useQuery(currentUserQueryOptions);
@@ -72,24 +74,19 @@ export function RedirectUnauthenticated({ children }: RedirectUnauthenticatedPro
   }, [isUnauthorized, queryClient, router]);
 
   useEffect(() => {
-    if (!user || pathname !== ROUTES.WRITING) {
+    if (!user || pathname !== ROUTES.WRITING || hasResolvedLoginDestination.current) {
       return;
     }
 
-    const returnTo = consumeReturnTo();
+    hasResolvedLoginDestination.current = true;
 
     const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-    const destination = new URL(returnTo ?? currentPath, window.location.origin);
+    const destination = getLoginDestination(currentPath);
 
-    if (destination.pathname === ROUTES.WRITING) {
-      const page = Number(destination.searchParams.get('page'));
-      void queryClient.prefetchQuery(coverLetterListQueryOptions(page));
+    if (destination !== currentPath) {
+      router.replace(destination);
     }
-
-    if (returnTo && returnTo !== currentPath) {
-      router.replace(returnTo);
-    }
-  }, [pathname, queryClient, router, user]);
+  }, [getLoginDestination, pathname, router, user]);
 
   return children;
 }

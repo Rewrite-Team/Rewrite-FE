@@ -1,4 +1,4 @@
-import { RedirectAuthenticated } from '@/features/auth/redirect-authenticated';
+import { RedirectAuthenticated } from '@/features/auth/session';
 import { Login, type KakaoLoginErrorCode } from '@/widgets/auth/login';
 
 import type { Metadata } from 'next';
