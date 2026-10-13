@@ -16,6 +16,7 @@ export type {
   CoverLetterStep4Values,
 } from './model/schemas/coverLetterCreateSchemas';
 export { WRITING_CREATE_STEPS } from './model/writingCreateStep';
+export { getCoverLetterCreateAvailableStep } from './model/getCoverLetterCreateAvailableStep';
 export type { WritingCreateStep } from './model/writingCreateStep';
 export { CreateCoverLetterButton } from './ui/CreateCoverLetterButton';
 export { useSaveCoverLetterPreferences } from './hooks/useSaveCoverLetterPreferences';

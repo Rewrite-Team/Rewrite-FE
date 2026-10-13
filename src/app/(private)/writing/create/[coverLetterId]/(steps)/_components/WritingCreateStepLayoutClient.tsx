@@ -5,7 +5,10 @@ import type { ReactNode } from 'react';
 import { redirect, useParams, useSelectedLayoutSegment } from 'next/navigation';
 
 import { useCoverLetterDetail } from '@/entities/cover-letter';
-import { CoverLetterCreateDraftProvider } from '@/features/cover-letter/create-flow';
+import {
+  CoverLetterCreateDraftProvider,
+  getCoverLetterCreateAvailableStep,
+} from '@/features/cover-letter/create-flow';
 import { ROUTES } from '@/shared/constants/routes';
 import { ErrorState } from '@/shared/ui/state-feedback';
 import { COVER_LETTER_STEP_CONFIG, CoverLetterCreateSkeleton } from '@/widgets/cover-letter-create';
@@ -61,6 +64,11 @@ export function WritingCreateStepLayoutClient({ children }: WritingCreateStepLay
   // 제출된 자기소개서는 등록 폼 대신 현재 첨삭 상태를 확인하는 상세 화면으로 이동합니다.
   if (data.coverLetter.displayStatus !== 'WRITING') {
     redirect(ROUTES.WRITING_DETAIL(coverLetterId));
+  }
+
+  const availableStep = getCoverLetterCreateAvailableStep(data);
+  if (COVER_LETTER_STEP_CONFIG[currentStepSegment].step > availableStep) {
+    redirect(ROUTES.WRITING_CREATE_STEP(coverLetterId, availableStep));
   }
 
   return (

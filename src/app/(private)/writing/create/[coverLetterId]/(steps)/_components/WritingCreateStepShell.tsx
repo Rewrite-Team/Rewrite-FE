@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
 import {
-  WRITING_CREATE_STEPS,
+  useCoverLetterCreateDraft,
   useIsSavingCoverLetterDraft,
   type WritingCreateStep,
 } from '@/features/cover-letter/create-flow';
@@ -22,7 +22,7 @@ interface WritingCreateStepShellProps {
 
 /**
  * 선택된 STEP의 헤더, 진행 패널, 페이지 폼 영역을 공통 레이아웃으로 조립합니다.
- * 퍼블리싱 단계에서는 현재 라우트를 기준으로 이전 STEP과 다음 STEP 이동만 제공합니다.
+ * 다음 단계 이동은 폼의 검증·저장에 맡기고 이전 단계 이동은 저장 중에 차단합니다.
  *
  * @param children - 현재 STEP 페이지의 폼 콘텐츠
  * @param currentStepSegment - 현재 STEP의 라우트 세그먼트
@@ -34,20 +34,12 @@ export function WritingCreateStepShell({
   const router = useRouter();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const isSaving = useIsSavingCoverLetterDraft(coverLetterId);
+  const draft = useCoverLetterCreateDraft();
+  const isActionDisabled = !draft || isSaving;
   const { description, step, title } = COVER_LETTER_STEP_CONFIG[currentStepSegment];
-  const currentStepIndex = WRITING_CREATE_STEPS.indexOf(step);
-  const nextStep = WRITING_CREATE_STEPS[currentStepIndex + 1];
-  const hasConnectedForm = nextStep !== undefined;
-
-  // TODO: API 연결 시 서버의 WRITING 진행 상태와 저장 결과를 기준으로 이동 가능 STEP을 결정한다.
-  const handleNext = () => {
-    if (nextStep === undefined) return;
-
-    router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, nextStep));
-  };
 
   const handleStepSelect = (targetStep: WritingCreateStep) => {
-    if (targetStep >= step || isSaving) return;
+    if (targetStep >= step || isActionDisabled) return;
 
     router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, targetStep));
   };
@@ -57,7 +49,7 @@ export function WritingCreateStepShell({
       <CoverLetterStepPanel
         completeAction={
           // TODO: 최종 등록 API가 준비되면 완료 mutation과 로딩·오류 처리를 연결한다.
-          { status: 'enabled' }
+          { status: isActionDisabled ? 'disabled' : 'enabled' }
         }
         currentStep={step}
         onStepSelect={handleStepSelect}
@@ -65,16 +57,10 @@ export function WritingCreateStepShell({
     ) : (
       <CoverLetterStepPanel
         currentStep={step}
-        nextAction={
-          isSaving
-            ? { status: 'disabled' }
-            : hasConnectedForm
-              ? { status: 'enabled' }
-              : { onClick: handleNext, status: 'enabled' }
-        }
+        nextAction={{ status: isActionDisabled ? 'disabled' : 'enabled' }}
         onStepSelect={handleStepSelect}
         saveDraftAction={{
-          status: !isSaving ? 'enabled' : 'disabled',
+          status: isActionDisabled ? 'disabled' : 'enabled',
         }}
       />
     );
