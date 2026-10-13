@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, type SubmitEvent } from 'react';
+import { useEffect, useRef, type SubmitEvent } from 'react';
 
 import { useParams, useRouter } from 'next/navigation';
 
@@ -12,6 +12,7 @@ import {
   type CoverLetterStep2FormInput,
   type CoverLetterStep2Values,
   useCoverLetterCreateDraft,
+  useCoverLetterCreateValidation,
   useSaveCoverLetterPreferences,
 } from '@/features/cover-letter/create-flow';
 import { ApiError } from '@/shared/api';
@@ -32,6 +33,7 @@ export function CoverLetterPreferredQualificationForm() {
   const router = useRouter();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const draft = useCoverLetterCreateDraft();
+  const { errors: submitErrors, setErrors: setSubmitErrors } = useCoverLetterCreateValidation();
   const saveMutation = useSaveCoverLetterPreferences(coverLetterId);
   const savingRef = useRef(false);
   const { control, getValues, handleSubmit, setError, clearErrors } = useForm<
@@ -44,6 +46,14 @@ export function CoverLetterPreferredQualificationForm() {
     },
     resolver: zodResolver(coverLetterStep2Schema),
   });
+
+  useEffect(() => {
+    if (!submitErrors.some((error) => error.step === 2)) return;
+    for (const error of submitErrors) {
+      if (error.step === 2) setError(error.field, { type: 'server', message: error.reason });
+    }
+    setSubmitErrors((errors) => errors.filter((error) => error.step !== 2));
+  }, [submitErrors, setSubmitErrors, setError]);
 
   const savePreferences = async (values: CoverLetterStep2FormInput, moveToNext: boolean) => {
     if (savingRef.current) return;

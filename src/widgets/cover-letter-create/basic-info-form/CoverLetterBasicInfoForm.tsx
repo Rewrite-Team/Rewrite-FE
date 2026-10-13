@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, type SubmitEvent } from 'react';
+import { useEffect, useRef, type SubmitEvent } from 'react';
 
 import { useParams, useRouter } from 'next/navigation';
 
@@ -12,6 +12,7 @@ import {
   type CoverLetterStep1FormInput,
   type CoverLetterStep1Values,
   useCoverLetterCreateDraft,
+  useCoverLetterCreateValidation,
   useSaveCoverLetterBasicInfo,
 } from '@/features/cover-letter/create-flow';
 import { ApiError } from '@/shared/api';
@@ -30,6 +31,7 @@ export function CoverLetterBasicInfoForm() {
   const router = useRouter();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const draft = useCoverLetterCreateDraft();
+  const { errors: submitErrors, setErrors: setSubmitErrors } = useCoverLetterCreateValidation();
   const saveMutation = useSaveCoverLetterBasicInfo(coverLetterId);
   const savingRef = useRef(false);
   const { control, getValues, handleSubmit, setError, clearErrors } = useForm<
@@ -45,6 +47,14 @@ export function CoverLetterBasicInfoForm() {
     },
     resolver: zodResolver(coverLetterStep1Schema),
   });
+
+  useEffect(() => {
+    if (!submitErrors.some((error) => error.step === 1)) return;
+    for (const error of submitErrors) {
+      if (error.step === 1) setError(error.field, { type: 'server', message: error.reason });
+    }
+    setSubmitErrors((errors) => errors.filter((error) => error.step !== 1));
+  }, [submitErrors, setSubmitErrors, setError]);
 
   const saveBasicInfo = async (values: CoverLetterStep1FormInput, moveToNext: boolean) => {
     if (savingRef.current) return;

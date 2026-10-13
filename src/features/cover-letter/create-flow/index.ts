@@ -21,6 +21,8 @@ export type { WritingCreateStep } from './model/writingCreateStep';
 export { CreateCoverLetterButton } from './ui/CreateCoverLetterButton';
 export { useSaveCoverLetterPreferences } from './hooks/useSaveCoverLetterPreferences';
 export { useSaveCoverLetterQuestions } from './hooks/useSaveCoverLetterQuestions';
+export { useSubmitCoverLetter } from './hooks/useSubmitCoverLetter';
+export { mapCoverLetterSubmitErrors } from './model/mapCoverLetterSubmitErrors';
 export {
   useIsSavingCoverLetterDraft,
   useSaveCoverLetterBasicInfo,
@@ -28,4 +30,5 @@ export {
 export {
   CoverLetterCreateDraftProvider,
   useCoverLetterCreateDraft,
+  useCoverLetterCreateValidation,
 } from './ui/CoverLetterCreateDraftContext';

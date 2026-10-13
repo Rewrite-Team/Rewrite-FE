@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type Ref, type SubmitEvent } from 'react';
+import { useEffect, useRef, useState, type Ref, type SubmitEvent } from 'react';
 
 import { useParams, useRouter } from 'next/navigation';
 
@@ -18,6 +18,7 @@ import {
   type CoverLetterStep3FormInput,
   type CoverLetterStep3Values,
   useCoverLetterCreateDraft,
+  useCoverLetterCreateValidation,
   useSaveCoverLetterQuestions,
 } from '@/features/cover-letter/create-flow';
 import { ApiError } from '@/shared/api';
@@ -172,6 +173,7 @@ export function CoverLetterQuestionForm() {
   const router = useRouter();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const draft = useCoverLetterCreateDraft();
+  const { errors: submitErrors, setErrors: setSubmitErrors } = useCoverLetterCreateValidation();
   const saveMutation = useSaveCoverLetterQuestions(coverLetterId);
   const savingRef = useRef(false);
   const initialQuestions = draft?.questions.length
@@ -184,17 +186,24 @@ export function CoverLetterQuestionForm() {
         }))
     : DEFAULT_FORM_VALUES.questions;
   const questionTriggerRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(0);
+  const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(() => {
+    const errors = submitErrors.filter((error) => error.step === 3);
+    return errors.length > 0 ? Math.min(...errors.map((error) => error.index)) : 0;
+  });
   const [answerLengths, setAnswerLengths] = useState<Array<number | undefined>>(() =>
     initialQuestions.map((question) =>
       question.characterLimit.length > 0 ? Number(question.characterLimit) : undefined
     )
   );
-  const { control, getValues, handleSubmit, trigger, setError, clearErrors } = useForm<
-    CoverLetterStep3FormInput,
-    unknown,
-    CoverLetterStep3Values
-  >({
+  const {
+    control,
+    getValues,
+    handleSubmit,
+    trigger,
+    setError,
+    clearErrors,
+    formState: { errors: formErrors },
+  } = useForm<CoverLetterStep3FormInput, unknown, CoverLetterStep3Values>({
     defaultValues: { questions: initialQuestions },
     resolver: zodResolver(coverLetterStep3Schema),
   });
@@ -202,6 +211,13 @@ export function CoverLetterQuestionForm() {
     control,
     name: 'questions',
   });
+
+  useEffect(() => {
+    const errors = submitErrors.filter((error) => error.step === 3);
+    if (errors.length === 0) return;
+    for (const error of errors) setError(error.field, { type: 'server', message: error.reason });
+    setSubmitErrors((errors) => errors.filter((error) => error.step !== 3));
+  }, [submitErrors, setSubmitErrors, setError]);
 
   const handleOpenChange = (index: number) => (open: boolean) => {
     setOpenQuestionIndex(open ? index : null);
@@ -351,6 +367,11 @@ export function CoverLetterQuestionForm() {
       onSubmit={handleFormSubmit}
     >
       <fieldset className="contents" disabled={saveMutation.isPending}>
+        {formErrors.root?.questions?.message ? (
+          <p className="body-14 text-error-500" role="alert">
+            {formErrors.root.questions.message}
+          </p>
+        ) : null}
         {fields.map((field, index) => (
           <CoverLetterQuestionFields
             answerLength={answerLengths[index]}
