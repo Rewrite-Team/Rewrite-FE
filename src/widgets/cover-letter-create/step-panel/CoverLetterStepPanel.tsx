@@ -151,6 +151,7 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
             </StepActionButton>
             <StepActionButton
               action={props.saveDraftAction}
+              intent="save-draft"
               className="w-full border-2 border-gray-400"
               variant="secondary"
             >

@@ -10,6 +10,7 @@ interface StepActionButtonProps {
   children: ReactNode;
   className: string;
   variant?: 'primary' | 'secondary';
+  intent?: 'next' | 'save-draft';
 }
 
 /**
@@ -21,7 +22,13 @@ interface StepActionButtonProps {
  * @param className - 버튼에 추가할 스타일 클래스
  * @param variant - 공통 버튼의 시각적 변형
  */
-export function StepActionButton({ action, children, className, variant }: StepActionButtonProps) {
+export function StepActionButton({
+  action,
+  children,
+  className,
+  variant,
+  intent = 'next',
+}: StepActionButtonProps) {
   const isEnabled = action.status === 'enabled';
 
   return (
@@ -29,6 +36,8 @@ export function StepActionButton({ action, children, className, variant }: StepA
       className={className}
       disabled={!isEnabled}
       form={COVER_LETTER_STEP_FORM_ID}
+      name="intent"
+      value={intent}
       onClick={isEnabled ? action.onClick : undefined}
       type="submit"
       variant={variant}

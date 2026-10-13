@@ -4,7 +4,11 @@ import type { ReactNode } from 'react';
 
 import { useParams, useRouter } from 'next/navigation';
 
-import { WRITING_CREATE_STEPS, type WritingCreateStep } from '@/features/cover-letter/create-flow';
+import {
+  WRITING_CREATE_STEPS,
+  useIsSavingCoverLetterDraft,
+  type WritingCreateStep,
+} from '@/features/cover-letter/create-flow';
 import { ROUTES } from '@/shared/constants/routes';
 import { PageHeader } from '@/shared/ui/page-header';
 import { COVER_LETTER_STEP_CONFIG, CoverLetterStepPanel } from '@/widgets/cover-letter-create';
@@ -29,6 +33,7 @@ export function WritingCreateStepShell({
 }: WritingCreateStepShellProps) {
   const router = useRouter();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
+  const isSaving = useIsSavingCoverLetterDraft(coverLetterId);
   const { description, step, title } = COVER_LETTER_STEP_CONFIG[currentStepSegment];
   const currentStepIndex = WRITING_CREATE_STEPS.indexOf(step);
   const nextStep = WRITING_CREATE_STEPS[currentStepIndex + 1];
@@ -42,7 +47,7 @@ export function WritingCreateStepShell({
   };
 
   const handleStepSelect = (targetStep: WritingCreateStep) => {
-    if (targetStep >= step) return;
+    if (targetStep >= step || isSaving) return;
 
     router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, targetStep));
   };
@@ -61,13 +66,14 @@ export function WritingCreateStepShell({
       <CoverLetterStepPanel
         currentStep={step}
         nextAction={
-          hasConnectedForm ? { status: 'enabled' } : { onClick: handleNext, status: 'enabled' }
+          isSaving
+            ? { status: 'disabled' }
+            : hasConnectedForm
+              ? { status: 'enabled' }
+              : { onClick: handleNext, status: 'enabled' }
         }
         onStepSelect={handleStepSelect}
-        saveDraftAction={
-          // TODO: STEP별 임시 저장 API가 준비되면 폼 검증과 저장 mutation을 연결한다.
-          { status: 'disabled' }
-        }
+        saveDraftAction={{ status: step === 1 && !isSaving ? 'enabled' : 'disabled' }}
       />
     );
 

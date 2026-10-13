@@ -19,6 +19,10 @@ export { WRITING_CREATE_STEPS } from './model/writingCreateStep';
 export type { WritingCreateStep } from './model/writingCreateStep';
 export { CreateCoverLetterButton } from './ui/CreateCoverLetterButton';
 export {
+  useIsSavingCoverLetterDraft,
+  useSaveCoverLetterBasicInfo,
+} from './hooks/useSaveCoverLetterBasicInfo';
+export {
   CoverLetterCreateDraftProvider,
   useCoverLetterCreateDraft,
 } from './ui/CoverLetterCreateDraftContext';

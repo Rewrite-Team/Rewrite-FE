@@ -1,6 +1,9 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
+import { saveCoverLetterBasicInfo } from '@/entities/cover-letter';
 import { ROUTES } from '@/shared/constants/routes';
+import { appToast } from '@/shared/lib/toast';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
 
 import { CoverLetterBasicInfoForm } from './CoverLetterBasicInfoForm';
@@ -13,13 +16,30 @@ jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
 }));
 
+jest.mock('@/entities/cover-letter', () => ({
+  ...jest.requireActual('@/entities/cover-letter'),
+  saveCoverLetterBasicInfo: jest.fn(),
+}));
+jest.mock('@/shared/lib/toast', () => ({ appToast: { success: jest.fn(), error: jest.fn() } }));
+
+const renderForm = () =>
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <CoverLetterBasicInfoForm />
+      <button form={COVER_LETTER_STEP_FORM_ID} type="submit" value="save-draft">
+        임시 저장
+      </button>
+    </QueryClientProvider>
+  );
+
 describe('CoverLetterBasicInfoForm', () => {
   beforeEach(() => {
-    mockPush.mockClear();
+    jest.clearAllMocks();
+    jest.mocked(saveCoverLetterBasicInfo).mockResolvedValue({ success: true });
   });
 
   it('STEP1 기본 정보 필드를 올바른 제약과 함께 렌더링한다', () => {
-    render(<CoverLetterBasicInfoForm />);
+    renderForm();
 
     const form = screen.getByRole('form', { name: '자기소개서 기본 정보' });
     const titleInput = screen.getByRole('textbox', { name: '자기소개서 제목' });
@@ -48,7 +68,7 @@ describe('CoverLetterBasicInfoForm', () => {
   });
 
   it('빈 폼을 제출하면 필수 입력 오류를 표시하고 이동하지 않는다', async () => {
-    render(<CoverLetterBasicInfoForm />);
+    renderForm();
 
     fireEvent.submit(screen.getByRole('form', { name: '자기소개서 기본 정보' }));
 
@@ -59,7 +79,7 @@ describe('CoverLetterBasicInfoForm', () => {
   });
 
   it('필수 정보를 입력하면 다음 STEP으로 이동한다', async () => {
-    render(<CoverLetterBasicInfoForm />);
+    renderForm();
 
     fireEvent.change(screen.getByRole('textbox', { name: '자기소개서 제목' }), {
       target: { value: '카카오 자기소개서' },
@@ -75,5 +95,40 @@ describe('CoverLetterBasicInfoForm', () => {
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(ROUTES.WRITING_CREATE_STEP(mockCoverLetterId, 2));
     });
+    expect(saveCoverLetterBasicInfo).toHaveBeenCalledWith(mockCoverLetterId, {
+      title: '카카오 자기소개서',
+      companyName: '카카오',
+      positionTitle: '프론트엔드 개발자',
+      jobPostingUrl: null,
+    });
+  });
+
+  it('미완성 입력을 임시 저장하면 필수값 오류 없이 저장하고 현재 단계에 머문다', async () => {
+    renderForm();
+    fireEvent.change(screen.getByRole('textbox', { name: '자기소개서 제목' }), {
+      target: { value: ' 초안 ' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '임시 저장' }));
+    await waitFor(() => expect(appToast.success).toHaveBeenCalled());
+    expect(saveCoverLetterBasicInfo).toHaveBeenCalledWith(mockCoverLetterId, {
+      title: '초안',
+      companyName: null,
+      positionTitle: null,
+      jobPostingUrl: null,
+    });
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(screen.queryByText('회사명을 입력해주세요.')).not.toBeInTheDocument();
+  });
+
+  it('저장이 실패하면 입력값을 유지하고 이동하지 않는다', async () => {
+    jest.mocked(saveCoverLetterBasicInfo).mockRejectedValue(new Error('network'));
+    renderForm();
+    fireEvent.change(screen.getByRole('textbox', { name: '자기소개서 제목' }), {
+      target: { value: '초안' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '임시 저장' }));
+    await waitFor(() => expect(appToast.error).toHaveBeenCalled());
+    expect(screen.getByRole('textbox', { name: '자기소개서 제목' })).toHaveValue('초안');
+    expect(mockPush).not.toHaveBeenCalled();
   });
 });

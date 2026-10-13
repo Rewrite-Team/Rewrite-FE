@@ -1,5 +1,7 @@
 'use client';
 
+import { useRef, type SubmitEvent } from 'react';
+
 import { useParams, useRouter } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,22 +12,27 @@ import {
   type CoverLetterStep1FormInput,
   type CoverLetterStep1Values,
   useCoverLetterCreateDraft,
+  useSaveCoverLetterBasicInfo,
 } from '@/features/cover-letter/create-flow';
+import { ApiError } from '@/shared/api';
 import { INPUT_LIMITS } from '@/shared/constants/limits';
 import { ROUTES } from '@/shared/constants/routes';
+import { appToast } from '@/shared/lib/toast';
 import { FormField } from '@/shared/ui/form-field';
 import { Input } from '@/shared/ui/input';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
 
 /**
  * 자기소개서 등록 STEP1의 제목과 지원 회사·직무 정보를 입력하는 폼입니다.
- * 현재는 퍼블리싱 단계로 입력 UI만 제공하며 서버 저장은 수행하지 않습니다.
+ * 미완성 입력은 임시 저장하고, 다음 단계 이동은 필수값 검증과 저장 후 수행합니다.
  */
 export function CoverLetterBasicInfoForm() {
   const router = useRouter();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const draft = useCoverLetterCreateDraft();
-  const { control, handleSubmit } = useForm<
+  const saveMutation = useSaveCoverLetterBasicInfo(coverLetterId);
+  const savingRef = useRef(false);
+  const { control, getValues, handleSubmit, setError, clearErrors } = useForm<
     CoverLetterStep1FormInput,
     unknown,
     CoverLetterStep1Values
@@ -39,18 +46,67 @@ export function CoverLetterBasicInfoForm() {
     resolver: zodResolver(coverLetterStep1Schema),
   });
 
-  const handleValidSubmit: SubmitHandler<CoverLetterStep1Values> = () => {
-    // TODO: 기본 정보 저장 API가 연결되면 저장 성공 후 STEP2로 이동한다.
-    router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, 2));
+  const saveBasicInfo = async (values: CoverLetterStep1FormInput, moveToNext: boolean) => {
+    if (savingRef.current) return;
+    savingRef.current = true;
+    clearErrors();
+
+    try {
+      await saveMutation.mutateAsync({
+        title: values.title.trim() || null,
+        companyName: values.companyName.trim() || null,
+        positionTitle: values.positionTitle.trim() || null,
+        jobPostingUrl: values.jobPostingUrl.trim() || null,
+      });
+      if (moveToNext) {
+        router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, 2));
+      } else {
+        appToast.success('임시 저장되었습니다.');
+      }
+    } catch (error) {
+      if (error instanceof ApiError) {
+        for (const detail of error.details) {
+          const field = detail.field;
+          if (
+            field === 'title' ||
+            field === 'companyName' ||
+            field === 'positionTitle' ||
+            field === 'jobPostingUrl'
+          ) {
+            setError(field, {
+              type: 'server',
+              message: detail.reason ?? '입력값을 확인해 주세요.',
+            });
+          }
+        }
+      }
+      appToast.error('기본 정보를 저장하지 못했습니다. 입력 내용을 확인하고 다시 시도해 주세요.');
+    } finally {
+      savingRef.current = false;
+    }
+  };
+
+  const handleValidSubmit: SubmitHandler<CoverLetterStep1Values> = (values) =>
+    saveBasicInfo(values, true);
+
+  const handleFormSubmit = (event: SubmitEvent<HTMLFormElement>) => {
+    const submitter = event.nativeEvent.submitter;
+    if (submitter instanceof HTMLButtonElement && submitter.value === 'save-draft') {
+      event.preventDefault();
+      void saveBasicInfo(getValues(), false);
+      return;
+    }
+    void handleSubmit(handleValidSubmit)(event);
   };
 
   return (
     <form
       aria-label="자기소개서 기본 정보"
+      aria-busy={saveMutation.isPending}
       className="flex flex-col gap-12"
       id={COVER_LETTER_STEP_FORM_ID}
       noValidate
-      onSubmit={handleSubmit(handleValidSubmit)}
+      onSubmit={handleFormSubmit}
     >
       <div className="rounded-2xl bg-gray-800 p-6">
         <FormField
