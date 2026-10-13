@@ -11,7 +11,8 @@ import { ApiError } from '@/shared/api/apiError';
 import { AUTH_LOGOUT_STATE_EVENT, AUTH_SESSION_EXPIRED_EVENT } from '@/shared/api/client';
 import { ROUTES } from '@/shared/constants/routes';
 
-import { clearReturnTo, consumeReturnTo, saveReturnTo } from '../model/returnTo';
+import { useLoginDestination } from '../hooks/useLoginDestination';
+import { clearReturnTo, saveReturnTo } from '../model/returnTo';
 
 interface RedirectUnauthenticatedProps {
   children: React.ReactNode;
@@ -22,6 +23,8 @@ export function RedirectUnauthenticated({ children }: RedirectUnauthenticatedPro
   const pathname = usePathname();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const getLoginDestination = useLoginDestination();
+  const hasResolvedLoginDestination = useRef(false);
   const hasRedirectedToLogin = useRef(false);
   const isExplicitLogout = useRef(false);
   const { data: user, error } = useQuery(currentUserQueryOptions);
@@ -71,22 +74,19 @@ export function RedirectUnauthenticated({ children }: RedirectUnauthenticatedPro
   }, [isUnauthorized, queryClient, router]);
 
   useEffect(() => {
-    if (!user || pathname !== ROUTES.WRITING) {
+    if (!user || pathname !== ROUTES.WRITING || hasResolvedLoginDestination.current) {
       return;
     }
 
-    const returnTo = consumeReturnTo();
-
-    if (!returnTo) {
-      return;
-    }
+    hasResolvedLoginDestination.current = true;
 
     const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    const destination = getLoginDestination(currentPath);
 
-    if (returnTo !== currentPath) {
-      router.replace(returnTo);
+    if (destination !== currentPath) {
+      router.replace(destination);
     }
-  }, [pathname, router, user]);
+  }, [getLoginDestination, pathname, router, user]);
 
   return children;
 }
