@@ -73,7 +73,9 @@ export function WritingCreateStepShell({
               : { onClick: handleNext, status: 'enabled' }
         }
         onStepSelect={handleStepSelect}
-        saveDraftAction={{ status: step === 1 && !isSaving ? 'enabled' : 'disabled' }}
+        saveDraftAction={{
+          status: (step === 1 || step === 2) && !isSaving ? 'enabled' : 'disabled',
+        }}
       />
     );
 

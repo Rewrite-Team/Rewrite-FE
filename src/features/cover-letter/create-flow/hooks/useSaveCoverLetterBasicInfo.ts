@@ -9,8 +9,7 @@ import {
   type SaveBasicInfoRequest,
 } from '@/entities/cover-letter';
 
-const getSaveDraftMutationKey = (coverLetterId: string) =>
-  ['cover-letter-create', coverLetterId, 'save'] as const;
+import { getSaveDraftMutationKey } from '../model/createMutationKeys';
 
 export const useIsSavingCoverLetterDraft = (coverLetterId: string) =>
   useIsMutating({ mutationKey: getSaveDraftMutationKey(coverLetterId) }) > 0;

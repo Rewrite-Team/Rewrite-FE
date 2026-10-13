@@ -1,5 +1,7 @@
 'use client';
 
+import { useRef, type SubmitEvent } from 'react';
+
 import { useParams, useRouter } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,8 +12,11 @@ import {
   type CoverLetterStep2FormInput,
   type CoverLetterStep2Values,
   useCoverLetterCreateDraft,
+  useSaveCoverLetterPreferences,
 } from '@/features/cover-letter/create-flow';
+import { ApiError } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
+import { appToast } from '@/shared/lib/toast';
 import { FormField } from '@/shared/ui/form-field';
 import { TextArea } from '@/shared/ui/textarea';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
@@ -21,13 +26,15 @@ import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constan
  *
  * @description
  * 자기소개서 등록 STEP2에서 채용 공고의 우대사항을 입력하는 폼입니다.
- * 스키마 도입 전까지 필수 입력 여부만 검증하며 서버 저장은 수행하지 않습니다.
+ * 미완성 입력은 임시 저장하고, 다음 단계 이동은 필수값 검증과 저장 후 수행합니다.
  */
 export function CoverLetterPreferredQualificationForm() {
   const router = useRouter();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const draft = useCoverLetterCreateDraft();
-  const { control, handleSubmit } = useForm<
+  const saveMutation = useSaveCoverLetterPreferences(coverLetterId);
+  const savingRef = useRef(false);
+  const { control, getValues, handleSubmit, setError, clearErrors } = useForm<
     CoverLetterStep2FormInput,
     unknown,
     CoverLetterStep2Values
@@ -38,17 +45,57 @@ export function CoverLetterPreferredQualificationForm() {
     resolver: zodResolver(coverLetterStep2Schema),
   });
 
-  const handleValidSubmit: SubmitHandler<CoverLetterStep2Values> = () => {
-    // TODO: 우대사항 저장 API가 연결되면 저장 성공 후 STEP3으로 이동한다.
-    router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, 3));
+  const savePreferences = async (values: CoverLetterStep2FormInput, moveToNext: boolean) => {
+    if (savingRef.current) return;
+    savingRef.current = true;
+    clearErrors();
+    try {
+      await saveMutation.mutateAsync({ preferences: values.preferredQualification.trim() || null });
+      if (moveToNext) {
+        router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, 3));
+      } else {
+        appToast.success('임시 저장되었습니다.');
+      }
+    } catch (error) {
+      const isValidationError = error instanceof ApiError && error.code === 'VALIDATION_ERROR';
+      if (isValidationError) {
+        const detail = error.details.find((detail) => detail.field === 'preferences');
+        if (detail)
+          setError('preferredQualification', {
+            type: 'server',
+            message: detail.reason ?? '입력값을 확인해 주세요.',
+          });
+      }
+      appToast.error(
+        isValidationError
+          ? '입력 내용을 확인하고 다시 저장해 주세요.'
+          : '우대사항을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+      );
+    } finally {
+      savingRef.current = false;
+    }
+  };
+
+  const handleValidSubmit: SubmitHandler<CoverLetterStep2Values> = (values) =>
+    savePreferences(values, true);
+
+  const handleFormSubmit = (event: SubmitEvent<HTMLFormElement>) => {
+    const submitter = event.nativeEvent.submitter;
+    if (submitter instanceof HTMLButtonElement && submitter.value === 'save-draft') {
+      event.preventDefault();
+      void savePreferences(getValues(), false);
+      return;
+    }
+    void handleSubmit(handleValidSubmit)(event);
   };
 
   return (
     <form
       aria-label="채용 공고 우대사항"
+      aria-busy={saveMutation.isPending}
       id={COVER_LETTER_STEP_FORM_ID}
       noValidate
-      onSubmit={handleSubmit(handleValidSubmit)}
+      onSubmit={handleFormSubmit}
     >
       <div className="rounded-2xl bg-gray-800 p-6">
         <FormField
