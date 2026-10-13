@@ -11,36 +11,12 @@ import {
 } from '@/entities/cover-letter';
 import type { CoverLetterListResponse } from '@/entities/cover-letter';
 import { refreshAuthTokens } from '@/entities/user';
-import { ApiError } from '@/shared/api/apiError';
+
+import { isRetryableRefreshError } from '../utils/isRetryableRefreshError';
+import { waitForRefreshRetry } from '../utils/waitForRefreshRetry';
 
 const FALLBACK_RETRY_COUNT = 3;
 const MAX_RETRY_DELAY_MS = 120_000;
-const REFRESH_RETRY_DELAY_MS = 3000;
-
-const isRetryableRefreshError = (error: unknown) =>
-  error instanceof ApiError
-    ? error.status >= 500 && error.status < 600
-    : error instanceof TypeError;
-
-/** 화면 이탈 시 타이머와 리스너를 정리하고 재시도 대기를 종료합니다. */
-const waitForRefreshRetry = (signal: AbortSignal) =>
-  new Promise<boolean>((resolve) => {
-    if (signal.aborted) {
-      resolve(false);
-      return;
-    }
-
-    const handleAbort = () => {
-      window.clearTimeout(timer);
-      signal.removeEventListener('abort', handleAbort);
-      resolve(false);
-    };
-    const timer = window.setTimeout(() => {
-      signal.removeEventListener('abort', handleAbort);
-      resolve(true);
-    }, REFRESH_RETRY_DELAY_MS);
-    signal.addEventListener('abort', handleAbort, { once: true });
-  });
 
 /**
  * ## useCoverLetterReviewStatusStream
@@ -152,7 +128,7 @@ export const useCoverLetterReviewStatusStream = () => {
       onRetry: () => {
         retryCount += 1;
 
-        if (retryCount === FALLBACK_RETRY_COUNT) {
+        if (retryCount % FALLBACK_RETRY_COUNT === 0) {
           refreshLists();
         }
       },

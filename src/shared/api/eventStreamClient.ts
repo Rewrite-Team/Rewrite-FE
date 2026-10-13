@@ -5,11 +5,18 @@ import { fetchEventSource, type EventSourceMessage } from '@microsoft/fetch-even
 import { ApiError } from './apiError';
 import { notifyAuthSessionExpired } from './client';
 import { getClientApiBaseUrl } from './config';
-
-const INITIAL_RETRY_DELAY_MS = 2000;
-const DEFAULT_MAX_RETRY_DELAY_MS = 60_000;
-const RETRY_DELAY_MULTIPLIER = 2;
-const MIN_RETRY_DELAY_RATIO = 0.5;
+import {
+  DEFAULT_MAX_RETRY_DELAY_MS,
+  INITIAL_RETRY_DELAY_MS,
+  getEventStreamBackoff,
+} from './eventStreamBackoff';
+import {
+  AuthRefreshError,
+  EventStreamHandlerError,
+  EventStreamHttpError,
+  EventStreamProtocolError,
+} from './eventStreamErrors';
+import { runVisibleEventStream } from './eventStreamVisibility';
 
 /** SSE 연결의 이벤트 처리, 인증 갱신, 취소 동작을 지정합니다. */
 export interface EventStreamOptions {
@@ -25,34 +32,6 @@ export interface EventStreamOptions {
   reconnectOnClose?: boolean;
   /** 백오프 기준 간격의 상한입니다. 2초 이상으로 지정하며 기본값은 60초입니다. */
   maxRetryDelayMs?: number;
-}
-
-class EventStreamHttpError extends Error {
-  constructor(readonly status: number) {
-    super(`SSE 요청에 실패했습니다. (${status})`);
-    this.name = 'EventStreamHttpError';
-  }
-}
-
-class EventStreamProtocolError extends Error {
-  constructor() {
-    super('SSE 응답의 Content-Type이 text/event-stream이 아닙니다.');
-    this.name = 'EventStreamProtocolError';
-  }
-}
-
-class EventStreamHandlerError extends Error {
-  constructor(readonly originalError: unknown) {
-    super('SSE 이벤트 처리 중 오류가 발생했습니다.');
-    this.name = 'EventStreamHandlerError';
-  }
-}
-
-class AuthRefreshError extends Error {
-  constructor(readonly originalError: unknown) {
-    super('SSE 재연결을 위한 인증 갱신에 실패했습니다.');
-    this.name = 'AuthRefreshError';
-  }
 }
 
 /**
@@ -207,75 +186,12 @@ export async function connectEventStream(
 
         onRetry?.();
 
-        const delayMs = Math.floor(
-          retryDelayMs * (MIN_RETRY_DELAY_RATIO + Math.random() * (1 - MIN_RETRY_DELAY_RATIO))
-        );
-        retryDelayMs = Math.min(retryDelayMs * RETRY_DELAY_MULTIPLIER, maxRetryDelayMs);
+        const { delayMs, nextRetryDelayMs } = getEventStreamBackoff(retryDelayMs, maxRetryDelayMs);
+        retryDelayMs = nextRetryDelayMs;
 
         return delayMs;
       },
     });
 
-  return new Promise<void>((resolve, reject) => {
-    let activeController: AbortController | undefined;
-
-    const stopSubscription = () => {
-      const controller = activeController;
-      activeController = undefined;
-      controller?.abort();
-    };
-
-    const cleanup = () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      signal.removeEventListener('abort', handleAbort);
-      stopSubscription();
-    };
-
-    const handleAbort = () => {
-      cleanup();
-      resolve();
-    };
-
-    const startSubscription = () => {
-      if (signal.aborted || document.hidden || activeController) {
-        return;
-      }
-
-      const controller = new AbortController();
-      activeController = controller;
-      // 숨겨져 취소된 이전 구독의 종료가 새 구독을 정리하지 않도록 구분합니다.
-      void subscribe(controller.signal).then(
-        () => {
-          if (activeController !== controller) {
-            return;
-          }
-          cleanup();
-          resolve();
-        },
-        (error: unknown) => {
-          if (activeController !== controller) {
-            return;
-          }
-          cleanup();
-          reject(error);
-        }
-      );
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        stopSubscription();
-      } else {
-        startSubscription();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    signal.addEventListener('abort', handleAbort, { once: true });
-    if (signal.aborted) {
-      handleAbort();
-    } else {
-      startSubscription();
-    }
-  });
+  return runVisibleEventStream(signal, subscribe);
 }

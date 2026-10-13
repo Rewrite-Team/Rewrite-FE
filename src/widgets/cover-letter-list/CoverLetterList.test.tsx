@@ -440,25 +440,37 @@ describe('CoverLetterList', () => {
     expect(mockListCoverLetters).toHaveBeenCalledTimes(1);
   });
 
-  it('재연결이 세 번 실패하면 일반 목록 조회로 복구하고 이후 실패마다 요청을 반복하지 않는다', async () => {
+  it('SSE 장애가 지속되면 매 세 번 실패마다 목록을 조회하고 정상 이벤트 후 횟수를 초기화한다', async () => {
     mockListCoverLetters.mockResolvedValue(createResponse(1));
     renderList();
     await screen.findByText('작성 중');
-    const { onRetry } = mockConnectReviewStatuses.mock.calls[0][0];
+    const { onRetry, onmessage } = mockConnectReviewStatuses.mock.calls[0][0];
 
+    for (let attempt = 1; attempt <= 9; attempt += 1) {
+      await act(async () => {
+        onRetry?.();
+      });
+      expect(mockListCoverLetters).toHaveBeenCalledTimes(1 + Math.floor(attempt / 3));
+    }
+
+    // 마지막 보완 조회 후 실패가 두 번 누적된 상태에서 정상 이벤트를 받습니다.
     act(() => {
       onRetry?.();
       onRetry?.();
     });
-    expect(mockListCoverLetters).toHaveBeenCalledTimes(1);
-
+    await act(async () => {
+      onmessage({ event: 'cover-letter.review-status.changed', data: '{}', id: '' });
+    });
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(5);
+    await act(async () => {
+      onRetry?.();
+      onRetry?.();
+    });
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(5);
     await act(async () => {
       onRetry?.();
     });
-    await waitFor(() => expect(mockListCoverLetters).toHaveBeenCalledTimes(2));
-
-    act(() => onRetry?.());
-    expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(6);
   });
 
   it('화면을 떠난 뒤 지연된 이벤트로 캐시를 갱신하지 않는다', async () => {
