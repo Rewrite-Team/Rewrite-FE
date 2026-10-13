@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { coverLetterListQueryOptions } from '@/entities/cover-letter';
 import { currentUserQueryOptions } from '@/entities/user';
 import { ApiError } from '@/shared/api/apiError';
 import { AUTH_LOGOUT_STATE_EVENT, AUTH_SESSION_EXPIRED_EVENT } from '@/shared/api/client';
@@ -77,16 +78,18 @@ export function RedirectUnauthenticated({ children }: RedirectUnauthenticatedPro
 
     const returnTo = consumeReturnTo();
 
-    if (!returnTo) {
-      return;
+    const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    const destination = new URL(returnTo ?? currentPath, window.location.origin);
+
+    if (destination.pathname === ROUTES.WRITING) {
+      const page = Number(destination.searchParams.get('page'));
+      void queryClient.prefetchQuery(coverLetterListQueryOptions(page));
     }
 
-    const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-
-    if (returnTo !== currentPath) {
+    if (returnTo && returnTo !== currentPath) {
       router.replace(returnTo);
     }
-  }, [pathname, router, user]);
+  }, [pathname, queryClient, router, user]);
 
   return children;
 }

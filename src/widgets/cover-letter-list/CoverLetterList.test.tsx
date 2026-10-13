@@ -348,6 +348,57 @@ describe('CoverLetterList', () => {
     }
   );
 
+  it('스냅샷이 프리패칭 캐시와 같으면 재조회하지 않고 상태가 달라지면 재조회한다', async () => {
+    const response = { ...createResponse(1), totalItems: 1, totalPages: 1 };
+    queryClient.setQueryData(['cover-letters', 'list', { page: 1, size: 6 }], response);
+    mockListCoverLetters.mockResolvedValue({
+      ...response,
+      items: response.items.map((item) => ({
+        ...item,
+        displayStatus: 'REVIEWED',
+        latestReviewedVersionId: 'review-1',
+      })),
+    });
+    renderList();
+    const { onmessage } = mockConnectReviewStatuses.mock.calls[0][0];
+    const snapshot = {
+      items: [
+        {
+          coverLetterId: 'cover-letter-1',
+          displayStatus: 'WRITING',
+          latestReviewedVersionId: null,
+        },
+      ],
+    };
+
+    act(() =>
+      onmessage({
+        event: 'cover-letter.review-status.snapshot',
+        data: JSON.stringify(snapshot),
+        id: '',
+      })
+    );
+    expect(mockListCoverLetters).not.toHaveBeenCalled();
+
+    act(() =>
+      onmessage({
+        event: 'cover-letter.review-status.snapshot',
+        data: JSON.stringify({
+          items: [
+            {
+              ...snapshot.items[0],
+              displayStatus: 'REVIEWED',
+              latestReviewedVersionId: 'review-1',
+            },
+          ],
+        }),
+        id: '',
+      })
+    );
+    expect(await screen.findByText('첨삭 완료')).toBeInTheDocument();
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(1);
+  });
+
   it('heartbeat나 알 수 없는 이벤트로 목록을 재조회하지 않는다', async () => {
     mockListCoverLetters.mockResolvedValue(createResponse(1));
     renderList();
