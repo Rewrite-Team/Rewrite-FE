@@ -1,4 +1,5 @@
 import type { WritingCreateStep } from '@/features/cover-letter/create-flow';
+import { cn } from '@/shared/styles/utils/cn';
 import { Skeleton } from '@/shared/ui/skeleton';
 
 interface CoverLetterCreateSkeletonProps {
@@ -19,7 +20,7 @@ export function CoverLetterCreateSkeleton({ currentStep }: CoverLetterCreateSkel
       <span className="sr-only">자기소개서 내용을 불러오는 중입니다.</span>
       <div aria-hidden="true" className="flex min-w-0 flex-col gap-12">
         {STEP_BLOCK_CLASSES[currentStep].map((className, index) => (
-          <Skeleton className={`${className} rounded-2xl`} key={index} />
+          <Skeleton className={cn(className, 'rounded-2xl')} key={index} />
         ))}
       </div>
     </div>

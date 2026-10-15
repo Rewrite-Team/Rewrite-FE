@@ -3,6 +3,7 @@ import { useId } from 'react';
 import Link from 'next/link';
 
 import { ROUTES } from '@/shared/constants/routes';
+import { cn } from '@/shared/styles/utils/cn';
 import { BadgeGroup } from '@/shared/ui/badge';
 import { Title } from '@/shared/ui/title';
 import { formatDate } from '@/shared/utils/formatDate';
@@ -32,7 +33,7 @@ export function CoverLetterCard({ coverLetter }: CoverLetterCardProps) {
     <li className="min-w-0">
       <Link
         aria-label={`${title} 자기소개서 상세 보기`}
-        className={`${styles.card} focus-ring group text-white`}
+        className={cn(styles.card, 'focus-ring group text-white')}
         data-status={displayStatus}
         href={ROUTES.WRITING_DETAIL(id)}
       >
@@ -43,10 +44,10 @@ export function CoverLetterCard({ coverLetter }: CoverLetterCardProps) {
         </div>
 
         <BadgeGroup
-          className={`${styles.badges} min-w-0 flex-nowrap gap-0`}
-          companyBadgeClassName={`${styles.folderBadge} max-w-36 truncate body-14`}
+          className={cn(styles.badges, 'min-w-0 flex-nowrap gap-0')}
+          companyBadgeClassName={cn(styles.folderBadge, 'max-w-36 truncate body-14')}
           companyName={companyName?.trim() || '회사 미입력'}
-          jobBadgeClassName={`${styles.folderBadge} max-w-36 truncate body-14`}
+          jobBadgeClassName={cn(styles.folderBadge, 'max-w-36 truncate body-14')}
           jobName={positionTitle?.trim() || '직무 미입력'}
         />
 
