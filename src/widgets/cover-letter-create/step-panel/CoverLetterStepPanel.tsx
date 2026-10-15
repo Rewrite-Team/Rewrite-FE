@@ -11,6 +11,7 @@ import type { StepPanelAction } from './types';
 interface CoverLetterStepPanelBaseProps {
   className?: string;
   currentStep: WritingCreateStep;
+  availableStep?: WritingCreateStep;
   errorSteps?: WritingCreateStep[];
   onStepSelect: (step: WritingCreateStep) => void;
 }
@@ -41,10 +42,11 @@ const STEP_STATUS_LABEL = {
 
 const getStepStatus = (
   step: WritingCreateStep,
-  currentStep: WritingCreateStep
+  currentStep: WritingCreateStep,
+  availableStep: WritingCreateStep
 ): CoverLetterCreateStepStatus => {
   if (step === currentStep) return 'current';
-  if (step < currentStep) return 'completed';
+  if (step < availableStep) return 'completed';
 
   return 'upcoming';
 };
@@ -62,6 +64,7 @@ const getStepStatus = (
  * `aria-current="step"`을 적용합니다.
  *
  * @param currentStep - 현재 표시 중인 등록 단계
+ * @param availableStep - 저장된 데이터로 진입할 수 있는 마지막 단계. 생략하면 현재 단계까지 허용합니다.
  * @param errorSteps - 서버 검증 오류가 남아 있어 빨간 번호로 표시할 단계
  * @param onStepSelect - 진행 단계 아이콘을 선택했을 때 실행할 콜백
  * @param nextAction - STEP1~3의 다음 버튼 상태와 동작
@@ -69,7 +72,13 @@ const getStepStatus = (
  * @param completeAction - STEP4의 완료 버튼 상태와 동작
  */
 export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
-  const { className, currentStep, errorSteps = [], onStepSelect } = props;
+  const {
+    className,
+    currentStep,
+    availableStep = currentStep,
+    errorSteps = [],
+    onStepSelect,
+  } = props;
   const isFinalStep = currentStep === 4;
 
   return (
@@ -81,11 +90,13 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
         <ol className="flex h-12 w-67.5 items-start">
           {WRITING_CREATE_STEPS.map((step, index) => {
             const stepConfig = COVER_LETTER_STEP_CONFIG[`step${step}`];
-            const stepStatus = getStepStatus(step, currentStep);
+            const stepStatus = getStepStatus(step, currentStep, availableStep);
             const isCompleted = stepStatus === 'completed';
             const hasError = errorSteps.includes(step);
             const nextStep = WRITING_CREATE_STEPS[index + 1];
-            const nextStepStatus = nextStep ? getStepStatus(nextStep, currentStep) : null;
+            const nextStepStatus = nextStep
+              ? getStepStatus(nextStep, currentStep, availableStep)
+              : null;
 
             return (
               <li
@@ -96,7 +107,7 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
                 <button
                   aria-label={`${stepConfig.label} 단계로 이동${hasError ? ', 입력 오류 있음' : ''}`}
                   className={stepIndicatorVariants({ status: stepStatus, hasError })}
-                  disabled={!isCompleted && !(hasError && step !== currentStep)}
+                  disabled={step === currentStep || step > availableStep}
                   onClick={() => onStepSelect(step)}
                   type="button"
                 >

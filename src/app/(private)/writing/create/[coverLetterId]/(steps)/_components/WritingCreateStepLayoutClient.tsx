@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 
 import { redirect, useParams, useRouter, useSelectedLayoutSegment } from 'next/navigation';
 
@@ -40,6 +40,17 @@ export function WritingCreateStepLayoutClient({ children }: WritingCreateStepLay
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const { data, isFetching, isPending, isRefetchError, refetch } =
     useCoverLetterDetail(coverLetterId);
+  const savedAvailableStep = data ? getCoverLetterCreateAvailableStep(data) : 1;
+  const [progress, setProgress] = useState({ coverLetterId, availableStep: savedAvailableStep });
+  const availableStep =
+    progress.coverLetterId === coverLetterId && progress.availableStep > savedAvailableStep
+      ? progress.availableStep
+      : savedAvailableStep;
+
+  // 단계 수정·재조회로 저장값이 바뀌어도 같은 작성 흐름에서 이미 열린 단계는 다시 잠그지 않습니다.
+  if (progress.coverLetterId !== coverLetterId || progress.availableStep !== availableStep) {
+    setProgress({ coverLetterId, availableStep });
+  }
 
   const handleRetry = () => {
     void refetch().then((result) => {
@@ -57,7 +68,7 @@ export function WritingCreateStepLayoutClient({ children }: WritingCreateStepLay
 
   if (isPending) {
     return (
-      <WritingCreateStepShell currentStepSegment={currentStepSegment}>
+      <WritingCreateStepShell currentStepSegment={currentStepSegment} availableStep={availableStep}>
         <CoverLetterCreateSkeleton
           currentStep={COVER_LETTER_STEP_CONFIG[currentStepSegment].step}
         />
@@ -81,14 +92,13 @@ export function WritingCreateStepLayoutClient({ children }: WritingCreateStepLay
     redirect(ROUTES.WRITING_DETAIL(coverLetterId));
   }
 
-  const availableStep = getCoverLetterCreateAvailableStep(data);
   if (COVER_LETTER_STEP_CONFIG[currentStepSegment].step > availableStep) {
     redirect(ROUTES.WRITING_CREATE_STEP(coverLetterId, availableStep));
   }
 
   return (
     <CoverLetterCreateDraftProvider draft={data}>
-      <WritingCreateStepShell currentStepSegment={currentStepSegment}>
+      <WritingCreateStepShell currentStepSegment={currentStepSegment} availableStep={availableStep}>
         {children}
       </WritingCreateStepShell>
     </CoverLetterCreateDraftProvider>
