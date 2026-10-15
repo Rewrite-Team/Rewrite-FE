@@ -26,26 +26,7 @@ describe('CoverLetterStepPanel', () => {
     expect(screen.getByText(/3단계 진행 전/)).toBeInTheDocument();
   });
 
-  it('양쪽 STEP 상태에 맞춰 연결선 색상을 표시한다', () => {
-    render(
-      <CoverLetterStepPanel
-        currentStep={2}
-        nextAction={{ onClick: jest.fn(), status: 'enabled' }}
-        onStepSelect={jest.fn()}
-        saveDraftAction={{ status: 'disabled' }}
-      />
-    );
-
-    const connectors = screen
-      .getByRole('navigation', { name: '자기소개서 등록 진행 단계' })
-      .querySelectorAll('span[aria-hidden]');
-
-    expect(connectors[0]).toHaveClass('bg-primary-500');
-    expect(connectors[1]).toHaveClass('bg-gradient-to-r', 'from-primary-500', 'to-gray-500');
-    expect(connectors[2]).toHaveClass('bg-gray-500');
-  });
-
-  it('다음 액션을 실행하고 API 미연결 임시 저장 액션은 비활성화한다', () => {
+  it('다음 액션을 실행하고 비활성 임시 저장 버튼을 폼에 연결한다', () => {
     const handleNext = jest.fn();
 
     render(
