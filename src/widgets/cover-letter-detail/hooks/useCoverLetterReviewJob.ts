@@ -21,7 +21,26 @@ const RECOVERY_RETRY_COUNT = 3;
 const isTerminalJobStatus = (status: LlmJobStateResponse['status']) =>
   status === 'COMPLETED' || status === 'FAILED' || status === 'CANCELED';
 
-/** 첨삭 Job을 구독하고 스트림 종료·장애 시 HTTP 조회로 최종 상태를 복구합니다. */
+/**
+ * ## useCoverLetterReviewJob
+ *
+ * @description
+ * 상세 화면에서 첨삭 Job의 SSE 상태와 문항별 중간 결과를 구독합니다.
+ * 유효한 이벤트를 받으면 재연결 실패 횟수를 초기화하고,
+ * 재연결 실패 3회마다 HTTP로 Job 상태를 보완 조회합니다.
+ * 스트림 종료 시에도 최종 상태를 확인하며 Job 조회 실패 시 상세 조회로 복구합니다.
+ *
+ * ### 주의할 점
+ * jobId가 없으면 연결하지 않습니다. Job 변경이나 화면 이탈 시 기존 연결을 취소합니다.
+ * retry는 연결 안내를 지우고 SSE 구독을 다시 시작합니다.
+ * 자기소개서 상세 데이터의 별도 새로고침은 호출하는 화면에서 처리합니다.
+ *
+ * @example
+ * ```tsx
+ * const { jobState, questionResults, connectionIssue, retry } =
+ *   useCoverLetterReviewJob(coverLetterId, jobId);
+ * ```
+ */
 export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
   const queryClient = useQueryClient();
   const [subscriptionAttempt, setSubscriptionAttempt] = useState(0);
@@ -33,6 +52,7 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
   const queryKey = llmJobQueryKeys.status(jobId ?? '');
   const { data: jobState } = useQuery<LlmJobStateResponse>({
     queryKey,
+    // SSE와 복구 요청이 갱신한 캐시만 구독해 별도 자동 조회를 방지합니다.
     queryFn: skipToken,
   });
 
@@ -64,6 +84,7 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
     };
 
     const recover = (isStreamClosed: boolean) => {
+      // 재연결 실패와 스트림 종료가 겹쳐도 진행 중인 복구 요청을 공유합니다.
       if (controller.signal.aborted || recoveryPromise) return recoveryPromise;
       recoveryPromise = (async () => {
         try {
