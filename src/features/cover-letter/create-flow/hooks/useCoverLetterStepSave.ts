@@ -12,6 +12,7 @@ import {
   mapCoverLetterValidationErrors,
   type CoverLetterValidationFieldError,
 } from '../model/mapCoverLetterValidationErrors';
+import { useCoverLetterCreateValidation } from '../ui/CoverLetterCreateDraftContext';
 
 import type { WritingCreateStep } from '../model/writingCreateStep';
 
@@ -58,6 +59,8 @@ export function useCoverLetterStepSave<Values>({
 }: CoverLetterStepSaveOptions<Values>) {
   const router = useRouter();
   const isSavingRef = useRef(false);
+  const { setErrors } = useCoverLetterCreateValidation();
+  const currentStep = nextStep - 1;
 
   return async (values: Values, { intent }: { intent: 'draft' | 'next' }) => {
     if (isSavingRef.current) return;
@@ -66,6 +69,8 @@ export function useCoverLetterStepSave<Values>({
       clearErrors();
       if (validateDraft && !validateDraft(values)) return;
       await saveDraft(values);
+      // 오류가 있는 단계를 방문해도 표시는 유지하고, 저장에 성공했을 때 해제합니다.
+      setErrors((errors) => errors.filter((error) => error.step !== currentStep));
       if (intent === 'next') {
         router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, nextStep));
       } else {
@@ -73,8 +78,16 @@ export function useCoverLetterStepSave<Values>({
       }
     } catch (error) {
       const isValidationError = error instanceof ApiError && error.code === 'VALIDATION_ERROR';
-      if (isValidationError)
-        onValidationErrors(mapCoverLetterValidationErrors(error.details), values);
+      if (isValidationError) {
+        const fieldErrors = mapCoverLetterValidationErrors(error.details).filter(
+          (error) => error.step === currentStep
+        );
+        setErrors((errors) => [
+          ...errors.filter((error) => error.step !== currentStep),
+          ...fieldErrors,
+        ]);
+        onValidationErrors(fieldErrors, values);
+      }
       appToast.error(isValidationError ? '입력 내용을 확인하고 다시 저장해 주세요.' : errorMessage);
     } finally {
       isSavingRef.current = false;

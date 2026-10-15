@@ -170,7 +170,7 @@ function CoverLetterQuestionFields({
 export function CoverLetterQuestionForm() {
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const draft = useCoverLetterCreateDraft();
-  const { errors: submitErrors, setErrors: setSubmitErrors } = useCoverLetterCreateValidation();
+  const { errors: submitErrors } = useCoverLetterCreateValidation();
   const saveMutation = useSaveCoverLetterQuestions(coverLetterId);
   const initialQuestions = draft?.questions.length
     ? [...draft.questions]
@@ -198,6 +198,7 @@ export function CoverLetterQuestionForm() {
     handleSubmit,
     trigger,
     setError,
+    setFocus,
     clearErrors,
     formState: { errors: formErrors },
   } = useForm<CoverLetterStep3FormInput, unknown, CoverLetterStep3Values>({
@@ -213,8 +214,20 @@ export function CoverLetterQuestionForm() {
     const errors = submitErrors.filter((error) => error.step === 3);
     if (errors.length === 0) return;
     for (const error of errors) setError(error.field, { type: 'server', message: error.reason });
-    setSubmitErrors((errors) => errors.filter((error) => error.step !== 3));
-  }, [submitErrors, setSubmitErrors, setError]);
+    const firstError = errors.reduce((first, error) => (error.index < first.index ? error : first));
+    // 문항을 펼쳐 inert가 해제된 뒤 오류 입력란으로 포커스를 옮깁니다.
+    let focusFrame: number | undefined;
+    const openFrame = requestAnimationFrame(() => {
+      setOpenQuestionIndex(firstError.index);
+      focusFrame = requestAnimationFrame(() => {
+        setFocus(firstError.field === 'root.questions' ? 'questions.0.question' : firstError.field);
+      });
+    });
+    return () => {
+      cancelAnimationFrame(openFrame);
+      if (focusFrame !== undefined) cancelAnimationFrame(focusFrame);
+    };
+  }, [submitErrors, setError, setFocus]);
 
   const handleOpenChange = (index: number) => (open: boolean) => {
     setOpenQuestionIndex(open ? index : null);

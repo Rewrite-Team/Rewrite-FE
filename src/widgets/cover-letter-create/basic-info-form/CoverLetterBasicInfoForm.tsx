@@ -28,9 +28,9 @@ import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constan
 export function CoverLetterBasicInfoForm() {
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const draft = useCoverLetterCreateDraft();
-  const { errors: submitErrors, setErrors: setSubmitErrors } = useCoverLetterCreateValidation();
+  const { errors: submitErrors } = useCoverLetterCreateValidation();
   const saveMutation = useSaveCoverLetterBasicInfo(coverLetterId);
-  const { control, getValues, handleSubmit, setError, clearErrors } = useForm<
+  const { control, getValues, handleSubmit, setError, setFocus, clearErrors } = useForm<
     CoverLetterStep1FormInput,
     unknown,
     CoverLetterStep1Values
@@ -45,12 +45,12 @@ export function CoverLetterBasicInfoForm() {
   });
 
   useEffect(() => {
-    if (!submitErrors.some((error) => error.step === 1)) return;
-    for (const error of submitErrors) {
-      if (error.step === 1) setError(error.field, { type: 'server', message: error.reason });
-    }
-    setSubmitErrors((errors) => errors.filter((error) => error.step !== 1));
-  }, [submitErrors, setSubmitErrors, setError]);
+    const errors = submitErrors.filter((error) => error.step === 1);
+    if (errors.length === 0) return;
+    for (const error of errors) setError(error.field, { type: 'server', message: error.reason });
+    const frame = requestAnimationFrame(() => setFocus(errors[0].field));
+    return () => cancelAnimationFrame(frame);
+  }, [submitErrors, setError, setFocus]);
 
   const saveBasicInfo = useCoverLetterStepSave<CoverLetterStep1FormInput>({
     coverLetterId,

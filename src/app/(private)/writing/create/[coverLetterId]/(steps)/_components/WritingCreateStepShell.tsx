@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 
 import {
   useCoverLetterCreateDraft,
+  useCoverLetterCreateValidation,
   useIsSavingCoverLetterDraft,
   type WritingCreateStep,
 } from '@/features/cover-letter/create-flow';
@@ -35,11 +36,13 @@ export function WritingCreateStepShell({
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const isSaving = useIsSavingCoverLetterDraft(coverLetterId);
   const draft = useCoverLetterCreateDraft();
+  const { errors } = useCoverLetterCreateValidation();
+  const errorSteps: WritingCreateStep[] = [...new Set(errors.map((error) => error.step))];
   const isActionDisabled = !draft || isSaving;
   const { description, step, title } = COVER_LETTER_STEP_CONFIG[currentStepSegment];
 
   const handleStepSelect = (targetStep: WritingCreateStep) => {
-    if (targetStep >= step || isActionDisabled) return;
+    if ((targetStep >= step && !errorSteps.includes(targetStep)) || isActionDisabled) return;
 
     router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, targetStep));
   };
@@ -49,11 +52,13 @@ export function WritingCreateStepShell({
       <CoverLetterStepPanel
         completeAction={{ status: isActionDisabled ? 'disabled' : 'enabled' }}
         currentStep={step}
+        errorSteps={errorSteps}
         onStepSelect={handleStepSelect}
       />
     ) : (
       <CoverLetterStepPanel
         currentStep={step}
+        errorSteps={errorSteps}
         nextAction={{ status: isActionDisabled ? 'disabled' : 'enabled' }}
         onStepSelect={handleStepSelect}
         saveDraftAction={{
