@@ -21,6 +21,7 @@ interface CoverLetterStepSaveOptions<Values> {
   nextStep: WritingCreateStep;
   clearErrors: () => void;
   saveDraft: (values: Values) => Promise<unknown>;
+  onSaved: (values: Values) => void;
   validateDraft?: (values: Values) => boolean;
   onValidationErrors: (errors: CoverLetterValidationFieldError[], values: Values) => void;
   errorMessage: string;
@@ -39,6 +40,7 @@ interface CoverLetterStepSaveOptions<Values> {
  * false를 반환하면 API 요청을 중단합니다. 필드 오류 표시는 해당 콜백에서 처리합니다.
  * onValidationErrors에는 폼 필드로 변환된 서버 오류가 전달되며,
  * 각 폼은 자기 단계의 오류만 적용합니다. 요청 데이터 변환은 saveDraft에서 담당합니다.
+ * onSaved에는 저장에 성공한 입력값을 전달하므로 폼의 변경 비교 기준을 갱신할 수 있습니다.
  *
  * @example
  * ```tsx
@@ -53,6 +55,7 @@ export function useCoverLetterStepSave<Values>({
   nextStep,
   clearErrors,
   saveDraft,
+  onSaved,
   validateDraft,
   onValidationErrors,
   errorMessage,
@@ -69,6 +72,7 @@ export function useCoverLetterStepSave<Values>({
       clearErrors();
       if (validateDraft && !validateDraft(values)) return;
       await saveDraft(values);
+      onSaved(values);
       // 오류가 있는 단계를 방문해도 표시는 유지하고, 저장에 성공했을 때 해제합니다.
       setErrors((errors) => errors.filter((error) => error.step !== currentStep));
       if (intent === 'next') {

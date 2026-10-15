@@ -7,6 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import {
   useCoverLetterCreateDraft,
   useCoverLetterCreateValidation,
+  useCoverLetterCreateDirtyStep,
   useIsSavingCoverLetterDraft,
   type WritingCreateStep,
 } from '@/features/cover-letter/create-flow';
@@ -36,6 +37,7 @@ export function WritingCreateStepShell({
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const isSaving = useIsSavingCoverLetterDraft(coverLetterId);
   const draft = useCoverLetterCreateDraft();
+  const dirtyStep = useCoverLetterCreateDirtyStep();
   const { errors } = useCoverLetterCreateValidation();
   const errorSteps: WritingCreateStep[] = [...new Set(errors.map((error) => error.step))];
   const isActionDisabled = !draft || isSaving;
@@ -62,7 +64,7 @@ export function WritingCreateStepShell({
         nextAction={{ status: isActionDisabled ? 'disabled' : 'enabled' }}
         onStepSelect={handleStepSelect}
         saveDraftAction={{
-          status: isActionDisabled ? 'disabled' : 'enabled',
+          status: isActionDisabled || dirtyStep !== step ? 'disabled' : 'enabled',
         }}
       />
     );

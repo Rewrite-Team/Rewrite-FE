@@ -3,6 +3,7 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -13,6 +14,7 @@ import {
 import type { CoverLetterDetailResponse } from '@/entities/cover-letter';
 
 import type { CoverLetterValidationFieldError } from '../model/mapCoverLetterValidationErrors';
+import type { WritingCreateStep } from '../model/writingCreateStep';
 
 interface CoverLetterCreateDraftProviderProps {
   children: ReactNode;
@@ -23,6 +25,8 @@ interface DraftContextValue {
   draft: CoverLetterDetailResponse;
   errors: CoverLetterValidationFieldError[];
   setErrors: Dispatch<SetStateAction<CoverLetterValidationFieldError[]>>;
+  dirtyStep: WritingCreateStep | null;
+  setDirtyStep: Dispatch<SetStateAction<WritingCreateStep | null>>;
 }
 
 const EMPTY_VALIDATION: Pick<DraftContextValue, 'errors' | 'setErrors'> = {
@@ -51,7 +55,11 @@ export function CoverLetterCreateDraftProvider({
   draft,
 }: CoverLetterCreateDraftProviderProps) {
   const [errors, setErrors] = useState<CoverLetterValidationFieldError[]>([]);
-  const value = useMemo(() => ({ draft, errors, setErrors }), [draft, errors]);
+  const [dirtyStep, setDirtyStep] = useState<WritingCreateStep | null>(null);
+  const value = useMemo(
+    () => ({ draft, errors, setErrors, dirtyStep, setDirtyStep }),
+    [draft, errors, dirtyStep]
+  );
   return (
     <CoverLetterCreateDraftContext.Provider value={value}>
       {children}
@@ -90,3 +98,42 @@ export const useCoverLetterCreateDraft = () =>
  */
 export const useCoverLetterCreateValidation = () =>
   useContext(CoverLetterCreateDraftContext) ?? EMPTY_VALIDATION;
+
+/**
+ * ## useCoverLetterStepDirty
+ *
+ * @description
+ * React Hook Form의 isDirty를 단계 패널에 전달해 임시 저장 버튼 상태를 결정합니다.
+ * 페이지 이탈 시 해당 단계의 변경 표시를 해제하며, Provider가 없으면 공유하지 않습니다.
+ *
+ * @example
+ * ```tsx
+ * useCoverLetterStepDirty(1, isDirty);
+ * ```
+ */
+export function useCoverLetterStepDirty(step: WritingCreateStep, isDirty: boolean) {
+  const setDirtyStep = useContext(CoverLetterCreateDraftContext)?.setDirtyStep;
+
+  useEffect(() => {
+    if (!setDirtyStep) return;
+    setDirtyStep(isDirty ? step : null);
+    // 이전 페이지의 변경 상태가 새 단계의 버튼을 활성화하지 않도록 정리합니다.
+    return () => setDirtyStep((current) => (current === step ? null : current));
+  }, [isDirty, setDirtyStep, step]);
+}
+
+/**
+ * ## useCoverLetterCreateDirtyStep
+ *
+ * @description
+ * 현재 표시 중인 폼에서 저장되지 않은 변경이 있는 단계를 반환합니다.
+ * 변경이 없거나 Provider가 없으면 null을 반환합니다.
+ *
+ * @example
+ * ```tsx
+ * const dirtyStep = useCoverLetterCreateDirtyStep();
+ * const canSaveDraft = dirtyStep === currentStep;
+ * ```
+ */
+export const useCoverLetterCreateDirtyStep = () =>
+  useContext(CoverLetterCreateDraftContext)?.dirtyStep ?? null;

@@ -9,6 +9,7 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 
 import {
   useCoverLetterStepSave,
+  useCoverLetterStepDirty,
   coverLetterStep1Schema,
   type CoverLetterStep1FormInput,
   type CoverLetterStep1Values,
@@ -30,11 +31,16 @@ export function CoverLetterBasicInfoForm() {
   const draft = useCoverLetterCreateDraft();
   const { errors: submitErrors } = useCoverLetterCreateValidation();
   const saveMutation = useSaveCoverLetterBasicInfo(coverLetterId);
-  const { control, getValues, handleSubmit, setError, setFocus, clearErrors } = useForm<
-    CoverLetterStep1FormInput,
-    unknown,
-    CoverLetterStep1Values
-  >({
+  const {
+    control,
+    getValues,
+    handleSubmit,
+    setError,
+    setFocus,
+    clearErrors,
+    reset,
+    formState: { isDirty },
+  } = useForm<CoverLetterStep1FormInput, unknown, CoverLetterStep1Values>({
     defaultValues: {
       companyName: draft?.coverLetter.companyName ?? '',
       jobPostingUrl: draft?.coverLetter.jobPostingUrl ?? '',
@@ -43,6 +49,8 @@ export function CoverLetterBasicInfoForm() {
     },
     resolver: zodResolver(coverLetterStep1Schema),
   });
+
+  useCoverLetterStepDirty(1, isDirty);
 
   useEffect(() => {
     const errors = submitErrors.filter((error) => error.step === 1);
@@ -56,6 +64,8 @@ export function CoverLetterBasicInfoForm() {
     coverLetterId,
     nextStep: 2,
     clearErrors,
+    // 저장 중 입력한 값은 보존하고, 성공한 요청의 값만 비교 기준으로 갱신합니다.
+    onSaved: (values) => reset(values, { keepValues: true }),
     errorMessage: '기본 정보를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
     saveDraft: (values) =>
       saveMutation.mutateAsync({

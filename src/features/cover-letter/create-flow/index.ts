@@ -31,5 +31,7 @@ export {
   CoverLetterCreateDraftProvider,
   useCoverLetterCreateDraft,
   useCoverLetterCreateValidation,
+  useCoverLetterStepDirty,
+  useCoverLetterCreateDirtyStep,
 } from './ui/CoverLetterCreateDraftContext';
 export { useCoverLetterStepSave } from './hooks/useCoverLetterStepSave';

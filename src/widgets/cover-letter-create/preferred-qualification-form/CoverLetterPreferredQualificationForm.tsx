@@ -9,6 +9,7 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 
 import {
   useCoverLetterStepSave,
+  useCoverLetterStepDirty,
   coverLetterStep2Schema,
   type CoverLetterStep2FormInput,
   type CoverLetterStep2Values,
@@ -32,16 +33,23 @@ export function CoverLetterPreferredQualificationForm() {
   const draft = useCoverLetterCreateDraft();
   const { errors: submitErrors } = useCoverLetterCreateValidation();
   const saveMutation = useSaveCoverLetterPreferences(coverLetterId);
-  const { control, getValues, handleSubmit, setError, setFocus, clearErrors } = useForm<
-    CoverLetterStep2FormInput,
-    unknown,
-    CoverLetterStep2Values
-  >({
+  const {
+    control,
+    getValues,
+    handleSubmit,
+    setError,
+    setFocus,
+    clearErrors,
+    reset,
+    formState: { isDirty },
+  } = useForm<CoverLetterStep2FormInput, unknown, CoverLetterStep2Values>({
     defaultValues: {
       preferredQualification: draft?.coverLetter.preferences ?? '',
     },
     resolver: zodResolver(coverLetterStep2Schema),
   });
+
+  useCoverLetterStepDirty(2, isDirty);
 
   useEffect(() => {
     const errors = submitErrors.filter((error) => error.step === 2);
@@ -55,6 +63,8 @@ export function CoverLetterPreferredQualificationForm() {
     coverLetterId,
     nextStep: 3,
     clearErrors,
+    // 저장 중 입력한 값은 보존하고, 성공한 요청의 값만 비교 기준으로 갱신합니다.
+    onSaved: (values) => reset(values, { keepValues: true }),
     errorMessage: '우대사항을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
     saveDraft: (values) =>
       saveMutation.mutateAsync({
