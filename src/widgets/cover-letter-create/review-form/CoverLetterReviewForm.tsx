@@ -8,7 +8,7 @@ import {
   useCoverLetterCreateDraft,
   useCoverLetterCreateValidation,
   useSubmitCoverLetter,
-  mapCoverLetterSubmitErrors,
+  mapCoverLetterValidationErrors,
 } from '@/features/cover-letter/create-flow';
 import { ApiError } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
@@ -110,7 +110,7 @@ export function CoverLetterReviewForm() {
       setIsConfirmOpen(false);
     } catch (error) {
       if (error instanceof ApiError && error.code === 'VALIDATION_ERROR') {
-        const errors = mapCoverLetterSubmitErrors(error.details);
+        const errors = mapCoverLetterValidationErrors(error.details);
         setErrors(errors);
         if (errors.length > 0) {
           setIsConfirmOpen(false);
@@ -126,6 +126,7 @@ export function CoverLetterReviewForm() {
         appToast.error('자기소개서가 없거나 접근할 수 없습니다.');
         router.replace(ROUTES.WRITING);
       } else if (error instanceof ApiError && error.code === 'CONFLICT') {
+        appToast.error('이미 첨삭된 자기소개서입니다. 기존 결과를 확인해 주세요.');
         router.replace(ROUTES.WRITING_DETAIL(coverLetterId));
       } else {
         appToast.error(

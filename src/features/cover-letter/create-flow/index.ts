@@ -22,7 +22,7 @@ export { CreateCoverLetterButton } from './ui/CreateCoverLetterButton';
 export { useSaveCoverLetterPreferences } from './hooks/useSaveCoverLetterPreferences';
 export { useSaveCoverLetterQuestions } from './hooks/useSaveCoverLetterQuestions';
 export { useSubmitCoverLetter } from './hooks/useSubmitCoverLetter';
-export { mapCoverLetterSubmitErrors } from './model/mapCoverLetterSubmitErrors';
+export { mapCoverLetterValidationErrors } from './model/mapCoverLetterValidationErrors';
 export {
   useIsSavingCoverLetterDraft,
   useSaveCoverLetterBasicInfo,

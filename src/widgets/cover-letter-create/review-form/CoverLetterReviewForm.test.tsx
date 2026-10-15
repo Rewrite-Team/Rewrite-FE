@@ -141,7 +141,9 @@ describe('CoverLetterReviewForm', () => {
     expect(await screen.findByRole('dialog')).toHaveTextContent('최종 제출하시겠습니까?');
     expect(submitCoverLetter).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: '제출' }));
-    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/writing/cover-letter-id'));
+    await waitFor(() =>
+      expect(mockReplace).toHaveBeenCalledWith('/writing/cover-letter-id?jobId=job-id')
+    );
     expect(submitCoverLetter).toHaveBeenCalledTimes(1);
     expect(submitCoverLetter).toHaveBeenCalledWith('cover-letter-id');
   });
@@ -152,6 +154,14 @@ describe('CoverLetterReviewForm', () => {
     fireEvent.click(await screen.findByRole('button', { name: '취소' }));
     expect(submitCoverLetter).not.toHaveBeenCalled();
     expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  it('이미 첨삭 완료된 응답이면 Job 구독 경로 없이 결과 화면으로 이동한다', async () => {
+    jest.mocked(submitCoverLetter).mockResolvedValue({ displayStatus: 'REVIEWED', jobId: null });
+    renderReviewForm();
+    fireEvent.submit(screen.getByRole('form', { name: '자기소개서 최종 확인' }));
+    fireEvent.click(await screen.findByRole('button', { name: '제출' }));
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/writing/cover-letter-id'));
   });
 
   it('제출 검증 오류가 여러 단계에 있으면 첫 오류 단계로 이동한다', async () => {
@@ -184,6 +194,19 @@ describe('CoverLetterReviewForm', () => {
     expect(submitCoverLetter).toHaveBeenCalledTimes(1);
     expect(mockReplace).not.toHaveBeenCalled();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('제출 충돌 시 이유를 토스트로 안내하고 기존 결과로 이동한다', async () => {
+    jest
+      .mocked(submitCoverLetter)
+      .mockRejectedValue(new ApiError(409, { error: { code: 'CONFLICT' } }));
+    renderReviewForm();
+    fireEvent.submit(screen.getByRole('form', { name: '자기소개서 최종 확인' }));
+    fireEvent.click(await screen.findByRole('button', { name: '제출' }));
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/writing/cover-letter-id'));
+    expect(appToast.error).toHaveBeenCalledWith(
+      '이미 첨삭된 자기소개서입니다. 기존 결과를 확인해 주세요.'
+    );
   });
 
   it('제출 오류를 이전 단계 폼에 전달해 서버 메시지를 표시한다', async () => {
@@ -225,6 +248,8 @@ describe('CoverLetterReviewForm', () => {
     fireEvent.click(submitButton);
     expect(submitCoverLetter).toHaveBeenCalledTimes(1);
     resolveSubmit({ displayStatus: 'REVIEWING', jobId: 'job-id' });
-    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/writing/cover-letter-id'));
+    await waitFor(() =>
+      expect(mockReplace).toHaveBeenCalledWith('/writing/cover-letter-id?jobId=job-id')
+    );
   });
 });

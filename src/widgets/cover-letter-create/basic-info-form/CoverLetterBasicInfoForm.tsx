@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 
 import {
+  mapCoverLetterValidationErrors,
   coverLetterStep1Schema,
   type CoverLetterStep1FormInput,
   type CoverLetterStep1Values,
@@ -76,19 +77,9 @@ export function CoverLetterBasicInfoForm() {
     } catch (error) {
       const isValidationError = error instanceof ApiError && error.code === 'VALIDATION_ERROR';
       if (isValidationError) {
-        for (const detail of error.details) {
-          const field = detail.field;
-          if (
-            field === 'title' ||
-            field === 'companyName' ||
-            field === 'positionTitle' ||
-            field === 'jobPostingUrl'
-          ) {
-            setError(field, {
-              type: 'server',
-              message: detail.reason ?? '입력값을 확인해 주세요.',
-            });
-          }
+        for (const fieldError of mapCoverLetterValidationErrors(error.details)) {
+          if (fieldError.step !== 1) continue;
+          setError(fieldError.field, { type: 'server', message: fieldError.reason });
         }
       }
       appToast.error(

@@ -14,6 +14,7 @@ import {
 } from 'react-hook-form';
 
 import {
+  mapCoverLetterValidationErrors,
   coverLetterStep3Schema,
   type CoverLetterStep3FormInput,
   type CoverLetterStep3Values,
@@ -293,24 +294,15 @@ export function CoverLetterQuestionForm() {
       const isValidationError = error instanceof ApiError && error.code === 'VALIDATION_ERROR';
       if (isValidationError) {
         let firstInvalidIndex: number | undefined;
-        for (const detail of error.details) {
-          const match = detail.field?.match(
-            /^questions\[(\d+)\]\.(question|originalAnswer|maxAnswerLength)$/
-          );
-          if (!match) continue;
-          const index = Number(match[1]);
-          if (index >= values.questions.length) continue;
-          const field =
-            match[2] === 'originalAnswer'
-              ? 'answer'
-              : match[2] === 'maxAnswerLength'
-                ? 'characterLimit'
-                : 'question';
-          setError(`questions.${index}.${field}`, {
-            type: 'server',
-            message: detail.reason ?? '입력값을 확인해 주세요.',
-          });
-          firstInvalidIndex = Math.min(firstInvalidIndex ?? index, index);
+        for (const fieldError of mapCoverLetterValidationErrors(error.details)) {
+          if (
+            fieldError.step !== 3 ||
+            fieldError.field === 'root.questions' ||
+            fieldError.index >= values.questions.length
+          )
+            continue;
+          setError(fieldError.field, { type: 'server', message: fieldError.reason });
+          firstInvalidIndex = Math.min(firstInvalidIndex ?? fieldError.index, fieldError.index);
         }
         if (firstInvalidIndex !== undefined) setOpenQuestionIndex(firstInvalidIndex);
       }

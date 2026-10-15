@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 
 import {
+  mapCoverLetterValidationErrors,
   coverLetterStep2Schema,
   type CoverLetterStep2FormInput,
   type CoverLetterStep2Values,
@@ -69,12 +70,10 @@ export function CoverLetterPreferredQualificationForm() {
     } catch (error) {
       const isValidationError = error instanceof ApiError && error.code === 'VALIDATION_ERROR';
       if (isValidationError) {
-        const detail = error.details.find((detail) => detail.field === 'preferences');
-        if (detail)
-          setError('preferredQualification', {
-            type: 'server',
-            message: detail.reason ?? '입력값을 확인해 주세요.',
-          });
+        const fieldError = mapCoverLetterValidationErrors(error.details).find(
+          (error) => error.step === 2
+        );
+        if (fieldError) setError(fieldError.field, { type: 'server', message: fieldError.reason });
       }
       appToast.error(
         isValidationError

@@ -12,7 +12,7 @@ import {
 
 import type { CoverLetterDetailResponse } from '@/entities/cover-letter';
 
-import type { CoverLetterSubmitFieldError } from '../model/mapCoverLetterSubmitErrors';
+import type { CoverLetterValidationFieldError } from '../model/mapCoverLetterValidationErrors';
 
 interface CoverLetterCreateDraftProviderProps {
   children: ReactNode;
@@ -21,8 +21,8 @@ interface CoverLetterCreateDraftProviderProps {
 
 interface DraftContextValue {
   draft: CoverLetterDetailResponse;
-  errors: CoverLetterSubmitFieldError[];
-  setErrors: Dispatch<SetStateAction<CoverLetterSubmitFieldError[]>>;
+  errors: CoverLetterValidationFieldError[];
+  setErrors: Dispatch<SetStateAction<CoverLetterValidationFieldError[]>>;
 }
 
 const EMPTY_VALIDATION: Pick<DraftContextValue, 'errors' | 'setErrors'> = {
@@ -35,7 +35,7 @@ export function CoverLetterCreateDraftProvider({
   children,
   draft,
 }: CoverLetterCreateDraftProviderProps) {
-  const [errors, setErrors] = useState<CoverLetterSubmitFieldError[]>([]);
+  const [errors, setErrors] = useState<CoverLetterValidationFieldError[]>([]);
   const value = useMemo(() => ({ draft, errors, setErrors }), [draft, errors]);
   return (
     <CoverLetterCreateDraftContext.Provider value={value}>

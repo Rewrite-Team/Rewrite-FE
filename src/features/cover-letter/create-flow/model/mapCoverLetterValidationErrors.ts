@@ -1,6 +1,6 @@
 import type { ApiErrorDetail } from '@/shared/api';
 
-type CoverLetterSubmitFieldError =
+type CoverLetterValidationFieldError =
   | { step: 1; field: 'title' | 'companyName' | 'positionTitle' | 'jobPostingUrl'; reason: string }
   | { step: 2; field: 'preferredQualification'; reason: string }
   | {
@@ -10,11 +10,11 @@ type CoverLetterSubmitFieldError =
       reason: string;
     };
 
-/** 제출 응답의 백엔드 필드 경로를 단계별 폼 필드로 변환합니다. */
-export function mapCoverLetterSubmitErrors(
+/** 저장·제출 응답의 백엔드 검증 오류를 단계별 폼 필드로 변환합니다. */
+export function mapCoverLetterValidationErrors(
   details: ApiErrorDetail[]
-): CoverLetterSubmitFieldError[] {
-  return details.flatMap((detail): CoverLetterSubmitFieldError[] => {
+): CoverLetterValidationFieldError[] {
+  return details.flatMap((detail): CoverLetterValidationFieldError[] => {
     const reason = detail.reason ?? '입력값을 확인해 주세요.';
     const field = detail.field;
     if (
@@ -39,4 +39,4 @@ export function mapCoverLetterSubmitErrors(
   });
 }
 
-export type { CoverLetterSubmitFieldError };
+export type { CoverLetterValidationFieldError };
