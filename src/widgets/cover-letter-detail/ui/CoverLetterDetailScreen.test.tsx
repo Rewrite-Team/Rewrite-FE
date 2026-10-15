@@ -89,9 +89,12 @@ describe('CoverLetterDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.mocked(getCoverLetterDetail).mockResolvedValue(DETAIL);
-    jest
-      .mocked(useCoverLetterReviewJob)
-      .mockReturnValue({ job: undefined, items: [], issue: undefined, retry: jest.fn() });
+    jest.mocked(useCoverLetterReviewJob).mockReturnValue({
+      jobState: undefined,
+      questionResults: [],
+      connectionIssue: undefined,
+      retry: jest.fn(),
+    });
   });
 
   it('완료된 자기소개서의 실제 서버 결과를 읽기 전용으로 표시한다', () => {
@@ -175,9 +178,12 @@ describe('CoverLetterDetailScreen', () => {
 
   it('상태 새로고침의 404 오류는 토스트 안내 후 목록으로 이동한다', async () => {
     jest.mocked(getCoverLetterDetail).mockRejectedValue(new ApiError(404));
-    jest
-      .mocked(useCoverLetterReviewJob)
-      .mockReturnValue({ job: undefined, items: [], issue: '연결 끊김', retry: jest.fn() });
+    jest.mocked(useCoverLetterReviewJob).mockReturnValue({
+      jobState: undefined,
+      questionResults: [],
+      connectionIssue: '연결 끊김',
+      retry: jest.fn(),
+    });
     renderDetail({ ...DETAIL, coverLetter: { ...DETAIL.coverLetter, displayStatus: 'REVIEWING' } });
     fireEvent.click(screen.getByRole('button', { name: '상태 새로고침' }));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/writing'));

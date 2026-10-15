@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type Ref, type SubmitEvent } from 'react';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -14,7 +14,7 @@ import {
 } from 'react-hook-form';
 
 import {
-  mapCoverLetterValidationErrors,
+  useCoverLetterStepSave,
   coverLetterStep3Schema,
   type CoverLetterStep3FormInput,
   type CoverLetterStep3Values,
@@ -22,10 +22,7 @@ import {
   useCoverLetterCreateValidation,
   useSaveCoverLetterQuestions,
 } from '@/features/cover-letter/create-flow';
-import { ApiError } from '@/shared/api';
 import { DeleteIcon } from '@/shared/assets/icons/side-menu';
-import { ROUTES } from '@/shared/constants/routes';
-import { appToast } from '@/shared/lib/toast';
 import { Accordion } from '@/shared/ui/accordion';
 import { Button } from '@/shared/ui/button';
 import { FormField } from '@/shared/ui/form-field';
@@ -34,7 +31,7 @@ import { TextArea } from '@/shared/ui/textarea';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
 
 interface CoverLetterQuestionFieldsProps {
-  answerLength?: number;
+  appliedCharacterLimit?: number;
   control: Control<CoverLetterStep3FormInput, unknown, CoverLetterStep3Values>;
   index: number;
   isDeleteDisabled: boolean;
@@ -57,7 +54,7 @@ const DEFAULT_FORM_VALUES: CoverLetterStep3FormInput = {
 
 /** 하나의 자기소개서 문항과 답변 입력 영역을 구성합니다. */
 function CoverLetterQuestionFields({
-  answerLength,
+  appliedCharacterLimit,
   control,
   index,
   isDeleteDisabled,
@@ -144,13 +141,13 @@ function CoverLetterQuestionFields({
           render={({ errorMessage, field, invalid }) => (
             <TextArea id={`cover-letter-answer-${questionNumber}`} invalid={invalid} required>
               <TextArea.Label>자기소개서 내용</TextArea.Label>
-              {answerLength === undefined ? (
+              {appliedCharacterLimit === undefined ? (
                 <TextArea.Field {...field} placeholder="자기소개서 내용을 작성해주세요" showCount />
               ) : (
                 <TextArea.Field
                   {...field}
                   placeholder="자기소개서 내용을 작성해주세요"
-                  recommendedLength={answerLength}
+                  recommendedLength={appliedCharacterLimit}
                   showCount
                 />
               )}
@@ -171,12 +168,10 @@ function CoverLetterQuestionFields({
  * 문항은 하나씩 펼쳐 볼 수 있으며 입력한 글자 수를 답변의 권장 길이로 적용할 수 있습니다.
  */
 export function CoverLetterQuestionForm() {
-  const router = useRouter();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const draft = useCoverLetterCreateDraft();
   const { errors: submitErrors, setErrors: setSubmitErrors } = useCoverLetterCreateValidation();
   const saveMutation = useSaveCoverLetterQuestions(coverLetterId);
-  const savingRef = useRef(false);
   const initialQuestions = draft?.questions.length
     ? [...draft.questions]
         .sort((firstQuestion, secondQuestion) => firstQuestion.order - secondQuestion.order)
@@ -191,10 +186,11 @@ export function CoverLetterQuestionForm() {
     const errors = submitErrors.filter((error) => error.step === 3);
     return errors.length > 0 ? Math.min(...errors.map((error) => error.index)) : 0;
   });
-  const [answerLengths, setAnswerLengths] = useState<Array<number | undefined>>(() =>
-    initialQuestions.map((question) =>
-      question.characterLimit.length > 0 ? Number(question.characterLimit) : undefined
-    )
+  const [appliedCharacterLimits, setAppliedCharacterLimits] = useState<Array<number | undefined>>(
+    () =>
+      initialQuestions.map((question) =>
+        question.characterLimit.length > 0 ? Number(question.characterLimit) : undefined
+      )
   );
   const {
     control,
@@ -231,14 +227,14 @@ export function CoverLetterQuestionForm() {
 
     if (!isValid || !Number.isInteger(characterLimit) || characterLimit <= 0) return;
 
-    setAnswerLengths((currentLengths) =>
-      currentLengths.map((length, lengthIndex) => (lengthIndex === index ? characterLimit : length))
+    setAppliedCharacterLimits((currentLimits) =>
+      currentLimits.map((limit, limitIndex) => (limitIndex === index ? characterLimit : limit))
     );
   };
 
   const handleAddQuestion = () => {
     append({ ...EMPTY_QUESTION });
-    setAnswerLengths((currentLengths) => [...currentLengths, undefined]);
+    setAppliedCharacterLimits((currentLimits) => [...currentLimits, undefined]);
     setOpenQuestionIndex(fields.length);
   };
 
@@ -249,8 +245,8 @@ export function CoverLetterQuestionForm() {
       questionTriggerRefs.current[index + 1] ?? questionTriggerRefs.current[index - 1];
 
     remove(index);
-    setAnswerLengths((currentLengths) =>
-      currentLengths.filter((_, lengthIndex) => lengthIndex !== index)
+    setAppliedCharacterLimits((currentLimits) =>
+      currentLimits.filter((_, limitIndex) => limitIndex !== index)
     );
     setOpenQuestionIndex((currentIndex) => {
       if (currentIndex === null || currentIndex < index) return currentIndex;
@@ -261,60 +257,47 @@ export function CoverLetterQuestionForm() {
     focusTarget?.focus();
   };
 
-  const saveQuestions = async (values: CoverLetterStep3FormInput, moveToNext: boolean) => {
-    if (savingRef.current) return;
-    clearErrors();
-    const invalidLengthIndex = values.questions.findIndex(
-      ({ characterLimit }) =>
-        characterLimit.trim() !== '' && !Number.isSafeInteger(Number(characterLimit))
-    );
-    if (invalidLengthIndex >= 0) {
+  const saveQuestions = useCoverLetterStepSave<CoverLetterStep3FormInput>({
+    coverLetterId,
+    nextStep: 4,
+    clearErrors,
+    errorMessage: '문항과 답변을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+    validateDraft: (values) => {
+      const invalidLengthIndex = values.questions.findIndex(
+        ({ characterLimit }) =>
+          characterLimit.trim() !== '' && !Number.isSafeInteger(Number(characterLimit))
+      );
+      if (invalidLengthIndex < 0) return true;
       setError(`questions.${invalidLengthIndex}.characterLimit`, {
         type: 'validate',
         message: '글자 수는 정수로 입력해주세요.',
       });
       setOpenQuestionIndex(invalidLengthIndex);
-      return;
-    }
-    savingRef.current = true;
-    try {
-      await saveMutation.mutateAsync({
+      return false;
+    },
+    saveDraft: (values) =>
+      saveMutation.mutateAsync({
         questions: values.questions.map(({ question, answer, characterLimit }) => ({
           question: question.trim() || null,
           originalAnswer: answer.trim() || null,
           maxAnswerLength: characterLimit.trim() === '' ? null : Number(characterLimit),
         })),
-      });
-      if (moveToNext) {
-        router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, 4));
-      } else {
-        appToast.success('임시 저장되었습니다.');
+      }),
+    onValidationErrors: (errors, values) => {
+      let firstInvalidIndex: number | undefined;
+      for (const error of errors) {
+        if (
+          error.step !== 3 ||
+          error.field === 'root.questions' ||
+          error.index >= values.questions.length
+        )
+          continue;
+        setError(error.field, { type: 'server', message: error.reason });
+        firstInvalidIndex = Math.min(firstInvalidIndex ?? error.index, error.index);
       }
-    } catch (error) {
-      const isValidationError = error instanceof ApiError && error.code === 'VALIDATION_ERROR';
-      if (isValidationError) {
-        let firstInvalidIndex: number | undefined;
-        for (const fieldError of mapCoverLetterValidationErrors(error.details)) {
-          if (
-            fieldError.step !== 3 ||
-            fieldError.field === 'root.questions' ||
-            fieldError.index >= values.questions.length
-          )
-            continue;
-          setError(fieldError.field, { type: 'server', message: fieldError.reason });
-          firstInvalidIndex = Math.min(firstInvalidIndex ?? fieldError.index, fieldError.index);
-        }
-        if (firstInvalidIndex !== undefined) setOpenQuestionIndex(firstInvalidIndex);
-      }
-      appToast.error(
-        isValidationError
-          ? '입력 내용을 확인하고 다시 저장해 주세요.'
-          : '문항과 답변을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'
-      );
-    } finally {
-      savingRef.current = false;
-    }
-  };
+      if (firstInvalidIndex !== undefined) setOpenQuestionIndex(firstInvalidIndex);
+    },
+  });
 
   const handleValidSubmit: SubmitHandler<CoverLetterStep3Values> = (values) =>
     saveQuestions(
@@ -324,7 +307,7 @@ export function CoverLetterQuestionForm() {
           characterLimit: question.characterLimit?.toString() ?? '',
         })),
       },
-      true
+      { intent: 'next' }
     );
 
   const handleInvalidSubmit: SubmitErrorHandler<CoverLetterStep3FormInput> = (errors) => {
@@ -343,7 +326,7 @@ export function CoverLetterQuestionForm() {
     const submitter = event.nativeEvent.submitter;
     if (submitter instanceof HTMLButtonElement && submitter.value === 'save-draft') {
       event.preventDefault();
-      void saveQuestions(getValues(), false);
+      void saveQuestions(getValues(), { intent: 'draft' });
       return;
     }
     void handleSubmit(handleValidSubmit, handleInvalidSubmit)(event);
@@ -366,7 +349,7 @@ export function CoverLetterQuestionForm() {
         ) : null}
         {fields.map((field, index) => (
           <CoverLetterQuestionFields
-            answerLength={answerLengths[index]}
+            appliedCharacterLimit={appliedCharacterLimits[index]}
             control={control}
             index={index}
             isDeleteDisabled={fields.length <= 1}

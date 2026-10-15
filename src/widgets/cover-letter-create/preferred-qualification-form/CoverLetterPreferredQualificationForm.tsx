@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useRef, type SubmitEvent } from 'react';
+import { useEffect, type SubmitEvent } from 'react';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 
 import {
-  mapCoverLetterValidationErrors,
+  useCoverLetterStepSave,
   coverLetterStep2Schema,
   type CoverLetterStep2FormInput,
   type CoverLetterStep2Values,
@@ -16,9 +16,6 @@ import {
   useCoverLetterCreateValidation,
   useSaveCoverLetterPreferences,
 } from '@/features/cover-letter/create-flow';
-import { ApiError } from '@/shared/api';
-import { ROUTES } from '@/shared/constants/routes';
-import { appToast } from '@/shared/lib/toast';
 import { FormField } from '@/shared/ui/form-field';
 import { TextArea } from '@/shared/ui/textarea';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
@@ -31,12 +28,10 @@ import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constan
  * 미완성 입력은 임시 저장하고, 다음 단계 이동은 필수값 검증과 저장 후 수행합니다.
  */
 export function CoverLetterPreferredQualificationForm() {
-  const router = useRouter();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const draft = useCoverLetterCreateDraft();
   const { errors: submitErrors, setErrors: setSubmitErrors } = useCoverLetterCreateValidation();
   const saveMutation = useSaveCoverLetterPreferences(coverLetterId);
-  const savingRef = useRef(false);
   const { control, getValues, handleSubmit, setError, clearErrors } = useForm<
     CoverLetterStep2FormInput,
     unknown,
@@ -56,43 +51,29 @@ export function CoverLetterPreferredQualificationForm() {
     setSubmitErrors((errors) => errors.filter((error) => error.step !== 2));
   }, [submitErrors, setSubmitErrors, setError]);
 
-  const savePreferences = async (values: CoverLetterStep2FormInput, moveToNext: boolean) => {
-    if (savingRef.current) return;
-    savingRef.current = true;
-    clearErrors();
-    try {
-      await saveMutation.mutateAsync({ preferences: values.preferredQualification.trim() || null });
-      if (moveToNext) {
-        router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, 3));
-      } else {
-        appToast.success('임시 저장되었습니다.');
-      }
-    } catch (error) {
-      const isValidationError = error instanceof ApiError && error.code === 'VALIDATION_ERROR';
-      if (isValidationError) {
-        const fieldError = mapCoverLetterValidationErrors(error.details).find(
-          (error) => error.step === 2
-        );
-        if (fieldError) setError(fieldError.field, { type: 'server', message: fieldError.reason });
-      }
-      appToast.error(
-        isValidationError
-          ? '입력 내용을 확인하고 다시 저장해 주세요.'
-          : '우대사항을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'
-      );
-    } finally {
-      savingRef.current = false;
-    }
-  };
+  const savePreferences = useCoverLetterStepSave<CoverLetterStep2FormInput>({
+    coverLetterId,
+    nextStep: 3,
+    clearErrors,
+    errorMessage: '우대사항을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+    saveDraft: (values) =>
+      saveMutation.mutateAsync({
+        preferences: values.preferredQualification.trim() || null,
+      }),
+    onValidationErrors: (errors) => {
+      const fieldError = errors.find((error) => error.step === 2);
+      if (fieldError) setError(fieldError.field, { type: 'server', message: fieldError.reason });
+    },
+  });
 
   const handleValidSubmit: SubmitHandler<CoverLetterStep2Values> = (values) =>
-    savePreferences(values, true);
+    savePreferences(values, { intent: 'next' });
 
   const handleFormSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     const submitter = event.nativeEvent.submitter;
     if (submitter instanceof HTMLButtonElement && submitter.value === 'save-draft') {
       event.preventDefault();
-      void savePreferences(getValues(), false);
+      void savePreferences(getValues(), { intent: 'draft' });
       return;
     }
     void handleSubmit(handleValidSubmit)(event);

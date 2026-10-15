@@ -9,6 +9,7 @@ import {
   connectLlmJobEvents,
   getLlmJobStatus,
   parseCoverLetterReviewEvent,
+  mergeReviewQuestionSnapshots,
   llmJobQueryKeys,
   type LlmJobStateResponse,
   type ReviewQuestionSnapshot,
@@ -17,17 +18,20 @@ import { reviewVersionQueryKeys } from '@/entities/review-version';
 import { refreshAuthTokens } from '@/entities/user';
 
 const RECOVERY_RETRY_COUNT = 3;
-const isTerminal = (status: LlmJobStateResponse['status']) =>
+const isTerminalJobStatus = (status: LlmJobStateResponse['status']) =>
   status === 'COMPLETED' || status === 'FAILED' || status === 'CANCELED';
 
 /** 첨삭 Job을 구독하고 스트림 종료·장애 시 HTTP 조회로 최종 상태를 복구합니다. */
 export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
   const queryClient = useQueryClient();
-  const [attempt, setAttempt] = useState(0);
-  const [issue, setIssue] = useState<{ jobId: string; message: string }>();
-  const [partial, setPartial] = useState<{ jobId: string; items: ReviewQuestionSnapshot[] }>();
+  const [subscriptionAttempt, setSubscriptionAttempt] = useState(0);
+  const [connectionIssue, setConnectionIssue] = useState<{ jobId: string; message: string }>();
+  const [partialQuestionResults, setPartialQuestionResults] = useState<{
+    jobId: string;
+    items: ReviewQuestionSnapshot[];
+  }>();
   const queryKey = llmJobQueryKeys.status(jobId ?? '');
-  const { data: job } = useQuery<LlmJobStateResponse>({
+  const { data: jobState } = useQuery<LlmJobStateResponse>({
     queryKey,
     queryFn: skipToken,
   });
@@ -35,10 +39,10 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
   useEffect(() => {
     if (!jobId) return;
     const controller = new AbortController();
-    const key = llmJobQueryKeys.status(jobId);
+    const jobQueryKey = llmJobQueryKeys.status(jobId);
     let retryCount = 0;
-    let terminalReceived = false;
-    let recovery: Promise<void> | undefined;
+    let hasReceivedTerminalState = false;
+    let recoveryPromise: Promise<void> | undefined;
 
     const refreshDetail = async () => {
       await queryClient.cancelQueries({
@@ -51,7 +55,7 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
       void queryClient.invalidateQueries({ queryKey: coverLetterQueryKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: reviewVersionQueryKeys.list(coverLetterId) });
       if (detail.coverLetter.displayStatus === 'REVIEWING') {
-        setIssue({
+        setConnectionIssue({
           jobId,
           message: '최신 첨삭 결과를 확인하지 못했습니다. 상태를 새로고침해 주세요.',
         });
@@ -59,18 +63,18 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
       return detail;
     };
 
-    const recover = (closed: boolean) => {
-      if (controller.signal.aborted || recovery) return recovery;
-      recovery = (async () => {
+    const recover = (isStreamClosed: boolean) => {
+      if (controller.signal.aborted || recoveryPromise) return recoveryPromise;
+      recoveryPromise = (async () => {
         try {
           const state = await getLlmJobStatus(jobId, { signal: controller.signal });
           if (controller.signal.aborted) return;
-          queryClient.setQueryData(key, state);
-          if (isTerminal(state.status)) {
+          queryClient.setQueryData(jobQueryKey, state);
+          if (isTerminalJobStatus(state.status)) {
             await refreshDetail();
             controller.abort();
-          } else if (closed) {
-            setIssue({
+          } else if (isStreamClosed) {
+            setConnectionIssue({
               jobId,
               message: '진행 상태 연결이 종료되었습니다. 상태를 새로고침해 주세요.',
             });
@@ -87,15 +91,15 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
             /* 아래 안내로 수동 복구를 제공합니다. */
           }
           if (!controller.signal.aborted)
-            setIssue({
+            setConnectionIssue({
               jobId,
               message: '진행 상태를 불러오지 못했습니다. 상태를 새로고침해 주세요.',
             });
         }
       })().finally(() => {
-        recovery = undefined;
+        recoveryPromise = undefined;
       });
-      return recovery;
+      return recoveryPromise;
     };
 
     void connectLlmJobEvents(jobId, {
@@ -105,21 +109,17 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
         const message = parseCoverLetterReviewEvent(event, data);
         if (!message) return;
         retryCount = 0;
-        setIssue(undefined);
+        setConnectionIssue(undefined);
         if (message.event === 'job.state') {
-          queryClient.setQueryData(key, message.data);
-          terminalReceived = isTerminal(message.data.status);
+          queryClient.setQueryData(jobQueryKey, message.data);
+          hasReceivedTerminalState = isTerminalJobStatus(message.data.status);
         } else {
-          setPartial((previous) => {
-            const items = new Map(
-              (previous?.jobId === jobId ? previous.items : []).map((item) => [
-                item.questionId,
-                item,
-              ])
-            );
-            for (const item of message.data.items)
-              items.set(item.questionId, { ...items.get(item.questionId), ...item });
-            return { jobId, items: [...items.values()].sort((a, b) => a.order - b.order) };
+          setPartialQuestionResults((previous) => {
+            const previousQuestions = previous?.jobId === jobId ? previous.items : [];
+            return {
+              jobId,
+              items: mergeReviewQuestionSnapshots(previousQuestions, message.data.items),
+            };
           });
         }
       },
@@ -131,12 +131,12 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
       .then(async () => {
         if (controller.signal.aborted) return;
         // 종료 상태 이후의 문항 결과도 받은 뒤 연결 종료 시 최종 결과를 재조회합니다.
-        if (terminalReceived) {
+        if (hasReceivedTerminalState) {
           try {
             await refreshDetail();
           } catch {
             if (!controller.signal.aborted)
-              setIssue({
+              setConnectionIssue({
                 jobId,
                 message: '첨삭 결과를 불러오지 못했습니다. 상태를 새로고침해 주세요.',
               });
@@ -150,17 +150,21 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
       });
 
     return () => controller.abort();
-  }, [coverLetterId, jobId, attempt, queryClient]);
+  }, [coverLetterId, jobId, subscriptionAttempt, queryClient]);
 
   const retry = () => {
-    setIssue(undefined);
-    setAttempt((previous) => previous + 1);
+    setConnectionIssue(undefined);
+    setSubscriptionAttempt((previous) => previous + 1);
   };
 
   return {
-    job,
-    items: partial && partial.jobId === jobId ? partial.items : [],
-    issue: issue && issue.jobId === jobId ? issue.message : undefined,
+    jobState,
+    questionResults:
+      partialQuestionResults && partialQuestionResults.jobId === jobId
+        ? partialQuestionResults.items
+        : [],
+    connectionIssue:
+      connectionIssue && connectionIssue.jobId === jobId ? connectionIssue.message : undefined,
     retry,
   };
 }

@@ -74,7 +74,7 @@ describe('useCoverLetterReviewJob', () => {
     act(() =>
       options.onmessage({ id: '1', event: 'job.state', data: JSON.stringify(state('PROCESSING')) })
     );
-    await waitFor(() => expect(result.current.job?.progress.current).toBe(1));
+    await waitFor(() => expect(result.current.jobState?.progress.current).toBe(1));
     act(() =>
       options.onmessage({ id: '2', event: 'job.state', data: JSON.stringify(state('COMPLETED')) })
     );
@@ -89,7 +89,7 @@ describe('useCoverLetterReviewJob', () => {
         }),
       })
     );
-    expect(result.current.items[0].rewrittenAnswer).toBe('실제 첨삭 결과');
+    expect(result.current.questionResults[0].rewrittenAnswer).toBe('실제 첨삭 결과');
     await act(async () => finishStream());
     await waitFor(() =>
       expect(queryClient.getQueryData(coverLetterQueryKeys.detail('letter-id'))).toEqual(DETAIL)
@@ -114,7 +114,7 @@ describe('useCoverLetterReviewJob', () => {
     });
     await waitFor(() => expect(options.signal.aborted).toBe(true));
     expect(getLlmJobStatus).toHaveBeenCalledTimes(1);
-    expect(result.current.job?.status).toBe('FAILED');
+    expect(result.current.jobState?.status).toBe('FAILED');
   });
 
   it('Job 조회가 불가능해도 도메인 재조회로 이미 완료된 결과를 복구한다', async () => {
@@ -124,7 +124,7 @@ describe('useCoverLetterReviewJob', () => {
     await waitFor(() =>
       expect(queryClient.getQueryData(coverLetterQueryKeys.detail('letter-id'))).toEqual(DETAIL)
     );
-    expect(result.current.issue).toBeUndefined();
+    expect(result.current.connectionIssue).toBeUndefined();
   });
 
   it('종료 상태 없이 연결이 끝나면 수동 복구 안내를 표시한다', async () => {
@@ -132,6 +132,6 @@ describe('useCoverLetterReviewJob', () => {
     const { result } = setup();
     await waitFor(() => expect(connectLlmJobEvents).toHaveBeenCalled());
     await act(async () => finishStream());
-    await waitFor(() => expect(result.current.issue).toContain('연결이 종료'));
+    await waitFor(() => expect(result.current.connectionIssue).toContain('연결이 종료'));
   });
 });

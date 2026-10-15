@@ -32,3 +32,4 @@ export {
   useCoverLetterCreateDraft,
   useCoverLetterCreateValidation,
 } from './ui/CoverLetterCreateDraftContext';
+export { useCoverLetterStepSave } from './hooks/useCoverLetterStepSave';

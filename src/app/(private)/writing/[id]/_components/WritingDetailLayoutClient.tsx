@@ -42,10 +42,10 @@ function WritingDetailLayoutContent({
   writingId,
   beforeVersionSelect,
 }: WritingDetailLayoutContentProps) {
-  const selectionRequestRef = useRef(0);
+  const latestSelectionRequestIdRef = useRef(0);
   useEffect(
     () => () => {
-      selectionRequestRef.current += 1;
+      latestSelectionRequestIdRef.current += 1;
     },
     []
   );
@@ -60,15 +60,15 @@ function WritingDetailLayoutContent({
   };
 
   const handleVersionSelect = (versionId: string) => {
-    const request = ++selectionRequestRef.current;
+    const selectionRequestId = ++latestSelectionRequestIdRef.current;
     // 조회 성공 전까지 현재 버전과 URL을 유지하고, 마지막으로 선택한 요청만 반영합니다.
     void Promise.resolve()
       .then(() => beforeVersionSelect(versionId))
       .then(() => {
-        if (request === selectionRequestRef.current) selectVersion(versionId);
+        if (selectionRequestId === latestSelectionRequestIdRef.current) selectVersion(versionId);
       })
       .catch(() => {
-        if (request === selectionRequestRef.current)
+        if (selectionRequestId === latestSelectionRequestIdRef.current)
           appToast.error('선택한 버전을 불러오지 못했습니다. 이전 결과를 유지합니다.');
       });
   };

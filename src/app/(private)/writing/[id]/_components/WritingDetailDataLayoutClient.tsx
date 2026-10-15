@@ -8,7 +8,7 @@ import { useCoverLetterDetail } from '@/entities/cover-letter';
 import {
   reviewVersionListQueryOptions,
   reviewVersionDetailQueryOptions,
-  type ReviewVersionSummary,
+  createReviewVersionPanelData,
 } from '@/entities/review-version';
 import { CoverLetterDetailSkeleton } from '@/widgets/cover-letter-detail';
 
@@ -28,27 +28,12 @@ export function WritingDetailDataLayoutClient({
   useCoverLetterDetail(writingId);
   const { data, isPending, isError } = useQuery(reviewVersionListQueryOptions(writingId));
   if (isPending) return <CoverLetterDetailSkeleton />;
-  const items = [...(data?.items ?? [])].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-  const versions: ReviewVersionSummary[] = items.map((item) => ({
-    id: item.id,
-    label: item.version,
-    createdAt: item.createdAt,
-    status:
-      item.status === 'COMPLETED'
-        ? 'COMPLETED'
-        : item.status === 'FAILED' || item.status === 'CANCELED'
-          ? 'FAILED'
-          : 'GENERATING',
-  }));
-  const selected =
-    items.find((item) => item.isLatestReviewed)?.id ??
-    items.findLast((item) => item.status === 'COMPLETED')?.id ??
-    '';
+  const { versions, initialSelectedVersionId } = createReviewVersionPanelData(data?.items ?? []);
   return (
     <WritingDetailLayoutClient
       writingId={writingId}
       versions={versions}
-      initialSelectedVersionId={selected}
+      initialSelectedVersionId={initialSelectedVersionId}
       beforeVersionSelect={async (versionId) => {
         await queryClient.fetchQuery(reviewVersionDetailQueryOptions(writingId, versionId));
       }}
