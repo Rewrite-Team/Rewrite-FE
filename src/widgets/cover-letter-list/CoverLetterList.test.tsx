@@ -90,8 +90,8 @@ describe('CoverLetterList', () => {
     expect(container.querySelectorAll('[data-slot="skeleton"]')).toHaveLength(6);
 
     expect(
-      await screen.findByRole('link', { name: /1페이지 자기소개서.*상세 보기/ })
-    ).toHaveAttribute('href', '/writing/cover-letter-1');
+      await screen.findByRole('link', { name: /1페이지 자기소개서.*이어서 작성/ })
+    ).toHaveAttribute('href', '/writing/create/cover-letter-1/step1');
     expect(screen.getByText('회사 미입력')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '2페이지' })).toHaveAttribute(
       'href',

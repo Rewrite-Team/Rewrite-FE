@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 
-import { usePathname } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -29,13 +29,22 @@ export function WritingDetailDataLayoutClient({
 }: WritingDetailDataLayoutClientProps) {
   const queryClient = useQueryClient();
   const pathname = usePathname();
-  // 상세 경로에서만 본문과 버전 목록을 병렬 조회해 하위 페이지의 불필요한 요청을 줄입니다.
-  useQuery({
+  const isDetailPage = pathname === ROUTES.WRITING_DETAIL(writingId);
+  const detailQuery = useQuery({
     ...coverLetterDetailQueryOptions(writingId),
-    enabled: pathname === ROUTES.WRITING_DETAIL(writingId),
+    enabled: isDetailPage,
   });
-  const { data, isPending, isError } = useQuery(reviewVersionListQueryOptions(writingId));
-  if (isPending) return <CoverLetterDetailSkeleton />;
+  // 상세 URL로 직접 들어온 경우에도 작성 중 여부를 확인한 다음 버전을 조회합니다.
+  const { data, isLoading, isError } = useQuery({
+    ...reviewVersionListQueryOptions(writingId),
+    enabled:
+      !isDetailPage ||
+      (Boolean(detailQuery.data) && detailQuery.data?.coverLetter.displayStatus !== 'WRITING'),
+  });
+  if (isDetailPage && detailQuery.data?.coverLetter.displayStatus === 'WRITING') {
+    redirect(ROUTES.WRITING_CREATE_STEP(writingId, 1));
+  }
+  if ((isDetailPage && detailQuery.isPending) || isLoading) return <CoverLetterDetailSkeleton />;
   const { versions, initialSelectedVersionId } = createReviewVersionPanelData(data?.items ?? []);
   return (
     <WritingDetailLayoutClient

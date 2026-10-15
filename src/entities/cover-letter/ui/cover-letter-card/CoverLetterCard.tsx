@@ -22,20 +22,21 @@ interface CoverLetterCardProps {
  *
  * @description
  * 자기소개서 목록에서 회사, 직무, 제목, 첨삭 상태와 작성일을 요약해 보여주는 카드입니다.
- * 카드 전체가 상세 화면으로 이동하는 링크이며 키보드 포커스 상태를 제공합니다.
+ * 작성 중인 카드는 작성 화면으로, 그 외 상태는 상세 화면으로 연결합니다.
  */
 export function CoverLetterCard({ coverLetter }: CoverLetterCardProps) {
   const { companyName, createdAt, displayStatus, id, positionTitle } = coverLetter;
   const title = coverLetter.title?.trim() || '제목 없는 자기소개서';
+  const isWriting = displayStatus === 'WRITING';
   const folderGradientId = useId();
 
   return (
     <li className="min-w-0">
       <Link
-        aria-label={`${title} 자기소개서 상세 보기`}
+        aria-label={`${title} 자기소개서 ${isWriting ? '이어서 작성' : '상세 보기'}`}
         className={cn(styles.card, 'focus-ring group text-white')}
         data-status={displayStatus}
-        href={ROUTES.WRITING_DETAIL(id)}
+        href={isWriting ? ROUTES.WRITING_CREATE_STEP(id, 1) : ROUTES.WRITING_DETAIL(id)}
       >
         <div aria-hidden="true" className={styles.paperStack}>
           <span className={styles.paperBack} />
