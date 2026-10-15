@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type Ref, type SubmitEvent } from 'react';
+import { useRef, useState, type Ref } from 'react';
 
 import { useParams } from 'next/navigation';
 
@@ -20,7 +20,9 @@ import {
   type CoverLetterStep3FormInput,
   type CoverLetterStep3Values,
   useCoverLetterCreateDraft,
-  useCoverLetterCreateValidation,
+  useCoverLetterStepErrors,
+  createCoverLetterStepSubmitHandler,
+  getCoverLetterStep3DefaultValues,
   useSaveCoverLetterQuestions,
 } from '@/features/cover-letter/create-flow';
 import { DeleteIcon } from '@/shared/assets/icons/side-menu';
@@ -171,22 +173,11 @@ function CoverLetterQuestionFields({
 export function CoverLetterQuestionForm() {
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const draft = useCoverLetterCreateDraft();
-  const { errors: submitErrors } = useCoverLetterCreateValidation();
   const saveMutation = useSaveCoverLetterQuestions(coverLetterId);
-  const initialQuestions = draft?.questions.length
-    ? [...draft.questions]
-        .sort((firstQuestion, secondQuestion) => firstQuestion.order - secondQuestion.order)
-        .map((question) => ({
-          answer: question.originalAnswer ?? '',
-          characterLimit: question.maxAnswerLength?.toString() ?? '',
-          question: question.question ?? '',
-        }))
-    : DEFAULT_FORM_VALUES.questions;
+  const { questions } = getCoverLetterStep3DefaultValues(draft);
+  const initialQuestions = questions.length > 0 ? questions : DEFAULT_FORM_VALUES.questions;
   const questionTriggerRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(() => {
-    const errors = submitErrors.filter((error) => error.step === 3);
-    return errors.length > 0 ? Math.min(...errors.map((error) => error.index)) : 0;
-  });
+  const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(0);
   const [appliedCharacterLimits, setAppliedCharacterLimits] = useState<Array<number | undefined>>(
     () =>
       initialQuestions.map((question) =>
@@ -214,24 +205,19 @@ export function CoverLetterQuestionForm() {
 
   useCoverLetterStepDirty(3, isDirty);
 
-  useEffect(() => {
-    const errors = submitErrors.filter((error) => error.step === 3);
-    if (errors.length === 0) return;
-    for (const error of errors) setError(error.field, { type: 'server', message: error.reason });
-    const firstError = errors.reduce((first, error) => (error.index < first.index ? error : first));
-    // 문항을 펼쳐 inert가 해제된 뒤 오류 입력란으로 포커스를 옮깁니다.
-    let focusFrame: number | undefined;
-    const openFrame = requestAnimationFrame(() => {
-      setOpenQuestionIndex(firstError.index);
-      focusFrame = requestAnimationFrame(() => {
-        setFocus(firstError.field === 'root.questions' ? 'questions.0.question' : firstError.field);
+  useCoverLetterStepErrors({
+    step: 3,
+    applyError: (error) => setError(error.field, { type: 'server', message: error.reason }),
+    focusError: (error) => {
+      if (error.index >= getValues('questions').length) return;
+      setOpenQuestionIndex(error.index);
+      // 문항의 inert가 해제된 다음 프레임에 입력란으로 포커스를 옮깁니다.
+      const frame = requestAnimationFrame(() => {
+        setFocus(error.field === 'root.questions' ? 'questions.0.question' : error.field);
       });
-    });
-    return () => {
-      cancelAnimationFrame(openFrame);
-      if (focusFrame !== undefined) cancelAnimationFrame(focusFrame);
-    };
-  }, [submitErrors, setError, setFocus]);
+      return () => cancelAnimationFrame(frame);
+    },
+  });
 
   const handleOpenChange = (index: number) => (open: boolean) => {
     setOpenQuestionIndex(open ? index : null);
@@ -302,20 +288,6 @@ export function CoverLetterQuestionForm() {
           maxAnswerLength: characterLimit.trim() === '' ? null : Number(characterLimit),
         })),
       }),
-    onValidationErrors: (errors, values) => {
-      let firstInvalidIndex: number | undefined;
-      for (const error of errors) {
-        if (
-          error.step !== 3 ||
-          error.field === 'root.questions' ||
-          error.index >= values.questions.length
-        )
-          continue;
-        setError(error.field, { type: 'server', message: error.reason });
-        firstInvalidIndex = Math.min(firstInvalidIndex ?? error.index, error.index);
-      }
-      if (firstInvalidIndex !== undefined) setOpenQuestionIndex(firstInvalidIndex);
-    },
   });
 
   const handleValidSubmit: SubmitHandler<CoverLetterStep3Values> = (values) =>
@@ -341,15 +313,10 @@ export function CoverLetterQuestionForm() {
     }
   };
 
-  const handleFormSubmit = (event: SubmitEvent<HTMLFormElement>) => {
-    const submitter = event.nativeEvent.submitter;
-    if (submitter instanceof HTMLButtonElement && submitter.value === 'save-draft') {
-      event.preventDefault();
-      void saveQuestions(getValues(), { intent: 'draft' });
-      return;
-    }
-    void handleSubmit(handleValidSubmit, handleInvalidSubmit)(event);
-  };
+  const handleFormSubmit = createCoverLetterStepSubmitHandler({
+    saveDraft: () => saveQuestions(getValues(), { intent: 'draft' }),
+    submitNext: handleSubmit(handleValidSubmit, handleInvalidSubmit),
+  });
 
   return (
     <form

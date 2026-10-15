@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect, type SubmitEvent } from 'react';
-
 import { useParams } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,7 +12,9 @@ import {
   type CoverLetterStep2FormInput,
   type CoverLetterStep2Values,
   useCoverLetterCreateDraft,
-  useCoverLetterCreateValidation,
+  useCoverLetterStepErrors,
+  createCoverLetterStepSubmitHandler,
+  getCoverLetterStep2DefaultValues,
   useSaveCoverLetterPreferences,
 } from '@/features/cover-letter/create-flow';
 import { FormField } from '@/shared/ui/form-field';
@@ -31,7 +31,6 @@ import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constan
 export function CoverLetterPreferredQualificationForm() {
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const draft = useCoverLetterCreateDraft();
-  const { errors: submitErrors } = useCoverLetterCreateValidation();
   const saveMutation = useSaveCoverLetterPreferences(coverLetterId);
   const {
     control,
@@ -43,21 +42,17 @@ export function CoverLetterPreferredQualificationForm() {
     reset,
     formState: { isDirty },
   } = useForm<CoverLetterStep2FormInput, unknown, CoverLetterStep2Values>({
-    defaultValues: {
-      preferredQualification: draft?.coverLetter.preferences ?? '',
-    },
+    defaultValues: getCoverLetterStep2DefaultValues(draft),
     resolver: zodResolver(coverLetterStep2Schema),
   });
 
   useCoverLetterStepDirty(2, isDirty);
 
-  useEffect(() => {
-    const errors = submitErrors.filter((error) => error.step === 2);
-    if (errors.length === 0) return;
-    for (const error of errors) setError(error.field, { type: 'server', message: error.reason });
-    const frame = requestAnimationFrame(() => setFocus(errors[0].field));
-    return () => cancelAnimationFrame(frame);
-  }, [submitErrors, setError, setFocus]);
+  useCoverLetterStepErrors({
+    step: 2,
+    applyError: (error) => setError(error.field, { type: 'server', message: error.reason }),
+    focusError: (error) => setFocus(error.field),
+  });
 
   const savePreferences = useCoverLetterStepSave<CoverLetterStep2FormInput>({
     coverLetterId,
@@ -70,24 +65,15 @@ export function CoverLetterPreferredQualificationForm() {
       saveMutation.mutateAsync({
         preferences: values.preferredQualification.trim() || null,
       }),
-    onValidationErrors: (errors) => {
-      const fieldError = errors.find((error) => error.step === 2);
-      if (fieldError) setError(fieldError.field, { type: 'server', message: fieldError.reason });
-    },
   });
 
   const handleValidSubmit: SubmitHandler<CoverLetterStep2Values> = (values) =>
     savePreferences(values, { intent: 'next' });
 
-  const handleFormSubmit = (event: SubmitEvent<HTMLFormElement>) => {
-    const submitter = event.nativeEvent.submitter;
-    if (submitter instanceof HTMLButtonElement && submitter.value === 'save-draft') {
-      event.preventDefault();
-      void savePreferences(getValues(), { intent: 'draft' });
-      return;
-    }
-    void handleSubmit(handleValidSubmit)(event);
-  };
+  const handleFormSubmit = createCoverLetterStepSubmitHandler({
+    saveDraft: () => savePreferences(getValues(), { intent: 'draft' }),
+    submitNext: handleSubmit(handleValidSubmit),
+  });
 
   return (
     <form

@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { saveCoverLetterQuestions } from '@/entities/cover-letter';
+import { CoverLetterCreateDraftProvider } from '@/features/cover-letter/create-flow';
 import { ApiError } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
 import { appToast } from '@/shared/lib/toast';
@@ -28,10 +29,27 @@ jest.mock('@/shared/lib/toast', () => ({ appToast: { success: jest.fn(), error: 
 const renderForm = () =>
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <CoverLetterQuestionForm />
-      <button form={COVER_LETTER_STEP_FORM_ID} type="submit" value="save-draft">
-        임시 저장
-      </button>
+      <CoverLetterCreateDraftProvider
+        draft={{
+          coverLetter: {
+            id: mockCoverLetterId,
+            displayStatus: 'WRITING',
+            title: null,
+            companyName: null,
+            positionTitle: null,
+            jobPostingUrl: null,
+            preferences: null,
+          },
+          questions: [],
+          reviewVersion: null,
+          reviewJob: null,
+        }}
+      >
+        <CoverLetterQuestionForm />
+        <button form={COVER_LETTER_STEP_FORM_ID} type="submit" value="save-draft">
+          임시 저장
+        </button>
+      </CoverLetterCreateDraftProvider>
     </QueryClientProvider>
   );
 

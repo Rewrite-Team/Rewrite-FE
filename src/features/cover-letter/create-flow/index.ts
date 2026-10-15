@@ -35,3 +35,10 @@ export {
   useCoverLetterCreateDirtyStep,
 } from './ui/CoverLetterCreateDraftContext';
 export { useCoverLetterStepSave } from './hooks/useCoverLetterStepSave';
+export { useCoverLetterStepErrors } from './hooks/useCoverLetterStepErrors';
+export { createCoverLetterStepSubmitHandler } from './utils/createCoverLetterStepSubmitHandler';
+export {
+  getCoverLetterStep1DefaultValues,
+  getCoverLetterStep2DefaultValues,
+  getCoverLetterStep3DefaultValues,
+} from './model/getCoverLetterStepDefaultValues';

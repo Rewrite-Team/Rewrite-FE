@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect, type SubmitEvent } from 'react';
-
 import { useParams } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,7 +12,9 @@ import {
   type CoverLetterStep1FormInput,
   type CoverLetterStep1Values,
   useCoverLetterCreateDraft,
-  useCoverLetterCreateValidation,
+  useCoverLetterStepErrors,
+  createCoverLetterStepSubmitHandler,
+  getCoverLetterStep1DefaultValues,
   useSaveCoverLetterBasicInfo,
 } from '@/features/cover-letter/create-flow';
 import { INPUT_LIMITS } from '@/shared/constants/limits';
@@ -29,7 +29,6 @@ import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constan
 export function CoverLetterBasicInfoForm() {
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const draft = useCoverLetterCreateDraft();
-  const { errors: submitErrors } = useCoverLetterCreateValidation();
   const saveMutation = useSaveCoverLetterBasicInfo(coverLetterId);
   const {
     control,
@@ -41,24 +40,17 @@ export function CoverLetterBasicInfoForm() {
     reset,
     formState: { isDirty },
   } = useForm<CoverLetterStep1FormInput, unknown, CoverLetterStep1Values>({
-    defaultValues: {
-      companyName: draft?.coverLetter.companyName ?? '',
-      jobPostingUrl: draft?.coverLetter.jobPostingUrl ?? '',
-      positionTitle: draft?.coverLetter.positionTitle ?? '',
-      title: draft?.coverLetter.title ?? '',
-    },
+    defaultValues: getCoverLetterStep1DefaultValues(draft),
     resolver: zodResolver(coverLetterStep1Schema),
   });
 
   useCoverLetterStepDirty(1, isDirty);
 
-  useEffect(() => {
-    const errors = submitErrors.filter((error) => error.step === 1);
-    if (errors.length === 0) return;
-    for (const error of errors) setError(error.field, { type: 'server', message: error.reason });
-    const frame = requestAnimationFrame(() => setFocus(errors[0].field));
-    return () => cancelAnimationFrame(frame);
-  }, [submitErrors, setError, setFocus]);
+  useCoverLetterStepErrors({
+    step: 1,
+    applyError: (error) => setError(error.field, { type: 'server', message: error.reason }),
+    focusError: (error) => setFocus(error.field),
+  });
 
   const saveBasicInfo = useCoverLetterStepSave<CoverLetterStep1FormInput>({
     coverLetterId,
@@ -74,25 +66,15 @@ export function CoverLetterBasicInfoForm() {
         positionTitle: values.positionTitle.trim() || null,
         jobPostingUrl: values.jobPostingUrl.trim() || null,
       }),
-    onValidationErrors: (errors) => {
-      for (const error of errors) {
-        if (error.step === 1) setError(error.field, { type: 'server', message: error.reason });
-      }
-    },
   });
 
   const handleValidSubmit: SubmitHandler<CoverLetterStep1Values> = (values) =>
     saveBasicInfo(values, { intent: 'next' });
 
-  const handleFormSubmit = (event: SubmitEvent<HTMLFormElement>) => {
-    const submitter = event.nativeEvent.submitter;
-    if (submitter instanceof HTMLButtonElement && submitter.value === 'save-draft') {
-      event.preventDefault();
-      void saveBasicInfo(getValues(), { intent: 'draft' });
-      return;
-    }
-    void handleSubmit(handleValidSubmit)(event);
-  };
+  const handleFormSubmit = createCoverLetterStepSubmitHandler({
+    saveDraft: () => saveBasicInfo(getValues(), { intent: 'draft' }),
+    submitNext: handleSubmit(handleValidSubmit),
+  });
 
   return (
     <form

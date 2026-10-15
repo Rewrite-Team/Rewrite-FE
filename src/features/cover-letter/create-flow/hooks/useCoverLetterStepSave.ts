@@ -8,10 +8,7 @@ import { ApiError } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
 import { appToast } from '@/shared/lib/toast';
 
-import {
-  mapCoverLetterValidationErrors,
-  type CoverLetterValidationFieldError,
-} from '../model/mapCoverLetterValidationErrors';
+import { mapCoverLetterValidationErrors } from '../model/mapCoverLetterValidationErrors';
 import { useCoverLetterCreateValidation } from '../ui/CoverLetterCreateDraftContext';
 
 import type { WritingCreateStep } from '../model/writingCreateStep';
@@ -23,7 +20,6 @@ interface CoverLetterStepSaveOptions<Values> {
   saveDraft: (values: Values) => Promise<unknown>;
   onSaved: (values: Values) => void;
   validateDraft?: (values: Values) => boolean;
-  onValidationErrors: (errors: CoverLetterValidationFieldError[], values: Values) => void;
   errorMessage: string;
 }
 
@@ -38,8 +34,8 @@ interface CoverLetterStepSaveOptions<Values> {
  * 다음 단계의 필수값 검증은 호출하는 폼의 handleSubmit에서 먼저 수행합니다.
  * validateDraft는 임시 저장과 다음 단계 이동 모두에 적용할 추가 검증이며,
  * false를 반환하면 API 요청을 중단합니다. 필드 오류 표시는 해당 콜백에서 처리합니다.
- * onValidationErrors에는 폼 필드로 변환된 서버 오류가 전달되며,
- * 각 폼은 자기 단계의 오류만 적용합니다. 요청 데이터 변환은 saveDraft에서 담당합니다.
+ * 서버 검증 오류는 Context에 기록하고 useCoverLetterStepErrors에서 폼에 적용합니다.
+ * 요청 데이터 변환은 saveDraft에서 담당합니다.
  * onSaved에는 저장에 성공한 입력값을 전달하므로 폼의 변경 비교 기준을 갱신할 수 있습니다.
  *
  * @example
@@ -57,7 +53,6 @@ export function useCoverLetterStepSave<Values>({
   saveDraft,
   onSaved,
   validateDraft,
-  onValidationErrors,
   errorMessage,
 }: CoverLetterStepSaveOptions<Values>) {
   const router = useRouter();
@@ -90,7 +85,6 @@ export function useCoverLetterStepSave<Values>({
           ...errors.filter((error) => error.step !== currentStep),
           ...fieldErrors,
         ]);
-        onValidationErrors(fieldErrors, values);
       }
       appToast.error(isValidationError ? '입력 내용을 확인하고 다시 저장해 주세요.' : errorMessage);
     } finally {

@@ -1,6 +1,11 @@
 import type { CoverLetterDetailResponse } from '@/entities/cover-letter';
 
 import {
+  getCoverLetterStep1DefaultValues,
+  getCoverLetterStep2DefaultValues,
+  getCoverLetterStep3DefaultValues,
+} from './getCoverLetterStepDefaultValues';
+import {
   coverLetterStep1Schema,
   coverLetterStep2Schema,
   coverLetterStep3Schema,
@@ -12,33 +17,9 @@ import type { WritingCreateStep } from './writingCreateStep';
 export function getCoverLetterCreateAvailableStep(
   draft: CoverLetterDetailResponse
 ): WritingCreateStep {
-  const { coverLetter, questions } = draft;
-  if (
-    !coverLetterStep1Schema.safeParse({
-      title: coverLetter.title ?? '',
-      companyName: coverLetter.companyName ?? '',
-      positionTitle: coverLetter.positionTitle ?? '',
-      jobPostingUrl: coverLetter.jobPostingUrl ?? '',
-    }).success
-  )
-    return 1;
-
-  if (
-    !coverLetterStep2Schema.safeParse({ preferredQualification: coverLetter.preferences ?? '' })
-      .success
-  )
-    return 2;
-
-  if (
-    !coverLetterStep3Schema.safeParse({
-      questions: questions.map((question) => ({
-        question: question.question ?? '',
-        answer: question.originalAnswer ?? '',
-        characterLimit: question.maxAnswerLength?.toString() ?? '',
-      })),
-    }).success
-  )
-    return 3;
+  if (!coverLetterStep1Schema.safeParse(getCoverLetterStep1DefaultValues(draft)).success) return 1;
+  if (!coverLetterStep2Schema.safeParse(getCoverLetterStep2DefaultValues(draft)).success) return 2;
+  if (!coverLetterStep3Schema.safeParse(getCoverLetterStep3DefaultValues(draft)).success) return 3;
 
   return 4;
 }
