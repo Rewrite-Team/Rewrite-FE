@@ -3,12 +3,10 @@
 import { createContext, use, useCallback, useMemo, type ReactNode } from 'react';
 
 import type { ReviewVersionSummary } from '@/entities/review-version';
-import { useControllableState } from '@/shared/hooks';
 
 import { isSelectableReviewVersion } from '../utils/reviewVersion';
 
 interface ReviewVersionContextValue {
-  editableVersionId: string;
   selectedVersionId: string;
   selectVersion: (versionId: string) => void;
   versions: ReviewVersionSummary[];
@@ -16,47 +14,39 @@ interface ReviewVersionContextValue {
 
 interface ReviewVersionProviderProps {
   children: ReactNode;
-  editableVersionId: string;
-  initialSelectedVersionId: string;
-  onSelectedVersionChange?: (versionId: string) => void;
-  selectedVersionId?: string;
+  onSelectedVersionChange: (versionId: string) => void;
+  selectedVersionId: string;
   versions: ReviewVersionSummary[];
 }
 
 const ReviewVersionContext = createContext<ReviewVersionContextValue | null>(null);
 
-/** 버전 패널과 자기소개서 본문이 같은 선택 버전을 공유하도록 상태를 제공합니다. */
+/**
+ * URL에서 결정한 선택 버전과 선택 요청 콜백을 패널·본문에 공유합니다.
+ * 선택 요청 시 내부 상태를 변경하지 않으며, 호출부가 조회 성공 후 URL과 prop을 갱신합니다.
+ */
 export function ReviewVersionProvider({
   children,
-  editableVersionId,
-  initialSelectedVersionId,
   onSelectedVersionChange,
-  selectedVersionId: selectedVersionIdProp,
+  selectedVersionId,
   versions,
 }: ReviewVersionProviderProps) {
-  const [selectedVersionId, setSelectedVersionId] = useControllableState({
-    defaultValue: initialSelectedVersionId,
-    onChange: onSelectedVersionChange,
-    value: selectedVersionIdProp,
-  });
-
   const selectVersion = useCallback(
     (versionId: string) => {
       if (isSelectableReviewVersion(versions, versionId)) {
-        setSelectedVersionId(versionId);
+        onSelectedVersionChange(versionId);
       }
     },
-    [setSelectedVersionId, versions]
+    [onSelectedVersionChange, versions]
   );
 
   const value = useMemo<ReviewVersionContextValue>(
     () => ({
-      editableVersionId,
       selectedVersionId,
       selectVersion,
       versions,
     }),
-    [editableVersionId, selectVersion, selectedVersionId, versions]
+    [selectVersion, selectedVersionId, versions]
   );
 
   return <ReviewVersionContext value={value}>{children}</ReviewVersionContext>;

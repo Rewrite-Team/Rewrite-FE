@@ -76,8 +76,8 @@ const renderDetail = (detail: CoverLetterDetailResponse, selectedVersionId = 've
     <QueryClientProvider client={client}>
       <ReviewVersionProvider
         versions={[]}
-        editableVersionId="version-id"
-        initialSelectedVersionId={selectedVersionId}
+        selectedVersionId={selectedVersionId}
+        onSelectedVersionChange={jest.fn()}
       >
         <CoverLetterDetailScreen coverLetterId="letter-id" />
       </ReviewVersionProvider>

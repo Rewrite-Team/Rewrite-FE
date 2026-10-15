@@ -16,4 +16,3 @@ export {
 export { matchesCoverLetterReviewStatusSnapshot } from './model/reviewStatusSnapshot';
 export { CoverLetterCard } from './ui/cover-letter-card/CoverLetterCard';
 export { CoverLetterDiff } from './ui/CoverLetterDiff';
-export type { CoverLetterQuestionDetail } from './model/types';

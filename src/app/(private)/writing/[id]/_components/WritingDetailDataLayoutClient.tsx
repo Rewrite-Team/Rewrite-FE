@@ -2,14 +2,17 @@
 
 import type { ReactNode } from 'react';
 
+import { usePathname } from 'next/navigation';
+
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { useCoverLetterDetail } from '@/entities/cover-letter';
+import { coverLetterDetailQueryOptions } from '@/entities/cover-letter';
 import {
   reviewVersionListQueryOptions,
   reviewVersionDetailQueryOptions,
   createReviewVersionPanelData,
 } from '@/entities/review-version';
+import { ROUTES } from '@/shared/constants/routes';
 import { CoverLetterDetailSkeleton } from '@/widgets/cover-letter-detail';
 
 import { WritingDetailLayoutClient } from './WritingDetailLayoutClient';
@@ -25,7 +28,12 @@ export function WritingDetailDataLayoutClient({
   children,
 }: WritingDetailDataLayoutClientProps) {
   const queryClient = useQueryClient();
-  useCoverLetterDetail(writingId);
+  const pathname = usePathname();
+  // 상세 경로에서만 본문과 버전 목록을 병렬 조회해 하위 페이지의 불필요한 요청을 줄입니다.
+  useQuery({
+    ...coverLetterDetailQueryOptions(writingId),
+    enabled: pathname === ROUTES.WRITING_DETAIL(writingId),
+  });
   const { data, isPending, isError } = useQuery(reviewVersionListQueryOptions(writingId));
   if (isPending) return <CoverLetterDetailSkeleton />;
   const { versions, initialSelectedVersionId } = createReviewVersionPanelData(data?.items ?? []);

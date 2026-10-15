@@ -75,8 +75,6 @@ function WritingDetailLayoutContent({
 
   return (
     <ReviewVersionProvider
-      editableVersionId={initialSelectedVersionId}
-      initialSelectedVersionId={initialSelectedVersionId}
       onSelectedVersionChange={handleVersionSelect}
       selectedVersionId={selectedVersionId}
       versions={versions}
