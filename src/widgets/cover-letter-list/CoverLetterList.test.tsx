@@ -221,6 +221,20 @@ describe('CoverLetterList', () => {
     expect(mockRouter.replace).not.toHaveBeenCalled();
   });
 
+  it('최초 오류 화면에서 수동 재시도도 실패하면 토스트를 표시한다', async () => {
+    mockListCoverLetters.mockRejectedValue(new ApiError(403));
+    renderList();
+    await screen.findByRole('alert');
+    expect(appToast.error).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: '다시 시도' }));
+    await waitFor(() =>
+      expect(appToast.error).toHaveBeenCalledWith(
+        '목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
+      )
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent('자기소개서를 불러오지 못했어요');
+  });
+
   it('최초 요청 실패를 빈 목록과 구분하고 재시도로 목록을 복구한다', async () => {
     mockListCoverLetters.mockRejectedValueOnce(new Error('조회 실패'));
     mockListCoverLetters.mockResolvedValueOnce(createResponse(1));

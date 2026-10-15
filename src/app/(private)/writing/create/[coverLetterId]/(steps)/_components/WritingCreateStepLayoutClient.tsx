@@ -2,14 +2,16 @@
 
 import type { ReactNode } from 'react';
 
-import { redirect, useParams, useSelectedLayoutSegment } from 'next/navigation';
+import { redirect, useParams, useRouter, useSelectedLayoutSegment } from 'next/navigation';
 
 import { useCoverLetterDetail } from '@/entities/cover-letter';
 import {
   CoverLetterCreateDraftProvider,
   getCoverLetterCreateAvailableStep,
 } from '@/features/cover-letter/create-flow';
+import { ApiError } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
+import { appToast } from '@/shared/lib/toast';
 import { ErrorState } from '@/shared/ui/state-feedback';
 import { COVER_LETTER_STEP_CONFIG, CoverLetterCreateSkeleton } from '@/widgets/cover-letter-create';
 
@@ -33,10 +35,23 @@ const isCoverLetterCreateStepSegment = (
  * @param children - 현재 하위 라우트 콘텐츠
  */
 export function WritingCreateStepLayoutClient({ children }: WritingCreateStepLayoutClientProps) {
+  const router = useRouter();
   const currentStepSegment = useSelectedLayoutSegment();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const { data, isFetching, isPending, isRefetchError, refetch } =
     useCoverLetterDetail(coverLetterId);
+
+  const handleRetry = () => {
+    void refetch().then((result) => {
+      if (!result.isError) return;
+      if (result.error instanceof ApiError && result.error.status === 404) {
+        appToast.error('자기소개서가 없거나 접근할 수 없습니다.');
+        router.replace(ROUTES.WRITING);
+      } else {
+        appToast.error('자기소개서를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      }
+    });
+  };
 
   if (!isCoverLetterCreateStepSegment(currentStepSegment)) return children;
 
@@ -55,7 +70,7 @@ export function WritingCreateStepLayoutClient({ children }: WritingCreateStepLay
       <ErrorState
         className="self-center"
         description="잠시 후 다시 시도해 주세요."
-        retry={{ onClick: () => void refetch(), isLoading: isFetching, disabled: isFetching }}
+        retry={{ onClick: handleRetry, isLoading: isFetching, disabled: isFetching }}
         title="자기소개서를 불러오지 못했어요"
       />
     );

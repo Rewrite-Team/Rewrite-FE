@@ -53,7 +53,9 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
   }, [isRefetchError, errorUpdatedAt, isStreamRefreshing]);
 
   const handleRetry = () => {
-    void refetch();
+    void refetch().then((result) => {
+      if (result.isError) appToast.error('목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+    });
   };
 
   const handlePrefetchPage = (page: number) => {

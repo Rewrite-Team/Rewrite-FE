@@ -7,12 +7,3 @@ export interface CoverLetterQuestionDetail {
   reviewedAnswer: string;
   finalAnswer: string;
 }
-
-export interface CoverLetterDetail {
-  id: string;
-  title: string;
-  companyName: string;
-  positionTitle: string;
-  version: string;
-  questions: CoverLetterQuestionDetail[];
-}

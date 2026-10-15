@@ -17,8 +17,13 @@ export function useSubmitCoverLetter(coverLetterId: string) {
     mutationKey: getSaveDraftMutationKey(coverLetterId),
     mutationFn: () => submitCoverLetter(coverLetterId),
     retry: false,
-    onSuccess: () => {
-      router.replace(ROUTES.WRITING_DETAIL(coverLetterId));
+    onSuccess: ({ displayStatus, jobId }) => {
+      const detailRoute = ROUTES.WRITING_DETAIL(coverLetterId);
+      router.replace(
+        displayStatus === 'REVIEWING' && jobId
+          ? `${detailRoute}?jobId=${encodeURIComponent(jobId)}`
+          : detailRoute
+      );
       void queryClient.invalidateQueries({
         queryKey: coverLetterQueryKeys.detail(coverLetterId),
         exact: true,

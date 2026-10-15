@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { usePathname } from 'next/navigation';
 
@@ -11,6 +11,7 @@ import {
   useReviewVersionQuery,
 } from '@/features/review-version/version-management';
 import { ROUTES } from '@/shared/constants/routes';
+import { appToast } from '@/shared/lib/toast';
 import { Sidebar } from '@/widgets/common/sidebar';
 
 interface WritingDetailLayoutClientProps {
@@ -18,6 +19,7 @@ interface WritingDetailLayoutClientProps {
   initialSelectedVersionId: string;
   versions: ReviewVersionSummary[];
   writingId: string;
+  beforeVersionSelect: (versionId: string) => Promise<void>;
 }
 
 /** 상세 레이아웃의 사이드바와 버전 패널 선택 상태를 연결합니다. */
@@ -38,7 +40,15 @@ function WritingDetailLayoutContent({
   pathname,
   versions,
   writingId,
+  beforeVersionSelect,
 }: WritingDetailLayoutContentProps) {
+  const selectionRequestRef = useRef(0);
+  useEffect(
+    () => () => {
+      selectionRequestRef.current += 1;
+    },
+    []
+  );
   const [isVersionPanelOpen, setIsVersionPanelOpen] = useState(false);
   const isDetailPage = pathname === ROUTES.WRITING_DETAIL(writingId);
   const { selectedVersionId, selectVersion } = useReviewVersionQuery({
@@ -49,11 +59,25 @@ function WritingDetailLayoutContent({
     setIsVersionPanelOpen((wasOpen) => !wasOpen);
   };
 
+  const handleVersionSelect = (versionId: string) => {
+    const request = ++selectionRequestRef.current;
+    // 조회 성공 전까지 현재 버전과 URL을 유지하고, 마지막으로 선택한 요청만 반영합니다.
+    void Promise.resolve()
+      .then(() => beforeVersionSelect(versionId))
+      .then(() => {
+        if (request === selectionRequestRef.current) selectVersion(versionId);
+      })
+      .catch(() => {
+        if (request === selectionRequestRef.current)
+          appToast.error('선택한 버전을 불러오지 못했습니다. 이전 결과를 유지합니다.');
+      });
+  };
+
   return (
     <ReviewVersionProvider
       editableVersionId={initialSelectedVersionId}
       initialSelectedVersionId={initialSelectedVersionId}
-      onSelectedVersionChange={selectVersion}
+      onSelectedVersionChange={handleVersionSelect}
       selectedVersionId={selectedVersionId}
       versions={versions}
     >

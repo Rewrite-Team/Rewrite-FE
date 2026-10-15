@@ -1,2 +1,2 @@
-export { CoverLetterDetailEditor } from './ui/CoverLetterDetailEditor';
-export { CoverLetterVersionDetail } from './ui/CoverLetterVersionDetail';
+export { CoverLetterDetailScreen } from './ui/CoverLetterDetailScreen';
+export { CoverLetterDetailSkeleton } from './ui/CoverLetterDetailSkeleton';

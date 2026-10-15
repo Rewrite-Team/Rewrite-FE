@@ -2,8 +2,12 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 import type { ReviewVersionSummary } from '@/entities/review-version';
 import { useReviewVersion } from '@/features/review-version/version-management';
+import { ApiError } from '@/shared/api';
+import { appToast } from '@/shared/lib/toast';
 
 import { WritingDetailLayoutClient } from './WritingDetailLayoutClient';
+
+jest.mock('@/shared/lib/toast', () => ({ appToast: { error: jest.fn() } }));
 
 jest.mock('next/navigation', () => {
   const { useSyncExternalStore } = jest.requireActual<typeof import('react')>('react');
@@ -61,6 +65,8 @@ const versions: ReviewVersionSummary[] = [
   { id: '1-v003', label: 'V.0.3', createdAt: '2026-05-22T14:00:00', status: 'GENERATING' },
 ];
 
+const allowVersionSelect = async () => {};
+
 const navigateTo = (url: string) => {
   const navigation = jest.requireMock<{
     navigateTo: (nextUrl: string) => void;
@@ -81,12 +87,37 @@ function SelectedVersionProbe() {
 }
 
 describe('WritingDetailLayoutClient', () => {
+  beforeEach(() => jest.mocked(appToast.error).mockClear());
+
+  it('버전 선택 요청이 실패하면 토스트를 표시하고 기존 선택과 URL을 유지한다', async () => {
+    window.history.replaceState({}, '', '/writing/1?versionId=1-v001');
+    const beforeVersionSelect = jest.fn().mockRejectedValue(new ApiError(404));
+    render(
+      <WritingDetailLayoutClient
+        initialSelectedVersionId="1-v002"
+        versions={versions}
+        writingId="1"
+        beforeVersionSelect={beforeVersionSelect}
+      >
+        <SelectedVersionProbe />
+      </WritingDetailLayoutClient>
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'V.0.2 선택' }));
+    await waitFor(() =>
+      expect(appToast.error).toHaveBeenCalledWith(
+        '선택한 버전을 불러오지 못했습니다. 이전 결과를 유지합니다.'
+      )
+    );
+    expect(screen.getByText('선택 버전: 1-v001')).toBeInTheDocument();
+    expect(new URL(window.location.href).searchParams.get('versionId')).toBe('1-v001');
+  });
   it('URL의 완료 버전을 복원하고 선택 변경을 URL에 기록한다', async () => {
     window.history.replaceState({}, '', '/writing/1?versionId=1-v001');
     const replaceStateSpy = jest.spyOn(window.history, 'replaceState');
 
     const view = render(
       <WritingDetailLayoutClient
+        beforeVersionSelect={allowVersionSelect}
         initialSelectedVersionId="1-v002"
         versions={versions}
         writingId="1"
@@ -100,6 +131,7 @@ describe('WritingDetailLayoutClient', () => {
     fireEvent.click(screen.getByRole('button', { name: 'V.0.2 선택' }));
     view.rerender(
       <WritingDetailLayoutClient
+        beforeVersionSelect={allowVersionSelect}
         initialSelectedVersionId="1-v002"
         versions={versions}
         writingId="1"
@@ -118,6 +150,7 @@ describe('WritingDetailLayoutClient', () => {
 
     render(
       <WritingDetailLayoutClient
+        beforeVersionSelect={allowVersionSelect}
         initialSelectedVersionId="1-v002"
         versions={versions}
         writingId="1"
@@ -136,6 +169,7 @@ describe('WritingDetailLayoutClient', () => {
 
     render(
       <WritingDetailLayoutClient
+        beforeVersionSelect={allowVersionSelect}
         initialSelectedVersionId="1-v002"
         versions={versions}
         writingId="1"
@@ -155,7 +189,12 @@ describe('WritingDetailLayoutClient', () => {
     window.history.replaceState({}, '', '/writing/1?versionId=unknown');
 
     render(
-      <WritingDetailLayoutClient initialSelectedVersionId="" versions={[]} writingId="1">
+      <WritingDetailLayoutClient
+        beforeVersionSelect={allowVersionSelect}
+        initialSelectedVersionId=""
+        versions={[]}
+        writingId="1"
+      >
         <SelectedVersionProbe />
       </WritingDetailLayoutClient>
     );
@@ -170,6 +209,7 @@ describe('WritingDetailLayoutClient', () => {
 
     render(
       <WritingDetailLayoutClient
+        beforeVersionSelect={allowVersionSelect}
         initialSelectedVersionId="1-v002"
         versions={versions}
         writingId="1"
