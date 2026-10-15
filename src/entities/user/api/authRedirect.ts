@@ -1,4 +1,4 @@
-import { getClientApiBaseUrl } from '@/shared/api/config';
+import { getClientApiBaseUrl } from '@/shared/api/base/config';
 
 export type KakaoLoginTarget = 'local' | 'production';
 

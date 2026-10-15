@@ -54,10 +54,18 @@ src/
 │   └── llm-job/
 └── shared/
     ├── api/
-    │   ├── core.ts              # 공통 URL, 응답 파싱, 오류 처리
-    │   ├── client.ts            # 브라우저 쿠키·CSRF 요청 어댑터
-    │   ├── server.ts            # 요청 쿠키를 전달하는 서버 어댑터
-    │   └── apiError.ts
+    │   ├── base/                # HTTP 요청·인증·설정·공통 오류
+    │   │   ├── core.ts
+    │   │   ├── client.ts
+    │   │   ├── server.ts
+    │   │   ├── config.ts
+    │   │   └── apiError.ts
+    │   ├── stream/              # SSE 연결·재시도·가시성·스트림 오류
+    │   │   ├── eventStreamClient.ts
+    │   │   ├── eventStreamBackoff.ts
+    │   │   ├── eventStreamVisibility.ts
+    │   │   └── eventStreamErrors.ts
+    │   └── index.ts             # 환경에 독립적인 공통 오류 공개
     ├── assets/
     ├── lib/
     ├── providers/
@@ -319,8 +327,10 @@ shared/
 원칙:
 
 - `shared/ui`는 도메인 문구나 도메인 로직을 알지 않는다.
-- `shared/api/core.ts`는 환경에 종속되지 않는 HTTP 요청과 공통 응답·오류 처리를 담당한다.
-- `shared/api/client.ts`와 `shared/api/server.ts`는 각 실행 환경의 쿠키·인증 요청 설정을 담당한다.
+- `shared/api/base/core.ts`는 환경에 종속되지 않는 HTTP 요청과 공통 응답·오류 처리를 담당한다.
+- `shared/api/base/client.ts`와 `shared/api/base/server.ts`는 각 실행 환경의 쿠키·인증 요청 설정을 담당한다.
+- `shared/api/stream`은 SSE 연결과 재시도·탭 가시성에 따른 구독 수명을 담당한다.
+- `shared/api/index.ts`는 환경에 독립적인 오류만 공개하며, client·server 전용 어댑터는 직접 import해 실행 환경 경계를 유지한다.
 - `shared/hooks`는 특정 entity나 feature를 모르는 hook만 둔다.
 - `shared/stores`는 앱 전체에서 필요한 상태에만 사용하고, 도메인 상태는 entity 또는 feature에 둔다.
 - `shared/lib`는 라이브러리 연결과 adapter를 담당하고, 단순 순수 함수는 `shared/utils`에 둔다.
@@ -380,7 +390,7 @@ DTO를 공유하게 되면 공통 모델 분리를 별도로 검토한다.
 
 백엔드 명세는 `openapi/rewrite.openapi.json`에 저장하고 Orval로 entity별 `api/api.ts`와
 `api/types.ts`를 만든다.
-공통 HTTP 동작과 API 오류는 `shared/api/core.ts`에서 처리한다. 브라우저 인증·CSRF와 서버의
+공통 HTTP 동작과 API 오류는 `shared/api/base/core.ts`에서 처리한다. 브라우저 인증·CSRF와 서버의
 요청별 쿠키 전달은 각각 `client.ts`, `server.ts` 어댑터에서 처리한다.
 SSE와 브라우저 redirect endpoint는 일반 HTTP 생성 대상에서 제외하고 용도에 맞는 전용 연결 방식을 사용한다.
 query key는 `entities/<entity>/api/queryKeys.ts`에 entity별로 둔다.
@@ -438,10 +448,10 @@ SSE가 시작한 목록 갱신은 네트워크 오류·5xx에 한해 3초 후 �
 목록의 기준 간격은 2·4·8·16·32·64·120초다. 실제 대기는 기준 간격의 50~100%로 분산하며, 정상 이벤트 처리 후
 간격을 초기화한다. 타이머와 취소는 SSE 라이브러리가 관리하고, 401 인증 갱신 후에는 즉시 재연결한다.
 명시적으로 반환하는 재연결 간격은 서버가 보낸 SSE `retry:` 값보다 우선한다.
-백오프 상수와 지터·다음 간격 계산은 `shared/api/eventStreamBackoff.ts`에 두고, 현재 간격과
+백오프 상수와 지터·다음 간격 계산은 `shared/api/stream/eventStreamBackoff.ts`에 두고, 현재 간격과
 초기화 시점은 SSE 클라이언트가 연결별로 관리한다.
-탭 표시 여부에 따른 구독 수명은 `shared/api/eventStreamVisibility.ts`, 전송·프로토콜·이벤트 처리·
-인증 갱신 오류는 `shared/api/eventStreamErrors.ts`에서 관리한다.
+탭 표시 여부에 따른 구독 수명은 `shared/api/stream/eventStreamVisibility.ts`, 전송·프로토콜·이벤트 처리·
+인증 갱신 오류는 `shared/api/stream/eventStreamErrors.ts`에서 관리한다.
 공통 클라이언트는 `openWhenHidden: true`로 라이브러리의 탭 전환 처리를 끄고 직접 구독 수명을
 관리한다. 숨겨진 탭은 구독을 abort해 재시도 타이머도 취소하며, 다시 보이면 새 구독 하나를
 생성한다. 백오프 간격과 마지막 이벤트 ID는 탭 전환 사이에 유지한다. 외부 abort나 최종 종료 시

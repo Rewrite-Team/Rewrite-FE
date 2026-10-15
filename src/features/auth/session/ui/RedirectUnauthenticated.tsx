@@ -7,8 +7,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { currentUserQueryOptions } from '@/entities/user';
-import { ApiError } from '@/shared/api/apiError';
-import { AUTH_LOGOUT_STATE_EVENT, AUTH_SESSION_EXPIRED_EVENT } from '@/shared/api/client';
+import { ApiError } from '@/shared/api';
+import { AUTH_LOGOUT_STATE_EVENT, AUTH_SESSION_EXPIRED_EVENT } from '@/shared/api/base/client';
 import { ROUTES } from '@/shared/constants/routes';
 
 import { useLoginDestination } from '../hooks/useLoginDestination';

@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 import { connectCoverLetterReviewStatuses, listCoverLetters } from '@/entities/cover-letter';
 import type { CoverLetterListResponse } from '@/entities/cover-letter';
-import { ApiError } from '@/shared/api/apiError';
+import { ApiError } from '@/shared/api';
 import { appToast } from '@/shared/lib/toast';
 
 import { CoverLetterList } from './CoverLetterList';

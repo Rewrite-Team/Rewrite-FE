@@ -1,17 +1,17 @@
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 
-import { notifyAuthSessionExpired } from './client';
 import { connectEventStream, type EventStreamOptions } from './eventStreamClient';
+import { notifyAuthSessionExpired } from '../base/client';
 
 jest.mock('@microsoft/fetch-event-source', () => ({
   fetchEventSource: jest.fn(),
 }));
 
-jest.mock('./client', () => ({
+jest.mock('../base/client', () => ({
   notifyAuthSessionExpired: jest.fn(),
 }));
 
-jest.mock('./config', () => ({
+jest.mock('../base/config', () => ({
   getClientApiBaseUrl: () => 'https://api.example.com',
 }));
 

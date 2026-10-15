@@ -2,9 +2,6 @@
 
 import { fetchEventSource, type EventSourceMessage } from '@microsoft/fetch-event-source';
 
-import { ApiError } from './apiError';
-import { notifyAuthSessionExpired } from './client';
-import { getClientApiBaseUrl } from './config';
 import {
   DEFAULT_MAX_RETRY_DELAY_MS,
   INITIAL_RETRY_DELAY_MS,
@@ -17,6 +14,9 @@ import {
   EventStreamProtocolError,
 } from './eventStreamErrors';
 import { runVisibleEventStream } from './eventStreamVisibility';
+import { ApiError } from '../base/apiError';
+import { notifyAuthSessionExpired } from '../base/client';
+import { getClientApiBaseUrl } from '../base/config';
 
 /** SSE 연결의 이벤트 처리, 인증 갱신, 취소 동작을 지정합니다. */
 export interface EventStreamOptions {
