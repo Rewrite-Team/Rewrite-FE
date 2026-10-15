@@ -432,8 +432,10 @@ OpenAPI 명세
 
 인증 가드와 로그인 복귀 경로 관리는 `features/auth/session`에서 함께 소유한다.
 복귀 경로의 저장·검증은 `model/returnTo.ts`, 최종 목적지 결정과 필요한 목록 프리패칭은
-`hooks/useLoginDestination.ts`에서 처리한다. 두 인증 가드는 이 내부 훅을 재사용하며,
+`hooks/useLoginDestination.ts`에서 처리한다. 보호 페이지의 인증 가드가 이 내부 훅을 사용하며,
 외부에서는 session의 `index.ts`를 통해 가드 컴포넌트만 사용한다.
+랜딩과 로그인은 게스트 페이지로 사용자 조회·인증 갱신을 시작하지 않는다.
+랜딩은 기본 `Header`를 사용하고, 보호 페이지는 `SessionHeader`와 `RedirectUnauthenticated`에서 인증을 확인한다.
 
 자기소개서 SSE 스냅샷의 검증·상태 비교는 `entities/cover-letter/model`에서 처리하고,
 목록 widget의 구독 훅은 연결 수명과 TanStack Query 캐시 갱신을 담당한다.
