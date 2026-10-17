@@ -5,10 +5,9 @@
  * API 번호, 사용 화면, 호출 흐름과 오류 조건을 확인하는 Rewrite 백엔드 핵심 API 문서
  * OpenAPI spec version: v1
  */
-export type LlmJobStateResponseStatus =
-  (typeof LlmJobStateResponseStatus)[keyof typeof LlmJobStateResponseStatus];
+export type LlmJobStatus = (typeof LlmJobStatus)[keyof typeof LlmJobStatus];
 
-export const LlmJobStateResponseStatus = {
+export const LlmJobStatus = {
   PENDING: 'PENDING',
   PROCESSING: 'PROCESSING',
   COMPLETED: 'COMPLETED',
@@ -22,22 +21,54 @@ export interface LlmJobProgressResponse {
   message: string;
 }
 
+export type LlmJobResultRefType = (typeof LlmJobResultRefType)[keyof typeof LlmJobResultRefType];
+
+export const LlmJobResultRefType = {
+  REVIEW_VERSION: 'REVIEW_VERSION',
+  KEYWORD_ANALYSIS: 'KEYWORD_ANALYSIS',
+  INTERVIEW_SESSION: 'INTERVIEW_SESSION',
+  INTERVIEW_QUESTION: 'INTERVIEW_QUESTION',
+  INTERVIEW_MESSAGE: 'INTERVIEW_MESSAGE',
+} as const;
+
 export interface ResultRefResponse {
-  type: string;
+  type: LlmJobResultRefType;
   id: string;
 }
 
+export type LlmJobErrorCode = (typeof LlmJobErrorCode)[keyof typeof LlmJobErrorCode];
+
+export const LlmJobErrorCode = {
+  LLM_PROVIDER_ERROR: 'LLM_PROVIDER_ERROR',
+  LLM_CONTEXT_LENGTH_EXCEEDED: 'LLM_CONTEXT_LENGTH_EXCEEDED',
+  LLM_CONTENT_FILTERED: 'LLM_CONTENT_FILTERED',
+} as const;
+
 export interface LlmJobErrorResponse {
-  code: string;
+  code: LlmJobErrorCode;
   message: string;
 }
 
 export interface LlmJobStateResponse {
-  status: LlmJobStateResponseStatus;
+  status: LlmJobStatus;
   progress: LlmJobProgressResponse;
   resultRef: ResultRefResponse | null;
   error: LlmJobErrorResponse | null;
 }
+
+export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
+
+export const ErrorCode = {
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  CSRF_TOKEN_INVALID: 'CSRF_TOKEN_INVALID',
+  NOT_FOUND: 'NOT_FOUND',
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  CONFLICT: 'CONFLICT',
+  COVER_LETTER_NOT_WRITING: 'COVER_LETTER_NOT_WRITING',
+  LLM_JOB_ALREADY_RUNNING: 'LLM_JOB_ALREADY_RUNNING',
+  REVIEW_VERSION_NOT_LATEST: 'REVIEW_VERSION_NOT_LATEST',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+} as const;
 
 export interface ErrorDetail {
   field: string;
@@ -45,7 +76,7 @@ export interface ErrorDetail {
 }
 
 export interface ErrorBody {
-  code: string;
+  code: ErrorCode;
   message: string;
   details: ErrorDetail[];
 }

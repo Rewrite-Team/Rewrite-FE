@@ -7,13 +7,15 @@
  */
 import { httpClient } from '@/shared/api/client';
 import type {
-  StartKeywordAnalysisResponseStatus,
+  KeywordAnalysisStatus,
   StartKeywordAnalysisResponse,
+  ErrorCode,
   ErrorDetail,
   ErrorBody,
   ErrorResponse,
   KeywordAnalysisCoverLetterResponse,
   KeywordAnalysisReviewVersionResponse,
+  LatestKeywordAnalysisStatus,
   KeywordResponse,
   LatestKeywordAnalysisResponse,
 } from './types';

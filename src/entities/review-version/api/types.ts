@@ -25,13 +25,27 @@ export interface SuccessResponse {
   success: boolean;
 }
 
+export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
+
+export const ErrorCode = {
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  CSRF_TOKEN_INVALID: 'CSRF_TOKEN_INVALID',
+  NOT_FOUND: 'NOT_FOUND',
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  CONFLICT: 'CONFLICT',
+  COVER_LETTER_NOT_WRITING: 'COVER_LETTER_NOT_WRITING',
+  LLM_JOB_ALREADY_RUNNING: 'LLM_JOB_ALREADY_RUNNING',
+  REVIEW_VERSION_NOT_LATEST: 'REVIEW_VERSION_NOT_LATEST',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+} as const;
+
 export interface ErrorDetail {
   field: string;
   reason: string;
 }
 
 export interface ErrorBody {
-  code: string;
+  code: ErrorCode;
   message: string;
   details: ErrorDetail[];
 }
@@ -40,10 +54,9 @@ export interface ErrorResponse {
   error: ErrorBody;
 }
 
-export type ReviewVersionListItemResponseStatus =
-  (typeof ReviewVersionListItemResponseStatus)[keyof typeof ReviewVersionListItemResponseStatus];
+export type LlmJobStatus = (typeof LlmJobStatus)[keyof typeof LlmJobStatus];
 
-export const ReviewVersionListItemResponseStatus = {
+export const LlmJobStatus = {
   PENDING: 'PENDING',
   PROCESSING: 'PROCESSING',
   COMPLETED: 'COMPLETED',
@@ -54,7 +67,7 @@ export const ReviewVersionListItemResponseStatus = {
 export interface ReviewVersionListItemResponse {
   id: string;
   version: string;
-  status: ReviewVersionListItemResponseStatus;
+  status: LlmJobStatus;
   isLatest: boolean;
   isLatestReviewed: boolean;
   createdAt: string;
@@ -73,10 +86,9 @@ export interface RequestReReviewRequest {
   requestInstruction?: string | null;
 }
 
-export type RequestReReviewResponseDisplayStatus =
-  (typeof RequestReReviewResponseDisplayStatus)[keyof typeof RequestReReviewResponseDisplayStatus];
+export type CoverLetterStatus = (typeof CoverLetterStatus)[keyof typeof CoverLetterStatus];
 
-export const RequestReReviewResponseDisplayStatus = {
+export const CoverLetterStatus = {
   WRITING: 'WRITING',
   REVIEWING: 'REVIEWING',
   REVIEWED: 'REVIEWED',
@@ -84,19 +96,9 @@ export const RequestReReviewResponseDisplayStatus = {
 } as const;
 
 export interface RequestReReviewResponse {
-  displayStatus: RequestReReviewResponseDisplayStatus;
+  displayStatus: CoverLetterStatus;
   jobId: string;
 }
-
-export type CoverLetterDetailCoverLetterResponseDisplayStatus =
-  (typeof CoverLetterDetailCoverLetterResponseDisplayStatus)[keyof typeof CoverLetterDetailCoverLetterResponseDisplayStatus];
-
-export const CoverLetterDetailCoverLetterResponseDisplayStatus = {
-  WRITING: 'WRITING',
-  REVIEWING: 'REVIEWING',
-  REVIEWED: 'REVIEWED',
-  REVIEW_FAILED: 'REVIEW_FAILED',
-} as const;
 
 export interface CoverLetterDetailCoverLetterResponse {
   id: string;
@@ -110,24 +112,13 @@ export interface CoverLetterDetailCoverLetterResponse {
   jobPostingUrl: string | null;
   /** @nullable */
   preferences: string | null;
-  displayStatus: CoverLetterDetailCoverLetterResponseDisplayStatus;
+  displayStatus: CoverLetterStatus;
 }
-
-export type CoverLetterDetailReviewVersionResponseStatus =
-  (typeof CoverLetterDetailReviewVersionResponseStatus)[keyof typeof CoverLetterDetailReviewVersionResponseStatus];
-
-export const CoverLetterDetailReviewVersionResponseStatus = {
-  PENDING: 'PENDING',
-  PROCESSING: 'PROCESSING',
-  COMPLETED: 'COMPLETED',
-  FAILED: 'FAILED',
-  CANCELED: 'CANCELED',
-} as const;
 
 export interface CoverLetterDetailReviewVersionResponse {
   id: string;
   version: string;
-  status: CoverLetterDetailReviewVersionResponseStatus;
+  status: LlmJobStatus;
   isLatest: boolean;
   isLatestReviewed: boolean;
   /** @nullable */
@@ -135,31 +126,28 @@ export interface CoverLetterDetailReviewVersionResponse {
   createdAt: string;
 }
 
-export type ReviewJobResponseStatus =
-  (typeof ReviewJobResponseStatus)[keyof typeof ReviewJobResponseStatus];
-
-export const ReviewJobResponseStatus = {
-  PENDING: 'PENDING',
-  PROCESSING: 'PROCESSING',
-  COMPLETED: 'COMPLETED',
-  FAILED: 'FAILED',
-  CANCELED: 'CANCELED',
-} as const;
-
 export interface CoverLetterDetailProgressResponse {
   current: number;
   total: number;
   message: string;
 }
 
+export type LlmJobErrorCode = (typeof LlmJobErrorCode)[keyof typeof LlmJobErrorCode];
+
+export const LlmJobErrorCode = {
+  LLM_PROVIDER_ERROR: 'LLM_PROVIDER_ERROR',
+  LLM_CONTEXT_LENGTH_EXCEEDED: 'LLM_CONTEXT_LENGTH_EXCEEDED',
+  LLM_CONTENT_FILTERED: 'LLM_CONTENT_FILTERED',
+} as const;
+
 export interface CoverLetterDetailJobErrorResponse {
-  code: string;
+  code: LlmJobErrorCode;
   message: string;
 }
 
 export interface ReviewJobResponse {
   id: string;
-  status: ReviewJobResponseStatus;
+  status: LlmJobStatus;
   progress: CoverLetterDetailProgressResponse;
   error: CoverLetterDetailJobErrorResponse | null;
 }
