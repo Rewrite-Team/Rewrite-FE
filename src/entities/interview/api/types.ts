@@ -18,13 +18,27 @@ export interface InterviewQuestionListResponse {
   nextCursor: string | null;
 }
 
+export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
+
+export const ErrorCode = {
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  CSRF_TOKEN_INVALID: 'CSRF_TOKEN_INVALID',
+  NOT_FOUND: 'NOT_FOUND',
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  CONFLICT: 'CONFLICT',
+  COVER_LETTER_NOT_WRITING: 'COVER_LETTER_NOT_WRITING',
+  LLM_JOB_ALREADY_RUNNING: 'LLM_JOB_ALREADY_RUNNING',
+  REVIEW_VERSION_NOT_LATEST: 'REVIEW_VERSION_NOT_LATEST',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+} as const;
+
 export interface ErrorDetail {
   field: string;
   reason: string;
 }
 
 export interface ErrorBody {
-  code: string;
+  code: ErrorCode;
   message: string;
   details: ErrorDetail[];
 }
@@ -37,17 +51,16 @@ export interface AddInterviewQuestionResponse {
   jobId: string;
 }
 
-export type InterviewMessageResponseRole =
-  (typeof InterviewMessageResponseRole)[keyof typeof InterviewMessageResponseRole];
+export type InterviewMessageRole = (typeof InterviewMessageRole)[keyof typeof InterviewMessageRole];
 
-export const InterviewMessageResponseRole = {
+export const InterviewMessageRole = {
   USER: 'USER',
   ASSISTANT: 'ASSISTANT',
 } as const;
 
 export interface InterviewMessageResponse {
   id: string;
-  role: InterviewMessageResponseRole;
+  role: InterviewMessageRole;
   content: string;
   /** @nullable */
   score: number | null;
@@ -74,10 +87,10 @@ export interface SendInterviewMessageResponse {
   jobId: string;
 }
 
-export type StartInterviewResponseStatus =
-  (typeof StartInterviewResponseStatus)[keyof typeof StartInterviewResponseStatus];
+export type InterviewSessionStatus =
+  (typeof InterviewSessionStatus)[keyof typeof InterviewSessionStatus];
 
-export const StartInterviewResponseStatus = {
+export const InterviewSessionStatus = {
   QUESTION_GENERATING: 'QUESTION_GENERATING',
   ACTIVE: 'ACTIVE',
   FAILED: 'FAILED',
@@ -87,7 +100,7 @@ export interface StartInterviewResponse {
   interviewSessionId: string;
   /** @nullable */
   jobId: string | null;
-  status: StartInterviewResponseStatus;
+  status: InterviewSessionStatus;
 }
 
 export interface CurrentInterviewCoverLetterResponse {
@@ -100,19 +113,10 @@ export interface CurrentInterviewCoverLetterResponse {
   positionTitle: string | null;
 }
 
-export type InterviewSessionResponseStatus =
-  (typeof InterviewSessionResponseStatus)[keyof typeof InterviewSessionResponseStatus];
-
-export const InterviewSessionResponseStatus = {
-  QUESTION_GENERATING: 'QUESTION_GENERATING',
-  ACTIVE: 'ACTIVE',
-  FAILED: 'FAILED',
-} as const;
-
 export interface InterviewSessionResponse {
   id: string;
   initialSourceReviewVersionId: string;
-  status: InterviewSessionResponseStatus;
+  status: InterviewSessionStatus;
   /** @nullable */
   jobId: string | null;
   createdAt: string;

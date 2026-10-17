@@ -7,11 +7,14 @@
  */
 import { httpClient } from '@/shared/api/client';
 import type {
-  LlmJobStateResponseStatus,
+  LlmJobStatus,
   LlmJobProgressResponse,
+  LlmJobResultRefType,
   ResultRefResponse,
+  LlmJobErrorCode,
   LlmJobErrorResponse,
   LlmJobStateResponse,
+  ErrorCode,
   ErrorDetail,
   ErrorBody,
   ErrorResponse,

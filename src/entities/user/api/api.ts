@@ -8,9 +8,11 @@
 import { httpClient } from '@/shared/api/client';
 import type {
   SuccessResponse,
+  ErrorCode,
   ErrorDetail,
   ErrorBody,
   ErrorResponse,
+  AuthProvider,
   CurrentUserResponse,
   CsrfTokenResponse,
 } from './types';
