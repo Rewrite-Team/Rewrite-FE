@@ -1,9 +1,9 @@
 import { cva } from 'class-variance-authority';
 
-import type { CoverLetterListItemResponseDisplayStatus } from '../api/types';
+import type { CoverLetterStatus as CoverLetterStatusType } from '../api/types';
 
 interface CoverLetterStatusProps {
-  displayStatus: CoverLetterListItemResponseDisplayStatus;
+  displayStatus: CoverLetterStatusType;
 }
 
 const coverLetterStatusVariants = cva(
@@ -20,7 +20,7 @@ const coverLetterStatusVariants = cva(
   }
 );
 
-const DISPLAY_STATUS_LABEL: Record<CoverLetterListItemResponseDisplayStatus, string> = {
+const DISPLAY_STATUS_LABEL: Record<CoverLetterStatusType, string> = {
   WRITING: '작성 중',
   REVIEWING: '첨삭 중',
   REVIEWED: '첨삭 완료',

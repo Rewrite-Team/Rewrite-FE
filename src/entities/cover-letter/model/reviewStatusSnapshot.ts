@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { CoverLetterListItemResponseDisplayStatus } from '../api/types';
+import { CoverLetterStatus } from '../api/types';
 
 import type { CoverLetterListResponse } from '../api/types';
 
@@ -8,7 +8,7 @@ const reviewStatusSnapshotSchema = z.object({
   items: z.array(
     z.object({
       coverLetterId: z.string(),
-      displayStatus: z.enum(CoverLetterListItemResponseDisplayStatus),
+      displayStatus: z.enum(CoverLetterStatus),
       latestReviewedVersionId: z.string().nullable(),
     })
   ),

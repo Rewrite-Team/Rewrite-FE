@@ -1,13 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
 
-import { currentUserQueryOptions } from '@/entities/user';
+import { currentUserQueryOptions, type CurrentUserResponse } from '@/entities/user';
 
 import { RedirectUnauthenticated } from './RedirectUnauthenticated';
 import { clearReturnTo, saveReturnTo } from '../model/returnTo';
 
 const mockRouter = { replace: jest.fn() };
-const currentUser = {
+const currentUser: CurrentUserResponse = {
   id: 'user-1',
   nickname: '사용자',
   profileImageUrl: null,
