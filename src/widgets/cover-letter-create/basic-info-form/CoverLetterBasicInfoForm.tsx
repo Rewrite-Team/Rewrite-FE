@@ -54,7 +54,7 @@ export function CoverLetterBasicInfoForm() {
 
   const saveBasicInfo = useCoverLetterStepSave<CoverLetterStep1FormInput>({
     coverLetterId,
-    nextStep: 2,
+    currentStep: 1,
     clearErrors,
     // 저장 중 입력한 값은 보존하고, 성공한 요청의 값만 비교 기준으로 갱신합니다.
     onSaved: (values) => reset(values, { keepValues: true }),

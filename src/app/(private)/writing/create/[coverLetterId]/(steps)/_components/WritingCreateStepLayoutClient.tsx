@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 import { redirect, useParams, useRouter, useSelectedLayoutSegment } from 'next/navigation';
 
 import { useCoverLetterDetail } from '@/entities/cover-letter';
 import {
   CoverLetterCreateDraftProvider,
-  getCoverLetterCreateAvailableStep,
+  useCoverLetterCreateProgress,
 } from '@/features/cover-letter/create-flow';
 import { ApiError } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
@@ -40,17 +40,7 @@ export function WritingCreateStepLayoutClient({ children }: WritingCreateStepLay
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const { data, isFetching, isPending, isRefetchError, refetch } =
     useCoverLetterDetail(coverLetterId);
-  const savedAvailableStep = data ? getCoverLetterCreateAvailableStep(data) : 1;
-  const [progress, setProgress] = useState({ coverLetterId, availableStep: savedAvailableStep });
-  const availableStep =
-    progress.coverLetterId === coverLetterId && progress.availableStep > savedAvailableStep
-      ? progress.availableStep
-      : savedAvailableStep;
-
-  // 단계 수정·재조회로 저장값이 바뀌어도 같은 작성 흐름에서 이미 열린 단계는 다시 잠그지 않습니다.
-  if (progress.coverLetterId !== coverLetterId || progress.availableStep !== availableStep) {
-    setProgress({ coverLetterId, availableStep });
-  }
+  const availableStep = useCoverLetterCreateProgress(coverLetterId, data);
 
   const handleRetry = () => {
     void refetch().then((result) => {

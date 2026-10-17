@@ -15,7 +15,7 @@ import type { WritingCreateStep } from '../model/writingCreateStep';
 
 interface CoverLetterStepSaveOptions<Values> {
   coverLetterId: string;
-  nextStep: WritingCreateStep;
+  currentStep: Exclude<WritingCreateStep, 4>;
   clearErrors: () => void;
   saveDraft: (values: Values) => Promise<unknown>;
   onSaved: (values: Values) => void;
@@ -29,6 +29,7 @@ interface CoverLetterStepSaveOptions<Values> {
  * @description
  * STEP1~3의 중복 저장 방지, 서버 검증 오류 안내와 저장 후 이동을 처리합니다.
  * 반환 함수의 intent가 'draft'이면 저장 완료 토스트를, 'next'이면 다음 단계 이동을 수행합니다.
+ * currentStep으로 저장·오류 처리 대상을 지정하며, 다음 단계는 currentStep + 1로 계산합니다.
  *
  * ### 주의할 점
  * 다음 단계의 필수값 검증은 호출하는 폼의 handleSubmit에서 먼저 수행합니다.
@@ -48,7 +49,7 @@ interface CoverLetterStepSaveOptions<Values> {
  */
 export function useCoverLetterStepSave<Values>({
   coverLetterId,
-  nextStep,
+  currentStep,
   clearErrors,
   saveDraft,
   onSaved,
@@ -58,7 +59,6 @@ export function useCoverLetterStepSave<Values>({
   const router = useRouter();
   const isSavingRef = useRef(false);
   const { setErrors } = useCoverLetterCreateValidation();
-  const currentStep = nextStep - 1;
 
   return async (values: Values, { intent }: { intent: 'draft' | 'next' }) => {
     if (isSavingRef.current) return;
@@ -71,7 +71,7 @@ export function useCoverLetterStepSave<Values>({
       // 오류가 있는 단계를 방문해도 표시는 유지하고, 저장에 성공했을 때 해제합니다.
       setErrors((errors) => errors.filter((error) => error.step !== currentStep));
       if (intent === 'next') {
-        router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, nextStep));
+        router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, currentStep + 1));
       } else {
         appToast.success('임시 저장되었습니다.');
       }

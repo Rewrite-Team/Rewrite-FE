@@ -29,7 +29,9 @@ interface DraftContextValue {
   setDirtyStep: Dispatch<SetStateAction<WritingCreateStep | null>>;
 }
 
-const EMPTY_VALIDATION: Pick<DraftContextValue, 'errors' | 'setErrors'> = {
+type CoverLetterCreateValidation = Pick<DraftContextValue, 'errors' | 'setErrors'>;
+
+const EMPTY_VALIDATION: CoverLetterCreateValidation = {
   errors: [],
   setErrors: () => undefined,
 };
@@ -89,6 +91,7 @@ export const useCoverLetterCreateDraft = () =>
  * 최종 제출에서 받은 단계별 오류를 저장하거나 대상 폼과 단계 패널에서 표시할 때 사용합니다.
  * 대상 폼은 자기 단계의 오류를 복원하고, 저장 성공 시에만 해당 단계의 오류를 제거합니다.
  * Provider가 없으면 errors는 빈 배열이며 setErrors는 상태를 변경하지 않습니다.
+ * 반환값은 검증에 필요한 errors와 setErrors로 제한합니다.
  *
  * @example
  * ```tsx
@@ -96,8 +99,12 @@ export const useCoverLetterCreateDraft = () =>
  * const hasStepError = errors.some((error) => error.step === currentStep);
  * ```
  */
-export const useCoverLetterCreateValidation = () =>
-  useContext(CoverLetterCreateDraftContext) ?? EMPTY_VALIDATION;
+export const useCoverLetterCreateValidation = (): CoverLetterCreateValidation => {
+  const context = useContext(CoverLetterCreateDraftContext);
+  if (!context) return EMPTY_VALIDATION;
+
+  return { errors: context.errors, setErrors: context.setErrors };
+};
 
 /**
  * ## useCoverLetterStepDirty

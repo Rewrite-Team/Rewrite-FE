@@ -35,6 +35,7 @@ export {
   useCoverLetterCreateDirtyStep,
 } from './ui/CoverLetterCreateDraftContext';
 export { useCoverLetterStepSave } from './hooks/useCoverLetterStepSave';
+export { useCoverLetterCreateProgress } from './hooks/useCoverLetterCreateProgress';
 export { useCoverLetterStepErrors } from './hooks/useCoverLetterStepErrors';
 export { createCoverLetterStepSubmitHandler } from './utils/createCoverLetterStepSubmitHandler';
 export {
