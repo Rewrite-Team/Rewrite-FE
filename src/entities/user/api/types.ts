@@ -9,13 +9,27 @@ export interface SuccessResponse {
   success: boolean;
 }
 
+export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
+
+export const ErrorCode = {
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  CSRF_TOKEN_INVALID: 'CSRF_TOKEN_INVALID',
+  NOT_FOUND: 'NOT_FOUND',
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  CONFLICT: 'CONFLICT',
+  COVER_LETTER_NOT_WRITING: 'COVER_LETTER_NOT_WRITING',
+  LLM_JOB_ALREADY_RUNNING: 'LLM_JOB_ALREADY_RUNNING',
+  REVIEW_VERSION_NOT_LATEST: 'REVIEW_VERSION_NOT_LATEST',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+} as const;
+
 export interface ErrorDetail {
   field: string;
   reason: string;
 }
 
 export interface ErrorBody {
-  code: string;
+  code: ErrorCode;
   message: string;
   details: ErrorDetail[];
 }
@@ -24,12 +38,18 @@ export interface ErrorResponse {
   error: ErrorBody;
 }
 
+export type AuthProvider = (typeof AuthProvider)[keyof typeof AuthProvider];
+
+export const AuthProvider = {
+  KAKAO: 'KAKAO',
+} as const;
+
 export interface CurrentUserResponse {
   id: string;
   nickname: string;
   /** @nullable */
   profileImageUrl: string | null;
-  provider: string;
+  provider: AuthProvider;
   createdAt: string;
 }
 

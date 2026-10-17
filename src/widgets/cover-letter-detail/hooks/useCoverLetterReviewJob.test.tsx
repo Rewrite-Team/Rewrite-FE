@@ -8,7 +8,7 @@ import {
   getCoverLetterDetail,
   type CoverLetterDetailResponse,
 } from '@/entities/cover-letter';
-import { connectLlmJobEvents, getLlmJobStatus } from '@/entities/llm-job';
+import { connectLlmJobEvents, getLlmJobStatus, type LlmJobStateResponse } from '@/entities/llm-job';
 import { ApiError } from '@/shared/api';
 
 import { useCoverLetterReviewJob } from './useCoverLetterReviewJob';
@@ -36,11 +36,11 @@ const DETAIL: CoverLetterDetailResponse = {
   reviewJob: null,
 };
 
-const state = (status: 'PROCESSING' | 'COMPLETED' | 'FAILED') => ({
+const state = (status: 'PROCESSING' | 'COMPLETED' | 'FAILED'): LlmJobStateResponse => ({
   status,
   progress: { current: 1, total: 2, message: '첨삭 중' },
   resultRef: null,
-  error: status === 'FAILED' ? { code: 'AI_ERROR', message: 'AI 처리 실패' } : null,
+  error: status === 'FAILED' ? { code: 'LLM_PROVIDER_ERROR', message: 'AI 처리 실패' } : null,
 });
 
 let finishStream: () => void;

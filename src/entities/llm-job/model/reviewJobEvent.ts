@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import { LlmJobStateResponseStatus } from '../api/types';
+import { LlmJobStatus } from '../api/types';
 
 const jobStateSchema = z.object({
   jobType: z.literal('COVER_LETTER_REVIEW').optional(),
-  status: z.enum(LlmJobStateResponseStatus),
+  status: z.enum(LlmJobStatus),
   progress: z.object({
     current: z.number().int().nonnegative(),
     total: z.number().int().nonnegative(),

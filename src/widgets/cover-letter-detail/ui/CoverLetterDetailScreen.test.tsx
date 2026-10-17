@@ -132,7 +132,7 @@ describe('CoverLetterDetailScreen', () => {
         id: 'job',
         status: 'FAILED',
         progress: { current: 0, total: 2, message: '' },
-        error: { code: 'AI_FAILED', message: 'AI 서비스 응답이 없습니다.' },
+        error: { code: 'LLM_PROVIDER_ERROR', message: 'AI 서비스 응답이 없습니다.' },
       },
     });
     expect(screen.getByRole('alert')).toHaveTextContent('AI 서비스 응답이 없습니다.');
@@ -162,7 +162,7 @@ describe('CoverLetterDetailScreen', () => {
         id: 'job',
         status: 'FAILED',
         progress: { current: 0, total: 2, message: '' },
-        error: { code: 'AI_FAILED', message: '기존 실패 사유' },
+        error: { code: 'LLM_PROVIDER_ERROR', message: '기존 실패 사유' },
       },
     });
     fireEvent.click(screen.getByRole('button', { name: '상태 새로고침' }));
