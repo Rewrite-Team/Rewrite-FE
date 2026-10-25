@@ -120,7 +120,7 @@ describe('CoverLetterQuestionForm', () => {
     expect(screen.getByRole('button', { name: '1번 자기소개서 문항 삭제' })).toBeDisabled();
   });
 
-  it('문항을 삭제하면 폼 값과 순서를 함께 업데이트한다', () => {
+  it('내용이 있는 문항은 확인 후 삭제하고 폼 값과 순서를 함께 업데이트한다', async () => {
     renderForm();
 
     fireEvent.change(screen.getByRole('textbox', { name: '질문' }), {
@@ -142,6 +142,9 @@ describe('CoverLetterQuestionForm', () => {
     secondDeleteButton.focus();
     fireEvent.click(secondDeleteButton);
 
+    expect(await screen.findByRole('dialog')).toHaveTextContent('2번 문항을 삭제할까요?');
+    fireEvent.click(await screen.findByRole('button', { name: '삭제하기' }));
+
     expect(screen.getAllByRole('textbox', { name: '질문' })).toHaveLength(2);
     expect(screen.getAllByRole('textbox', { name: '질문' })[0]).toHaveValue('첫 번째 질문');
     expect(screen.getAllByRole('textbox', { name: '질문' })[1]).toHaveValue('세 번째 질문');
@@ -150,7 +153,7 @@ describe('CoverLetterQuestionForm', () => {
     });
 
     expect(remainingSecondTrigger).toHaveAttribute('aria-expanded', 'true');
-    expect(remainingSecondTrigger).toHaveFocus();
+    await waitFor(() => expect(remainingSecondTrigger).toHaveFocus());
     expect(
       screen.queryByRole('button', { name: '3번 자기소개서 문항 삭제' })
     ).not.toBeInTheDocument();
@@ -301,6 +304,7 @@ describe('CoverLetterQuestionForm', () => {
       ],
     });
     fireEvent.click(screen.getByRole('button', { name: '1번 자기소개서 문항 삭제' }));
+    fireEvent.click(await screen.findByRole('button', { name: '삭제하기' }));
     fireEvent.click(screen.getByRole('button', { name: '임시 저장' }));
     await waitFor(() => expect(saveCoverLetterQuestions).toHaveBeenCalledTimes(2));
     expect(saveCoverLetterQuestions).toHaveBeenLastCalledWith(mockCoverLetterId, {

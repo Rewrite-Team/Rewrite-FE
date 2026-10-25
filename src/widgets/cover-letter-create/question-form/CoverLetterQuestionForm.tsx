@@ -30,6 +30,7 @@ import {
 import { DeleteIcon } from '@/shared/assets/icons/side-menu';
 import { Accordion } from '@/shared/ui/accordion';
 import { Button } from '@/shared/ui/button';
+import { ConfirmModal } from '@/shared/ui/confirm-modal';
 import { FormField } from '@/shared/ui/form-field';
 import { Input } from '@/shared/ui/input';
 import { TextArea } from '@/shared/ui/textarea';
@@ -175,6 +176,7 @@ export function CoverLetterQuestionForm() {
   const initialQuestions = questions.length > 0 ? questions : DEFAULT_FORM_VALUES.questions;
   const questionTriggerRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(0);
+  const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(null);
   const {
     control,
     getValues,
@@ -218,8 +220,8 @@ export function CoverLetterQuestionForm() {
     setOpenQuestionIndex(fields.length);
   };
 
-  const handleDeleteQuestion = (index: number) => () => {
-    if (fields.length <= 1) return;
+  const deleteQuestion = (index: number) => {
+    if (fields.length <= 1 || saveMutation.isPending) return;
 
     const focusTarget =
       questionTriggerRefs.current[index + 1] ?? questionTriggerRefs.current[index - 1];
@@ -231,7 +233,23 @@ export function CoverLetterQuestionForm() {
 
       return Math.min(index, fields.length - 2);
     });
-    focusTarget?.focus();
+    if (pendingDeleteIndex === null) {
+      focusTarget?.focus();
+    } else {
+      // 모달의 포커스 제한이 해제된 뒤 남은 문항으로 이동합니다.
+      requestAnimationFrame(() => focusTarget?.focus());
+    }
+  };
+
+  const handleDeleteQuestion = (index: number) => () => {
+    if (fields.length <= 1 || saveMutation.isPending) return;
+    const values = getValues(`questions.${index}`);
+    const hasContent = Object.values(values).some((value) => value.trim().length > 0);
+    if (hasContent) {
+      setPendingDeleteIndex(index);
+      return;
+    }
+    deleteQuestion(index);
   };
 
   const saveQuestions = useCoverLetterStepSave<CoverLetterStep3FormInput>({
@@ -327,6 +345,31 @@ export function CoverLetterQuestionForm() {
           문항 추가
         </Button>
       </fieldset>
+      <ConfirmModal
+        open={pendingDeleteIndex !== null}
+        title={`${(pendingDeleteIndex ?? 0) + 1}번 문항을 삭제할까요?`}
+        description={
+          <>
+            입력한 질문과 답변이 삭제됩니다.
+            <br />
+            삭제 후에는 복구할 수 없습니다.
+          </>
+        }
+        confirmLabel="삭제하기"
+        cancelLabel="취소"
+        restoreFocus={false}
+        onOpenChange={(open) => {
+          if (open || pendingDeleteIndex === null) return;
+          const focusTarget = questionTriggerRefs.current[pendingDeleteIndex];
+          setPendingDeleteIndex(null);
+          requestAnimationFrame(() => focusTarget?.focus());
+        }}
+        onConfirm={() => {
+          if (pendingDeleteIndex === null) return;
+          deleteQuestion(pendingDeleteIndex);
+          setPendingDeleteIndex(null);
+        }}
+      />
     </form>
   );
 }
