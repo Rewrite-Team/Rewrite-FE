@@ -12,6 +12,15 @@ jest.mock('@/shared/lib/toast', () => ({ appToast: { error: jest.fn() } }));
 jest.mock('next/navigation', () => {
   const { useSyncExternalStore } = jest.requireActual<typeof import('react')>('react');
   const listeners = new Set<() => void>();
+  const notify = () => {
+    listeners.forEach((listener) => listener());
+  };
+  // 실제 Next.js처럼 replaceState 변경을 useSearchParams 구독자에게 전달합니다.
+  const nativeReplaceState = window.history.replaceState.bind(window.history);
+  window.history.replaceState = (state, title, url) => {
+    nativeReplaceState(state, title, url);
+    notify();
+  };
   const subscribe = (listener: () => void) => {
     listeners.add(listener);
 
@@ -21,7 +30,7 @@ jest.mock('next/navigation', () => {
   return {
     navigateTo: (url: string) => {
       window.history.pushState({}, '', url);
-      listeners.forEach((listener) => listener());
+      notify();
     },
     useSearchParams: () => {
       const search = useSyncExternalStore(
