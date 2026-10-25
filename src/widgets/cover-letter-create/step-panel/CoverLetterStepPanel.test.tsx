@@ -64,15 +64,15 @@ describe('CoverLetterStepPanel', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: '직무 정보 단계로 이동' }));
-    fireEvent.click(screen.getByRole('button', { name: '완료 단계로 이동' }));
+    fireEvent.click(screen.getByRole('button', { name: '최종 확인 단계로 이동' }));
 
     expect(handleStepSelect).toHaveBeenCalledWith(1);
     expect(handleStepSelect).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('button', { name: '자기소개서 작성 단계로 이동' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: '완료 단계로 이동' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '최종 확인 단계로 이동' })).toBeDisabled();
   });
 
-  it('마지막 단계에서는 완료 액션만 표시한다', () => {
+  it('마지막 단계에서는 AI 첨삭 시작 액션만 표시한다', () => {
     render(
       <CoverLetterStepPanel
         completeAction={{ status: 'disabled' }}
@@ -81,7 +81,7 @@ describe('CoverLetterStepPanel', () => {
       />
     );
 
-    const completeButton = screen.getByRole('button', { name: '완료' });
+    const completeButton = screen.getByRole('button', { name: 'AI 첨삭 시작' });
 
     expect(completeButton).toBeDisabled();
     expect(completeButton).toHaveAttribute('form', COVER_LETTER_STEP_FORM_ID);

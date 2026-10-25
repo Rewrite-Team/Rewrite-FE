@@ -140,12 +140,12 @@ describe('CoverLetterReviewForm', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('완료 시 확인 모달을 표시하고 확인 후에만 제출한다', async () => {
+  it('AI 첨삭 시작 시 확인 모달을 표시하고 확인 후에만 제출한다', async () => {
     renderReviewForm();
     fireEvent.submit(screen.getByRole('form', { name: '자기소개서 최종 확인' }));
-    expect(await screen.findByRole('dialog')).toHaveTextContent('최종 제출하시겠습니까?');
+    expect(await screen.findByRole('dialog')).toHaveTextContent('AI 첨삭을 시작할까요?');
     expect(submitCoverLetter).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: '제출' }));
+    fireEvent.click(screen.getByRole('button', { name: 'AI 첨삭 시작' }));
     await waitFor(() =>
       expect(mockReplace).toHaveBeenCalledWith('/writing/cover-letter-id?jobId=job-id')
     );
@@ -165,7 +165,7 @@ describe('CoverLetterReviewForm', () => {
     jest.mocked(submitCoverLetter).mockResolvedValue({ displayStatus: 'REVIEWED', jobId: null });
     renderReviewForm();
     fireEvent.submit(screen.getByRole('form', { name: '자기소개서 최종 확인' }));
-    fireEvent.click(await screen.findByRole('button', { name: '제출' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'AI 첨삭 시작' }));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/writing/cover-letter-id'));
   });
 
@@ -183,7 +183,7 @@ describe('CoverLetterReviewForm', () => {
     );
     renderReviewForm();
     fireEvent.submit(screen.getByRole('form', { name: '자기소개서 최종 확인' }));
-    fireEvent.click(await screen.findByRole('button', { name: '제출' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'AI 첨삭 시작' }));
     await waitFor(() =>
       expect(mockReplace).toHaveBeenCalledWith('/writing/create/cover-letter-id/step2')
     );
@@ -194,7 +194,7 @@ describe('CoverLetterReviewForm', () => {
     jest.mocked(submitCoverLetter).mockRejectedValue(new ApiError(500));
     renderReviewForm();
     fireEvent.submit(screen.getByRole('form', { name: '자기소개서 최종 확인' }));
-    fireEvent.click(await screen.findByRole('button', { name: '제출' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'AI 첨삭 시작' }));
     await waitFor(() => expect(appToast.error).toHaveBeenCalled());
     expect(submitCoverLetter).toHaveBeenCalledTimes(1);
     expect(mockReplace).not.toHaveBeenCalled();
@@ -211,7 +211,7 @@ describe('CoverLetterReviewForm', () => {
     });
     renderReviewForm();
     fireEvent.submit(screen.getByRole('form', { name: '자기소개서 최종 확인' }));
-    fireEvent.click(await screen.findByRole('button', { name: '제출' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'AI 첨삭 시작' }));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/writing/cover-letter-id'));
     expect(getCoverLetterDetail).toHaveBeenCalledWith('cover-letter-id', {
       signal: expect.any(AbortSignal),
@@ -236,7 +236,7 @@ describe('CoverLetterReviewForm', () => {
       </QueryClientProvider>
     );
     fireEvent.submit(screen.getByRole('form', { name: '자기소개서 최종 확인' }));
-    fireEvent.click(await screen.findByRole('button', { name: '제출' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'AI 첨삭 시작' }));
     expect(await screen.findByText('우대사항은 3000자 이하로 입력해주세요.')).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: '공고 우대사항' })).toHaveValue(
       MOCK_DRAFT.coverLetter.preferences
@@ -253,7 +253,7 @@ describe('CoverLetterReviewForm', () => {
     );
     renderReviewForm();
     fireEvent.submit(screen.getByRole('form', { name: '자기소개서 최종 확인' }));
-    const submitButton = await screen.findByRole('button', { name: '제출' });
+    const submitButton = await screen.findByRole('button', { name: 'AI 첨삭 시작' });
     fireEvent.click(submitButton);
     await waitFor(() => expect(submitButton).toBeDisabled());
     expect(screen.getByRole('button', { name: '취소' })).toBeDisabled();

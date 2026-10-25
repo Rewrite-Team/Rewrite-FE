@@ -69,7 +69,7 @@ const getStepStatus = (
  * @param onStepSelect - 진행 단계 아이콘을 선택했을 때 실행할 콜백
  * @param nextAction - STEP1~3의 다음 버튼 상태와 동작
  * @param saveDraftAction - STEP1~3의 임시 저장 버튼 상태와 동작
- * @param completeAction - STEP4의 완료 버튼 상태와 동작
+ * @param completeAction - STEP4의 AI 첨삭 시작 버튼 상태와 동작
  */
 export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
   const {
@@ -139,7 +139,7 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
       <div className="row-start-4 mt-6 flex min-w-0 flex-col gap-2 lg:mt-0">
         {isFinalStep ? (
           <StepActionButton action={props.completeAction} className="h-11.25 w-full">
-            완료
+            AI 첨삭 시작
           </StepActionButton>
         ) : (
           <>

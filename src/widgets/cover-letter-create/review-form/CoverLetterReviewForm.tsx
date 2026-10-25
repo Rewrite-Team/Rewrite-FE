@@ -220,9 +220,9 @@ export function CoverLetterReviewForm() {
       <ConfirmModal
         open={isConfirmOpen}
         onOpenChange={setIsConfirmOpen}
-        title="최종 제출하시겠습니까?"
+        title="AI 첨삭을 시작할까요?"
         description="제출 후에는 수정할 수 없습니다."
-        confirmLabel="제출"
+        confirmLabel="AI 첨삭 시작"
         cancelLabel="취소"
         isLoading={submitMutation.isPending}
         onConfirm={() => void handleConfirm()}

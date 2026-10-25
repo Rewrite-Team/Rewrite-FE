@@ -32,9 +32,9 @@ export const COVER_LETTER_STEP_CONFIG = {
     title: '자기소개서 작성',
   },
   step4: {
-    description: '작성한 자기소개서를 확인하고 점검할 수 있습니다.',
-    label: '완료',
+    description: '작성한 내용을 최종 확인한 뒤 AI 첨삭을 시작해주세요.',
+    label: '최종 확인',
     step: 4,
-    title: '자기소개서 확인',
+    title: '자기소개서 최종 확인',
   },
 } as const satisfies CoverLetterStepConfigBySegment;
