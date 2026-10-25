@@ -79,7 +79,12 @@ export function useCoverLetterStepSave<Values>({
         return true;
       }
       setSavingIntent?.(intent);
-      await saveDraft(values);
+      try {
+        await saveDraft(values);
+      } catch {
+        // 요청 실패는 mutation의 onError가 안내하며, 이후 저장 완료 처리와 이동을 중단합니다.
+        return false;
+      }
       onSaved(values);
       // 오류가 있는 단계를 방문해도 표시는 유지하고, 저장에 성공했을 때 해제합니다.
       setErrors((errors) => errors.filter((error) => error.step !== currentStep));
@@ -89,9 +94,6 @@ export function useCoverLetterStepSave<Values>({
         appToast.success('임시 저장되었습니다.');
       }
       return true;
-    } catch {
-      // mutation의 onError가 실패를 안내하며, 호출부에는 이동하지 않도록 결과만 전달합니다.
-      return false;
     } finally {
       isSavingRef.current = false;
       setSavingIntent?.(null);
