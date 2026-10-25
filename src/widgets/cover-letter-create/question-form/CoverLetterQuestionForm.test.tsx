@@ -173,14 +173,13 @@ describe('CoverLetterQuestionForm', () => {
     expect(screen.getByRole('button', { name: '1번 자기소개서 문항 삭제' })).toBeDisabled();
   });
 
-  it('문항 삭제 후 적용한 글자 수를 남은 문항과 동기화한다', async () => {
+  it('문항 삭제 후 남은 문항의 입력한 글자 수 기준을 유지한다', async () => {
     renderForm();
 
     fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
     fireEvent.change(screen.getByRole('spinbutton', { name: '자기소개서 글자 수' }), {
       target: { value: '900' },
     });
-    fireEvent.click(screen.getByRole('button', { name: '적용' }));
 
     expect(
       await screen.findByText(
@@ -221,7 +220,7 @@ describe('CoverLetterQuestionForm', () => {
     });
   });
 
-  it('입력한 글자 수를 답변의 권장 길이에 적용한다', async () => {
+  it('입력한 글자 수를 답변의 권장 길이에 즉시 반영한다', async () => {
     renderForm();
 
     const characterLimitField = screen.getByRole('spinbutton', {
@@ -229,7 +228,6 @@ describe('CoverLetterQuestionForm', () => {
     });
 
     fireEvent.change(characterLimitField, { target: { value: '1200' } });
-    fireEvent.click(screen.getByRole('button', { name: '적용' }));
 
     expect(
       await screen.findByText(
@@ -238,7 +236,7 @@ describe('CoverLetterQuestionForm', () => {
     ).toBeInTheDocument();
   });
 
-  it('글자 수를 적용하기 전에는 현재 작성한 글자 수만 표시한다', () => {
+  it('글자 수를 입력하지 않으면 현재 작성한 글자 수만 표시한다', () => {
     renderForm();
 
     fireEvent.change(screen.getByRole('textbox', { name: '자기소개서 내용' }), {

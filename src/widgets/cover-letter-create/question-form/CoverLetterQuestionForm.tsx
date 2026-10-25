@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   useFieldArray,
   useForm,
+  useWatch,
   type Control,
   type SubmitErrorHandler,
   type SubmitHandler,
@@ -17,6 +18,7 @@ import {
   useCoverLetterStepSave,
   useCoverLetterStepDirty,
   coverLetterStep3Schema,
+  coverLetterQuestionSchema,
   type CoverLetterStep3FormInput,
   type CoverLetterStep3Values,
   useCoverLetterCreateDraft,
@@ -34,12 +36,10 @@ import { TextArea } from '@/shared/ui/textarea';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
 
 interface CoverLetterQuestionFieldsProps {
-  appliedCharacterLimit?: number;
   control: Control<CoverLetterStep3FormInput, unknown, CoverLetterStep3Values>;
   index: number;
   isDeleteDisabled: boolean;
   isOpen: boolean;
-  onApplyLength: () => void;
   onDelete: () => void;
   onOpenChange: (open: boolean) => void;
   triggerRef: Ref<HTMLButtonElement>;
@@ -57,17 +57,19 @@ const DEFAULT_FORM_VALUES: CoverLetterStep3FormInput = {
 
 /** 하나의 자기소개서 문항과 답변 입력 영역을 구성합니다. */
 function CoverLetterQuestionFields({
-  appliedCharacterLimit,
   control,
   index,
   isDeleteDisabled,
   isOpen,
-  onApplyLength,
   onDelete,
   onOpenChange,
   triggerRef,
 }: CoverLetterQuestionFieldsProps) {
   const questionNumber = index + 1;
+  const characterLimit = useWatch({ control, name: `questions.${index}.characterLimit` });
+  const parsedCharacterLimit =
+    coverLetterQuestionSchema.shape.characterLimit.safeParse(characterLimit);
+  const recommendedLength = parsedCharacterLimit.success ? parsedCharacterLimit.data : undefined;
 
   return (
     <Accordion className="rounded-2xl" onOpenChange={onOpenChange} open={isOpen}>
@@ -120,19 +122,14 @@ function CoverLetterQuestionFields({
           render={({ errorMessage, field, invalid }) => (
             <Input id={`cover-letter-character-limit-${questionNumber}`} invalid={invalid}>
               <Input.Label>자기소개서 글자 수</Input.Label>
-              <Input.FieldGroup>
-                <Input.Field
-                  {...field}
-                  inputMode="numeric"
-                  min={1}
-                  placeholder="자기소개서 최대 글자 수를 입력해주세요"
-                  step={1}
-                  type="number"
-                />
-                <Button onClick={onApplyLength} size="sm" type="button">
-                  적용
-                </Button>
-              </Input.FieldGroup>
+              <Input.Field
+                {...field}
+                inputMode="numeric"
+                min={1}
+                placeholder="자기소개서 최대 글자 수를 입력해주세요"
+                step={1}
+                type="number"
+              />
               <Input.ErrorMessage>{errorMessage}</Input.ErrorMessage>
             </Input>
           )}
@@ -144,13 +141,13 @@ function CoverLetterQuestionFields({
           render={({ errorMessage, field, invalid }) => (
             <TextArea id={`cover-letter-answer-${questionNumber}`} invalid={invalid} required>
               <TextArea.Label>자기소개서 내용</TextArea.Label>
-              {appliedCharacterLimit === undefined ? (
+              {recommendedLength === undefined ? (
                 <TextArea.Field {...field} placeholder="자기소개서 내용을 작성해주세요" showCount />
               ) : (
                 <TextArea.Field
                   {...field}
                   placeholder="자기소개서 내용을 작성해주세요"
-                  recommendedLength={appliedCharacterLimit}
+                  recommendedLength={recommendedLength}
                   showCount
                 />
               )}
@@ -168,7 +165,7 @@ function CoverLetterQuestionFields({
  *
  * @description
  * 자기소개서 등록 STEP3에서 여러 문항과 답변을 작성하는 폼입니다.
- * 문항은 하나씩 펼쳐 볼 수 있으며 입력한 글자 수를 답변의 권장 길이로 적용할 수 있습니다.
+ * 문항은 하나씩 펼쳐 볼 수 있으며 유효한 글자 수 입력은 답변의 권장 길이에 즉시 반영됩니다.
  */
 export function CoverLetterQuestionForm() {
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
@@ -178,17 +175,10 @@ export function CoverLetterQuestionForm() {
   const initialQuestions = questions.length > 0 ? questions : DEFAULT_FORM_VALUES.questions;
   const questionTriggerRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(0);
-  const [appliedCharacterLimits, setAppliedCharacterLimits] = useState<Array<number | undefined>>(
-    () =>
-      initialQuestions.map((question) =>
-        question.characterLimit.length > 0 ? Number(question.characterLimit) : undefined
-      )
-  );
   const {
     control,
     getValues,
     handleSubmit,
-    trigger,
     setError,
     setFocus,
     clearErrors,
@@ -223,21 +213,8 @@ export function CoverLetterQuestionForm() {
     setOpenQuestionIndex(open ? index : null);
   };
 
-  const handleApplyLength = (index: number) => async () => {
-    const fieldName = `questions.${index}.characterLimit` as const;
-    const isValid = await trigger(fieldName);
-    const characterLimit = Number(getValues(fieldName));
-
-    if (!isValid || !Number.isInteger(characterLimit) || characterLimit <= 0) return;
-
-    setAppliedCharacterLimits((currentLimits) =>
-      currentLimits.map((limit, limitIndex) => (limitIndex === index ? characterLimit : limit))
-    );
-  };
-
   const handleAddQuestion = () => {
     append({ ...EMPTY_QUESTION });
-    setAppliedCharacterLimits((currentLimits) => [...currentLimits, undefined]);
     setOpenQuestionIndex(fields.length);
   };
 
@@ -248,9 +225,6 @@ export function CoverLetterQuestionForm() {
       questionTriggerRefs.current[index + 1] ?? questionTriggerRefs.current[index - 1];
 
     remove(index);
-    setAppliedCharacterLimits((currentLimits) =>
-      currentLimits.filter((_, limitIndex) => limitIndex !== index)
-    );
     setOpenQuestionIndex((currentIndex) => {
       if (currentIndex === null || currentIndex < index) return currentIndex;
       if (currentIndex > index) return currentIndex - 1;
@@ -336,13 +310,11 @@ export function CoverLetterQuestionForm() {
         ) : null}
         {fields.map((field, index) => (
           <CoverLetterQuestionFields
-            appliedCharacterLimit={appliedCharacterLimits[index]}
             control={control}
             index={index}
             isDeleteDisabled={fields.length <= 1}
             isOpen={openQuestionIndex === index}
             key={field.id}
-            onApplyLength={handleApplyLength(index)}
             onDelete={handleDeleteQuestion(index)}
             onOpenChange={handleOpenChange(index)}
             triggerRef={(element) => {
