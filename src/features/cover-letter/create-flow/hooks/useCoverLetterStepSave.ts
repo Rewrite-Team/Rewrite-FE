@@ -11,7 +11,7 @@ import { appToast } from '@/shared/lib/toast';
 import { mapCoverLetterValidationErrors } from '../model/mapCoverLetterValidationErrors';
 import {
   useCoverLetterCreateValidation,
-  useCoverLetterCreateDraftSave,
+  useCoverLetterCreateSaveControl,
 } from '../ui/CoverLetterCreateDraftContext';
 
 import type { WritingCreateStep } from '../model/writingCreateStep';
@@ -68,7 +68,7 @@ export function useCoverLetterStepSave<Values>({
   const router = useRouter();
   const isSavingRef = useRef(false);
   const { setErrors } = useCoverLetterCreateValidation();
-  const { registerSaveDraft, setSavingIntent } = useCoverLetterCreateDraftSave();
+  const { registerSaveDraft, setSavingIntent } = useCoverLetterCreateSaveControl();
   const nextStepRoute = ROUTES.WRITING_CREATE_STEP(coverLetterId, currentStep + 1);
 
   const saveStep = async (values: Values, { intent }: { intent: 'draft' | 'next' }) => {

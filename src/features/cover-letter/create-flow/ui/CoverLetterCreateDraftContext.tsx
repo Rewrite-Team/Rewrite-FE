@@ -36,6 +36,11 @@ interface DraftContextValue {
 }
 
 type CoverLetterCreateValidation = Pick<DraftContextValue, 'errors' | 'setErrors'>;
+type CoverLetterCreateDraftSave = Pick<DraftContextValue, 'savingIntent'> &
+  Partial<Pick<DraftContextValue, 'saveDraft'>>;
+type CoverLetterCreateSaveControl = Partial<
+  Pick<DraftContextValue, 'registerSaveDraft' | 'setSavingIntent'>
+>;
 
 const EMPTY_VALIDATION: CoverLetterCreateValidation = {
   errors: [],
@@ -170,13 +175,34 @@ export function useCoverLetterStepDirty(step: WritingCreateStep, isDirty: boolea
 export const useCoverLetterCreateDirtyStep = () =>
   useContext(CoverLetterCreateDraftContext)?.dirtyStep ?? null;
 
-/** 현재 폼의 임시 저장 액션과 저장 중인 버튼 종류를 공유합니다. */
-export const useCoverLetterCreateDraftSave = () => {
+/**
+ * ## useCoverLetterCreateDraftSave
+ *
+ * @description
+ * 단계 이동 UI에서 현재 폼을 임시 저장하고 저장 중인 버튼 종류를 조회합니다.
+ * 저장 함수 등록과 로딩 상태 변경은 노출하지 않습니다.
+ * Provider가 없으면 saveDraft는 undefined, savingIntent는 null입니다.
+ */
+export const useCoverLetterCreateDraftSave = (): CoverLetterCreateDraftSave => {
+  const context = useContext(CoverLetterCreateDraftContext);
+  return {
+    saveDraft: context?.saveDraft,
+    savingIntent: context?.savingIntent ?? null,
+  };
+};
+
+/**
+ * ## useCoverLetterCreateSaveControl
+ *
+ * @description
+ * useCoverLetterStepSave에서 현재 폼의 저장 액션을 등록하고 로딩 상태를 변경할 때 사용합니다.
+ * 작성 feature 내부 전용이며 index.ts의 공개 API에는 포함하지 않습니다.
+ * Provider가 없으면 제어 함수는 undefined입니다.
+ */
+export const useCoverLetterCreateSaveControl = (): CoverLetterCreateSaveControl => {
   const context = useContext(CoverLetterCreateDraftContext);
   return {
     registerSaveDraft: context?.registerSaveDraft,
-    saveDraft: context?.saveDraft,
-    savingIntent: context?.savingIntent ?? null,
     setSavingIntent: context?.setSavingIntent,
   };
 };
