@@ -31,6 +31,8 @@ interface DraftContextValue {
   setDirtyStep: Dispatch<SetStateAction<WritingCreateStep | null>>;
   registerSaveDraft: (save: () => Promise<boolean>) => () => void;
   saveDraft: () => Promise<boolean>;
+  savingIntent: 'draft' | 'next' | null;
+  setSavingIntent: Dispatch<SetStateAction<'draft' | 'next' | null>>;
 }
 
 type CoverLetterCreateValidation = Pick<DraftContextValue, 'errors' | 'setErrors'>;
@@ -62,6 +64,7 @@ export function CoverLetterCreateDraftProvider({
 }: CoverLetterCreateDraftProviderProps) {
   const [errors, setErrors] = useState<CoverLetterValidationFieldError[]>([]);
   const [dirtyStep, setDirtyStep] = useState<WritingCreateStep | null>(null);
+  const [savingIntent, setSavingIntent] = useState<'draft' | 'next' | null>(null);
   const saveDraftRef = useRef<(() => Promise<boolean>) | null>(null);
   const registerSaveDraft = useCallback((save: () => Promise<boolean>) => {
     saveDraftRef.current = save;
@@ -71,8 +74,18 @@ export function CoverLetterCreateDraftProvider({
   }, []);
   const saveDraft = useCallback(() => saveDraftRef.current?.() ?? Promise.resolve(false), []);
   const value = useMemo(
-    () => ({ draft, errors, setErrors, dirtyStep, setDirtyStep, registerSaveDraft, saveDraft }),
-    [draft, errors, dirtyStep, registerSaveDraft, saveDraft]
+    () => ({
+      draft,
+      errors,
+      setErrors,
+      dirtyStep,
+      setDirtyStep,
+      registerSaveDraft,
+      saveDraft,
+      savingIntent,
+      setSavingIntent,
+    }),
+    [draft, errors, dirtyStep, registerSaveDraft, saveDraft, savingIntent]
   );
   return (
     <CoverLetterCreateDraftContext.Provider value={value}>
@@ -157,11 +170,13 @@ export function useCoverLetterStepDirty(step: WritingCreateStep, isDirty: boolea
 export const useCoverLetterCreateDirtyStep = () =>
   useContext(CoverLetterCreateDraftContext)?.dirtyStep ?? null;
 
-/** 현재 단계의 임시 저장을 실행하고 성공 여부를 확인한 뒤 이동할 때 사용합니다. */
+/** 현재 폼의 임시 저장 액션과 저장 중인 버튼 종류를 공유합니다. */
 export const useCoverLetterCreateDraftSave = () => {
   const context = useContext(CoverLetterCreateDraftContext);
   return {
     registerSaveDraft: context?.registerSaveDraft,
     saveDraft: context?.saveDraft,
+    savingIntent: context?.savingIntent ?? null,
+    setSavingIntent: context?.setSavingIntent,
   };
 };

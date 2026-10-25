@@ -44,12 +44,14 @@ export function WritingCreateStepShell({
   const isSaving = useIsSavingCoverLetterDraft(coverLetterId);
   const draft = useCoverLetterCreateDraft();
   const dirtyStep = useCoverLetterCreateDirtyStep();
-  const { saveDraft } = useCoverLetterCreateDraftSave();
+  const { saveDraft, savingIntent } = useCoverLetterCreateDraftSave();
   const [pendingStep, setPendingStep] = useState<WritingCreateStep | null>(null);
   const [isSavingBeforeLeave, setIsSavingBeforeLeave] = useState(false);
   const { errors } = useCoverLetterCreateValidation();
   const errorSteps: WritingCreateStep[] = [...new Set(errors.map((error) => error.step))];
-  const isActionDisabled = !draft || isSaving;
+  const isActionDisabled = !draft || isSaving || savingIntent !== null;
+  // 이동 확인 모달에서 저장한 경우에는 모달 버튼에서만 로딩을 표시합니다.
+  const panelSavingIntent = isSavingBeforeLeave ? null : savingIntent;
   const { description, step, title } = COVER_LETTER_STEP_CONFIG[currentStepSegment];
 
   const handleStepSelect = (targetStep: WritingCreateStep) => {
@@ -95,10 +97,18 @@ export function WritingCreateStepShell({
         currentStep={step}
         availableStep={availableStep}
         errorSteps={errorSteps}
-        nextAction={{ status: isActionDisabled ? 'disabled' : 'enabled' }}
+        nextAction={{
+          status:
+            panelSavingIntent === 'next' ? 'loading' : isActionDisabled ? 'disabled' : 'enabled',
+        }}
         onStepSelect={handleStepSelect}
         saveDraftAction={{
-          status: isActionDisabled || dirtyStep !== step ? 'disabled' : 'enabled',
+          status:
+            panelSavingIntent === 'draft'
+              ? 'loading'
+              : isActionDisabled || dirtyStep !== step
+                ? 'disabled'
+                : 'enabled',
         }}
       />
     );

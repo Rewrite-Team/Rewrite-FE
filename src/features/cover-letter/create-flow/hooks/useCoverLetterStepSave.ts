@@ -65,7 +65,7 @@ export function useCoverLetterStepSave<Values>({
   const router = useRouter();
   const isSavingRef = useRef(false);
   const { setErrors } = useCoverLetterCreateValidation();
-  const { registerSaveDraft } = useCoverLetterCreateDraftSave();
+  const { registerSaveDraft, setSavingIntent } = useCoverLetterCreateDraftSave();
 
   const saveStep = async (values: Values, { intent }: { intent: 'draft' | 'next' }) => {
     if (isSavingRef.current) return false;
@@ -73,6 +73,7 @@ export function useCoverLetterStepSave<Values>({
     try {
       clearErrors();
       if (validateDraft && !validateDraft(values)) return false;
+      setSavingIntent?.(intent);
       await saveDraft(values);
       onSaved(values);
       // 오류가 있는 단계를 방문해도 표시는 유지하고, 저장에 성공했을 때 해제합니다.
@@ -98,6 +99,7 @@ export function useCoverLetterStepSave<Values>({
       return false;
     } finally {
       isSavingRef.current = false;
+      setSavingIntent?.(null);
     }
   };
 

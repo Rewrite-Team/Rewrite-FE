@@ -6,5 +6,5 @@ export type StepPanelAction =
       status: 'enabled';
     }
   | {
-      status: 'disabled';
+      status: 'disabled' | 'loading';
     };
