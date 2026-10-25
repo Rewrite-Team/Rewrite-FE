@@ -4,6 +4,9 @@ import { useRef, useState, type SubmitEvent } from 'react';
 
 import { useParams, useRouter } from 'next/navigation';
 
+import { useQueryClient } from '@tanstack/react-query';
+
+import { coverLetterDetailQueryOptions } from '@/entities/cover-letter';
 import {
   useCoverLetterCreateDraft,
   useCoverLetterCreateValidation,
@@ -80,6 +83,7 @@ function CoverLetterReviewQuestion({
  */
 export function CoverLetterReviewForm() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
   const submitMutation = useSubmitCoverLetter(coverLetterId);
   const { setErrors } = useCoverLetterCreateValidation();
@@ -127,6 +131,16 @@ export function CoverLetterReviewForm() {
         router.replace(ROUTES.WRITING);
       } else if (error instanceof ApiError && error.code === 'CONFLICT') {
         appToast.error('이미 첨삭된 자기소개서입니다. 기존 결과를 확인해 주세요.');
+        try {
+          // 최신 상태를 확인해야 상세 화면에서 WRITING 캐시로 다시 리다이렉트되지 않습니다.
+          await queryClient.fetchQuery({
+            ...coverLetterDetailQueryOptions(coverLetterId),
+            staleTime: 0,
+          });
+        } catch {
+          appToast.error('기존 첨삭 결과를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          return;
+        }
         router.replace(ROUTES.WRITING_DETAIL(coverLetterId));
       } else {
         appToast.error(

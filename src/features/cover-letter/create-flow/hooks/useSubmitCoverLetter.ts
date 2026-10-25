@@ -4,7 +4,11 @@ import { useRouter } from 'next/navigation';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { coverLetterQueryKeys, submitCoverLetter } from '@/entities/cover-letter';
+import {
+  coverLetterQueryKeys,
+  submitCoverLetter,
+  type CoverLetterDetailResponse,
+} from '@/entities/cover-letter';
 import { ROUTES } from '@/shared/constants/routes';
 
 import { getSaveDraftMutationKey } from '../model/createMutationKeys';
@@ -18,6 +22,14 @@ export function useSubmitCoverLetter(coverLetterId: string) {
     mutationFn: () => submitCoverLetter(coverLetterId),
     retry: false,
     onSuccess: ({ displayStatus, jobId }) => {
+      // 상세 화면이 이전 WRITING 캐시를 읽고 작성 단계로 되돌아가지 않도록 먼저 반영합니다.
+      queryClient.setQueryData<CoverLetterDetailResponse>(
+        coverLetterQueryKeys.detail(coverLetterId),
+        (previous) =>
+          previous
+            ? { ...previous, coverLetter: { ...previous.coverLetter, displayStatus } }
+            : previous
+      );
       const detailRoute = ROUTES.WRITING_DETAIL(coverLetterId);
       router.replace(
         displayStatus === 'REVIEWING' && jobId

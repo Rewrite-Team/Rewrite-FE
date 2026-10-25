@@ -3,7 +3,11 @@ import { useEffect, useState, type ComponentPropsWithoutRef } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-import { submitCoverLetter, type CoverLetterDetailResponse } from '@/entities/cover-letter';
+import {
+  getCoverLetterDetail,
+  submitCoverLetter,
+  type CoverLetterDetailResponse,
+} from '@/entities/cover-letter';
 import { CoverLetterCreateDraftProvider } from '@/features/cover-letter/create-flow';
 import { ApiError } from '@/shared/api';
 import { appToast } from '@/shared/lib/toast';
@@ -17,8 +21,9 @@ jest.mock('next/navigation', () => ({
   useParams: () => ({ coverLetterId: 'cover-letter-id' }),
   useRouter: () => ({ replace: mockReplace }),
 }));
-jest.mock('@/entities/cover-letter', () => ({
-  ...jest.requireActual('@/entities/cover-letter'),
+jest.mock('@/entities/cover-letter/api/api', () => ({
+  ...jest.requireActual('@/entities/cover-letter/api/api'),
+  getCoverLetterDetail: jest.fn(),
   submitCoverLetter: jest.fn(),
 }));
 jest.mock('@/shared/lib/toast', () => ({ appToast: { error: jest.fn() } }));
@@ -200,10 +205,17 @@ describe('CoverLetterReviewForm', () => {
     jest
       .mocked(submitCoverLetter)
       .mockRejectedValue(new ApiError(409, { error: { code: 'CONFLICT' } }));
+    jest.mocked(getCoverLetterDetail).mockResolvedValue({
+      ...MOCK_DRAFT,
+      coverLetter: { ...MOCK_DRAFT.coverLetter, displayStatus: 'REVIEWED' },
+    });
     renderReviewForm();
     fireEvent.submit(screen.getByRole('form', { name: '자기소개서 최종 확인' }));
     fireEvent.click(await screen.findByRole('button', { name: '제출' }));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/writing/cover-letter-id'));
+    expect(getCoverLetterDetail).toHaveBeenCalledWith('cover-letter-id', {
+      signal: expect.any(AbortSignal),
+    });
     expect(appToast.error).toHaveBeenCalledWith(
       '이미 첨삭된 자기소개서입니다. 기존 결과를 확인해 주세요.'
     );
