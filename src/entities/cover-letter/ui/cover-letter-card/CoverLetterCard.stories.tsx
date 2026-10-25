@@ -1,20 +1,12 @@
 import { CoverLetterCard } from './CoverLetterCard';
 
-import type {
-  CoverLetterListItemResponse,
-  CoverLetterListItemResponseDisplayStatus,
-} from '../../api/types';
+import type { CoverLetterListItemResponse, CoverLetterStatus } from '../../api/types';
 import type { Meta, StoryObj } from '@storybook/nextjs';
 
-const DISPLAY_STATUSES: CoverLetterListItemResponseDisplayStatus[] = [
-  'WRITING',
-  'REVIEWING',
-  'REVIEWED',
-  'REVIEW_FAILED',
-];
+const DISPLAY_STATUSES: CoverLetterStatus[] = ['WRITING', 'REVIEWING', 'REVIEWED', 'REVIEW_FAILED'];
 
 const createCoverLetter = (
-  displayStatus: CoverLetterListItemResponseDisplayStatus,
+  displayStatus: CoverLetterStatus,
   index = 0
 ): CoverLetterListItemResponse => ({
   id: `cl_${index + 1}`,

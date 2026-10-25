@@ -1,6 +1,6 @@
 import { queryOptions } from '@tanstack/react-query';
 
-import { listCoverLetters } from './api';
+import { getCoverLetterDetail, listCoverLetters } from './api';
 import { getCoverLetterListParams } from './listParams';
 import { coverLetterQueryKeys } from './queryKeys';
 
@@ -14,3 +14,10 @@ export const coverLetterListQueryOptions = (requestedPage?: number) => {
     retry: false,
   });
 };
+
+export const coverLetterDetailQueryOptions = (coverLetterId: string) =>
+  queryOptions({
+    queryKey: coverLetterQueryKeys.detail(coverLetterId),
+    queryFn: ({ signal }) => getCoverLetterDetail(coverLetterId, { signal }),
+    retry: false,
+  });

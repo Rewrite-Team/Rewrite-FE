@@ -1,53 +1,90 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 
 import {
+  useCoverLetterStepSave,
+  useCoverLetterStepDirty,
   coverLetterStep1Schema,
   type CoverLetterStep1FormInput,
   type CoverLetterStep1Values,
+  useCoverLetterCreateDraft,
+  useCoverLetterStepErrors,
+  createCoverLetterStepSubmitHandler,
+  getCoverLetterStep1DefaultValues,
+  useSaveCoverLetterBasicInfo,
 } from '@/features/cover-letter/create-flow';
 import { INPUT_LIMITS } from '@/shared/constants/limits';
-import { ROUTES } from '@/shared/constants/routes';
 import { FormField } from '@/shared/ui/form-field';
 import { Input } from '@/shared/ui/input';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
 
 /**
  * 자기소개서 등록 STEP1의 제목과 지원 회사·직무 정보를 입력하는 폼입니다.
- * 현재는 퍼블리싱 단계로 입력 UI만 제공하며 서버 저장은 수행하지 않습니다.
+ * 미완성 입력은 임시 저장하고, 다음 단계 이동은 필수값 검증과 저장 후 수행합니다.
  */
 export function CoverLetterBasicInfoForm() {
-  const router = useRouter();
-  const { control, handleSubmit } = useForm<
-    CoverLetterStep1FormInput,
-    unknown,
-    CoverLetterStep1Values
-  >({
-    defaultValues: {
-      companyName: '',
-      jobPostingUrl: '',
-      positionTitle: '',
-      title: '',
-    },
+  const { coverLetterId } = useParams<{ coverLetterId: string }>();
+  const draft = useCoverLetterCreateDraft();
+  const saveMutation = useSaveCoverLetterBasicInfo(coverLetterId);
+  const {
+    control,
+    getValues,
+    handleSubmit,
+    setError,
+    setFocus,
+    clearErrors,
+    reset,
+    formState: { isDirty },
+  } = useForm<CoverLetterStep1FormInput, unknown, CoverLetterStep1Values>({
+    defaultValues: getCoverLetterStep1DefaultValues(draft),
     resolver: zodResolver(coverLetterStep1Schema),
   });
 
-  const handleValidSubmit: SubmitHandler<CoverLetterStep1Values> = () => {
-    // TODO: 기본 정보 저장 API가 연결되면 저장 성공 후 STEP2로 이동한다.
-    router.push(ROUTES.WRITING_CREATE_STEP(2));
-  };
+  useCoverLetterStepDirty(1, isDirty);
+
+  useCoverLetterStepErrors({
+    step: 1,
+    applyError: (error) => setError(error.field, { type: 'server', message: error.reason }),
+    focusError: (error) => setFocus(error.field),
+  });
+
+  const saveBasicInfo = useCoverLetterStepSave<CoverLetterStep1FormInput>({
+    coverLetterId,
+    currentStep: 1,
+    isDirty,
+    clearErrors,
+    getValues,
+    // 저장 중 입력한 값은 보존하고, 성공한 요청의 값만 비교 기준으로 갱신합니다.
+    onSaved: (values) => reset(values, { keepValues: true }),
+    saveDraft: (values) =>
+      saveMutation.mutateAsync({
+        title: values.title.trim() || null,
+        companyName: values.companyName.trim() || null,
+        positionTitle: values.positionTitle.trim() || null,
+        jobPostingUrl: values.jobPostingUrl.trim() || null,
+      }),
+  });
+
+  const handleValidSubmit: SubmitHandler<CoverLetterStep1Values> = (values) =>
+    saveBasicInfo(values, { intent: 'next' });
+
+  const handleFormSubmit = createCoverLetterStepSubmitHandler({
+    saveDraft: () => saveBasicInfo(getValues(), { intent: 'draft' }),
+    submitNext: handleSubmit(handleValidSubmit),
+  });
 
   return (
     <form
       aria-label="자기소개서 기본 정보"
+      aria-busy={saveMutation.isPending}
       className="flex flex-col gap-12"
       id={COVER_LETTER_STEP_FORM_ID}
       noValidate
-      onSubmit={handleSubmit(handleValidSubmit)}
+      onSubmit={handleFormSubmit}
     >
       <div className="rounded-2xl bg-gray-800 p-6">
         <FormField

@@ -4,7 +4,6 @@ import {
   coverLetterStep1Schema,
   coverLetterStep2Schema,
   coverLetterStep3Schema,
-  coverLetterStep4Schema,
 } from './coverLetterCreateSchemas';
 
 const VALID_STEP1_INPUT = {
@@ -86,17 +85,5 @@ describe('coverLetterCreateSchemas', () => {
         questions: [{ answer: '답변', characterLimit: '', question: '   ' }],
       }).success
     ).toBe(false);
-  });
-
-  it('STEP4에서 STEP1~3 전체 입력을 함께 검증한다', () => {
-    const result = coverLetterStep4Schema.parse({
-      ...VALID_STEP1_INPUT,
-      ...VALID_STEP2_INPUT,
-      ...VALID_STEP3_INPUT,
-    });
-
-    expect(result.title).toBe('카카오 자기소개서');
-    expect(result.preferredQualification).toBe('React와 TypeScript 기반 개발 경험');
-    expect(result.questions[0].characterLimit).toBe(700);
   });
 });

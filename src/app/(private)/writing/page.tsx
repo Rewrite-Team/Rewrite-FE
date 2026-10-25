@@ -1,6 +1,5 @@
 import { getCoverLetterListParams } from '@/entities/cover-letter';
-import { ROUTES } from '@/shared/constants/routes';
-import { LinkButton } from '@/shared/ui/button';
+import { CreateCoverLetterButton } from '@/features/cover-letter/create-flow';
 import { PageHeader } from '@/shared/ui/page-header';
 import { CoverLetterList } from '@/widgets/cover-letter-list';
 
@@ -24,14 +23,7 @@ export default async function WritingPage({ searchParams }: WritingPageProps) {
           description="작성한 자기소개서를 관리할 수 있습니다."
           title="내 자기소개서 목록"
         />
-        {/* TODO: 자기소개서 생성 API 연결 후 생성된 ID를 등록 플로우에 전달한다. */}
-        <LinkButton
-          className="h-9 w-auto rounded-full px-4 body-16"
-          href={ROUTES.WRITING_CREATE}
-          variant="outline"
-        >
-          CREATE
-        </LinkButton>
+        <CreateCoverLetterButton />
       </div>
 
       <CoverLetterList requestedPage={parsePageParam(page)} />

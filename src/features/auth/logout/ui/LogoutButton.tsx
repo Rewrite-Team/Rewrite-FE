@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { logout } from '@/entities/user';
-import { AUTH_LOGOUT_STATE_EVENT } from '@/shared/api/client';
+import { AUTH_LOGOUT_STATE_EVENT } from '@/shared/api/base/client';
 import { LogoutIcon } from '@/shared/assets/icons/common';
 import { ROUTES } from '@/shared/constants/routes';
 import { appToast } from '@/shared/lib/toast';

@@ -39,8 +39,8 @@ const versions: ReviewVersionSummary[] = [
 const renderPanel = (onOpenChange = jest.fn(), reviewVersions: ReviewVersionSummary[] = versions) =>
   render(
     <ReviewVersionProvider
-      editableVersionId="v2"
-      initialSelectedVersionId="v1"
+      selectedVersionId="v1"
+      onSelectedVersionChange={jest.fn()}
       versions={reviewVersions}
     >
       <ReviewVersionPanel onOpenChange={onOpenChange} open />

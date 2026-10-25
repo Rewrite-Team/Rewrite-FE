@@ -1,6 +1,6 @@
 import { environmentManager, QueryClient } from '@tanstack/react-query';
 
-import { ApiError } from '@/shared/api/apiError';
+import { ApiError } from '@/shared/api';
 
 /**
  * 공통 기본 옵션이 적용된 QueryClient를 생성합니다.

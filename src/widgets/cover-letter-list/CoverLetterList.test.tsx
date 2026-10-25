@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 import { connectCoverLetterReviewStatuses, listCoverLetters } from '@/entities/cover-letter';
 import type { CoverLetterListResponse } from '@/entities/cover-letter';
-import { ApiError } from '@/shared/api/apiError';
+import { ApiError } from '@/shared/api';
 import { appToast } from '@/shared/lib/toast';
 
 import { CoverLetterList } from './CoverLetterList';
@@ -20,6 +20,8 @@ jest.mock('@/shared/assets/icons/common', () => ({
   ChevronLeftIcon: 'svg',
   ChevronRightIcon: 'svg',
 }));
+
+jest.mock('@/shared/assets/icons/side-menu', () => ({ DeleteIcon: 'svg' }));
 
 jest.mock('@/shared/ui/lottie-animation', () => ({
   LottieAnimation: () => null,
@@ -90,8 +92,8 @@ describe('CoverLetterList', () => {
     expect(container.querySelectorAll('[data-slot="skeleton"]')).toHaveLength(6);
 
     expect(
-      await screen.findByRole('link', { name: /1페이지 자기소개서.*상세 보기/ })
-    ).toHaveAttribute('href', '/writing/cover-letter-1');
+      await screen.findByRole('link', { name: /1페이지 자기소개서.*이어서 작성/ })
+    ).toHaveAttribute('href', '/writing/create/cover-letter-1/step1');
     expect(screen.getByText('회사 미입력')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '2페이지' })).toHaveAttribute(
       'href',
@@ -219,6 +221,20 @@ describe('CoverLetterList', () => {
     expect(await screen.findByText('아직 작성한 자기소개서가 없어요')).toBeInTheDocument();
     expect(screen.queryByRole('navigation', { name: '페이지 이동' })).not.toBeInTheDocument();
     expect(mockRouter.replace).not.toHaveBeenCalled();
+  });
+
+  it('최초 오류 화면에서 수동 재시도도 실패하면 토스트를 표시한다', async () => {
+    mockListCoverLetters.mockRejectedValue(new ApiError(403));
+    renderList();
+    await screen.findByRole('alert');
+    expect(appToast.error).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: '다시 시도' }));
+    await waitFor(() =>
+      expect(appToast.error).toHaveBeenCalledWith(
+        '목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
+      )
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent('자기소개서를 불러오지 못했어요');
   });
 
   it('최초 요청 실패를 빈 목록과 구분하고 재시도로 목록을 복구한다', async () => {

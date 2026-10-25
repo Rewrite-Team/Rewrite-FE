@@ -5,15 +5,17 @@
  * API 번호, 사용 화면, 호출 흐름과 오류 조건을 확인하는 Rewrite 백엔드 핵심 API 문서
  * OpenAPI spec version: v1
  */
-import { httpClient } from '@/shared/api/client';
+import { httpClient } from '@/shared/api/base/client';
 import type {
-  StartKeywordAnalysisResponseStatus,
+  KeywordAnalysisStatus,
   StartKeywordAnalysisResponse,
+  ErrorCode,
   ErrorDetail,
   ErrorBody,
   ErrorResponse,
   KeywordAnalysisCoverLetterResponse,
   KeywordAnalysisReviewVersionResponse,
+  LatestKeywordAnalysisStatus,
   KeywordResponse,
   LatestKeywordAnalysisResponse,
 } from './types';

@@ -261,6 +261,11 @@ Zustand는 전역 상태가 필요할 때만 사용한다.
 
 ## 7. API
 
+공통 통신 코드는 `shared/api/base`와 `shared/api/stream`으로 나눈다.
+`base`에는 HTTP 요청·환경별 어댑터·설정·공통 오류를 두고, `stream`에는 SSE 연결·백오프·가시성·스트림 오류를 둔다.
+공통 오류는 `@/shared/api`에서 가져오며 브라우저·서버 어댑터와 스트림 연결은 각 파일 경로로 가져온다.
+Orval의 HTTP mutator 경로는 `@/shared/api/base/client`로 유지한다.
+
 백엔드 OpenAPI 명세를 Orval로 생성하며, entity당 API가 약 20개 이하이면 요청 함수는
 `api/api.ts`, DTO는 `api/types.ts`로 관리한다. API와 DTO가 수십~수백 개로 늘어나면 해당 entity
 안에서 생성 파일을 더 나누고, 생성 DTO를 여러 entity가 실제로 공유하면 공통 모델 분리를 검토한다.
@@ -296,6 +301,9 @@ entities/writing/api/createWriting.ts
 ```
 
 feature는 entity API를 사용해 사용자 액션을 완성한다.
+
+mutation 요청 실패의 토스트 안내와 서버 검증 오류 처리는 feature의 `onError`에서 담당한다.
+호출부는 실패 시 후속 이동을 중단하고, 같은 오류 안내를 중복 실행하지 않는다.
 
 ## 8. Comment
 

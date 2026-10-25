@@ -1,28 +1,35 @@
-import { WRITING_CREATE_STEPS, type WritingCreateStep } from '@/features/cover-letter/create-flow';
+import {
+  WRITING_CREATE_STEPS,
+  type WritingCreateStep,
+  type WritingCreateInputStep,
+} from '@/features/cover-letter/create-flow';
 import { CheckIcon } from '@/shared/assets/icons/common';
 import { cn } from '@/shared/styles/utils/cn';
 import { COVER_LETTER_STEP_CONFIG } from '@/widgets/cover-letter-create/constants/stepConfig';
 
 import { StepActionButton } from './StepActionButton';
+import { stepConnectorVariants, stepIndicatorVariants } from './stepPanelVariants';
 
 import type { StepPanelAction } from './types';
 
 interface CoverLetterStepPanelBaseProps {
   className?: string;
   currentStep: WritingCreateStep;
+  availableStep?: WritingCreateStep;
+  errorSteps?: WritingCreateStep[];
   onStepSelect: (step: WritingCreateStep) => void;
 }
 
 type CoverLetterStepPanelProps = CoverLetterStepPanelBaseProps &
   (
     | {
-        completeAction?: never;
-        currentStep: Exclude<WritingCreateStep, 4>;
+        submitAction?: never;
+        currentStep: WritingCreateInputStep;
         nextAction: StepPanelAction;
         saveDraftAction: StepPanelAction;
       }
     | {
-        completeAction: StepPanelAction;
+        submitAction: StepPanelAction;
         currentStep: 4;
         nextAction?: never;
         saveDraftAction?: never;
@@ -39,26 +46,13 @@ const STEP_STATUS_LABEL = {
 
 const getStepStatus = (
   step: WritingCreateStep,
-  currentStep: WritingCreateStep
+  currentStep: WritingCreateStep,
+  availableStep: WritingCreateStep
 ): CoverLetterCreateStepStatus => {
   if (step === currentStep) return 'current';
-  if (step < currentStep) return 'completed';
+  if (step < availableStep) return 'completed';
 
   return 'upcoming';
-};
-
-const getConnectorClassName = (
-  startStepStatus: CoverLetterCreateStepStatus,
-  endStepStatus: CoverLetterCreateStepStatus
-) => {
-  const isStartStepActive = startStepStatus !== 'upcoming';
-  const isEndStepActive = endStepStatus !== 'upcoming';
-
-  if (isStartStepActive && isEndStepActive) return 'bg-primary-500';
-  if (isStartStepActive) return 'bg-gradient-to-r from-primary-500 to-gray-500';
-  if (isEndStepActive) return 'bg-gradient-to-r from-gray-500 to-primary-500';
-
-  return 'bg-gray-500';
 };
 
 /**
@@ -74,13 +68,21 @@ const getConnectorClassName = (
  * `aria-current="step"`을 적용합니다.
  *
  * @param currentStep - 현재 표시 중인 등록 단계
+ * @param availableStep - 저장된 데이터로 진입할 수 있는 마지막 단계. 생략하면 현재 단계까지 허용합니다.
+ * @param errorSteps - 서버 검증 오류가 남아 있어 빨간 번호로 표시할 단계
  * @param onStepSelect - 진행 단계 아이콘을 선택했을 때 실행할 콜백
  * @param nextAction - STEP1~3의 다음 버튼 상태와 동작
  * @param saveDraftAction - STEP1~3의 임시 저장 버튼 상태와 동작
- * @param completeAction - STEP4의 완료 버튼 상태와 동작
+ * @param submitAction - STEP4의 AI 첨삭 시작 버튼 상태와 동작
  */
 export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
-  const { className, currentStep, onStepSelect } = props;
+  const {
+    className,
+    currentStep,
+    availableStep = currentStep,
+    errorSteps = [],
+    onStepSelect,
+  } = props;
   const isFinalStep = currentStep === 4;
 
   return (
@@ -92,10 +94,13 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
         <ol className="flex h-12 w-67.5 items-start">
           {WRITING_CREATE_STEPS.map((step, index) => {
             const stepConfig = COVER_LETTER_STEP_CONFIG[`step${step}`];
-            const stepStatus = getStepStatus(step, currentStep);
+            const stepStatus = getStepStatus(step, currentStep, availableStep);
             const isCompleted = stepStatus === 'completed';
+            const hasError = errorSteps.includes(step);
             const nextStep = WRITING_CREATE_STEPS[index + 1];
-            const nextStepStatus = nextStep ? getStepStatus(nextStep, currentStep) : null;
+            const nextStepStatus = nextStep
+              ? getStepStatus(nextStep, currentStep, availableStep)
+              : null;
 
             return (
               <li
@@ -104,26 +109,22 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
                 key={step}
               >
                 <button
-                  aria-label={`${stepConfig.label} 단계로 이동`}
-                  className={cn(
-                    'relative z-(--z-index-local-overlay) flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-sm leading-none font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300 disabled:cursor-default',
-                    stepStatus !== 'upcoming' ? 'bg-primary-500' : 'bg-gray-500',
-                    stepStatus === 'current' && 'border border-white'
-                  )}
-                  disabled={!isCompleted}
+                  aria-label={`${stepConfig.label} 단계로 이동${hasError ? ', 입력 오류 있음' : ''}`}
+                  className={stepIndicatorVariants({ status: stepStatus, hasError })}
+                  disabled={step === currentStep || step > availableStep}
                   onClick={() => onStepSelect(step)}
                   type="button"
                 >
-                  {isCompleted ? <CheckIcon className="h-3 w-4" /> : step}
+                  {isCompleted && !hasError ? <CheckIcon className="h-3 w-4" /> : step}
                 </button>
 
                 {nextStepStatus ? (
                   <span
                     aria-hidden
-                    className={cn(
-                      'mt-3 h-px w-14.5 shrink-0',
-                      getConnectorClassName(stepStatus, nextStepStatus)
-                    )}
+                    className={stepConnectorVariants({
+                      startActive: stepStatus !== 'upcoming',
+                      endActive: nextStepStatus !== 'upcoming',
+                    })}
                   />
                 ) : null}
 
@@ -141,8 +142,8 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
 
       <div className="row-start-4 mt-6 flex min-w-0 flex-col gap-2 lg:mt-0">
         {isFinalStep ? (
-          <StepActionButton action={props.completeAction} className="h-11.25 w-full">
-            완료
+          <StepActionButton action={props.submitAction} className="h-11.25 w-full">
+            AI 첨삭 시작
           </StepActionButton>
         ) : (
           <>
@@ -151,6 +152,7 @@ export function CoverLetterStepPanel(props: CoverLetterStepPanelProps) {
             </StepActionButton>
             <StepActionButton
               action={props.saveDraftAction}
+              intent="save-draft"
               className="w-full border-2 border-gray-400"
               variant="secondary"
             >

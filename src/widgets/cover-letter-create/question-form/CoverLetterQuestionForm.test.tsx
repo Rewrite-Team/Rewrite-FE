@@ -1,17 +1,57 @@
 import type { ComponentPropsWithoutRef } from 'react';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
+import { saveCoverLetterQuestions } from '@/entities/cover-letter';
+import { CoverLetterCreateDraftProvider } from '@/features/cover-letter/create-flow';
+import { ApiError } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
+import { appToast } from '@/shared/lib/toast';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
 
 import { CoverLetterQuestionForm } from './CoverLetterQuestionForm';
 
 const mockPush = jest.fn();
+const mockCoverLetterId = 'cover-letter-id';
 
 jest.mock('next/navigation', () => ({
+  useParams: () => ({ coverLetterId: mockCoverLetterId }),
   useRouter: () => ({ push: mockPush }),
 }));
+
+jest.mock('@/entities/cover-letter', () => ({
+  ...jest.requireActual('@/entities/cover-letter'),
+  saveCoverLetterQuestions: jest.fn(),
+}));
+jest.mock('@/shared/lib/toast', () => ({ appToast: { success: jest.fn(), error: jest.fn() } }));
+
+const renderForm = () =>
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <CoverLetterCreateDraftProvider
+        draft={{
+          coverLetter: {
+            id: mockCoverLetterId,
+            displayStatus: 'WRITING',
+            title: null,
+            companyName: null,
+            positionTitle: null,
+            jobPostingUrl: null,
+            preferences: null,
+          },
+          questions: [],
+          reviewVersion: null,
+          reviewJob: null,
+        }}
+      >
+        <CoverLetterQuestionForm />
+        <button form={COVER_LETTER_STEP_FORM_ID} type="submit" value="save-draft">
+          임시 저장
+        </button>
+      </CoverLetterCreateDraftProvider>
+    </QueryClientProvider>
+  );
 
 jest.mock('@/shared/assets/icons/common', () => ({
   AltArrowDownIcon: (props: ComponentPropsWithoutRef<'svg'>) => <svg {...props} />,
@@ -23,11 +63,12 @@ jest.mock('@/shared/assets/icons/side-menu', () => ({
 
 describe('CoverLetterQuestionForm', () => {
   beforeEach(() => {
-    mockPush.mockClear();
+    jest.clearAllMocks();
+    jest.mocked(saveCoverLetterQuestions).mockResolvedValue({ success: true });
   });
 
   it('첫 번째 문항 하나를 펼친 상태로 렌더링한다', () => {
-    render(<CoverLetterQuestionForm />);
+    renderForm();
 
     const form = screen.getByRole('form', { name: '자기소개서 문항 및 답변' });
     const firstTrigger = screen.getByRole('button', {
@@ -45,7 +86,7 @@ describe('CoverLetterQuestionForm', () => {
   });
 
   it('다른 문항을 펼치면 기존 문항을 접는다', () => {
-    render(<CoverLetterQuestionForm />);
+    renderForm();
 
     fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
 
@@ -63,7 +104,7 @@ describe('CoverLetterQuestionForm', () => {
   });
 
   it('문항을 추가하면 두 번째 문항을 펼친다', () => {
-    render(<CoverLetterQuestionForm />);
+    renderForm();
 
     fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
 
@@ -74,13 +115,13 @@ describe('CoverLetterQuestionForm', () => {
   });
 
   it('문항이 하나뿐이면 삭제 버튼을 비활성화한다', () => {
-    render(<CoverLetterQuestionForm />);
+    renderForm();
 
     expect(screen.getByRole('button', { name: '1번 자기소개서 문항 삭제' })).toBeDisabled();
   });
 
-  it('문항을 삭제하면 폼 값과 순서를 함께 업데이트한다', () => {
-    render(<CoverLetterQuestionForm />);
+  it('내용이 있는 문항은 확인 후 삭제하고 폼 값과 순서를 함께 업데이트한다', async () => {
+    renderForm();
 
     fireEvent.change(screen.getByRole('textbox', { name: '질문' }), {
       target: { value: '첫 번째 질문' },
@@ -101,6 +142,9 @@ describe('CoverLetterQuestionForm', () => {
     secondDeleteButton.focus();
     fireEvent.click(secondDeleteButton);
 
+    expect(await screen.findByRole('dialog')).toHaveTextContent('2번 문항을 삭제할까요?');
+    fireEvent.click(await screen.findByRole('button', { name: '삭제하기' }));
+
     expect(screen.getAllByRole('textbox', { name: '질문' })).toHaveLength(2);
     expect(screen.getAllByRole('textbox', { name: '질문' })[0]).toHaveValue('첫 번째 질문');
     expect(screen.getAllByRole('textbox', { name: '질문' })[1]).toHaveValue('세 번째 질문');
@@ -109,14 +153,14 @@ describe('CoverLetterQuestionForm', () => {
     });
 
     expect(remainingSecondTrigger).toHaveAttribute('aria-expanded', 'true');
-    expect(remainingSecondTrigger).toHaveFocus();
+    await waitFor(() => expect(remainingSecondTrigger).toHaveFocus());
     expect(
       screen.queryByRole('button', { name: '3번 자기소개서 문항 삭제' })
     ).not.toBeInTheDocument();
   });
 
   it('마지막 문항을 삭제하면 남은 문항의 펼치기 버튼으로 포커스를 이동한다', () => {
-    render(<CoverLetterQuestionForm />);
+    renderForm();
 
     fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
     const lastDeleteButton = screen.getByRole('button', {
@@ -132,14 +176,13 @@ describe('CoverLetterQuestionForm', () => {
     expect(screen.getByRole('button', { name: '1번 자기소개서 문항 삭제' })).toBeDisabled();
   });
 
-  it('문항 삭제 후 적용한 글자 수를 남은 문항과 동기화한다', async () => {
-    render(<CoverLetterQuestionForm />);
+  it('문항 삭제 후 남은 문항의 입력한 글자 수 기준을 유지한다', async () => {
+    renderForm();
 
     fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
     fireEvent.change(screen.getByRole('spinbutton', { name: '자기소개서 글자 수' }), {
       target: { value: '900' },
     });
-    fireEvent.click(screen.getByRole('button', { name: '적용' }));
 
     expect(
       await screen.findByText(
@@ -159,7 +202,7 @@ describe('CoverLetterQuestionForm', () => {
   });
 
   it('오류가 있는 문항을 삭제하면 남은 폼 상태만 검증한다', async () => {
-    render(<CoverLetterQuestionForm />);
+    renderForm();
 
     fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
     fireEvent.submit(screen.getByRole('form', { name: '자기소개서 문항 및 답변' }));
@@ -176,19 +219,18 @@ describe('CoverLetterQuestionForm', () => {
     fireEvent.submit(screen.getByRole('form', { name: '자기소개서 문항 및 답변' }));
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(ROUTES.WRITING_CREATE_STEP(4));
+      expect(mockPush).toHaveBeenCalledWith(ROUTES.WRITING_CREATE_STEP(mockCoverLetterId, 4));
     });
   });
 
-  it('입력한 글자 수를 답변의 권장 길이에 적용한다', async () => {
-    render(<CoverLetterQuestionForm />);
+  it('입력한 글자 수를 답변의 권장 길이에 즉시 반영한다', async () => {
+    renderForm();
 
     const characterLimitField = screen.getByRole('spinbutton', {
       name: '자기소개서 글자 수',
     });
 
     fireEvent.change(characterLimitField, { target: { value: '1200' } });
-    fireEvent.click(screen.getByRole('button', { name: '적용' }));
 
     expect(
       await screen.findByText(
@@ -197,8 +239,8 @@ describe('CoverLetterQuestionForm', () => {
     ).toBeInTheDocument();
   });
 
-  it('글자 수를 적용하기 전에는 현재 작성한 글자 수만 표시한다', () => {
-    render(<CoverLetterQuestionForm />);
+  it('글자 수를 입력하지 않으면 현재 작성한 글자 수만 표시한다', () => {
+    renderForm();
 
     fireEvent.change(screen.getByRole('textbox', { name: '자기소개서 내용' }), {
       target: { value: '테스트' },
@@ -210,7 +252,7 @@ describe('CoverLetterQuestionForm', () => {
   });
 
   it('빈 폼을 제출하면 오류를 표시하고 이동하지 않는다', async () => {
-    render(<CoverLetterQuestionForm />);
+    renderForm();
 
     fireEvent.submit(screen.getByRole('form', { name: '자기소개서 문항 및 답변' }));
 
@@ -219,7 +261,7 @@ describe('CoverLetterQuestionForm', () => {
   });
 
   it('모든 필수 항목을 입력하고 제출하면 STEP4로 이동한다', async () => {
-    const { container } = render(<CoverLetterQuestionForm />);
+    const { container } = renderForm();
     const questionFields = screen.getAllByRole('textbox', { name: '질문' });
     const answerFields = container.querySelectorAll<HTMLTextAreaElement>('textarea');
 
@@ -228,7 +270,68 @@ describe('CoverLetterQuestionForm', () => {
     fireEvent.submit(screen.getByRole('form', { name: '자기소개서 문항 및 답변' }));
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(ROUTES.WRITING_CREATE_STEP(4));
+      expect(mockPush).toHaveBeenCalledWith(ROUTES.WRITING_CREATE_STEP(mockCoverLetterId, 4));
     });
+    expect(saveCoverLetterQuestions).toHaveBeenCalledWith(mockCoverLetterId, {
+      questions: [
+        {
+          question: '지원 동기를 작성해주세요.',
+          originalAnswer: '첫 번째 답변입니다.',
+          maxAnswerLength: null,
+        },
+      ],
+    });
+  });
+
+  it('추가·삭제 후 남은 문항 전체를 화면 순서로 임시 저장한다', async () => {
+    renderForm();
+    fireEvent.change(screen.getByRole('textbox', { name: '질문' }), {
+      target: { value: ' 첫 질문 ' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
+    fireEvent.change(screen.getAllByRole('textbox', { name: '질문' })[1], {
+      target: { value: '둘째 질문' },
+    });
+    fireEvent.change(screen.getByRole('spinbutton', { name: '자기소개서 글자 수' }), {
+      target: { value: '700' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '임시 저장' }));
+    await waitFor(() => expect(appToast.success).toHaveBeenCalled());
+    expect(saveCoverLetterQuestions).toHaveBeenLastCalledWith(mockCoverLetterId, {
+      questions: [
+        { question: '첫 질문', originalAnswer: null, maxAnswerLength: null },
+        { question: '둘째 질문', originalAnswer: null, maxAnswerLength: 700 },
+      ],
+    });
+    fireEvent.click(screen.getByRole('button', { name: '1번 자기소개서 문항 삭제' }));
+    fireEvent.click(await screen.findByRole('button', { name: '삭제하기' }));
+    fireEvent.click(screen.getByRole('button', { name: '임시 저장' }));
+    await waitFor(() => expect(saveCoverLetterQuestions).toHaveBeenCalledTimes(2));
+    expect(saveCoverLetterQuestions).toHaveBeenLastCalledWith(mockCoverLetterId, {
+      questions: [{ question: '둘째 질문', originalAnswer: null, maxAnswerLength: 700 }],
+    });
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('서버 오류 문항을 펼쳐 답변 오류를 표시하고 이동하지 않는다', async () => {
+    jest.mocked(saveCoverLetterQuestions).mockRejectedValue(
+      new ApiError(400, {
+        error: {
+          code: 'VALIDATION_ERROR',
+          details: [{ field: 'questions[1].originalAnswer', reason: '답변은 최대 5000자입니다.' }],
+        },
+      })
+    );
+    renderForm();
+    fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
+    fireEvent.click(screen.getByRole('button', { name: '1번 자기소개서 문항 접기 또는 펼치기' }));
+    fireEvent.click(screen.getByRole('button', { name: '임시 저장' }));
+    expect(await screen.findByText('답변은 최대 5000자입니다.')).toBeVisible();
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: '2번 자기소개서 문항 접기 또는 펼치기' })
+      ).toHaveAttribute('aria-expanded', 'true');
+    });
+    expect(mockPush).not.toHaveBeenCalled();
   });
 });

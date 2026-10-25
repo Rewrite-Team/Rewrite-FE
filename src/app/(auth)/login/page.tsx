@@ -1,4 +1,3 @@
-import { RedirectAuthenticated } from '@/features/auth/session';
 import { Login, type KakaoLoginErrorCode } from '@/widgets/auth/login';
 
 import type { Metadata } from 'next';
@@ -27,11 +26,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const isLocalDevelopment = process.env.NODE_ENV === 'development';
 
   return (
-    <RedirectAuthenticated>
-      <Login
-        kakaoLoginError={kakaoLoginError}
-        kakaoLoginTarget={isLocalDevelopment ? 'local' : 'production'}
-      />
-    </RedirectAuthenticated>
+    <Login
+      kakaoLoginError={kakaoLoginError}
+      kakaoLoginTarget={isLocalDevelopment ? 'local' : 'production'}
+    />
   );
 }

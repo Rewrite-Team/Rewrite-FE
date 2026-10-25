@@ -5,19 +5,33 @@
  * API 번호, 사용 화면, 호출 흐름과 오류 조건을 확인하는 Rewrite 백엔드 핵심 API 문서
  * OpenAPI spec version: v1
  */
-export type StartKeywordAnalysisResponseStatus =
-  (typeof StartKeywordAnalysisResponseStatus)[keyof typeof StartKeywordAnalysisResponseStatus];
+export type KeywordAnalysisStatus =
+  (typeof KeywordAnalysisStatus)[keyof typeof KeywordAnalysisStatus];
 
-export const StartKeywordAnalysisResponseStatus = {
+export const KeywordAnalysisStatus = {
   PROCESSING: 'PROCESSING',
   COMPLETED: 'COMPLETED',
   FAILED: 'FAILED',
 } as const;
 
 export interface StartKeywordAnalysisResponse {
-  status: StartKeywordAnalysisResponseStatus;
+  status: KeywordAnalysisStatus;
   jobId: string;
 }
+
+export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
+
+export const ErrorCode = {
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  CSRF_TOKEN_INVALID: 'CSRF_TOKEN_INVALID',
+  NOT_FOUND: 'NOT_FOUND',
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  CONFLICT: 'CONFLICT',
+  COVER_LETTER_NOT_WRITING: 'COVER_LETTER_NOT_WRITING',
+  LLM_JOB_ALREADY_RUNNING: 'LLM_JOB_ALREADY_RUNNING',
+  REVIEW_VERSION_NOT_LATEST: 'REVIEW_VERSION_NOT_LATEST',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+} as const;
 
 export interface ErrorDetail {
   field: string;
@@ -25,7 +39,7 @@ export interface ErrorDetail {
 }
 
 export interface ErrorBody {
-  code: string;
+  code: ErrorCode;
   message: string;
   details: ErrorDetail[];
 }
@@ -49,6 +63,16 @@ export interface KeywordAnalysisReviewVersionResponse {
   version: string;
 }
 
+export type LatestKeywordAnalysisStatus =
+  (typeof LatestKeywordAnalysisStatus)[keyof typeof LatestKeywordAnalysisStatus];
+
+export const LatestKeywordAnalysisStatus = {
+  NOT_STARTED: 'NOT_STARTED',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+} as const;
+
 export interface KeywordResponse {
   keyword: string;
   importance: number;
@@ -57,7 +81,7 @@ export interface KeywordResponse {
 export interface LatestKeywordAnalysisResponse {
   coverLetter: KeywordAnalysisCoverLetterResponse;
   sourceReviewVersion: KeywordAnalysisReviewVersionResponse | null;
-  status: string;
+  status: LatestKeywordAnalysisStatus;
   /** @nullable */
   jobId: string | null;
   keywords: KeywordResponse[];

@@ -1,232 +1,135 @@
 'use client';
 
-import { useRef, useState, type Ref } from 'react';
-
-import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  useFieldArray,
-  useForm,
-  type Control,
-  type SubmitErrorHandler,
-  type SubmitHandler,
-} from 'react-hook-form';
+import { useForm, type SubmitErrorHandler, type SubmitHandler } from 'react-hook-form';
 
 import {
+  useCoverLetterStepSave,
+  useCoverLetterStepDirty,
   coverLetterStep3Schema,
+  coverLetterQuestionSchema,
   type CoverLetterStep3FormInput,
   type CoverLetterStep3Values,
+  useCoverLetterCreateDraft,
+  useCoverLetterStepErrors,
+  createCoverLetterStepSubmitHandler,
+  getCoverLetterStep3DefaultValues,
+  useSaveCoverLetterQuestions,
 } from '@/features/cover-letter/create-flow';
-import { DeleteIcon } from '@/shared/assets/icons/side-menu';
-import { ROUTES } from '@/shared/constants/routes';
-import { Accordion } from '@/shared/ui/accordion';
 import { Button } from '@/shared/ui/button';
-import { FormField } from '@/shared/ui/form-field';
-import { Input } from '@/shared/ui/input';
-import { TextArea } from '@/shared/ui/textarea';
+import { ConfirmModal } from '@/shared/ui/confirm-modal';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
 
-interface CoverLetterQuestionFieldsProps {
-  answerLength?: number;
-  control: Control<CoverLetterStep3FormInput, unknown, CoverLetterStep3Values>;
-  index: number;
-  isDeleteDisabled: boolean;
-  isOpen: boolean;
-  onApplyLength: () => void;
-  onDelete: () => void;
-  onOpenChange: (open: boolean) => void;
-  triggerRef: Ref<HTMLButtonElement>;
-}
-
-const EMPTY_QUESTION: CoverLetterStep3FormInput['questions'][number] = {
-  answer: '',
-  characterLimit: '',
-  question: '',
-};
-
-const DEFAULT_FORM_VALUES: CoverLetterStep3FormInput = {
-  questions: [{ ...EMPTY_QUESTION }],
-};
-
-/** 하나의 자기소개서 문항과 답변 입력 영역을 구성합니다. */
-function CoverLetterQuestionFields({
-  answerLength,
-  control,
-  index,
-  isDeleteDisabled,
-  isOpen,
-  onApplyLength,
-  onDelete,
-  onOpenChange,
-  triggerRef,
-}: CoverLetterQuestionFieldsProps) {
-  const questionNumber = index + 1;
-
-  return (
-    <Accordion className="rounded-2xl" onOpenChange={onOpenChange} open={isOpen}>
-      <Accordion.Header>
-        <FormField
-          control={control}
-          name={`questions.${index}.question`}
-          render={({ errorMessage, field, invalid }) => (
-            <Input id={`cover-letter-question-${questionNumber}`} invalid={invalid} required>
-              <div className="flex items-center justify-between gap-3 text-white">
-                <div className="flex items-center gap-2">
-                  <Accordion.Trigger
-                    aria-label={`${questionNumber}번 자기소개서 문항 접기 또는 펼치기`}
-                    ref={triggerRef}
-                  />
-                  <Accordion.Label asChild>
-                    <Input.Label>질문</Input.Label>
-                  </Accordion.Label>
-                </div>
-
-                <Button
-                  aria-label={`${questionNumber}번 자기소개서 문항 삭제`}
-                  disabled={isDeleteDisabled}
-                  iconOnly
-                  onClick={onDelete}
-                  type="button"
-                  variant="ghost"
-                >
-                  <DeleteIcon aria-hidden="true" className="size-5" />
-                </Button>
-              </div>
-
-              <div className="pt-3">
-                <Input.Field
-                  {...field}
-                  autoComplete="off"
-                  placeholder="자기소개서 질문을 입력해주세요"
-                />
-                <Input.ErrorMessage>{errorMessage}</Input.ErrorMessage>
-              </div>
-            </Input>
-          )}
-        />
-      </Accordion.Header>
-
-      <Accordion.Content>
-        <FormField
-          control={control}
-          name={`questions.${index}.characterLimit`}
-          render={({ errorMessage, field, invalid }) => (
-            <Input id={`cover-letter-character-limit-${questionNumber}`} invalid={invalid}>
-              <Input.Label>자기소개서 글자 수</Input.Label>
-              <Input.FieldGroup>
-                <Input.Field
-                  {...field}
-                  inputMode="numeric"
-                  min={1}
-                  placeholder="자기소개서 최대 글자 수를 입력해주세요"
-                  step={1}
-                  type="number"
-                />
-                <Button onClick={onApplyLength} size="sm" type="button">
-                  적용
-                </Button>
-              </Input.FieldGroup>
-              <Input.ErrorMessage>{errorMessage}</Input.ErrorMessage>
-            </Input>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name={`questions.${index}.answer`}
-          render={({ errorMessage, field, invalid }) => (
-            <TextArea id={`cover-letter-answer-${questionNumber}`} invalid={invalid} required>
-              <TextArea.Label>자기소개서 내용</TextArea.Label>
-              {answerLength === undefined ? (
-                <TextArea.Field {...field} placeholder="자기소개서 내용을 작성해주세요" showCount />
-              ) : (
-                <TextArea.Field
-                  {...field}
-                  placeholder="자기소개서 내용을 작성해주세요"
-                  recommendedLength={answerLength}
-                  showCount
-                />
-              )}
-              <TextArea.ErrorMessage>{errorMessage}</TextArea.ErrorMessage>
-            </TextArea>
-          )}
-        />
-      </Accordion.Content>
-    </Accordion>
-  );
-}
+import { EMPTY_QUESTION } from './constants';
+import { CoverLetterQuestionFields } from './CoverLetterQuestionFields';
+import { useCoverLetterQuestions } from './hooks/useCoverLetterQuestions';
 
 /**
  * ## CoverLetterQuestionForm
  *
  * @description
  * 자기소개서 등록 STEP3에서 여러 문항과 답변을 작성하는 폼입니다.
- * 문항은 하나씩 펼쳐 볼 수 있으며 입력한 글자 수를 답변의 권장 길이로 적용할 수 있습니다.
+ * 문항은 하나씩 펼쳐 볼 수 있으며 유효한 글자 수 입력은 답변의 권장 길이에 즉시 반영됩니다.
  */
 export function CoverLetterQuestionForm() {
-  const router = useRouter();
-  const questionTriggerRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(0);
-  const [answerLengths, setAnswerLengths] = useState<Array<number | undefined>>([undefined]);
-  const { control, getValues, handleSubmit, trigger } = useForm<
-    CoverLetterStep3FormInput,
-    unknown,
-    CoverLetterStep3Values
-  >({
-    defaultValues: DEFAULT_FORM_VALUES,
+  const { coverLetterId } = useParams<{ coverLetterId: string }>();
+  const draft = useCoverLetterCreateDraft();
+  const saveMutation = useSaveCoverLetterQuestions(coverLetterId);
+  const { questions } = getCoverLetterStep3DefaultValues(draft);
+  const initialQuestions = questions.length > 0 ? questions : [{ ...EMPTY_QUESTION }];
+  const {
+    control,
+    getValues,
+    handleSubmit,
+    setError,
+    setFocus,
+    clearErrors,
+    reset,
+    formState: { errors: formErrors, isDirty },
+  } = useForm<CoverLetterStep3FormInput, unknown, CoverLetterStep3Values>({
+    defaultValues: { questions: initialQuestions },
     resolver: zodResolver(coverLetterStep3Schema),
   });
-  const { append, fields, remove } = useFieldArray({
-    control,
-    name: 'questions',
+  const {
+    fields,
+    openQuestionIndex,
+    pendingDeleteIndex,
+    registerQuestionTrigger,
+    openQuestion,
+    focusQuestionField,
+    handleOpenChange,
+    handleAddQuestion,
+    handleDeleteQuestion,
+    handleDeleteModalOpenChange,
+    handleConfirmDelete,
+  } = useCoverLetterQuestions({ control, getValues, setFocus, isSaving: saveMutation.isPending });
+
+  useCoverLetterStepDirty(3, isDirty);
+
+  useCoverLetterStepErrors({
+    step: 3,
+    applyError: (error) => setError(error.field, { type: 'server', message: error.reason }),
+    focusError: (error) =>
+      focusQuestionField(
+        error.index,
+        error.field === 'root.questions' ? 'questions.0.question' : error.field
+      ),
   });
 
-  const handleOpenChange = (index: number) => (open: boolean) => {
-    setOpenQuestionIndex(open ? index : null);
-  };
+  const saveQuestions = useCoverLetterStepSave<CoverLetterStep3FormInput>({
+    coverLetterId,
+    currentStep: 3,
+    isDirty,
+    clearErrors,
+    getValues,
+    // 저장 중 입력한 값은 보존하고, 성공한 요청의 값만 비교 기준으로 갱신합니다.
+    onSaved: (values) => reset(values, { keepValues: true }),
+    validateDraft: (values) => {
+      let firstInvalidField:
+        | { index: number; field: keyof CoverLetterStep3FormInput['questions'][number] }
+        | undefined;
+      for (const [index, question] of values.questions.entries()) {
+        for (const field of ['question', 'characterLimit', 'answer'] as const) {
+          // 질문과 답변의 필수 여부만 생략하고 형식·범위는 공통 스키마로 검증합니다.
+          if (field !== 'characterLimit' && question[field].trim() === '') continue;
+          const result = coverLetterQuestionSchema.shape[field].safeParse(question[field]);
+          if (result.success) continue;
+          setError(`questions.${index}.${field}`, {
+            type: 'validate',
+            message: result.error.issues[0].message,
+          });
+          firstInvalidField ??= { index, field };
+        }
+      }
+      if (!firstInvalidField) return true;
+      focusQuestionField(
+        firstInvalidField.index,
+        `questions.${firstInvalidField.index}.${firstInvalidField.field}`
+      );
+      return false;
+    },
+    saveDraft: (values) =>
+      saveMutation.mutateAsync({
+        questions: values.questions.map(({ question, answer, characterLimit }) => ({
+          question: question.trim() || null,
+          originalAnswer: answer.trim() || null,
+          maxAnswerLength: characterLimit.trim() === '' ? null : Number(characterLimit),
+        })),
+      }),
+  });
 
-  const handleApplyLength = (index: number) => async () => {
-    const fieldName = `questions.${index}.characterLimit` as const;
-    const isValid = await trigger(fieldName);
-    const characterLimit = Number(getValues(fieldName));
-
-    if (!isValid || !Number.isInteger(characterLimit) || characterLimit <= 0) return;
-
-    setAnswerLengths((currentLengths) =>
-      currentLengths.map((length, lengthIndex) => (lengthIndex === index ? characterLimit : length))
+  const handleValidSubmit: SubmitHandler<CoverLetterStep3Values> = (values) =>
+    saveQuestions(
+      {
+        questions: values.questions.map((question) => ({
+          ...question,
+          characterLimit: question.characterLimit?.toString() ?? '',
+        })),
+      },
+      { intent: 'next' }
     );
-  };
-
-  const handleAddQuestion = () => {
-    append({ ...EMPTY_QUESTION });
-    setAnswerLengths((currentLengths) => [...currentLengths, undefined]);
-    setOpenQuestionIndex(fields.length);
-  };
-
-  const handleDeleteQuestion = (index: number) => () => {
-    if (fields.length <= 1) return;
-
-    const focusTarget =
-      questionTriggerRefs.current[index + 1] ?? questionTriggerRefs.current[index - 1];
-
-    remove(index);
-    setAnswerLengths((currentLengths) =>
-      currentLengths.filter((_, lengthIndex) => lengthIndex !== index)
-    );
-    setOpenQuestionIndex((currentIndex) => {
-      if (currentIndex === null || currentIndex < index) return currentIndex;
-      if (currentIndex > index) return currentIndex - 1;
-
-      return Math.min(index, fields.length - 2);
-    });
-    focusTarget?.focus();
-  };
-
-  const handleValidSubmit: SubmitHandler<CoverLetterStep3Values> = () => {
-    // TODO: 문항과 답변 저장 API가 연결되면 저장 성공 후 STEP4로 이동한다.
-    router.push(ROUTES.WRITING_CREATE_STEP(4));
-  };
 
   const handleInvalidSubmit: SubmitErrorHandler<CoverLetterStep3FormInput> = (errors) => {
     const questionErrors = errors.questions;
@@ -236,38 +139,65 @@ export function CoverLetterQuestionForm() {
     const firstInvalidQuestionIndex = questionErrors.findIndex(Boolean);
 
     if (firstInvalidQuestionIndex >= 0) {
-      setOpenQuestionIndex(firstInvalidQuestionIndex);
+      openQuestion(firstInvalidQuestionIndex);
     }
   };
+
+  const handleFormSubmit = createCoverLetterStepSubmitHandler({
+    saveDraft: () => saveQuestions(getValues(), { intent: 'draft' }),
+    submitNext: handleSubmit(handleValidSubmit, handleInvalidSubmit),
+  });
 
   return (
     <form
       aria-label="자기소개서 문항 및 답변"
+      aria-busy={saveMutation.isPending}
       className="flex flex-col gap-12"
       id={COVER_LETTER_STEP_FORM_ID}
       noValidate
-      onSubmit={handleSubmit(handleValidSubmit, handleInvalidSubmit)}
+      onSubmit={handleFormSubmit}
     >
-      {fields.map((field, index) => (
-        <CoverLetterQuestionFields
-          answerLength={answerLengths[index]}
-          control={control}
-          index={index}
-          isDeleteDisabled={fields.length <= 1}
-          isOpen={openQuestionIndex === index}
-          key={field.id}
-          onApplyLength={handleApplyLength(index)}
-          onDelete={handleDeleteQuestion(index)}
-          onOpenChange={handleOpenChange(index)}
-          triggerRef={(element) => {
-            questionTriggerRefs.current[index] = element;
-          }}
-        />
-      ))}
+      <fieldset className="contents" disabled={saveMutation.isPending}>
+        {formErrors.root?.questions?.message ? (
+          <p className="body-14 text-error-500" role="alert">
+            {formErrors.root.questions.message}
+          </p>
+        ) : null}
+        {fields.map((field, index) => (
+          <CoverLetterQuestionFields
+            control={control}
+            index={index}
+            isDeleteDisabled={fields.length <= 1}
+            isOpen={openQuestionIndex === index}
+            key={field.id}
+            onDelete={handleDeleteQuestion(index)}
+            onOpenChange={handleOpenChange(index)}
+            triggerRef={(element) => {
+              registerQuestionTrigger(index, element);
+            }}
+          />
+        ))}
 
-      <Button className="w-full" onClick={handleAddQuestion} type="button" variant="outline">
-        문항 추가
-      </Button>
+        <Button className="w-full" onClick={handleAddQuestion} type="button" variant="outline">
+          문항 추가
+        </Button>
+      </fieldset>
+      <ConfirmModal
+        open={pendingDeleteIndex !== null}
+        title={`${(pendingDeleteIndex ?? 0) + 1}번 문항을 삭제할까요?`}
+        description={
+          <>
+            입력한 질문과 답변이 삭제됩니다.
+            <br />
+            삭제 후에는 복구할 수 없습니다.
+          </>
+        }
+        confirmLabel="삭제하기"
+        cancelLabel="취소"
+        restoreFocus={false}
+        onOpenChange={handleDeleteModalOpenChange}
+        onConfirm={handleConfirmDelete}
+      />
     </form>
   );
 }

@@ -1,8 +1,6 @@
-import { getMockReviewVersions } from '@/features/review-version/version-management';
-
 import '@/widgets/cover-letter-detail/writing-detail.css';
 
-import { WritingDetailLayoutClient } from './_components/WritingDetailLayoutClient';
+import { WritingDetailDataLayoutClient } from './_components/WritingDetailDataLayoutClient';
 
 /**
  * ## WritingDetailLayout
@@ -19,17 +17,6 @@ export default async function WritingDetailLayout({
   params: Promise<{ id: string }>;
 }>) {
   const { id } = await params;
-  const versions = getMockReviewVersions(id);
-  const initialSelectedVersionId =
-    versions.findLast((version) => version.status === 'COMPLETED')?.id ?? versions[0]?.id ?? '';
 
-  return (
-    <WritingDetailLayoutClient
-      initialSelectedVersionId={initialSelectedVersionId}
-      versions={versions}
-      writingId={id}
-    >
-      {children}
-    </WritingDetailLayoutClient>
-  );
+  return <WritingDetailDataLayoutClient writingId={id}>{children}</WritingDetailDataLayoutClient>;
 }

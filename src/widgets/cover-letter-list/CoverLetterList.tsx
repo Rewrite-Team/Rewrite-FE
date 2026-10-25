@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -11,11 +11,17 @@ import {
   CoverLetterCard,
   coverLetterListQueryOptions,
   useCoverLetterList,
+  type CoverLetterListItemResponse,
 } from '@/entities/cover-letter';
+import { useDeleteCoverLetter } from '@/features/cover-letter/delete';
+import { DeleteIcon } from '@/shared/assets/icons/side-menu';
 import { ROUTES } from '@/shared/constants/routes';
 import { appToast } from '@/shared/lib/toast';
+import { Button } from '@/shared/ui/button';
+import { ConfirmModal } from '@/shared/ui/confirm-modal';
 import { Pagination } from '@/shared/ui/pagination';
 import { EmptyState, ErrorState } from '@/shared/ui/state-feedback';
+import { Tooltip } from '@/shared/ui/tooltip';
 
 import { CoverLetterListSkeleton } from './CoverLetterListSkeleton';
 import { useCoverLetterReviewStatusStream } from './hooks/useCoverLetterReviewStatusStream';
@@ -33,6 +39,8 @@ interface CoverLetterListProps {
 export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const deleteMutation = useDeleteCoverLetter();
+  const [deleteTarget, setDeleteTarget] = useState<CoverLetterListItemResponse | null>(null);
   const { data, isPending, isFetching, isRefetchError, errorUpdatedAt, refetch } =
     useCoverLetterList(requestedPage);
   const { isRefreshing: isStreamRefreshing } = useCoverLetterReviewStatusStream();
@@ -53,7 +61,9 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
   }, [isRefetchError, errorUpdatedAt, isStreamRefreshing]);
 
   const handleRetry = () => {
-    void refetch();
+    void refetch().then((result) => {
+      if (result.isError) appToast.error('목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+    });
   };
 
   const handlePrefetchPage = (page: number) => {
@@ -88,7 +98,29 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
       {hasCoverLetters ? (
         <ul className="mt-9 grid grid-cols-1 content-start gap-7 sm:grid-cols-2 lg:grid-cols-3">
           {coverLetters.map((coverLetter) => (
-            <CoverLetterCard coverLetter={coverLetter} key={coverLetter.id} />
+            <CoverLetterCard
+              coverLetter={coverLetter}
+              key={coverLetter.id}
+              actions={
+                <Tooltip.Root placement="top" offset={8}>
+                  <Tooltip.Trigger
+                    render={
+                      <Button
+                        aria-label={`${coverLetter.title?.trim() || '제목 없는 자기소개서'} 삭제`}
+                        className="size-9 rounded-xl border border-white/10 bg-gray-900/70 text-gray-100 shadow-sm backdrop-blur-md data-[disabled=false]:hover:bg-gray-900 data-[disabled=false]:hover:text-error-400"
+                        disabled={deleteMutation.isPending}
+                        iconOnly
+                        onClick={() => setDeleteTarget(coverLetter)}
+                        variant="ghost"
+                      >
+                        <DeleteIcon aria-hidden="true" className="size-3.5" />
+                      </Button>
+                    }
+                  />
+                  <Tooltip.Content>자기소개서 삭제</Tooltip.Content>
+                </Tooltip.Root>
+              }
+            />
           ))}
         </ul>
       ) : (
@@ -108,6 +140,34 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
           totalPages={totalPages}
         />
       ) : null}
+      <ConfirmModal
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open && !deleteMutation.isPending) setDeleteTarget(null);
+        }}
+        title="자기소개서를 삭제할까요?"
+        description={
+          <>
+            <span className="mb-2 block break-all font-semibold text-white">
+              {deleteTarget?.title?.trim() || '제목 없는 자기소개서'}
+            </span>
+            삭제 후에는 복구할 수 없습니다.
+            {deleteTarget?.displayStatus === 'REVIEWING' ? (
+              <>
+                <br />
+                진행 중인 AI 첨삭도 중단됩니다.
+              </>
+            ) : null}
+          </>
+        }
+        cancelLabel="취소"
+        confirmLabel="삭제하기"
+        isLoading={deleteMutation.isPending}
+        onConfirm={() => {
+          if (!deleteTarget || deleteMutation.isPending) return;
+          deleteMutation.mutate(deleteTarget.id, { onSuccess: () => setDeleteTarget(null) });
+        }}
+      />
     </>
   );
 }

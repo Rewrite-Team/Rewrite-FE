@@ -1,3 +1,25 @@
+.actions {
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease;
+}
+
+/* 호버가 가능한 환경에서만 숨겨 터치 화면과 키보드에서도 액션에 접근할 수 있게 합니다. */
+@media (hover: hover) and (pointer: fine) {
+  .actions {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(0.25rem);
+  }
+
+  .cardItem:hover .actions,
+  .cardItem:focus-within .actions {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+}
+
 .card {
   --folder-tab: var(--color-gray-500);
   --folder-front-start: var(--color-gray-500);
@@ -218,6 +240,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .actions,
   .card,
   .paperStack,
   .badges,

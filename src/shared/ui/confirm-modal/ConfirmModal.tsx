@@ -2,9 +2,10 @@
 
 import { useId } from 'react';
 
-import { Button } from '@/shared/ui/button';
 import { Surface } from '@/shared/ui/surface';
 import { Title } from '@/shared/ui/title';
+
+import { ModalActionButton } from './ModalActionButton';
 
 import type { ConfirmModalProps } from './ConfirmModal.types';
 
@@ -97,25 +98,25 @@ export function ConfirmModal({
           </Surface.Header>
           <Surface.Footer className="grid w-full grid-cols-2 gap-2">
             <Surface.Close aria-label={cancelLabel} asChild>
-              <Button
-                className="h-10 w-full bg-gray-800 data-[disabled=false]:hover:bg-gray-900 data-[disabled=false]:active:bg-black"
+              <ModalActionButton
+                className="h-10"
                 disabled={isLoading}
                 onClick={onCancel}
                 size="sm"
                 variant="secondary"
               >
                 {cancelLabel}
-              </Button>
+              </ModalActionButton>
             </Surface.Close>
-            <Button
-              className="h-10 w-full"
+            <ModalActionButton
+              className="h-10"
               isLoading={isLoading}
               onClick={onConfirm}
               size="sm"
               variant="primary"
             >
               {confirmLabel}
-            </Button>
+            </ModalActionButton>
           </Surface.Footer>
         </Surface.Content>
       </Surface.Portal>
