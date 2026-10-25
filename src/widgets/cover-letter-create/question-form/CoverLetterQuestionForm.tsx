@@ -85,7 +85,6 @@ export function CoverLetterQuestionForm() {
     getValues,
     // 저장 중 입력한 값은 보존하고, 성공한 요청의 값만 비교 기준으로 갱신합니다.
     onSaved: (values) => reset(values, { keepValues: true }),
-    errorMessage: '문항과 답변을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
     validateDraft: (values) => {
       const invalidLengthIndex = values.questions.findIndex(
         ({ characterLimit }) =>

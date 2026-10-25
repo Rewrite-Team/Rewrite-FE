@@ -4,11 +4,9 @@ import { useEffect, useRef } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { ApiError } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
 import { appToast } from '@/shared/lib/toast';
 
-import { mapCoverLetterValidationErrors } from '../model/mapCoverLetterValidationErrors';
 import {
   useCoverLetterCreateValidation,
   useCoverLetterCreateSaveControl,
@@ -25,14 +23,13 @@ interface CoverLetterStepSaveOptions<Values> {
   saveDraft: (values: Values) => Promise<unknown>;
   onSaved: (values: Values) => void;
   validateDraft?: (values: Values) => boolean;
-  errorMessage: string;
 }
 
 /**
  * ## useCoverLetterStepSave
  *
  * @description
- * STEP1~3의 중복 저장 방지, 서버 검증 오류 안내와 저장 후 이동을 처리합니다.
+ * STEP1~3의 중복 저장 방지와 저장 후 이동을 처리합니다.
  * 반환 함수의 intent가 'draft'이면 저장 완료 토스트를, 'next'이면 다음 단계 이동을 수행합니다.
  * currentStep으로 저장·오류 처리 대상을 지정하며, 다음 단계는 currentStep + 1로 계산합니다.
  *
@@ -41,7 +38,8 @@ interface CoverLetterStepSaveOptions<Values> {
  * isDirty가 false인 다음 단계 이동은 검증 후 저장 요청 없이 수행합니다.
  * validateDraft는 임시 저장과 다음 단계 이동 모두에 적용할 추가 검증이며,
  * false를 반환하면 API 요청을 중단합니다. 필드 오류 표시는 해당 콜백에서 처리합니다.
- * 서버 검증 오류는 Context에 기록하고 useCoverLetterStepErrors에서 폼에 적용합니다.
+ * 저장 실패 안내와 서버 검증 오류 기록은 각 mutation의 onError에서 처리합니다.
+ * useCoverLetterStepErrors는 Context에 기록된 오류를 폼에 적용합니다.
  * 요청 데이터 변환은 saveDraft에서 담당합니다.
  * onSaved에는 저장에 성공한 입력값을 전달하므로 폼의 변경 비교 기준을 갱신할 수 있습니다.
  * getValues로 현재 폼의 임시 저장 액션을 등록하며, 저장 성공 여부를 반환해 단계 이동을 결정합니다.
@@ -63,7 +61,6 @@ export function useCoverLetterStepSave<Values>({
   saveDraft,
   onSaved,
   validateDraft,
-  errorMessage,
 }: CoverLetterStepSaveOptions<Values>) {
   const router = useRouter();
   const isSavingRef = useRef(false);
@@ -92,18 +89,8 @@ export function useCoverLetterStepSave<Values>({
         appToast.success('임시 저장되었습니다.');
       }
       return true;
-    } catch (error) {
-      const isValidationError = error instanceof ApiError && error.code === 'VALIDATION_ERROR';
-      if (isValidationError) {
-        const fieldErrors = mapCoverLetterValidationErrors(error.details).filter(
-          (error) => error.step === currentStep
-        );
-        setErrors((errors) => [
-          ...errors.filter((error) => error.step !== currentStep),
-          ...fieldErrors,
-        ]);
-      }
-      appToast.error(isValidationError ? '입력 내용을 확인하고 다시 저장해 주세요.' : errorMessage);
+    } catch {
+      // mutation의 onError가 실패를 안내하며, 호출부에는 이동하지 않도록 결과만 전달합니다.
       return false;
     } finally {
       isSavingRef.current = false;

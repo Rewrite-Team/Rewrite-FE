@@ -302,6 +302,9 @@ entities/writing/api/createWriting.ts
 
 feature는 entity API를 사용해 사용자 액션을 완성한다.
 
+mutation 요청 실패의 토스트 안내와 서버 검증 오류 처리는 feature의 `onError`에서 담당한다.
+호출부는 실패 시 후속 이동을 중단하고, 같은 오류 안내를 중복 실행하지 않는다.
+
 ## 8. Comment
 
 주석은 단순 설명보다 **작성 이유와 의도**를 중심으로 작성한다.
