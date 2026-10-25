@@ -62,6 +62,7 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
     const jobQueryKey = llmJobQueryKeys.status(jobId);
     let retryCount = 0;
     let hasReceivedTerminalState = false;
+    let hasStreamClosed = false;
     let recoveryPromise: Promise<void> | undefined;
 
     const refreshDetail = async () => {
@@ -88,8 +89,10 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
     };
 
     const recover = (isStreamClosed: boolean) => {
-      // 재연결 실패와 스트림 종료가 겹쳐도 진행 중인 복구 요청을 공유합니다.
+      // 요청을 공유하더라도 뒤늦게 전달된 연결 종료 사실은 유지합니다.
+      hasStreamClosed ||= isStreamClosed;
       if (controller.signal.aborted || recoveryPromise) return recoveryPromise;
+      let hasRecoveredRunningJob = false;
       recoveryPromise = (async () => {
         try {
           const state = await getLlmJobStatus(jobId, { signal: controller.signal });
@@ -98,11 +101,8 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
           if (isTerminalJobStatus(state.status)) {
             await refreshDetail();
             controller.abort();
-          } else if (isStreamClosed) {
-            setConnectionIssue({
-              jobId,
-              message: '진행 상태 연결이 종료되었습니다. 상태를 새로고침해 주세요.',
-            });
+          } else {
+            hasRecoveredRunningJob = true;
           }
         } catch {
           if (controller.signal.aborted) return;
@@ -123,6 +123,13 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
         }
       })().finally(() => {
         recoveryPromise = undefined;
+        // 복구 도중 연결이 닫힌 경우도 완료 시점의 상태로 판단합니다.
+        if (hasStreamClosed && hasRecoveredRunningJob && !controller.signal.aborted) {
+          setConnectionIssue({
+            jobId,
+            message: '진행 상태 연결이 종료되었습니다. 상태를 새로고침해 주세요.',
+          });
+        }
       });
       return recoveryPromise;
     };
