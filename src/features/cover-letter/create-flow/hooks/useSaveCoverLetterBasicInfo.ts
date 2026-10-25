@@ -33,6 +33,7 @@ export const useIsSavingCoverLetterDraft = (coverLetterId: string) =>
 export function useSaveCoverLetterBasicInfo(coverLetterId: string) {
   const queryClient = useQueryClient();
   const handleSaveError = useCoverLetterSaveError(
+    coverLetterId,
     1,
     '기본 정보를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'
   );

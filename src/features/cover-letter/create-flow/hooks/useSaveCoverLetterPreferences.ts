@@ -16,6 +16,7 @@ import { getSaveDraftMutationKey } from '../model/createMutationKeys';
 export function useSaveCoverLetterPreferences(coverLetterId: string) {
   const queryClient = useQueryClient();
   const handleSaveError = useCoverLetterSaveError(
+    coverLetterId,
     2,
     '우대사항을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'
   );

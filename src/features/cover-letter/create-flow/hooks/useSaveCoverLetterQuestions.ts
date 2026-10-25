@@ -15,6 +15,7 @@ import { getSaveDraftMutationKey } from '../model/createMutationKeys';
 export function useSaveCoverLetterQuestions(coverLetterId: string) {
   const queryClient = useQueryClient();
   const handleSaveError = useCoverLetterSaveError(
+    coverLetterId,
     3,
     '문항과 답변을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'
   );
