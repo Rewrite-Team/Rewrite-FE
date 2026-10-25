@@ -30,6 +30,7 @@ jest.mock('@/shared/ui/lottie-animation', () => ({ LottieAnimation: () => null }
 describe('WritingCreateStepLayoutClient 재시도', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
   });
 
   it('수동 재조회 실패는 토스트로 안내하고 오류 화면을 유지한다', async () => {

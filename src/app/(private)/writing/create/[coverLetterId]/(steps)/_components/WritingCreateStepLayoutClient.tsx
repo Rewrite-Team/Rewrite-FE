@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 
 import { redirect, useParams, useRouter, useSelectedLayoutSegment } from 'next/navigation';
 
@@ -41,6 +41,11 @@ export function WritingCreateStepLayoutClient({ children }: WritingCreateStepLay
   const { data, isFetching, isPending, isRefetchError, refetch } =
     useCoverLetterDetail(coverLetterId);
   const availableStep = useCoverLetterCreateProgress(coverLetterId, data);
+
+  useEffect(() => {
+    // 목록의 스크롤을 이어받지 않도록 진입 시 초기화하며, 단계 이동·재조회 시에는 유지합니다.
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [coverLetterId]);
 
   const handleRetry = () => {
     void refetch().then((result) => {
