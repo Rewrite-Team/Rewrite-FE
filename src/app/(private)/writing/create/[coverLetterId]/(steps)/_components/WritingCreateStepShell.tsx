@@ -1,22 +1,17 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 import {
-  useCoverLetterCreateDraft,
   useCoverLetterCreateValidation,
-  useCoverLetterCreateDirtyStep,
-  useCoverLetterCreateDraftSave,
-  useIsSavingCoverLetterDraft,
+  useCoverLetterStepNavigation,
+  CoverLetterStepLeaveModal,
   type WritingCreateStep,
 } from '@/features/cover-letter/create-flow';
-import { ROUTES } from '@/shared/constants/routes';
 import { PageHeader } from '@/shared/ui/page-header';
 import { COVER_LETTER_STEP_CONFIG, CoverLetterStepPanel } from '@/widgets/cover-letter-create';
-
-import { CoverLetterStepLeaveModal } from './CoverLetterStepLeaveModal';
 
 import type { CoverLetterCreateStepSegment } from '../types';
 
@@ -39,49 +34,21 @@ export function WritingCreateStepShell({
   currentStepSegment,
   availableStep,
 }: WritingCreateStepShellProps) {
-  const router = useRouter();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
-  const isSaving = useIsSavingCoverLetterDraft(coverLetterId);
-  const draft = useCoverLetterCreateDraft();
-  const dirtyStep = useCoverLetterCreateDirtyStep();
-  const { saveDraft, savingIntent } = useCoverLetterCreateDraftSave();
-  const [pendingStep, setPendingStep] = useState<WritingCreateStep | null>(null);
-  const [isSavingBeforeLeave, setIsSavingBeforeLeave] = useState(false);
+  const { description, step, title } = COVER_LETTER_STEP_CONFIG[currentStepSegment];
+  const {
+    isActionDisabled,
+    nextActionStatus,
+    saveDraftActionStatus,
+    isLeaveModalOpen,
+    isSavingBeforeLeave,
+    handleStepSelect,
+    handleSaveAndLeave,
+    handleDiscardAndLeave,
+    handleLeaveModalOpenChange,
+  } = useCoverLetterStepNavigation({ coverLetterId, currentStep: step, availableStep });
   const { errors } = useCoverLetterCreateValidation();
   const errorSteps: WritingCreateStep[] = [...new Set(errors.map((error) => error.step))];
-  const isActionDisabled = !draft || isSaving || savingIntent !== null;
-  // 이동 확인 모달에서 저장한 경우에는 모달 버튼에서만 로딩을 표시합니다.
-  const panelSavingIntent = isSavingBeforeLeave ? null : savingIntent;
-  const { description, step, title } = COVER_LETTER_STEP_CONFIG[currentStepSegment];
-
-  const handleStepSelect = (targetStep: WritingCreateStep) => {
-    if (targetStep === step || targetStep > availableStep || isActionDisabled) return;
-
-    if (dirtyStep === step) {
-      setPendingStep(targetStep);
-      return;
-    }
-    router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, targetStep));
-  };
-
-  const handleSaveAndLeave = async () => {
-    if (pendingStep === null || isSavingBeforeLeave || isSaving || !saveDraft) return;
-    setIsSavingBeforeLeave(true);
-    try {
-      const isSaved = await saveDraft();
-      // 실패 시에는 현재 폼에서 오류를 확인하고 수정할 수 있도록 모달만 닫습니다.
-      setPendingStep(null);
-      if (isSaved) router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, pendingStep));
-    } finally {
-      setIsSavingBeforeLeave(false);
-    }
-  };
-
-  const handleDiscardAndLeave = () => {
-    if (pendingStep === null || isSavingBeforeLeave) return;
-    router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, pendingStep));
-    setPendingStep(null);
-  };
 
   const stepPanel =
     step === 4 ? (
@@ -97,19 +64,9 @@ export function WritingCreateStepShell({
         currentStep={step}
         availableStep={availableStep}
         errorSteps={errorSteps}
-        nextAction={{
-          status:
-            panelSavingIntent === 'next' ? 'loading' : isActionDisabled ? 'disabled' : 'enabled',
-        }}
+        nextAction={{ status: nextActionStatus }}
         onStepSelect={handleStepSelect}
-        saveDraftAction={{
-          status:
-            panelSavingIntent === 'draft'
-              ? 'loading'
-              : isActionDisabled || dirtyStep !== step
-                ? 'disabled'
-                : 'enabled',
-        }}
+        saveDraftAction={{ status: saveDraftActionStatus }}
       />
     );
 
@@ -126,11 +83,9 @@ export function WritingCreateStepShell({
 
       <div className="row-start-3 mt-9 min-w-0 lg:col-start-1 lg:row-start-2">{children}</div>
       <CoverLetterStepLeaveModal
-        open={pendingStep !== null}
+        open={isLeaveModalOpen}
         isSaving={isSavingBeforeLeave}
-        onOpenChange={(open) => {
-          if (!open && !isSavingBeforeLeave) setPendingStep(null);
-        }}
+        onOpenChange={handleLeaveModalOpenChange}
         onSave={() => void handleSaveAndLeave()}
         onDiscard={handleDiscardAndLeave}
       />

@@ -19,6 +19,8 @@ export { WRITING_CREATE_STEPS } from './model/writingCreateStep';
 export { getCoverLetterCreateAvailableStep } from './model/getCoverLetterCreateAvailableStep';
 export type { WritingCreateStep } from './model/writingCreateStep';
 export { CreateCoverLetterButton } from './ui/CreateCoverLetterButton';
+export { CoverLetterStepLeaveModal } from './ui/CoverLetterStepLeaveModal';
+export { useCoverLetterStepNavigation } from './hooks/useCoverLetterStepNavigation';
 export { useSaveCoverLetterPreferences } from './hooks/useSaveCoverLetterPreferences';
 export { useSaveCoverLetterQuestions } from './hooks/useSaveCoverLetterQuestions';
 export { useSubmitCoverLetter } from './hooks/useSubmitCoverLetter';

@@ -13,7 +13,7 @@ interface CoverLetterStepLeaveModalProps {
   onDiscard: () => void;
 }
 
-/** 단계 이동 전 미저장 입력의 저장·버리기·이동 취소를 선택합니다. */
+/** 작성 흐름에서 단계 이동 전 미저장 입력의 저장·버리기·이동 취소를 선택합니다. */
 export function CoverLetterStepLeaveModal({
   open,
   isSaving,
