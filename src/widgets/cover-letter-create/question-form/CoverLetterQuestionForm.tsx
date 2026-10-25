@@ -255,6 +255,7 @@ export function CoverLetterQuestionForm() {
   const saveQuestions = useCoverLetterStepSave<CoverLetterStep3FormInput>({
     coverLetterId,
     currentStep: 3,
+    isDirty,
     clearErrors,
     getValues,
     // 저장 중 입력한 값은 보존하고, 성공한 요청의 값만 비교 기준으로 갱신합니다.

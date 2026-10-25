@@ -57,6 +57,7 @@ export function CoverLetterPreferredQualificationForm() {
   const savePreferences = useCoverLetterStepSave<CoverLetterStep2FormInput>({
     coverLetterId,
     currentStep: 2,
+    isDirty,
     clearErrors,
     getValues,
     // 저장 중 입력한 값은 보존하고, 성공한 요청의 값만 비교 기준으로 갱신합니다.

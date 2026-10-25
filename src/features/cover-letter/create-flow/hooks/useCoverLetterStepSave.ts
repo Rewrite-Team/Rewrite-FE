@@ -19,6 +19,7 @@ import type { WritingCreateStep } from '../model/writingCreateStep';
 interface CoverLetterStepSaveOptions<Values> {
   coverLetterId: string;
   currentStep: Exclude<WritingCreateStep, 4>;
+  isDirty: boolean;
   clearErrors: () => void;
   getValues: () => Values;
   saveDraft: (values: Values) => Promise<unknown>;
@@ -37,6 +38,7 @@ interface CoverLetterStepSaveOptions<Values> {
  *
  * ### 주의할 점
  * 다음 단계의 필수값 검증은 호출하는 폼의 handleSubmit에서 먼저 수행합니다.
+ * isDirty가 false인 다음 단계 이동은 검증 후 저장 요청 없이 수행합니다.
  * validateDraft는 임시 저장과 다음 단계 이동 모두에 적용할 추가 검증이며,
  * false를 반환하면 API 요청을 중단합니다. 필드 오류 표시는 해당 콜백에서 처리합니다.
  * 서버 검증 오류는 Context에 기록하고 useCoverLetterStepErrors에서 폼에 적용합니다.
@@ -55,6 +57,7 @@ interface CoverLetterStepSaveOptions<Values> {
 export function useCoverLetterStepSave<Values>({
   coverLetterId,
   currentStep,
+  isDirty,
   clearErrors,
   getValues,
   saveDraft,
@@ -66,6 +69,7 @@ export function useCoverLetterStepSave<Values>({
   const isSavingRef = useRef(false);
   const { setErrors } = useCoverLetterCreateValidation();
   const { registerSaveDraft, setSavingIntent } = useCoverLetterCreateDraftSave();
+  const nextStepRoute = ROUTES.WRITING_CREATE_STEP(coverLetterId, currentStep + 1);
 
   const saveStep = async (values: Values, { intent }: { intent: 'draft' | 'next' }) => {
     if (isSavingRef.current) return false;
@@ -73,13 +77,17 @@ export function useCoverLetterStepSave<Values>({
     try {
       clearErrors();
       if (validateDraft && !validateDraft(values)) return false;
+      if (intent === 'next' && !isDirty) {
+        router.push(nextStepRoute);
+        return true;
+      }
       setSavingIntent?.(intent);
       await saveDraft(values);
       onSaved(values);
       // 오류가 있는 단계를 방문해도 표시는 유지하고, 저장에 성공했을 때 해제합니다.
       setErrors((errors) => errors.filter((error) => error.step !== currentStep));
       if (intent === 'next') {
-        router.push(ROUTES.WRITING_CREATE_STEP(coverLetterId, currentStep + 1));
+        router.push(nextStepRoute);
       } else {
         appToast.success('임시 저장되었습니다.');
       }
