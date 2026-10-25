@@ -10,6 +10,7 @@ import {
   type CoverLetterStep3Values,
 } from '@/features/cover-letter/create-flow';
 import { DeleteIcon } from '@/shared/assets/icons/side-menu';
+import { INPUT_LIMITS } from '@/shared/constants/limits';
 import { Accordion } from '@/shared/ui/accordion';
 import { Button } from '@/shared/ui/button';
 import { FormField } from '@/shared/ui/form-field';
@@ -77,7 +78,7 @@ export function CoverLetterQuestionFields({
                 <Input.Field
                   {...field}
                   autoComplete="off"
-                  placeholder="자기소개서 질문을 입력해주세요"
+                  placeholder={`자기소개서 질문을 입력해주세요 (최대 ${INPUT_LIMITS.COVER_LETTER_QUESTION}자)`}
                 />
                 <Input.ErrorMessage>{errorMessage}</Input.ErrorMessage>
               </div>
@@ -96,8 +97,9 @@ export function CoverLetterQuestionFields({
               <Input.Field
                 {...field}
                 inputMode="numeric"
-                min={1}
-                placeholder="자기소개서 최대 글자 수를 입력해주세요"
+                min={INPUT_LIMITS.COVER_LETTER_CHARACTER_LIMIT_MIN}
+                max={INPUT_LIMITS.COVER_LETTER_CHARACTER_LIMIT_MAX}
+                placeholder={`${INPUT_LIMITS.COVER_LETTER_CHARACTER_LIMIT_MIN}~${INPUT_LIMITS.COVER_LETTER_CHARACTER_LIMIT_MAX}자 범위로 입력해주세요`}
                 step={1}
                 type="number"
               />
@@ -113,11 +115,15 @@ export function CoverLetterQuestionFields({
             <TextArea id={`cover-letter-answer-${questionNumber}`} invalid={invalid} required>
               <TextArea.Label>자기소개서 내용</TextArea.Label>
               {recommendedLength === undefined ? (
-                <TextArea.Field {...field} placeholder="자기소개서 내용을 작성해주세요" showCount />
+                <TextArea.Field
+                  {...field}
+                  placeholder={`자기소개서 내용을 작성해주세요 (최대 ${INPUT_LIMITS.COVER_LETTER_ANSWER}자)`}
+                  showCount
+                />
               ) : (
                 <TextArea.Field
                   {...field}
-                  placeholder="자기소개서 내용을 작성해주세요"
+                  placeholder={`자기소개서 내용을 작성해주세요 (최대 ${INPUT_LIMITS.COVER_LETTER_ANSWER}자)`}
                   recommendedLength={recommendedLength}
                   showCount
                 />

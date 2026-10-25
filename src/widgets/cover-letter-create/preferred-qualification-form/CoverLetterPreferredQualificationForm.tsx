@@ -17,6 +17,7 @@ import {
   getCoverLetterStep2DefaultValues,
   useSaveCoverLetterPreferences,
 } from '@/features/cover-letter/create-flow';
+import { INPUT_LIMITS } from '@/shared/constants/limits';
 import { FormField } from '@/shared/ui/form-field';
 import { TextArea } from '@/shared/ui/textarea';
 import { COVER_LETTER_STEP_FORM_ID } from '@/widgets/cover-letter-create/constants/stepForm';
@@ -62,6 +63,20 @@ export function CoverLetterPreferredQualificationForm() {
     getValues,
     // 저장 중 입력한 값은 보존하고, 성공한 요청의 값만 비교 기준으로 갱신합니다.
     onSaved: (values) => reset(values, { keepValues: true }),
+    validateDraft: (values) => {
+      // 미완성 입력은 저장하되 값이 있으면 다음 단계와 같은 길이 제한을 적용합니다.
+      if (values.preferredQualification.trim() === '') return true;
+      const result = coverLetterStep2Schema.shape.preferredQualification.safeParse(
+        values.preferredQualification
+      );
+      if (result.success) return true;
+      setError('preferredQualification', {
+        type: 'validate',
+        message: result.error.issues[0].message,
+      });
+      setFocus('preferredQualification');
+      return false;
+    },
     saveDraft: (values) =>
       saveMutation.mutateAsync({
         preferences: values.preferredQualification.trim() || null,
@@ -95,6 +110,8 @@ export function CoverLetterPreferredQualificationForm() {
                 {...field}
                 className="h-85.5 min-h-85.5"
                 placeholder="공고의 우대사항을 입력해주세요. 자기소개서가 직무와 더 잘 연결되도록 첨삭에 반영됩니다."
+                recommendedLength={INPUT_LIMITS.COVER_LETTER_PREFERENCES}
+                showCount
               />
               <TextArea.ErrorMessage>{errorMessage}</TextArea.ErrorMessage>
             </TextArea>

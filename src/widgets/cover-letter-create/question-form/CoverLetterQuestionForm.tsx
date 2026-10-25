@@ -9,6 +9,7 @@ import {
   useCoverLetterStepSave,
   useCoverLetterStepDirty,
   coverLetterStep3Schema,
+  coverLetterQuestionSchema,
   type CoverLetterStep3FormInput,
   type CoverLetterStep3Values,
   useCoverLetterCreateDraft,
@@ -86,16 +87,27 @@ export function CoverLetterQuestionForm() {
     // 저장 중 입력한 값은 보존하고, 성공한 요청의 값만 비교 기준으로 갱신합니다.
     onSaved: (values) => reset(values, { keepValues: true }),
     validateDraft: (values) => {
-      const invalidLengthIndex = values.questions.findIndex(
-        ({ characterLimit }) =>
-          characterLimit.trim() !== '' && !Number.isSafeInteger(Number(characterLimit))
+      let firstInvalidField:
+        | { index: number; field: keyof CoverLetterStep3FormInput['questions'][number] }
+        | undefined;
+      for (const [index, question] of values.questions.entries()) {
+        for (const field of ['question', 'characterLimit', 'answer'] as const) {
+          // 질문과 답변의 필수 여부만 생략하고 형식·범위는 공통 스키마로 검증합니다.
+          if (field !== 'characterLimit' && question[field].trim() === '') continue;
+          const result = coverLetterQuestionSchema.shape[field].safeParse(question[field]);
+          if (result.success) continue;
+          setError(`questions.${index}.${field}`, {
+            type: 'validate',
+            message: result.error.issues[0].message,
+          });
+          firstInvalidField ??= { index, field };
+        }
+      }
+      if (!firstInvalidField) return true;
+      focusQuestionField(
+        firstInvalidField.index,
+        `questions.${firstInvalidField.index}.${firstInvalidField.field}`
       );
-      if (invalidLengthIndex < 0) return true;
-      setError(`questions.${invalidLengthIndex}.characterLimit`, {
-        type: 'validate',
-        message: '글자 수는 정수로 입력해주세요.',
-      });
-      openQuestion(invalidLengthIndex);
       return false;
     },
     saveDraft: (values) =>
