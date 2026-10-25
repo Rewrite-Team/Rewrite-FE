@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -9,7 +9,10 @@ import { ROUTES } from '@/shared/constants/routes';
 import { appToast } from '@/shared/lib/toast';
 
 import { mapCoverLetterValidationErrors } from '../model/mapCoverLetterValidationErrors';
-import { useCoverLetterCreateValidation } from '../ui/CoverLetterCreateDraftContext';
+import {
+  useCoverLetterCreateValidation,
+  useCoverLetterCreateDraftSave,
+} from '../ui/CoverLetterCreateDraftContext';
 
 import type { WritingCreateStep } from '../model/writingCreateStep';
 
@@ -17,6 +20,7 @@ interface CoverLetterStepSaveOptions<Values> {
   coverLetterId: string;
   currentStep: Exclude<WritingCreateStep, 4>;
   clearErrors: () => void;
+  getValues: () => Values;
   saveDraft: (values: Values) => Promise<unknown>;
   onSaved: (values: Values) => void;
   validateDraft?: (values: Values) => boolean;
@@ -38,6 +42,7 @@ interface CoverLetterStepSaveOptions<Values> {
  * 서버 검증 오류는 Context에 기록하고 useCoverLetterStepErrors에서 폼에 적용합니다.
  * 요청 데이터 변환은 saveDraft에서 담당합니다.
  * onSaved에는 저장에 성공한 입력값을 전달하므로 폼의 변경 비교 기준을 갱신할 수 있습니다.
+ * getValues로 현재 폼의 임시 저장 액션을 등록하며, 저장 성공 여부를 반환해 단계 이동을 결정합니다.
  *
  * @example
  * ```tsx
@@ -51,6 +56,7 @@ export function useCoverLetterStepSave<Values>({
   coverLetterId,
   currentStep,
   clearErrors,
+  getValues,
   saveDraft,
   onSaved,
   validateDraft,
@@ -59,13 +65,14 @@ export function useCoverLetterStepSave<Values>({
   const router = useRouter();
   const isSavingRef = useRef(false);
   const { setErrors } = useCoverLetterCreateValidation();
+  const { registerSaveDraft } = useCoverLetterCreateDraftSave();
 
-  return async (values: Values, { intent }: { intent: 'draft' | 'next' }) => {
-    if (isSavingRef.current) return;
+  const saveStep = async (values: Values, { intent }: { intent: 'draft' | 'next' }) => {
+    if (isSavingRef.current) return false;
     isSavingRef.current = true;
     try {
       clearErrors();
-      if (validateDraft && !validateDraft(values)) return;
+      if (validateDraft && !validateDraft(values)) return false;
       await saveDraft(values);
       onSaved(values);
       // 오류가 있는 단계를 방문해도 표시는 유지하고, 저장에 성공했을 때 해제합니다.
@@ -75,6 +82,7 @@ export function useCoverLetterStepSave<Values>({
       } else {
         appToast.success('임시 저장되었습니다.');
       }
+      return true;
     } catch (error) {
       const isValidationError = error instanceof ApiError && error.code === 'VALIDATION_ERROR';
       if (isValidationError) {
@@ -87,8 +95,14 @@ export function useCoverLetterStepSave<Values>({
         ]);
       }
       appToast.error(isValidationError ? '입력 내용을 확인하고 다시 저장해 주세요.' : errorMessage);
+      return false;
     } finally {
       isSavingRef.current = false;
     }
   };
+
+  // 매 렌더의 최신 저장 핸들러를 등록하고, 단계 이탈 시 이전 액션을 해제합니다.
+  useEffect(() => registerSaveDraft?.(() => saveStep(getValues(), { intent: 'draft' })));
+
+  return saveStep;
 }

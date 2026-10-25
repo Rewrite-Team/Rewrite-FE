@@ -2,9 +2,11 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
   type Dispatch,
@@ -27,6 +29,8 @@ interface DraftContextValue {
   setErrors: Dispatch<SetStateAction<CoverLetterValidationFieldError[]>>;
   dirtyStep: WritingCreateStep | null;
   setDirtyStep: Dispatch<SetStateAction<WritingCreateStep | null>>;
+  registerSaveDraft: (save: () => Promise<boolean>) => () => void;
+  saveDraft: () => Promise<boolean>;
 }
 
 type CoverLetterCreateValidation = Pick<DraftContextValue, 'errors' | 'setErrors'>;
@@ -58,9 +62,17 @@ export function CoverLetterCreateDraftProvider({
 }: CoverLetterCreateDraftProviderProps) {
   const [errors, setErrors] = useState<CoverLetterValidationFieldError[]>([]);
   const [dirtyStep, setDirtyStep] = useState<WritingCreateStep | null>(null);
+  const saveDraftRef = useRef<(() => Promise<boolean>) | null>(null);
+  const registerSaveDraft = useCallback((save: () => Promise<boolean>) => {
+    saveDraftRef.current = save;
+    return () => {
+      if (saveDraftRef.current === save) saveDraftRef.current = null;
+    };
+  }, []);
+  const saveDraft = useCallback(() => saveDraftRef.current?.() ?? Promise.resolve(false), []);
   const value = useMemo(
-    () => ({ draft, errors, setErrors, dirtyStep, setDirtyStep }),
-    [draft, errors, dirtyStep]
+    () => ({ draft, errors, setErrors, dirtyStep, setDirtyStep, registerSaveDraft, saveDraft }),
+    [draft, errors, dirtyStep, registerSaveDraft, saveDraft]
   );
   return (
     <CoverLetterCreateDraftContext.Provider value={value}>
@@ -144,3 +156,12 @@ export function useCoverLetterStepDirty(step: WritingCreateStep, isDirty: boolea
  */
 export const useCoverLetterCreateDirtyStep = () =>
   useContext(CoverLetterCreateDraftContext)?.dirtyStep ?? null;
+
+/** 현재 단계의 임시 저장을 실행하고 성공 여부를 확인한 뒤 이동할 때 사용합니다. */
+export const useCoverLetterCreateDraftSave = () => {
+  const context = useContext(CoverLetterCreateDraftContext);
+  return {
+    registerSaveDraft: context?.registerSaveDraft,
+    saveDraft: context?.saveDraft,
+  };
+};

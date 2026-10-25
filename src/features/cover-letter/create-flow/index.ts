@@ -33,6 +33,7 @@ export {
   useCoverLetterCreateValidation,
   useCoverLetterStepDirty,
   useCoverLetterCreateDirtyStep,
+  useCoverLetterCreateDraftSave,
 } from './ui/CoverLetterCreateDraftContext';
 export { useCoverLetterStepSave } from './hooks/useCoverLetterStepSave';
 export { useCoverLetterCreateProgress } from './hooks/useCoverLetterCreateProgress';
