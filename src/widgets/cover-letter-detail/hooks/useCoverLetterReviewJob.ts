@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { coverLetterDetailQueryOptions, coverLetterQueryKeys } from '@/entities/cover-letter';
+import { fetchLatestCoverLetterDetail, coverLetterQueryKeys } from '@/entities/cover-letter';
 import {
   connectLlmJobEvents,
   getLlmJobStatus,
@@ -66,16 +66,12 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
     let recoveryPromise: Promise<void> | undefined;
 
     const refreshDetail = async () => {
-      await queryClient.cancelQueries({
-        queryKey: coverLetterQueryKeys.detail(coverLetterId),
-        exact: true,
-      });
-      if (controller.signal.aborted) return;
       // 완료·복구 시에는 신선한 REVIEWING 캐시가 있어도 서버의 최신 결과를 조회합니다.
-      const detail = await queryClient.fetchQuery({
-        ...coverLetterDetailQueryOptions(coverLetterId),
-        staleTime: 0,
-      });
+      const detail = await fetchLatestCoverLetterDetail(
+        queryClient,
+        coverLetterId,
+        controller.signal
+      );
       if (controller.signal.aborted) return;
       void queryClient.invalidateQueries({ queryKey: coverLetterQueryKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: reviewVersionQueryKeys.list(coverLetterId) });

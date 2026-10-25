@@ -6,7 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import {
   coverLetterQueryKeys,
-  coverLetterDetailQueryOptions,
+  fetchLatestCoverLetterDetail,
   submitCoverLetter,
   type CoverLetterDetailResponse,
 } from '@/entities/cover-letter';
@@ -86,10 +86,7 @@ export function useSubmitCoverLetter(
         appToast.error('이미 첨삭된 자기소개서입니다. 기존 결과를 확인해 주세요.');
         try {
           // 이전 WRITING 캐시 때문에 작성 화면으로 되돌아가지 않도록 먼저 갱신합니다.
-          await queryClient.fetchQuery({
-            ...coverLetterDetailQueryOptions(coverLetterId),
-            staleTime: 0,
-          });
+          await fetchLatestCoverLetterDetail(queryClient, coverLetterId);
         } catch {
           appToast.error('기존 첨삭 결과를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
           return;

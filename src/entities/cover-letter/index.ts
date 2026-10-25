@@ -2,6 +2,7 @@ export * from './api/api';
 export * from './api/types';
 export { coverLetterQueryKeys } from './api/queryKeys';
 export { coverLetterDetailQueryOptions, coverLetterListQueryOptions } from './api/queries';
+export { fetchLatestCoverLetterDetail } from './api/fetchLatestCoverLetterDetail';
 export { useCoverLetterList } from './hooks/useCoverLetterList';
 export { useCoverLetterDetail } from './hooks/useCoverLetterDetail';
 export {

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 
 import { useQueryClient } from '@tanstack/react-query';
 
-import { coverLetterDetailQueryOptions, coverLetterQueryKeys } from '@/entities/cover-letter';
+import { fetchLatestCoverLetterDetail } from '@/entities/cover-letter';
 import { ApiError } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
 import { appToast } from '@/shared/lib/toast';
@@ -39,14 +39,7 @@ export function useCoverLetterSaveError(
     }
     if (error instanceof ApiError && error.code === 'COVER_LETTER_NOT_WRITING') {
       try {
-        await queryClient.cancelQueries({
-          queryKey: coverLetterQueryKeys.detail(coverLetterId),
-          exact: true,
-        });
-        const detail = await queryClient.fetchQuery({
-          ...coverLetterDetailQueryOptions(coverLetterId),
-          staleTime: 0,
-        });
+        const detail = await fetchLatestCoverLetterDetail(queryClient, coverLetterId);
         appToast.error('작성 상태가 변경되었습니다. 현재 상태를 확인해 주세요.');
         if (detail.coverLetter.displayStatus !== 'WRITING') {
           router.replace(ROUTES.WRITING_DETAIL(coverLetterId));
