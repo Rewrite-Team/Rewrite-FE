@@ -7,7 +7,6 @@ import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchLatestCoverLetterDetail, coverLetterQueryKeys } from '@/entities/cover-letter';
 import {
   connectLlmJobEvents,
-  getLlmJobStatus,
   parseCoverLetterReviewEvent,
   mergeReviewQuestionSnapshots,
   llmJobQueryKeys,
@@ -17,9 +16,9 @@ import {
 import { reviewVersionQueryKeys } from '@/entities/review-version';
 import { refreshAuthTokens } from '@/entities/user';
 
+import { createReviewJobRecovery, isTerminalJobStatus } from '../model/createReviewJobRecovery';
+
 const RECOVERY_RETRY_COUNT = 3;
-const isTerminalJobStatus = (status: LlmJobStateResponse['status']) =>
-  status === 'COMPLETED' || status === 'FAILED' || status === 'CANCELED';
 
 /**
  * ## useCoverLetterReviewJob
@@ -62,8 +61,6 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
     const jobQueryKey = llmJobQueryKeys.status(jobId);
     let retryCount = 0;
     let hasReceivedTerminalState = false;
-    let hasStreamClosed = false;
-    let recoveryPromise: Promise<void> | undefined;
 
     const refreshDetail = async () => {
       // 완료·복구 시에는 신선한 REVIEWING 캐시가 있어도 서버의 최신 결과를 조회합니다.
@@ -84,51 +81,13 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
       return detail;
     };
 
-    const recover = (isStreamClosed: boolean) => {
-      // 요청을 공유하더라도 뒤늦게 전달된 연결 종료 사실은 유지합니다.
-      hasStreamClosed ||= isStreamClosed;
-      if (controller.signal.aborted || recoveryPromise) return recoveryPromise;
-      let hasRecoveredRunningJob = false;
-      recoveryPromise = (async () => {
-        try {
-          const state = await getLlmJobStatus(jobId, { signal: controller.signal });
-          if (controller.signal.aborted) return;
-          queryClient.setQueryData(jobQueryKey, state);
-          if (isTerminalJobStatus(state.status)) {
-            await refreshDetail();
-            controller.abort();
-          } else {
-            hasRecoveredRunningJob = true;
-          }
-        } catch {
-          if (controller.signal.aborted) return;
-          try {
-            const detail = await refreshDetail();
-            if (detail && detail.coverLetter.displayStatus !== 'REVIEWING') {
-              controller.abort();
-              return;
-            }
-          } catch {
-            /* 아래 안내로 수동 복구를 제공합니다. */
-          }
-          if (!controller.signal.aborted)
-            setConnectionIssue({
-              jobId,
-              message: '진행 상태를 불러오지 못했습니다. 상태를 새로고침해 주세요.',
-            });
-        }
-      })().finally(() => {
-        recoveryPromise = undefined;
-        // 복구 도중 연결이 닫힌 경우도 완료 시점의 상태로 판단합니다.
-        if (hasStreamClosed && hasRecoveredRunningJob && !controller.signal.aborted) {
-          setConnectionIssue({
-            jobId,
-            message: '진행 상태 연결이 종료되었습니다. 상태를 새로고침해 주세요.',
-          });
-        }
-      });
-      return recoveryPromise;
-    };
+    const recover = createReviewJobRecovery({
+      jobId,
+      queryClient,
+      controller,
+      refreshDetail,
+      onConnectionIssue: (message) => setConnectionIssue({ jobId, message }),
+    });
 
     void connectLlmJobEvents(jobId, {
       signal: controller.signal,
