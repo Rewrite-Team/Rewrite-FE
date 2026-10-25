@@ -2,20 +2,12 @@
 
 import { useRef, useState, type SubmitEvent } from 'react';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
-import { useQueryClient } from '@tanstack/react-query';
-
-import { coverLetterDetailQueryOptions } from '@/entities/cover-letter';
 import {
   useCoverLetterCreateDraft,
-  useCoverLetterCreateValidation,
   useSubmitCoverLetter,
-  mapCoverLetterValidationErrors,
 } from '@/features/cover-letter/create-flow';
-import { ApiError } from '@/shared/api';
-import { ROUTES } from '@/shared/constants/routes';
-import { appToast } from '@/shared/lib/toast';
 import { Accordion } from '@/shared/ui/accordion';
 import { ConfirmModal } from '@/shared/ui/confirm-modal';
 import { Input } from '@/shared/ui/input';
@@ -82,12 +74,11 @@ function CoverLetterReviewQuestion({
  * 읽기 전용으로 확인하는 폼입니다.
  */
 export function CoverLetterReviewForm() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
   const { coverLetterId } = useParams<{ coverLetterId: string }>();
-  const submitMutation = useSubmitCoverLetter(coverLetterId);
-  const { setErrors } = useCoverLetterCreateValidation();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const submitMutation = useSubmitCoverLetter(coverLetterId, {
+    onValidationRedirect: () => setIsConfirmOpen(false),
+  });
   const submittingRef = useRef(false);
   const draft = useCoverLetterCreateDraft();
   const coverLetter = draft?.coverLetter;
@@ -105,53 +96,15 @@ export function CoverLetterReviewForm() {
     if (!submittingRef.current) setIsConfirmOpen(true);
   };
 
-  const handleConfirm = async () => {
+  const handleConfirm = () => {
     if (submittingRef.current) return;
     submittingRef.current = true;
-    setErrors([]);
-    try {
-      await submitMutation.mutateAsync();
-      setIsConfirmOpen(false);
-    } catch (error) {
-      if (error instanceof ApiError && error.code === 'VALIDATION_ERROR') {
-        const errors = mapCoverLetterValidationErrors(error.details);
-        setErrors(errors);
-        if (errors.length > 0) {
-          setIsConfirmOpen(false);
-          router.replace(
-            ROUTES.WRITING_CREATE_STEP(
-              coverLetterId,
-              Math.min(...errors.map((error) => error.step))
-            )
-          );
-        }
-        appToast.error('입력 내용을 확인하고 다시 제출해 주세요.');
-      } else if (error instanceof ApiError && error.status === 404) {
-        appToast.error('자기소개서가 없거나 접근할 수 없습니다.');
-        router.replace(ROUTES.WRITING);
-      } else if (error instanceof ApiError && error.code === 'CONFLICT') {
-        appToast.error('이미 첨삭된 자기소개서입니다. 기존 결과를 확인해 주세요.');
-        try {
-          // 최신 상태를 확인해야 상세 화면에서 WRITING 캐시로 다시 리다이렉트되지 않습니다.
-          await queryClient.fetchQuery({
-            ...coverLetterDetailQueryOptions(coverLetterId),
-            staleTime: 0,
-          });
-        } catch {
-          appToast.error('기존 첨삭 결과를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
-          return;
-        }
-        router.replace(ROUTES.WRITING_DETAIL(coverLetterId));
-      } else {
-        appToast.error(
-          error instanceof ApiError && error.code === 'LLM_JOB_ALREADY_RUNNING'
-            ? '다른 AI 작업이 진행 중입니다. 완료 후 다시 시도해 주세요.'
-            : '자기소개서를 제출하지 못했습니다. 잠시 후 다시 시도해 주세요.'
-        );
-      }
-    } finally {
-      submittingRef.current = false;
-    }
+    submitMutation.mutate(undefined, {
+      onSuccess: () => setIsConfirmOpen(false),
+      onSettled: () => {
+        submittingRef.current = false;
+      },
+    });
   };
 
   return (
@@ -225,7 +178,7 @@ export function CoverLetterReviewForm() {
         confirmLabel="AI 첨삭 시작"
         cancelLabel="취소"
         isLoading={submitMutation.isPending}
-        onConfirm={() => void handleConfirm()}
+        onConfirm={handleConfirm}
       />
     </>
   );
