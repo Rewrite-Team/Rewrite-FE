@@ -35,12 +35,20 @@ interface DraftContextValue {
   setSavingIntent: Dispatch<SetStateAction<'draft' | 'next' | null>>;
 }
 
-type CoverLetterCreateValidation = Pick<DraftContextValue, 'errors' | 'setErrors'>;
-type CoverLetterCreateDraftSave = Pick<DraftContextValue, 'savingIntent'> &
-  Partial<Pick<DraftContextValue, 'saveDraft'>>;
-type CoverLetterCreateSaveControl = Partial<
-  Pick<DraftContextValue, 'registerSaveDraft' | 'setSavingIntent'>
->;
+interface CoverLetterCreateValidation {
+  errors: CoverLetterValidationFieldError[];
+  setErrors: Dispatch<SetStateAction<CoverLetterValidationFieldError[]>>;
+}
+
+interface CoverLetterCreateDraftSave {
+  savingIntent: 'draft' | 'next' | null;
+  saveDraft?: () => Promise<boolean>;
+}
+
+interface CoverLetterCreateSaveControl {
+  registerSaveDraft?: (save: () => Promise<boolean>) => () => void;
+  setSavingIntent?: Dispatch<SetStateAction<'draft' | 'next' | null>>;
+}
 
 const EMPTY_VALIDATION: CoverLetterCreateValidation = {
   errors: [],
