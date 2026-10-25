@@ -325,9 +325,11 @@ describe('CoverLetterQuestionForm', () => {
     fireEvent.click(screen.getByRole('button', { name: '1번 자기소개서 문항 접기 또는 펼치기' }));
     fireEvent.click(screen.getByRole('button', { name: '임시 저장' }));
     expect(await screen.findByText('답변은 최대 5000자입니다.')).toBeVisible();
-    expect(
-      screen.getByRole('button', { name: '2번 자기소개서 문항 접기 또는 펼치기' })
-    ).toHaveAttribute('aria-expanded', 'true');
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: '2번 자기소개서 문항 접기 또는 펼치기' })
+      ).toHaveAttribute('aria-expanded', 'true');
+    });
     expect(mockPush).not.toHaveBeenCalled();
   });
 });
