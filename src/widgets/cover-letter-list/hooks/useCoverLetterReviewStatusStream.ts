@@ -15,7 +15,6 @@ import { refreshAuthTokens } from '@/entities/user';
 import { isRetryableRefreshError } from '../utils/isRetryableRefreshError';
 import { waitForRefreshRetry } from '../utils/waitForRefreshRetry';
 
-const FALLBACK_RETRY_COUNT = 3;
 const MAX_RETRY_DELAY_MS = 120_000;
 
 /**
@@ -25,6 +24,7 @@ const MAX_RETRY_DELAY_MS = 120_000;
  * 목록 화면에서 사용자 단위 첨삭 상태 스트림을 하나 구독합니다.
  * 스냅샷이 캐시와 다르거나 변경 이벤트를 받으면 표시 중인 페이지를 재조회하고,
  * 다른 페이지는 다음 진입 시 최신 상태로 조회합니다.
+ * 연결 오류·무응답 시에도 목록을 복구 조회하고, 조회가 끝난 뒤 SSE를 재연결합니다.
  * 갱신의 네트워크 오류·5xx는 3초 뒤 한 번 재시도하며, 최종 결과까지 오류 안내를 보류합니다.
  * 페이지 이동 시 연결을 유지하며 화면을 떠날 때 구독을 종료합니다.
  */
@@ -34,7 +34,6 @@ export const useCoverLetterReviewStatusStream = () => {
 
   useEffect(() => {
     const controller = new AbortController();
-    let retryCount = 0;
     let refreshTask: Promise<void> | undefined;
     let refreshRequested = false;
 
@@ -56,7 +55,8 @@ export const useCoverLetterReviewStatusStream = () => {
 
       refreshRequested = true;
       if (refreshTask) {
-        return;
+        // 재연결 호출부도 진행 중인 목록 복구가 끝날 때까지 같은 Promise를 기다립니다.
+        return refreshTask;
       }
 
       setIsRefreshing(true);
@@ -96,6 +96,7 @@ export const useCoverLetterReviewStatusStream = () => {
           setIsRefreshing(false);
         }
       });
+      return refreshTask;
     };
 
     void connectCoverLetterReviewStatuses({
@@ -108,8 +109,6 @@ export const useCoverLetterReviewStatusStream = () => {
           event === 'cover-letter.review-status.snapshot' ||
           event === 'cover-letter.review-status.changed'
         ) {
-          retryCount = 0;
-
           if (event === 'cover-letter.review-status.snapshot') {
             const lists = queryClient
               .getQueriesData<CoverLetterListResponse>({ queryKey: coverLetterQueryKeys.lists() })
@@ -125,12 +124,8 @@ export const useCoverLetterReviewStatusStream = () => {
           refreshLists();
         }
       },
-      onRetry: () => {
-        retryCount += 1;
-
-        if (retryCount % FALLBACK_RETRY_COUNT === 0) {
-          refreshLists();
-        }
+      onRetry: async () => {
+        await refreshLists();
       },
     }).catch(refreshLists);
 

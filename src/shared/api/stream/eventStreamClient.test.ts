@@ -17,6 +17,11 @@ jest.mock('../base/config', () => ({
 
 const mockFetchEventSource = jest.mocked(fetchEventSource);
 const streamControllers: AbortController[] = [];
+const originalFetch = globalThis.fetch;
+const streamResponse = {
+  ok: true,
+  headers: { get: () => 'text/event-stream' },
+} as unknown as Response;
 
 const openStream = async (overrides: Partial<EventStreamOptions> = {}) => {
   const controller = new AbortController();
@@ -36,10 +41,13 @@ describe('connectEventStream', () => {
     mockFetchEventSource.mockReset();
     mockFetchEventSource.mockImplementation(() => new Promise(() => {}));
     jest.mocked(notifyAuthSessionExpired).mockClear();
+    globalThis.fetch = jest.fn().mockResolvedValue(streamResponse);
   });
 
   afterEach(() => {
     streamControllers.splice(0).forEach((controller) => controller.abort());
+    globalThis.fetch = originalFetch;
+    jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
@@ -156,5 +164,78 @@ describe('connectEventStream', () => {
     await task;
     document.dispatchEvent(new Event('visibilitychange'));
     expect(mockFetchEventSource).toHaveBeenCalledTimes(1);
+  });
+
+  it('HTTP 복구가 끝나기 전에는 재연결 요청을 보내지 않는다', async () => {
+    let finishRecovery: () => void = () => {};
+    const recovery = new Promise<void>((resolve) => {
+      finishRecovery = resolve;
+    });
+    const options = await openStream({ onRetry: () => recovery });
+    options.onerror?.(new TypeError('단절'));
+    const nextRequest = options.fetch!('https://api.example.com/stream', {
+      signal: options.signal,
+    });
+    await Promise.resolve();
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+    finishRecovery();
+    await nextRequest;
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('복구로 구독이 종료되면 대기 중이던 재연결 요청을 보내지 않는다', async () => {
+    let finishRecovery: () => void = () => {};
+    const recovery = new Promise<void>((resolve) => {
+      finishRecovery = resolve;
+    });
+    const options = await openStream({
+      onRetry: async () => {
+        await recovery;
+        streamControllers[0].abort();
+      },
+    });
+    options.onerror?.(new TypeError('단절'));
+    const nextRequest = options.fetch!('https://api.example.com/stream', {
+      signal: options.signal,
+    });
+    const outcome = nextRequest.catch((error: unknown) => error);
+    finishRecovery();
+    await outcome;
+    expect(options.signal?.aborted).toBe(true);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  it('이전 요청이 탭 복귀 후 실패해도 새 연결의 무응답 감시를 유지한다', async () => {
+    jest.useFakeTimers();
+    const hidden = jest.spyOn(document, 'hidden', 'get').mockReturnValue(false);
+    let rejectPrevious: (error: Error) => void = () => {};
+    jest.mocked(globalThis.fetch).mockImplementationOnce(
+      () =>
+        new Promise<Response>((_, reject) => {
+          rejectPrevious = reject;
+        })
+    );
+    const first = await openStream();
+    const previousRequest = first.fetch!('https://api.example.com/stream', {
+      signal: first.signal,
+    });
+    const previousOutcome = previousRequest.catch((error: unknown) => error);
+    hidden.mockReturnValue(true);
+    document.dispatchEvent(new Event('visibilitychange'));
+    hidden.mockReturnValue(false);
+    document.dispatchEvent(new Event('visibilitychange'));
+    const second = mockFetchEventSource.mock.calls[1][1];
+    await second.fetch!('https://api.example.com/stream', { signal: second.signal });
+    await second.onopen?.(streamResponse);
+    const currentSignal = jest.mocked(globalThis.fetch).mock.calls[1][1]?.signal;
+
+    const error = new Error('이전 요청 취소');
+    rejectPrevious(error);
+    await previousOutcome;
+    expect(() => first.onerror?.(error)).toThrow();
+    first.onclose?.();
+    expect(jest.getTimerCount()).toBe(1);
+    jest.advanceTimersByTime(30_000);
+    expect(currentSignal?.aborted).toBe(true);
   });
 });

@@ -98,7 +98,7 @@ describe('useCoverLetterReviewJob', () => {
     expect(options.signal.aborted).toBe(true);
   });
 
-  it('3회 연결 장애 시 HTTP로 실패 상태를 복구하고 SSE를 종료한다', async () => {
+  it('첫 연결 장애에서 HTTP로 실패 상태를 복구하고 SSE를 종료한다', async () => {
     jest.mocked(getLlmJobStatus).mockResolvedValue(state('FAILED'));
     jest.mocked(getCoverLetterDetail).mockResolvedValue({
       ...DETAIL,
@@ -107,10 +107,8 @@ describe('useCoverLetterReviewJob', () => {
     const { result } = setup();
     await waitFor(() => expect(connectLlmJobEvents).toHaveBeenCalled());
     const options = jest.mocked(connectLlmJobEvents).mock.calls[0][1];
-    act(() => {
-      options.onRetry?.();
-      options.onRetry?.();
-      options.onRetry?.();
+    await act(async () => {
+      await options.onRetry?.();
     });
     await waitFor(() => expect(options.signal.aborted).toBe(true));
     expect(getLlmJobStatus).toHaveBeenCalledTimes(1);
