@@ -88,18 +88,9 @@ export const coverLetterStep3Schema = z.object({
     .min(1, { message: '자기소개서 문항을 1개 이상 작성해주세요.' }),
 });
 
-/** STEP4에서 최종 확인할 STEP1~3 전체 데이터 검증 스키마입니다. */
-export const coverLetterStep4Schema = z.object({
-  ...coverLetterStep1Schema.shape,
-  ...coverLetterStep2Schema.shape,
-  ...coverLetterStep3Schema.shape,
-});
-
 export type CoverLetterStep1FormInput = z.input<typeof coverLetterStep1Schema>;
 export type CoverLetterStep1Values = z.output<typeof coverLetterStep1Schema>;
 export type CoverLetterStep2FormInput = z.input<typeof coverLetterStep2Schema>;
 export type CoverLetterStep2Values = z.output<typeof coverLetterStep2Schema>;
 export type CoverLetterStep3FormInput = z.input<typeof coverLetterStep3Schema>;
 export type CoverLetterStep3Values = z.output<typeof coverLetterStep3Schema>;
-export type CoverLetterStep4Input = z.input<typeof coverLetterStep4Schema>;
-export type CoverLetterStep4Values = z.output<typeof coverLetterStep4Schema>;

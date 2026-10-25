@@ -3,7 +3,6 @@ export {
   coverLetterStep1Schema,
   coverLetterStep2Schema,
   coverLetterStep3Schema,
-  coverLetterStep4Schema,
 } from './model/schemas/coverLetterCreateSchemas';
 export type {
   CoverLetterStep1FormInput,
@@ -12,8 +11,6 @@ export type {
   CoverLetterStep2Values,
   CoverLetterStep3FormInput,
   CoverLetterStep3Values,
-  CoverLetterStep4Input,
-  CoverLetterStep4Values,
 } from './model/schemas/coverLetterCreateSchemas';
 export { WRITING_CREATE_STEPS } from './model/writingCreateStep';
 export { getCoverLetterCreateAvailableStep } from './model/getCoverLetterCreateAvailableStep';
