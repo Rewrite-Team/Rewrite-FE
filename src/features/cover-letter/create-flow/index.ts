@@ -17,7 +17,7 @@ export type {
 } from './model/schemas/coverLetterCreateSchemas';
 export { WRITING_CREATE_STEPS } from './model/writingCreateStep';
 export { getCoverLetterCreateAvailableStep } from './model/getCoverLetterCreateAvailableStep';
-export type { WritingCreateStep } from './model/writingCreateStep';
+export type { WritingCreateStep, WritingCreateInputStep } from './model/writingCreateStep';
 export { CreateCoverLetterButton } from './ui/CreateCoverLetterButton';
 export { CoverLetterStepLeaveModal } from './ui/CoverLetterStepLeaveModal';
 export { useCoverLetterStepNavigation } from './hooks/useCoverLetterStepNavigation';
@@ -25,10 +25,8 @@ export { useSaveCoverLetterPreferences } from './hooks/useSaveCoverLetterPrefere
 export { useSaveCoverLetterQuestions } from './hooks/useSaveCoverLetterQuestions';
 export { useSubmitCoverLetter } from './hooks/useSubmitCoverLetter';
 export { mapCoverLetterValidationErrors } from './model/mapCoverLetterValidationErrors';
-export {
-  useIsSavingCoverLetterDraft,
-  useSaveCoverLetterBasicInfo,
-} from './hooks/useSaveCoverLetterBasicInfo';
+export { useSaveCoverLetterBasicInfo } from './hooks/useSaveCoverLetterBasicInfo';
+export { useIsCoverLetterCreatePending } from './hooks/useIsCoverLetterCreatePending';
 export {
   CoverLetterCreateDraftProvider,
   useCoverLetterCreateDraft,

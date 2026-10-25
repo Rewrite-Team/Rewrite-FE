@@ -53,7 +53,7 @@ export function WritingCreateStepShell({
   const stepPanel =
     step === 4 ? (
       <CoverLetterStepPanel
-        completeAction={{ status: isActionDisabled ? 'disabled' : 'enabled' }}
+        submitAction={{ status: isActionDisabled ? 'disabled' : 'enabled' }}
         currentStep={step}
         availableStep={availableStep}
         errorSteps={errorSteps}

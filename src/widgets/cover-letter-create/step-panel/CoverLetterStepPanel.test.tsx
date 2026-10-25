@@ -75,17 +75,17 @@ describe('CoverLetterStepPanel', () => {
   it('마지막 단계에서는 AI 첨삭 시작 액션만 표시한다', () => {
     render(
       <CoverLetterStepPanel
-        completeAction={{ status: 'disabled' }}
+        submitAction={{ status: 'disabled' }}
         currentStep={4}
         onStepSelect={jest.fn()}
       />
     );
 
-    const completeButton = screen.getByRole('button', { name: 'AI 첨삭 시작' });
+    const submitButton = screen.getByRole('button', { name: 'AI 첨삭 시작' });
 
-    expect(completeButton).toBeDisabled();
-    expect(completeButton).toHaveAttribute('form', COVER_LETTER_STEP_FORM_ID);
-    expect(completeButton).toHaveAttribute('type', 'submit');
+    expect(submitButton).toBeDisabled();
+    expect(submitButton).toHaveAttribute('form', COVER_LETTER_STEP_FORM_ID);
+    expect(submitButton).toHaveAttribute('type', 'submit');
     expect(screen.queryByRole('button', { name: '다음' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: '임시 저장' })).not.toBeInTheDocument();
   });

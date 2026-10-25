@@ -16,7 +16,7 @@ import {
 import type { CoverLetterDetailResponse } from '@/entities/cover-letter';
 
 import type { CoverLetterValidationFieldError } from '../model/mapCoverLetterValidationErrors';
-import type { WritingCreateStep } from '../model/writingCreateStep';
+import type { WritingCreateInputStep } from '../model/writingCreateStep';
 
 interface CoverLetterCreateDraftProviderProps {
   children: ReactNode;
@@ -27,8 +27,8 @@ interface DraftContextValue {
   draft: CoverLetterDetailResponse;
   errors: CoverLetterValidationFieldError[];
   setErrors: Dispatch<SetStateAction<CoverLetterValidationFieldError[]>>;
-  dirtyStep: WritingCreateStep | null;
-  setDirtyStep: Dispatch<SetStateAction<WritingCreateStep | null>>;
+  dirtyStep: WritingCreateInputStep | null;
+  setDirtyStep: Dispatch<SetStateAction<WritingCreateInputStep | null>>;
   registerSaveDraft: (save: () => Promise<boolean>) => () => void;
   saveDraft: () => Promise<boolean>;
   savingIntent: 'draft' | 'next' | null;
@@ -68,7 +68,7 @@ export function CoverLetterCreateDraftProvider({
   draft,
 }: CoverLetterCreateDraftProviderProps) {
   const [errors, setErrors] = useState<CoverLetterValidationFieldError[]>([]);
-  const [dirtyStep, setDirtyStep] = useState<WritingCreateStep | null>(null);
+  const [dirtyStep, setDirtyStep] = useState<WritingCreateInputStep | null>(null);
   const [savingIntent, setSavingIntent] = useState<'draft' | 'next' | null>(null);
   const saveDraftRef = useRef<(() => Promise<boolean>) | null>(null);
   const registerSaveDraft = useCallback((save: () => Promise<boolean>) => {
@@ -148,7 +148,7 @@ export const useCoverLetterCreateValidation = (): CoverLetterCreateValidation =>
  * useCoverLetterStepDirty(1, isDirty);
  * ```
  */
-export function useCoverLetterStepDirty(step: WritingCreateStep, isDirty: boolean) {
+export function useCoverLetterStepDirty(step: WritingCreateInputStep, isDirty: boolean) {
   const setDirtyStep = useContext(CoverLetterCreateDraftContext)?.setDirtyStep;
 
   useEffect(() => {

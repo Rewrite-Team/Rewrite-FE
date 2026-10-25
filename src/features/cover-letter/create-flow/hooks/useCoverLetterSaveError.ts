@@ -12,7 +12,7 @@ import { appToast } from '@/shared/lib/toast';
 import { mapCoverLetterValidationErrors } from '../model/mapCoverLetterValidationErrors';
 import { useCoverLetterCreateValidation } from '../ui/CoverLetterCreateDraftContext';
 
-import type { WritingCreateStep } from '../model/writingCreateStep';
+import type { WritingCreateInputStep } from '../model/writingCreateStep';
 
 /**
  * ## useCoverLetterSaveError
@@ -24,7 +24,7 @@ import type { WritingCreateStep } from '../model/writingCreateStep';
  */
 export function useCoverLetterSaveError(
   coverLetterId: string,
-  currentStep: Exclude<WritingCreateStep, 4>,
+  currentStep: WritingCreateInputStep,
   errorMessage: string
 ) {
   const router = useRouter();

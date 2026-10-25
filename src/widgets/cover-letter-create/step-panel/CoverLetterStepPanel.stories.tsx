@@ -56,7 +56,7 @@ export const Step3: Story = {
 
 export const Step4: Story = {
   args: {
-    completeAction: { status: 'disabled' },
+    submitAction: { status: 'disabled' },
     currentStep: 4,
     onStepSelect: handlePreviewAction,
   },

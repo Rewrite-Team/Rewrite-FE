@@ -5,13 +5,14 @@ import { useEffect, useEffectEvent } from 'react';
 import { useCoverLetterCreateValidation } from '../ui/CoverLetterCreateDraftContext';
 
 import type { CoverLetterValidationFieldError } from '../model/mapCoverLetterValidationErrors';
+import type { WritingCreateInputStep } from '../model/writingCreateStep';
 
-type StepFieldError<Step extends 1 | 2 | 3> = Extract<
+type StepFieldError<Step extends WritingCreateInputStep> = Extract<
   CoverLetterValidationFieldError,
   { step: Step }
 >;
 
-interface StepErrorsOptions<Step extends 1 | 2 | 3> {
+interface StepErrorsOptions<Step extends WritingCreateInputStep> {
   step: Step;
   applyError: (error: StepFieldError<Step>) => void;
   focusError: (error: StepFieldError<Step>) => void | (() => void);
@@ -34,7 +35,7 @@ interface StepErrorsOptions<Step extends 1 | 2 | 3> {
  * });
  * ```
  */
-export function useCoverLetterStepErrors<Step extends 1 | 2 | 3>({
+export function useCoverLetterStepErrors<Step extends WritingCreateInputStep>({
   step,
   applyError,
   focusError,

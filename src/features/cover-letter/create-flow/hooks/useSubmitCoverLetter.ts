@@ -14,7 +14,7 @@ import { ApiError } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
 import { appToast } from '@/shared/lib/toast';
 
-import { getSaveDraftMutationKey } from '../model/createMutationKeys';
+import { getCoverLetterCreateMutationKey } from '../model/createMutationKeys';
 import { mapCoverLetterValidationErrors } from '../model/mapCoverLetterValidationErrors';
 import { useCoverLetterCreateValidation } from '../ui/CoverLetterCreateDraftContext';
 
@@ -40,7 +40,7 @@ export function useSubmitCoverLetter(
   const queryClient = useQueryClient();
   const { setErrors } = useCoverLetterCreateValidation();
   return useMutation({
-    mutationKey: getSaveDraftMutationKey(coverLetterId),
+    mutationKey: getCoverLetterCreateMutationKey(coverLetterId),
     mutationFn: () => submitCoverLetter(coverLetterId),
     retry: false,
     onMutate: () => setErrors([]),

@@ -9,7 +9,7 @@ import {
 } from '@/entities/cover-letter';
 
 import { useCoverLetterSaveError } from './useCoverLetterSaveError';
-import { getSaveDraftMutationKey } from '../model/createMutationKeys';
+import { getCoverLetterCreateMutationKey } from '../model/createMutationKeys';
 
 /** 문항 전체를 저장한 뒤 서버에서 부여한 문항 ID와 순서를 재조회합니다. */
 export function useSaveCoverLetterQuestions(coverLetterId: string) {
@@ -21,7 +21,7 @@ export function useSaveCoverLetterQuestions(coverLetterId: string) {
   );
 
   return useMutation({
-    mutationKey: getSaveDraftMutationKey(coverLetterId),
+    mutationKey: getCoverLetterCreateMutationKey(coverLetterId),
     mutationFn: (values: SaveQuestionsRequest) => saveCoverLetterQuestions(coverLetterId, values),
     retry: false,
     onError: handleSaveError,

@@ -12,11 +12,11 @@ import {
   useCoverLetterCreateSaveControl,
 } from '../ui/CoverLetterCreateDraftContext';
 
-import type { WritingCreateStep } from '../model/writingCreateStep';
+import type { WritingCreateInputStep } from '../model/writingCreateStep';
 
 interface CoverLetterStepSaveOptions<Values> {
   coverLetterId: string;
-  currentStep: Exclude<WritingCreateStep, 4>;
+  currentStep: WritingCreateInputStep;
   isDirty: boolean;
   clearErrors: () => void;
   getValues: () => Values;

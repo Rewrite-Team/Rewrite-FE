@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import { ROUTES } from '@/shared/constants/routes';
 
-import { useIsSavingCoverLetterDraft } from './useSaveCoverLetterBasicInfo';
+import { useIsCoverLetterCreatePending } from './useIsCoverLetterCreatePending';
 import {
   useCoverLetterCreateDraft,
   useCoverLetterCreateDirtyStep,
@@ -41,13 +41,13 @@ export function useCoverLetterStepNavigation({
   availableStep,
 }: CoverLetterStepNavigationOptions) {
   const router = useRouter();
-  const isSaving = useIsSavingCoverLetterDraft(coverLetterId);
+  const isCreatePending = useIsCoverLetterCreatePending(coverLetterId);
   const draft = useCoverLetterCreateDraft();
   const dirtyStep = useCoverLetterCreateDirtyStep();
   const { saveDraft, savingIntent } = useCoverLetterCreateDraftSave();
   const [pendingStep, setPendingStep] = useState<WritingCreateStep | null>(null);
   const [isSavingBeforeLeave, setIsSavingBeforeLeave] = useState(false);
-  const isActionDisabled = !draft || isSaving || savingIntent !== null;
+  const isActionDisabled = !draft || isCreatePending || savingIntent !== null;
   // 모달에서 저장할 때는 패널 버튼에 로딩을 중복 표시하지 않습니다.
   const panelSavingIntent = isSavingBeforeLeave ? null : savingIntent;
   const nextActionStatus =
@@ -70,7 +70,7 @@ export function useCoverLetterStepNavigation({
   };
 
   const handleSaveAndLeave = async () => {
-    if (pendingStep === null || isSavingBeforeLeave || isSaving || !saveDraft) return;
+    if (pendingStep === null || isSavingBeforeLeave || isCreatePending || !saveDraft) return;
     setIsSavingBeforeLeave(true);
     try {
       const isSaved = await saveDraft();
