@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, type ReactNode } from 'react';
 
 import Link from 'next/link';
 
@@ -15,6 +15,7 @@ import type { CoverLetterListItemResponse } from '../../api/types';
 
 interface CoverLetterCardProps {
   coverLetter: CoverLetterListItemResponse;
+  actions?: ReactNode;
 }
 
 /**
@@ -23,15 +24,16 @@ interface CoverLetterCardProps {
  * @description
  * 자기소개서 목록에서 회사, 직무, 제목, 첨삭 상태와 작성일을 요약해 보여주는 카드입니다.
  * 작성 중인 카드는 작성 화면으로, 그 외 상태는 상세 화면으로 연결합니다.
+ * actions는 링크 바깥에 배치하여 삭제 등 별도 버튼을 눌렀을 때 상세 이동이 발생하지 않도록 합니다.
  */
-export function CoverLetterCard({ coverLetter }: CoverLetterCardProps) {
+export function CoverLetterCard({ coverLetter, actions }: CoverLetterCardProps) {
   const { companyName, createdAt, displayStatus, id, positionTitle } = coverLetter;
   const title = coverLetter.title?.trim() || '제목 없는 자기소개서';
   const isWriting = displayStatus === 'WRITING';
   const folderGradientId = useId();
 
   return (
-    <li className="min-w-0">
+    <li className={cn(styles.cardItem, 'relative min-w-0')}>
       <Link
         aria-label={`${title} 자기소개서 ${isWriting ? '이어서 작성' : '상세 보기'}`}
         className={cn(styles.card, 'focus-ring group text-white')}
@@ -87,6 +89,9 @@ export function CoverLetterCard({ coverLetter }: CoverLetterCardProps) {
           </div>
         </div>
       </Link>
+      {actions ? (
+        <div className={cn(styles.actions, 'absolute top-3 right-3 z-10')}>{actions}</div>
+      ) : null}
     </li>
   );
 }

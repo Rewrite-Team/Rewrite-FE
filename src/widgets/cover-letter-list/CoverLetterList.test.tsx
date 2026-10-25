@@ -21,6 +21,8 @@ jest.mock('@/shared/assets/icons/common', () => ({
   ChevronRightIcon: 'svg',
 }));
 
+jest.mock('@/shared/assets/icons/side-menu', () => ({ DeleteIcon: 'svg' }));
+
 jest.mock('@/shared/ui/lottie-animation', () => ({
   LottieAnimation: () => null,
 }));
