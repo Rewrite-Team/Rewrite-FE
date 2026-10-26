@@ -8,9 +8,12 @@ import { ConfirmModal } from '@/shared/ui/confirm-modal';
 import { AIReviewRequirementModal } from './ai-review-requirement-modal/AIReviewRequirementModal';
 
 interface CoverLetterDetailActionsProps {
+  canSave?: boolean;
   hasUnsavedChanges?: boolean;
-  onRereview: (requirement: string) => boolean;
-  onSave?: () => void;
+  isRereviewing?: boolean;
+  isSaving?: boolean;
+  onRereview: (requirement: string) => Promise<boolean> | boolean;
+  onSave?: () => Promise<boolean> | boolean;
   version: string;
 }
 
@@ -18,22 +21,27 @@ type OpenModal = 'requirement' | 'rereview' | 'save' | null;
 
 /** 자기소개서 저장과 AI 재첨삭 요구사항 및 미저장 변경 경고 절차를 제공합니다. */
 export function CoverLetterDetailActions({
+  canSave = true,
   hasUnsavedChanges = false,
+  isRereviewing = false,
+  isSaving = false,
   onRereview,
   onSave,
   version,
 }: CoverLetterDetailActionsProps) {
   const [openModal, setOpenModal] = useState<OpenModal>(null);
   const [reviewRequirement, setReviewRequirement] = useState('');
+  const isBusy = isSaving || isRereviewing;
 
-  const handleSaveConfirm = () => {
-    onSave?.();
+  const handleSaveConfirm = async () => {
+    const isSaved = await onSave?.();
+    if (isSaved === false) return;
+
     setOpenModal(null);
-    // TODO: 최종 작성본 저장 API mutation을 실행한다.
   };
 
-  const handleRereviewRequest = (requirement: string) => {
-    const isRequested = onRereview(requirement);
+  const handleRereviewRequest = async (requirement: string) => {
+    const isRequested = await onRereview(requirement);
 
     if (!isRequested) {
       return;
@@ -44,7 +52,7 @@ export function CoverLetterDetailActions({
   };
 
   const handleRereviewConfirm = () => {
-    handleRereviewRequest(reviewRequirement);
+    void handleRereviewRequest(reviewRequirement);
   };
 
   const handleRequirementConfirm = (requirement: string) => {
@@ -55,7 +63,7 @@ export function CoverLetterDetailActions({
       return;
     }
 
-    handleRereviewRequest(requirement);
+    void handleRereviewRequest(requirement);
   };
 
   return (
@@ -67,6 +75,7 @@ export function CoverLetterDetailActions({
       >
         <Button
           className="h-14.75 w-full min-w-0 sm:w-auto sm:flex-1 sm:shrink"
+          disabled={isBusy}
           onClick={() => setOpenModal('requirement')}
           variant="outline"
         >
@@ -75,6 +84,7 @@ export function CoverLetterDetailActions({
         <Button
           className="h-14.75 w-full min-w-0 sm:w-auto sm:flex-1 sm:shrink"
           onClick={() => setOpenModal('save')}
+          disabled={!onSave || !canSave || isBusy}
         >
           저장하기
         </Button>
@@ -85,6 +95,7 @@ export function CoverLetterDetailActions({
         confirmLabel="저장하기"
         description={`버전 ${version}로 저장됩니다.`}
         onConfirm={handleSaveConfirm}
+        isLoading={isBusy}
         onOpenChange={(open) => setOpenModal(open ? 'save' : null)}
         open={openModal === 'save'}
         title="해당 자기소개서를 저장하시겠습니까?"
@@ -92,6 +103,7 @@ export function CoverLetterDetailActions({
 
       <AIReviewRequirementModal
         confirmLabel="AI 첨삭 다시 받기"
+        isLoading={isBusy}
         onConfirm={handleRequirementConfirm}
         onOpenChange={(open) =>
           setOpenModal((currentModal) =>
@@ -106,10 +118,11 @@ export function CoverLetterDetailActions({
       />
 
       <ConfirmModal
-        cancelLabel="아니오"
-        confirmLabel="다시 받기"
-        description="저장하지 않은 내용은 삭제됩니다."
+        cancelLabel="취소"
+        confirmLabel="저장 후 다시 받기"
+        description="변경한 최종 작성본을 저장한 뒤 AI 첨삭을 다시 요청합니다. 저장에 실패하면 재첨삭은 진행되지 않습니다."
         onConfirm={handleRereviewConfirm}
+        isLoading={isBusy}
         onOpenChange={(open) =>
           setOpenModal((currentModal) =>
             open ? 'rereview' : currentModal === 'rereview' ? null : currentModal
