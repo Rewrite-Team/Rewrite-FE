@@ -9,7 +9,7 @@ export default function PrivateLayout({
   return (
     <AppShell>
       <RedirectUnauthenticated>
-        <div className="flex min-h-full flex-1 flex-col py-15">{children}</div>
+        <div className="flex min-h-0 flex-1 flex-col py-15">{children}</div>
       </RedirectUnauthenticated>
     </AppShell>
   );

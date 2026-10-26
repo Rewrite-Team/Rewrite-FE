@@ -19,7 +19,12 @@ import type { AccordionContentProps } from './Accordion.types';
  * 닫힌 상태에서는 `aria-hidden`과 `inert`를 적용해 스크린 리더와 키보드 탐색에서
  * 제외하면서도 높이 애니메이션이 자연스럽게 동작하도록 DOM은 유지합니다.
  */
-export function AccordionContent({ children, className, ...props }: AccordionContentProps) {
+export function AccordionContent({
+  children,
+  className,
+  unmountOnClose = false,
+  ...props
+}: AccordionContentProps) {
   const { contentId, isOpen, labelId } = useAccordionContext();
 
   return (
@@ -29,8 +34,8 @@ export function AccordionContent({ children, className, ...props }: AccordionCon
       aria-labelledby={labelId}
       className={cn(
         'grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none',
-        isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-        isOpen ? 'opacity-100' : 'opacity-0',
+        isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+        unmountOnClose ? 'overflow-hidden' : undefined,
         className
       )}
       data-state={isOpen ? 'open' : 'closed'}
@@ -38,9 +43,11 @@ export function AccordionContent({ children, className, ...props }: AccordionCon
       inert={!isOpen ? true : undefined}
       role="region"
     >
-      <div className="min-h-0 overflow-hidden">
-        <div className="flex flex-col gap-8">{children}</div>
-      </div>
+      {!unmountOnClose || isOpen ? (
+        <div className="min-h-0 overflow-hidden">
+          <div className="flex flex-col gap-8">{children}</div>
+        </div>
+      ) : null}
     </div>
   );
 }

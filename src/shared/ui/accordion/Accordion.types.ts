@@ -50,6 +50,8 @@ interface AccordionTriggerProps extends Omit<
 /** 열림 상태에 따라 확장되는 Content 영역 props입니다. */
 interface AccordionContentProps extends ComponentPropsWithoutRef<'div'> {
   children: ReactNode;
+  /** 닫힌 뒤 본문을 제거해 접힌 콘텐츠가 문서 높이에 영향을 주지 않게 합니다. */
+  unmountOnClose?: boolean;
 }
 
 /** Root가 Compound 하위 컴포넌트에 제공하는 상태와 동작입니다. */

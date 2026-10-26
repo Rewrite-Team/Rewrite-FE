@@ -93,7 +93,7 @@ function WritingDetailLayoutContent({
       selectedVersionId={selectedVersionId}
       versions={versions}
     >
-      <div className="mx-auto flex min-h-full w-full max-w-275 flex-1">
+      <div className="mx-auto flex min-h-0 w-full max-w-275 flex-1">
         <Sidebar
           className="fixed right-5 bottom-5 lg:sticky lg:top-39.5 lg:right-auto lg:bottom-auto lg:self-start"
           coverLetterTitle={coverLetterTitle}
@@ -104,7 +104,7 @@ function WritingDetailLayoutContent({
           onVersionClick={handleVersionPanelToggle}
           writingId={writingId}
         />
-        <section aria-label="자기소개서 콘텐츠" className="min-w-0 flex-1">
+        <section aria-label="자기소개서 콘텐츠" className="flex min-h-0 min-w-0 flex-1 flex-col">
           {children}
         </section>
       </div>
