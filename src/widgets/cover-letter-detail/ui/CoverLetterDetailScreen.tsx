@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 
 import { redirect, useRouter, useSearchParams } from 'next/navigation';
 
@@ -29,6 +29,10 @@ interface CoverLetterDetailScreenProps {
 export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScreenProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [firstEntryCompletion, setFirstEntryCompletion] = useState<{
+    coverLetterId: string;
+    jobId: string;
+  } | null>(null);
   const { selectedVersionId } = useReviewVersion();
   const { data, error, isError, isPending, isFetching, refetch } = useQuery({
     ...coverLetterDetailQueryOptions(coverLetterId),
@@ -38,6 +42,7 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
     data?.coverLetter.displayStatus === 'REVIEWING'
       ? (data.reviewJob?.id ?? searchParams.get('jobId') ?? undefined)
       : undefined;
+  const completedJobId = searchParams.get('jobId');
   const reviewJob = useCoverLetterReviewJob(coverLetterId, jobId);
   const shouldFetchVersion = Boolean(
     data?.coverLetter.displayStatus === 'REVIEWED' &&
@@ -56,6 +61,19 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
     appToast.error('자기소개서가 없거나 접근할 수 없습니다.');
     router.replace(ROUTES.WRITING);
   }, [error, router]);
+
+  useEffect(() => {
+    if (
+      !completedJobId ||
+      data?.coverLetter.displayStatus !== 'REVIEWED' ||
+      data.reviewJob?.id !== completedJobId ||
+      data.reviewJob.status !== 'COMPLETED'
+    )
+      return;
+
+    startTransition(() => setFirstEntryCompletion({ coverLetterId, jobId: completedJobId }));
+    router.replace(ROUTES.WRITING_DETAIL(coverLetterId), { scroll: false });
+  }, [completedJobId, coverLetterId, data, router]);
 
   const handleDetailRetry = async () => {
     const refreshedDetail = await refetch();
@@ -166,7 +184,11 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
   return (
     <CoverLetterReviewResult
       detail={displayedDetail}
-      showCompletionNotice={reviewJob.hasCompletedReview}
+      showCompletionNotice={
+        reviewJob.hasCompletedReview ||
+        (firstEntryCompletion?.coverLetterId === coverLetterId &&
+          firstEntryCompletion.jobId === data.reviewJob?.id)
+      }
     />
   );
 }

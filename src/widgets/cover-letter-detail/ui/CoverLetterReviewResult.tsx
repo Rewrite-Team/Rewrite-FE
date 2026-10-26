@@ -115,10 +115,12 @@ export function CoverLetterReviewResult({
   const handleRereview = async (requirement: string) => {
     try {
       if (hasPendingChanges && !(await persistAnswers())) return false;
-      await requestReReviewMutation.mutateAsync(requirement);
+      const { jobId } = await requestReReviewMutation.mutateAsync(requirement);
       setAnswerOverrides({});
       setDraftAnswers({});
-      router.replace(ROUTES.WRITING_DETAIL(detail.coverLetter.id));
+      router.replace(
+        `${ROUTES.WRITING_DETAIL(detail.coverLetter.id)}?jobId=${encodeURIComponent(jobId)}`
+      );
       return true;
     } catch {
       return false;
