@@ -37,7 +37,7 @@ function CoverLetterReviewQuestion({
               aria-label={`${questionNumber}번 자기소개서 문항 접기 또는 펼치기`}
             />
             <Accordion.Label asChild>
-              <Input.Label>질문</Input.Label>
+              <Input.Label>문항 {questionNumber}</Input.Label>
             </Accordion.Label>
           </div>
 
