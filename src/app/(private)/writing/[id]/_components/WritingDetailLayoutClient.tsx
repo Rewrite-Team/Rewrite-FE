@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import type { ReviewVersionSummary } from '@/entities/review-version';
+import { useDeleteCoverLetter } from '@/features/cover-letter/delete';
 import {
   ReviewVersionPanel,
   ReviewVersionProvider,
@@ -16,6 +17,7 @@ import { Sidebar } from '@/widgets/common/sidebar';
 
 interface WritingDetailLayoutClientProps {
   children: ReactNode;
+  isReviewing?: boolean;
   initialSelectedVersionId: string;
   versions: ReviewVersionSummary[];
   writingId: string;
@@ -36,12 +38,15 @@ interface WritingDetailLayoutContentProps extends WritingDetailLayoutClientProps
 
 function WritingDetailLayoutContent({
   children,
+  isReviewing = false,
   initialSelectedVersionId,
   pathname,
   versions,
   writingId,
   beforeVersionSelect,
 }: WritingDetailLayoutContentProps) {
+  const router = useRouter();
+  const deleteMutation = useDeleteCoverLetter();
   const latestSelectionRequestIdRef = useRef(0);
   useEffect(
     () => () => {
@@ -57,6 +62,13 @@ function WritingDetailLayoutContent({
   });
   const handleVersionPanelToggle = () => {
     setIsVersionPanelOpen((wasOpen) => !wasOpen);
+  };
+
+  const handleDelete = async () => {
+    // SSE 연결은 상세 화면이 언마운트될 때 AbortController cleanup으로 종료됩니다.
+    // 목록 이동은 DELETE 성공 응답을 받은 뒤에만 실행합니다.
+    await deleteMutation.mutateAsync(writingId);
+    router.replace(ROUTES.WRITING);
   };
 
   const handleVersionSelect = (versionId: string) => {
@@ -82,7 +94,10 @@ function WritingDetailLayoutContent({
       <div className="mx-auto flex min-h-full w-full max-w-275 flex-1">
         <Sidebar
           className="fixed right-5 bottom-5 lg:sticky lg:top-39.5 lg:right-auto lg:bottom-auto lg:self-start"
+          isDeletePending={deleteMutation.isPending}
+          isReviewing={isReviewing}
           isVersionPanelOpen={isDetailPage && isVersionPanelOpen}
+          onDelete={handleDelete}
           onVersionClick={handleVersionPanelToggle}
           writingId={writingId}
         />

@@ -24,8 +24,10 @@ type SidebarVariant = 'compact' | 'full';
 
 interface SidebarProps extends ComponentPropsWithoutRef<'aside'> {
   writingId: string;
+  isReviewing?: boolean;
   isVersionPanelOpen?: boolean;
-  onDelete?: () => void;
+  isDeletePending?: boolean;
+  onDelete?: () => void | Promise<void>;
   onVersionClick?: () => void;
   pathname?: string;
   variant?: SidebarVariant;
@@ -56,12 +58,15 @@ const handlePendingVersionClick = () => {
  * @param writingId - 메뉴 경로에 사용할 자기소개서 식별자
  * @param pathname - Storybook/테스트에서 현재 경로를 주입할 때 사용합니다.
  * @param variant - 표시 형태를 명시적으로 덮어씁니다.
- * @param onDelete - 자기소개서 삭제 메뉴를 선택했을 때 실행할 콜백입니다.
+ * @param isDeletePending - 삭제 요청 진행 중 확인 모달의 닫기와 중복 요청을 막습니다.
+ * @param onDelete - 삭제 확인 후 실행합니다. 실패하면 모달을 유지합니다.
  * @param onVersionClick - 버전 관리 메뉴를 선택했을 때 실행할 콜백입니다.
  */
 export function Sidebar({
   className,
+  isReviewing = false,
   isVersionPanelOpen = false,
+  isDeletePending = false,
   onDelete,
   onVersionClick,
   pathname: pathnameProp,
@@ -100,12 +105,6 @@ export function Sidebar({
 
   const handleDeleteClick = () => {
     setIsExpanded(false);
-
-    if (onDelete) {
-      onDelete();
-      return;
-    }
-
     setIsDeleteModalOpen(true);
   };
 
@@ -117,9 +116,15 @@ export function Sidebar({
     }
   };
 
-  const handleDeleteConfirm = () => {
-    setIsDeleteModalOpen(false);
-    // TODO: 자기소개서 삭제 API mutation 실행 후 목록 화면으로 이동한다.
+  const handleDeleteConfirm = async () => {
+    if (isDeletePending) return;
+
+    try {
+      await onDelete?.();
+      setIsDeleteModalOpen(false);
+    } catch {
+      // 삭제 실패 토스트는 mutation에서 표시하고, 확인 모달은 유지합니다.
+    }
   };
 
   useEffect(() => {
@@ -273,11 +278,25 @@ export function Sidebar({
       <ConfirmModal
         cancelLabel="아니오"
         confirmLabel="삭제하기"
-        description="삭제 후 복구할 수 없습니다."
+        description={
+          <>
+            삭제 후 복구할 수 없습니다.
+            {isReviewing ? (
+              <>
+                <br />
+                진행 중인 AI 첨삭도 중단됩니다.
+              </>
+            ) : null}
+          </>
+        }
         onConfirm={handleDeleteConfirm}
-        onOpenChange={setIsDeleteModalOpen}
+        onOpenChange={(open) => {
+          if (!open && isDeletePending) return;
+          setIsDeleteModalOpen(open);
+        }}
         open={isDeleteModalOpen}
         title="해당 자기소개서 삭제하시겠습니까?"
+        isLoading={isDeletePending}
       />
     </>
   );

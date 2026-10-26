@@ -48,6 +48,7 @@ export function WritingDetailDataLayoutClient({
   const { versions, initialSelectedVersionId } = createReviewVersionPanelData(data?.items ?? []);
   return (
     <WritingDetailLayoutClient
+      isReviewing={detailQuery.data?.coverLetter.displayStatus === 'REVIEWING'}
       writingId={writingId}
       versions={versions}
       initialSelectedVersionId={initialSelectedVersionId}
