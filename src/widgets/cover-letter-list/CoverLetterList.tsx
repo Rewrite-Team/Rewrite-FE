@@ -43,7 +43,8 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
   const [deleteTarget, setDeleteTarget] = useState<CoverLetterListItemResponse | null>(null);
   const { data, isPending, isFetching, isRefetchError, errorUpdatedAt, refetch } =
     useCoverLetterList(requestedPage);
-  const { isRefreshing: isStreamRefreshing } = useCoverLetterReviewStatusStream();
+  const { isRefreshing: isStreamRefreshing, hasRefreshTimedOut } =
+    useCoverLetterReviewStatusStream();
   const recoveryPage = Math.max(data?.totalPages ?? 0, COVER_LETTER_LIST_DEFAULT_PAGE);
   const isOutOfRange = Boolean(data && requestedPage > recoveryPage);
 
@@ -55,10 +56,11 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
   }, [isOutOfRange, recoveryPage, router]);
 
   useEffect(() => {
-    if (isRefetchError && !isStreamRefreshing) {
+    // 쿼리 취소로 이전 상태가 복원된 시간 초과도 같은 경로에서 안내해 중복 토스트를 방지합니다.
+    if ((isRefetchError || hasRefreshTimedOut) && !isStreamRefreshing) {
       appToast.error('목록을 새로 불러오지 못했어요. 이전 조회 결과를 표시합니다.');
     }
-  }, [isRefetchError, errorUpdatedAt, isStreamRefreshing]);
+  }, [isRefetchError, errorUpdatedAt, isStreamRefreshing, hasRefreshTimedOut]);
 
   const handleRetry = () => {
     void refetch().then((result) => {

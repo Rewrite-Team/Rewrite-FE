@@ -15,18 +15,16 @@ import {
 } from '@/entities/llm-job';
 import { reviewVersionQueryKeys } from '@/entities/review-version';
 import { refreshAuthTokens } from '@/entities/user';
+import { withStreamRecoveryTimeout } from '@/shared/api/stream/withStreamRecoveryTimeout';
 
 import { createReviewJobRecovery, isTerminalJobStatus } from '../model/createReviewJobRecovery';
-
-const RECOVERY_RETRY_COUNT = 3;
 
 /**
  * ## useCoverLetterReviewJob
  *
  * @description
  * 상세 화면에서 첨삭 Job의 SSE 상태와 문항별 중간 결과를 구독합니다.
- * 유효한 이벤트를 받으면 재연결 실패 횟수를 초기화하고,
- * 재연결 실패 3회마다 HTTP로 Job 상태를 보완 조회합니다.
+ * 연결 오류가 발생하면 HTTP로 Job 상태를 먼저 확인한 뒤, 진행 중인 Job만 재연결합니다.
  * 스트림 종료 시에도 최종 상태를 확인하며 Job 조회 실패 시 상세 조회로 복구합니다.
  *
  * ### 주의할 점
@@ -59,15 +57,12 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
     if (!jobId) return;
     const controller = new AbortController();
     const jobQueryKey = llmJobQueryKeys.status(jobId);
-    let retryCount = 0;
     let hasReceivedTerminalState = false;
 
     const refreshDetail = async () => {
       // 완료·복구 시에는 신선한 REVIEWING 캐시가 있어도 서버의 최신 결과를 조회합니다.
-      const detail = await fetchLatestCoverLetterDetail(
-        queryClient,
-        coverLetterId,
-        controller.signal
+      const detail = await withStreamRecoveryTimeout(controller.signal, (signal) =>
+        fetchLatestCoverLetterDetail(queryClient, coverLetterId, signal)
       );
       if (controller.signal.aborted) return;
       void queryClient.invalidateQueries({ queryKey: coverLetterQueryKeys.lists() });
@@ -95,7 +90,6 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
       onmessage: ({ event, data }) => {
         const message = parseCoverLetterReviewEvent(event, data);
         if (!message) return;
-        retryCount = 0;
         setConnectionIssue(undefined);
         if (message.event === 'job.state') {
           queryClient.setQueryData(jobQueryKey, message.data);
@@ -110,9 +104,8 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
           });
         }
       },
-      onRetry: () => {
-        retryCount += 1;
-        if (retryCount % RECOVERY_RETRY_COUNT === 0) void recover(false);
+      onRetry: async () => {
+        await recover(false);
       },
     })
       .then(async () => {

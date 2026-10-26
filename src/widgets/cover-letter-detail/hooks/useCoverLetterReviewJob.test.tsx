@@ -65,7 +65,10 @@ describe('useCoverLetterReviewJob', () => {
         })
     );
   });
-  afterEach(() => queryClient.clear());
+  afterEach(() => {
+    queryClient.clear();
+    jest.useRealTimers();
+  });
 
   it('진행 상태를 갱신하고 종료 이벤트 이후의 문항 결과까지 받은 뒤 결과를 조회한다', async () => {
     const { result, unmount } = setup();
@@ -98,7 +101,7 @@ describe('useCoverLetterReviewJob', () => {
     expect(options.signal.aborted).toBe(true);
   });
 
-  it('3회 연결 장애 시 HTTP로 실패 상태를 복구하고 SSE를 종료한다', async () => {
+  it('첫 연결 장애에서 HTTP로 실패 상태를 복구하고 SSE를 종료한다', async () => {
     jest.mocked(getLlmJobStatus).mockResolvedValue(state('FAILED'));
     jest.mocked(getCoverLetterDetail).mockResolvedValue({
       ...DETAIL,
@@ -107,10 +110,8 @@ describe('useCoverLetterReviewJob', () => {
     const { result } = setup();
     await waitFor(() => expect(connectLlmJobEvents).toHaveBeenCalled());
     const options = jest.mocked(connectLlmJobEvents).mock.calls[0][1];
-    act(() => {
-      options.onRetry?.();
-      options.onRetry?.();
-      options.onRetry?.();
+    await act(async () => {
+      await options.onRetry?.();
     });
     await waitFor(() => expect(options.signal.aborted).toBe(true));
     expect(getLlmJobStatus).toHaveBeenCalledTimes(1);
@@ -133,5 +134,70 @@ describe('useCoverLetterReviewJob', () => {
     await waitFor(() => expect(connectLlmJobEvents).toHaveBeenCalled());
     await act(async () => finishStream());
     await waitFor(() => expect(result.current.connectionIssue).toContain('연결이 종료'));
+  });
+
+  it('취소를 반영하지 않는 Job 조회도 15초 후 대기를 끝내고 상세 조회로 복구한다', async () => {
+    jest.mocked(getLlmJobStatus).mockImplementation(() => new Promise(() => {}));
+    setup();
+    await waitFor(() => expect(connectLlmJobEvents).toHaveBeenCalled());
+    jest.useFakeTimers();
+    const options = jest.mocked(connectLlmJobEvents).mock.calls[0][1];
+    const recovery = options.onRetry?.();
+    const requestSignal = jest.mocked(getLlmJobStatus).mock.calls[0][1]?.signal;
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(15_000);
+      await recovery;
+    });
+    expect(requestSignal?.aborted).toBe(true);
+    expect(getCoverLetterDetail).toHaveBeenCalledTimes(1);
+    expect(options.signal.aborted).toBe(true);
+  });
+
+  it('대체 상세 조회도 멈추면 취소 후 복구를 끝내고 다음 재시도를 허용한다', async () => {
+    jest.mocked(getLlmJobStatus).mockRejectedValue(new TypeError('상태 조회 실패'));
+    jest.mocked(getCoverLetterDetail).mockImplementation(() => new Promise(() => {}));
+    const { result } = setup();
+    await waitFor(() => expect(connectLlmJobEvents).toHaveBeenCalled());
+    jest.useFakeTimers();
+    const options = jest.mocked(connectLlmJobEvents).mock.calls[0][1];
+    let recovery: void | Promise<void>;
+    await act(async () => {
+      recovery = options.onRetry?.();
+      await jest.advanceTimersByTimeAsync(0);
+    });
+    const requestSignal = jest.mocked(getCoverLetterDetail).mock.calls[0][1]?.signal;
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(15_000);
+      await recovery;
+    });
+    expect(requestSignal?.aborted).toBe(true);
+    expect(result.current.connectionIssue).toContain('진행 상태를 불러오지 못했습니다');
+    expect(options.signal.aborted).toBe(false);
+
+    jest.mocked(getLlmJobStatus).mockResolvedValue(state('PROCESSING'));
+    await act(async () => {
+      await options.onRetry?.();
+    });
+    expect(getLlmJobStatus).toHaveBeenCalledTimes(2);
+  });
+
+  it('종료 Job의 결과 조회가 시간 초과돼도 SSE 구독은 종료한다', async () => {
+    jest.mocked(getCoverLetterDetail).mockImplementation(() => new Promise(() => {}));
+    const { result } = setup();
+    await waitFor(() => expect(connectLlmJobEvents).toHaveBeenCalled());
+    jest.useFakeTimers();
+    const options = jest.mocked(connectLlmJobEvents).mock.calls[0][1];
+    let recovery: void | Promise<void>;
+    await act(async () => {
+      recovery = options.onRetry?.();
+      await jest.advanceTimersByTimeAsync(0);
+    });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(15_000);
+      await recovery;
+    });
+    expect(options.signal.aborted).toBe(true);
+    expect(result.current.connectionIssue).toContain('첨삭 결과를 불러오지 못했습니다');
+    expect(getCoverLetterDetail).toHaveBeenCalledTimes(1);
   });
 });
