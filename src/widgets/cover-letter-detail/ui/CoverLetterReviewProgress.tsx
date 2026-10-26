@@ -32,17 +32,13 @@ export function CoverLetterReviewProgress({
   const resultsByQuestionId = new Map(questionResults.map((result) => [result.questionId, result]));
   return (
     <section className="writing-detail-content">
-      <PageHeader
-        title={title}
-        description="문항별 진행 상황과 도착한 첨삭 결과를 확인할 수 있어요."
-      />
+      <PageHeader title={title} description="문항별 진행 상황과 첨삭 결과를 확인할 수 있어요." />
       <CoverLetterReviewStatusCard
+        {...(isCompleted
+          ? { status: 'completed' as const }
+          : { status: 'processing' as const, hasJobId, connectionIssue })}
         progress={progress}
         questionCount={questions.length}
-        receivedResultCount={questionResults.length}
-        hasJobId={hasJobId}
-        isCompleted={isCompleted}
-        connectionIssue={connectionIssue}
         isFetching={isFetching}
         onRefresh={onRefresh}
       />

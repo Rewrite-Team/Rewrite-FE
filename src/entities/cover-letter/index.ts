@@ -15,5 +15,6 @@ export {
   getStreamCoverLetterReviewStatusesUrl,
 } from './api/stream';
 export { matchesCoverLetterReviewStatusSnapshot } from './model/reviewStatusSnapshot';
+export { getCoverLetterQuestionDomId } from './model/getCoverLetterQuestionDomId';
 export { CoverLetterCard } from './ui/cover-letter-card/CoverLetterCard';
 export { CoverLetterDiff } from './ui/CoverLetterDiff';

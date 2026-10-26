@@ -4,6 +4,7 @@ import { useRef, useState, type SubmitEvent } from 'react';
 
 import { useParams } from 'next/navigation';
 
+import { getCoverLetterQuestionDomId } from '@/entities/cover-letter';
 import {
   useCoverLetterCreateDraft,
   useSubmitCoverLetter,
@@ -31,7 +32,7 @@ function CoverLetterReviewQuestion({
   return (
     <Accordion className="rounded-2xl" defaultOpen>
       <Accordion.Header>
-        <Input id={`review-question-${questionNumber}`} required>
+        <Input id={getCoverLetterQuestionDomId(questionNumber)} required>
           <div className="flex items-center gap-2 text-white">
             <Accordion.Trigger
               aria-label={`${questionNumber}번 자기소개서 문항 접기 또는 펼치기`}

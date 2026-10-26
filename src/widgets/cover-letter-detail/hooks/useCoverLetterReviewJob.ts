@@ -19,6 +19,7 @@ import { withStreamRecoveryTimeout } from '@/shared/api/stream/withStreamRecover
 import { appToast } from '@/shared/lib/toast';
 
 import { createReviewJobRecovery, isTerminalJobStatus } from '../model/createReviewJobRecovery';
+import { REVIEW_RESULT_REFRESH_ERROR_MESSAGE } from '../model/reviewJobMessages';
 
 /**
  * ## useCoverLetterReviewJob
@@ -135,7 +136,7 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
             if (!controller.signal.aborted)
               setConnectionIssue({
                 jobId,
-                message: '첨삭 결과를 불러오지 못했습니다. 상태를 새로고침해 주세요.',
+                message: REVIEW_RESULT_REFRESH_ERROR_MESSAGE,
               });
           }
         } else {

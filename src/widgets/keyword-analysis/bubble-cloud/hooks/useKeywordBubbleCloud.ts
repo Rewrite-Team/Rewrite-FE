@@ -11,6 +11,7 @@ import {
 } from 'd3-force';
 
 import type { KeywordAnalysisKeyword } from '@/entities/keyword-analysis';
+import { prefersReducedMotion } from '@/shared/lib/motionPreferences';
 
 import { createKeywordAnalysisSignature } from '../../utils/keywordCollection';
 import { KEYWORD_BUBBLE_DEFAULT_BOUNDS } from '../constants';
@@ -358,14 +359,13 @@ export function useKeywordBubbleCloud(
       )
       .force('boundary', createBoundaryForce(bubbleBounds))
       .on('tick', updateBubblePositions);
-    const prefersReducedMotion =
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    const shouldReduceMotion = prefersReducedMotion();
 
-    prefersReducedMotionRef.current = prefersReducedMotion;
+    prefersReducedMotionRef.current = shouldReduceMotion;
     nodesRef.current = nodes;
     simulationRef.current = simulation;
 
-    if (prefersReducedMotion) {
+    if (shouldReduceMotion) {
       simulation.stop();
       simulation.tick(KEYWORD_BUBBLE_PHYSICS.reducedMotionTickCount);
       updateBubblePositions();

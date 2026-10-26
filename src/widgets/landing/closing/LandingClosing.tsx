@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 
+import { prefersReducedMotion } from '@/shared/lib/motionPreferences';
+
 import styles from './LandingClosing.module.css';
 
 export function LandingClosing() {
@@ -10,7 +12,7 @@ export function LandingClosing() {
   useEffect(() => {
     const section = sectionRef.current;
 
-    if (!section || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (!section || prefersReducedMotion()) {
       return;
     }
 

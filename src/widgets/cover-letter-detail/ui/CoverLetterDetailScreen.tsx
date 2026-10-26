@@ -135,6 +135,7 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
           data.reviewJob?.error?.message ??
           '첨삭 작업이 중단되었습니다.'
         }
+        progress={reviewJob.jobState?.progress ?? data.reviewJob?.progress}
         isFetching={isFetching}
         onRefresh={handleRefresh}
       />

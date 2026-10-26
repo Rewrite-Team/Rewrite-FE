@@ -137,7 +137,7 @@ describe('CoverLetterDetailScreen', () => {
       },
     });
     expect(screen.getByRole('alert')).toHaveTextContent('AI 서비스 응답이 없습니다.');
-    expect(screen.getByRole('button', { name: '상태 새로고침' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '결과 다시 확인하기' })).toBeInTheDocument();
   });
 
   it('선택한 이전 버전을 API로 조회해서 표시한다', async () => {
@@ -166,7 +166,7 @@ describe('CoverLetterDetailScreen', () => {
         error: { code: 'LLM_PROVIDER_ERROR', message: '기존 실패 사유' },
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: '상태 새로고침' }));
+    fireEvent.click(screen.getByRole('button', { name: '결과 다시 확인하기' }));
     await waitFor(() =>
       expect(appToast.error).toHaveBeenCalledWith(
         '자기소개서 상태를 새로 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
@@ -187,7 +187,7 @@ describe('CoverLetterDetailScreen', () => {
       retry: jest.fn(),
     });
     renderDetail({ ...DETAIL, coverLetter: { ...DETAIL.coverLetter, displayStatus: 'REVIEWING' } });
-    fireEvent.click(screen.getByRole('button', { name: '상태 새로고침' }));
+    fireEvent.click(screen.getByRole('button', { name: '진행 상황 다시 확인' }));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/writing'));
     expect(appToast.error).toHaveBeenCalledWith('자기소개서가 없거나 접근할 수 없습니다.');
   });

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 import { SearchIcon } from '@/shared/assets/icons/common';
+import { prefersReducedMotion } from '@/shared/lib/motionPreferences';
 
 import styles from './LandingPreparation.module.css';
 
@@ -58,7 +59,7 @@ export function LandingPreparation() {
   useEffect(() => {
     const section = sectionRef.current;
 
-    if (!section || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (!section || prefersReducedMotion()) {
       return;
     }
 

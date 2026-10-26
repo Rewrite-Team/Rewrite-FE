@@ -1,18 +1,18 @@
 import type { LlmJobStateResponse } from '@/entities/llm-job';
 
+export const COVER_LETTER_REVIEW_PROGRESS_MAX_PERCENTAGE = 100;
+
 interface GetCoverLetterReviewProgressSummaryParams {
   isCompleted: boolean;
   progress?: LlmJobStateResponse['progress'];
   questionCount: number;
-  receivedResultCount: number;
 }
 
-/** Job 처리 진행률과 SSE 결과 수신 수를 서로 다른 기준으로 계산합니다. */
+/** Job 진행 정보와 문항 수를 바탕으로 처리 문항 수와 진행률을 계산합니다. */
 export const getCoverLetterReviewProgressSummary = ({
   isCompleted,
   progress,
   questionCount,
-  receivedResultCount,
 }: GetCoverLetterReviewProgressSummaryParams) => {
   const totalQuestions = progress?.total || questionCount;
   const processedQuestions = isCompleted
@@ -21,16 +21,16 @@ export const getCoverLetterReviewProgressSummary = ({
       ? Math.min(progress.current, totalQuestions)
       : undefined;
   const percentage = isCompleted
-    ? 100
+    ? COVER_LETTER_REVIEW_PROGRESS_MAX_PERCENTAGE
     : processedQuestions !== undefined && totalQuestions > 0
-      ? Math.round((processedQuestions / totalQuestions) * 100)
+      ? Math.round(
+          (processedQuestions / totalQuestions) * COVER_LETTER_REVIEW_PROGRESS_MAX_PERCENTAGE
+        )
       : undefined;
 
   return {
     percentage,
     processedQuestions,
-    receivedResults: Math.min(receivedResultCount, questionCount),
-    resultQuestionCount: questionCount,
     totalQuestions,
   };
 };

@@ -2,6 +2,8 @@ import type { CoverLetterDetailResponse } from '@/entities/cover-letter';
 import { getLlmJobStatus, llmJobQueryKeys, type LlmJobStateResponse } from '@/entities/llm-job';
 import { withStreamRecoveryTimeout } from '@/shared/api/stream/withStreamRecoveryTimeout';
 
+import { REVIEW_RESULT_REFRESH_ERROR_MESSAGE } from './reviewJobMessages';
+
 import type { QueryClient } from '@tanstack/react-query';
 
 interface ReviewJobRecoveryOptions {
@@ -33,8 +35,7 @@ export function createReviewJobRecovery({
     try {
       await refreshDetail();
     } catch {
-      if (!controller.signal.aborted)
-        onConnectionIssue('첨삭 결과를 불러오지 못했습니다. 상태를 새로고침해 주세요.');
+      if (!controller.signal.aborted) onConnectionIssue(REVIEW_RESULT_REFRESH_ERROR_MESSAGE);
     } finally {
       // 결과 조회가 시간 초과돼도 종료가 확인된 Job에 다시 연결하지 않습니다.
       controller.abort();
