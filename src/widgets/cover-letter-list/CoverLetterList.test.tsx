@@ -490,12 +490,39 @@ describe('CoverLetterList', () => {
     expect(requestSignal?.aborted).toBe(true);
     expect(queryClient.isFetching()).toBe(0);
     expect(screen.getByText('1페이지 자기소개서')).toBeInTheDocument();
+    expect(appToast.error).toHaveBeenCalledTimes(1);
+    expect(appToast.error).toHaveBeenCalledWith(
+      '목록을 새로 불러오지 못했어요. 이전 조회 결과를 표시합니다.'
+    );
 
     mockListCoverLetters.mockResolvedValueOnce(createResponse(1));
     await act(async () => {
       await onRetry?.();
     });
     expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
+    expect(appToast.error).toHaveBeenCalledTimes(1);
+  });
+
+  it('일시 오류 후 재시도가 시간 초과돼도 목록 실패 토스트는 한 번만 표시한다', async () => {
+    queryClient.setQueryData(['cover-letters', 'list', { page: 1, size: 6 }], createResponse(1));
+    mockListCoverLetters.mockRejectedValueOnce(new ApiError(503));
+    mockListCoverLetters.mockImplementationOnce(() => new Promise(() => {}));
+    renderList();
+    jest.useFakeTimers();
+    const { onRetry } = mockConnectReviewStatuses.mock.calls[0][0];
+    let recovery: void | Promise<void>;
+    await act(async () => {
+      recovery = onRetry?.();
+      await jest.advanceTimersByTimeAsync(3000);
+    });
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
+    expect(appToast.error).not.toHaveBeenCalled();
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(15_000);
+      await recovery;
+    });
+    expect(appToast.error).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('1페이지 자기소개서')).toBeInTheDocument();
   });
 
   it('화면을 떠난 뒤 지연된 이벤트로 캐시를 갱신하지 않는다', async () => {

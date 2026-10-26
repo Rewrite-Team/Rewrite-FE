@@ -32,6 +32,7 @@ const MAX_RETRY_DELAY_MS = 120_000;
 export const useCoverLetterReviewStatusStream = () => {
   const queryClient = useQueryClient();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [hasRefreshTimedOut, setHasRefreshTimedOut] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -68,6 +69,7 @@ export const useCoverLetterReviewStatusStream = () => {
         return refreshTask;
       }
 
+      setHasRefreshTimedOut(false);
       setIsRefreshing(true);
       refreshTask = (async () => {
         do {
@@ -79,6 +81,7 @@ export const useCoverLetterReviewStatusStream = () => {
               return;
             }
             if (!isRetryableRefreshError(error)) {
+              setHasRefreshTimedOut(error instanceof DOMException && error.name === 'TimeoutError');
               refreshRequested = false;
               break;
             }
@@ -90,7 +93,12 @@ export const useCoverLetterReviewStatusStream = () => {
             refreshRequested = false;
             try {
               await refreshOnce();
-            } catch {
+            } catch (error) {
+              if (!controller.signal.aborted) {
+                setHasRefreshTimedOut(
+                  error instanceof DOMException && error.name === 'TimeoutError'
+                );
+              }
               // 최종 실패 시 이번 갱신을 끝내고 다음 이벤트나 사용자 동작을 기다립니다.
               refreshRequested = false;
               break;
@@ -141,5 +149,5 @@ export const useCoverLetterReviewStatusStream = () => {
     return () => controller.abort();
   }, [queryClient]);
 
-  return { isRefreshing };
+  return { isRefreshing, hasRefreshTimedOut };
 };

@@ -26,6 +26,33 @@ describe('withStreamRecoveryTimeout', () => {
     expect(jest.getTimerCount()).toBe(0);
   });
 
+  it('취소 신호를 반영하지 않는 인증 갱신 대기도 15초 뒤 종료한다', async () => {
+    let requestSignal: AbortSignal | undefined;
+    let finishRecovery: (result: string) => void = () => {};
+    const recovery = withStreamRecoveryTimeout(new AbortController().signal, (signal) => {
+      requestSignal = signal;
+      return new Promise<string>((resolve) => {
+        finishRecovery = resolve;
+      });
+    });
+    const outcome = recovery.catch((error: unknown) => error);
+    await jest.advanceTimersByTimeAsync(15_000);
+    expect(await outcome).toMatchObject({ name: 'TimeoutError' });
+    expect(requestSignal?.aborted).toBe(true);
+    expect(jest.getTimerCount()).toBe(0);
+    finishRecovery('late result');
+    expect(await outcome).toMatchObject({ name: 'TimeoutError' });
+  });
+
+  it('취소를 반영하지 않는 복구 중에도 구독 종료 시 즉시 대기를 끝낸다', async () => {
+    const controller = new AbortController();
+    const recovery = withStreamRecoveryTimeout(controller.signal, () => new Promise(() => {}));
+    const outcome = recovery.catch((error: unknown) => error);
+    controller.abort();
+    expect(await outcome).toMatchObject({ name: 'AbortError' });
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
   it('정상 완료한 요청을 나중에 시간 초과로 취소하지 않는다', async () => {
     let requestSignal: AbortSignal | undefined;
     await expect(

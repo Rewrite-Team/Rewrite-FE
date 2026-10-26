@@ -136,15 +136,8 @@ describe('useCoverLetterReviewJob', () => {
     await waitFor(() => expect(result.current.connectionIssue).toContain('연결이 종료'));
   });
 
-  it('Job 조회가 멈추면 15초 후 요청을 취소하고 상세 조회로 복구한다', async () => {
-    jest.mocked(getLlmJobStatus).mockImplementation(
-      (_jobId, options) =>
-        new Promise((_, reject) => {
-          options?.signal?.addEventListener('abort', () => reject(options.signal?.reason), {
-            once: true,
-          });
-        })
-    );
+  it('취소를 반영하지 않는 Job 조회도 15초 후 대기를 끝내고 상세 조회로 복구한다', async () => {
+    jest.mocked(getLlmJobStatus).mockImplementation(() => new Promise(() => {}));
     setup();
     await waitFor(() => expect(connectLlmJobEvents).toHaveBeenCalled());
     jest.useFakeTimers();
