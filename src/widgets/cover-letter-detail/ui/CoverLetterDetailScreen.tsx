@@ -123,6 +123,7 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
     data.coverLetter.displayStatus === 'REVIEW_FAILED' ||
     reviewJob.jobState?.status === 'FAILED' ||
     reviewJob.jobState?.status === 'CANCELED';
+  // TODO: 문항별 재시도 mutation을 연결해 실패 카드에 questionId를 전달하고, 성공한 문항 결과만 갱신한다.
   if (hasReviewFailed)
     return (
       <CoverLetterReviewFailure

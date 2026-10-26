@@ -14,6 +14,7 @@ const jobStateSchema = z.object({
   error: z.object({ code: z.string(), message: z.string() }).nullable(),
 });
 
+// TODO: 백엔드가 문항별 상태·실패 사유를 보내면 스키마와 ReviewQuestionSnapshot 타입에 반영하고 파싱 오류를 검증한다.
 const reviewQuestionsSchema = z.object({
   items: z.array(
     z.object({

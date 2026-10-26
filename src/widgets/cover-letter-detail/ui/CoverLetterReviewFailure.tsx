@@ -46,6 +46,7 @@ export function CoverLetterReviewFailure({
       return { hasResult, question: resolvedQuestion };
     });
   const hasAnyResult = questionsWithResults.some(({ hasResult }) => hasResult);
+  // TODO: 전체 Job 종료 후 백엔드가 준 문항별 상태로 실패를 판별한다. 결과가 아직 없는 진행 중 문항은 실패로 취급하지 않는다.
   const hasPartialFailure =
     hasAnyResult && questionsWithResults.some(({ hasResult }) => !hasResult);
 
@@ -73,6 +74,7 @@ export function CoverLetterReviewFailure({
         <div className="mt-8 flex flex-col gap-6">
           {questionsWithResults.map(({ hasResult, question }, index) => {
             if (!hasResult) {
+              // TODO: 재시도 API가 준비되면 questionId를 전달하고 요청 중인 문항만 로딩·비활성화한다.
               return (
                 <article key={question.questionId}>
                   <CoverLetterQuestionCard question={question} questionNumber={index + 1}>

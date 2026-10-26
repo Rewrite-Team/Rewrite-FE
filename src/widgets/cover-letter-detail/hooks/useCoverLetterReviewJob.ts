@@ -43,6 +43,7 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
   const queryClient = useQueryClient();
   const [subscriptionAttempt, setSubscriptionAttempt] = useState(0);
   const [connectionIssue, setConnectionIssue] = useState<{ jobId: string; message: string }>();
+  // TODO: 문항별 재첨삭 API가 추가되면 questionId별 재시도 Job과 진행 상태를 추적하고 해당 결과만 병합한다.
   const [partialQuestionResults, setPartialQuestionResults] = useState<{
     jobId: string;
     items: ReviewQuestionSnapshot[];
