@@ -456,6 +456,9 @@ SSE가 시작한 목록 갱신은 네트워크 오류·5xx에 한해 3초 후 �
 기존 재연결 백오프 흐름으로 넘긴다. heartbeat와 업무 이벤트 모두 감시 시각을 갱신하며, 네트워크 오류·5xx·
 무응답 뒤에는 `onRetry`의 화면별 HTTP 상태 복구가 끝난 후 다음 SSE 요청을 보낸다. 탭 숨김·구독 종료·
 화면 이탈 때 감시 타이머도 정리한다.
+SSE 복구에 사용하는 Job 상태·상세·목록 조회는 각각 15초로 제한한다. 제한 시간에는 실제 HTTP 요청 또는
+해당 쿼리를 취소한 뒤 복구 대기를 종료하므로, 멈춘 HTTP 조회가 SSE 재연결까지 막지 않는다.
+종료가 확인된 Job은 결과 상세 조회가 실패하거나 시간 초과돼도 SSE 구독을 종료한다.
 요청별 감시 타이머와 상위 구독의 abort 연결은 `shared/api/stream/eventStreamRequest.ts`에서 관리한다.
 탭 표시 여부에 따른 구독 수명은 `shared/api/stream/eventStreamVisibility.ts`, 전송·프로토콜·이벤트 처리·
 인증 갱신 오류는 `shared/api/stream/eventStreamErrors.ts`에서 관리한다.

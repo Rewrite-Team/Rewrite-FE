@@ -470,6 +470,34 @@ describe('CoverLetterList', () => {
     }
   });
 
+  it('복구 목록 조회가 멈추면 요청을 취소해 재연결 대기를 끝내고 다음 조회를 허용한다', async () => {
+    queryClient.setQueryData(['cover-letters', 'list', { page: 1, size: 6 }], createResponse(1));
+    mockListCoverLetters.mockImplementationOnce(() => new Promise(() => {}));
+    renderList();
+    jest.useFakeTimers();
+    const { onRetry } = mockConnectReviewStatuses.mock.calls[0][0];
+    let recovery: void | Promise<void>;
+    await act(async () => {
+      recovery = onRetry?.();
+      await jest.advanceTimersByTimeAsync(0);
+    });
+    const requestSignal = mockListCoverLetters.mock.calls[0][1]?.signal;
+    expect(requestSignal?.aborted).toBe(false);
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(15_000);
+      await recovery;
+    });
+    expect(requestSignal?.aborted).toBe(true);
+    expect(queryClient.isFetching()).toBe(0);
+    expect(screen.getByText('1페이지 자기소개서')).toBeInTheDocument();
+
+    mockListCoverLetters.mockResolvedValueOnce(createResponse(1));
+    await act(async () => {
+      await onRetry?.();
+    });
+    expect(mockListCoverLetters).toHaveBeenCalledTimes(2);
+  });
+
   it('화면을 떠난 뒤 지연된 이벤트로 캐시를 갱신하지 않는다', async () => {
     mockListCoverLetters.mockResolvedValue(createResponse(1));
     const { unmount } = renderList();

@@ -65,7 +65,10 @@ describe('useCoverLetterReviewJob', () => {
         })
     );
   });
-  afterEach(() => queryClient.clear());
+  afterEach(() => {
+    queryClient.clear();
+    jest.useRealTimers();
+  });
 
   it('진행 상태를 갱신하고 종료 이벤트 이후의 문항 결과까지 받은 뒤 결과를 조회한다', async () => {
     const { result, unmount } = setup();
@@ -131,5 +134,77 @@ describe('useCoverLetterReviewJob', () => {
     await waitFor(() => expect(connectLlmJobEvents).toHaveBeenCalled());
     await act(async () => finishStream());
     await waitFor(() => expect(result.current.connectionIssue).toContain('연결이 종료'));
+  });
+
+  it('Job 조회가 멈추면 15초 후 요청을 취소하고 상세 조회로 복구한다', async () => {
+    jest.mocked(getLlmJobStatus).mockImplementation(
+      (_jobId, options) =>
+        new Promise((_, reject) => {
+          options?.signal?.addEventListener('abort', () => reject(options.signal?.reason), {
+            once: true,
+          });
+        })
+    );
+    setup();
+    await waitFor(() => expect(connectLlmJobEvents).toHaveBeenCalled());
+    jest.useFakeTimers();
+    const options = jest.mocked(connectLlmJobEvents).mock.calls[0][1];
+    const recovery = options.onRetry?.();
+    const requestSignal = jest.mocked(getLlmJobStatus).mock.calls[0][1]?.signal;
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(15_000);
+      await recovery;
+    });
+    expect(requestSignal?.aborted).toBe(true);
+    expect(getCoverLetterDetail).toHaveBeenCalledTimes(1);
+    expect(options.signal.aborted).toBe(true);
+  });
+
+  it('대체 상세 조회도 멈추면 취소 후 복구를 끝내고 다음 재시도를 허용한다', async () => {
+    jest.mocked(getLlmJobStatus).mockRejectedValue(new TypeError('상태 조회 실패'));
+    jest.mocked(getCoverLetterDetail).mockImplementation(() => new Promise(() => {}));
+    const { result } = setup();
+    await waitFor(() => expect(connectLlmJobEvents).toHaveBeenCalled());
+    jest.useFakeTimers();
+    const options = jest.mocked(connectLlmJobEvents).mock.calls[0][1];
+    let recovery: void | Promise<void>;
+    await act(async () => {
+      recovery = options.onRetry?.();
+      await jest.advanceTimersByTimeAsync(0);
+    });
+    const requestSignal = jest.mocked(getCoverLetterDetail).mock.calls[0][1]?.signal;
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(15_000);
+      await recovery;
+    });
+    expect(requestSignal?.aborted).toBe(true);
+    expect(result.current.connectionIssue).toContain('진행 상태를 불러오지 못했습니다');
+    expect(options.signal.aborted).toBe(false);
+
+    jest.mocked(getLlmJobStatus).mockResolvedValue(state('PROCESSING'));
+    await act(async () => {
+      await options.onRetry?.();
+    });
+    expect(getLlmJobStatus).toHaveBeenCalledTimes(2);
+  });
+
+  it('종료 Job의 결과 조회가 시간 초과돼도 SSE 구독은 종료한다', async () => {
+    jest.mocked(getCoverLetterDetail).mockImplementation(() => new Promise(() => {}));
+    const { result } = setup();
+    await waitFor(() => expect(connectLlmJobEvents).toHaveBeenCalled());
+    jest.useFakeTimers();
+    const options = jest.mocked(connectLlmJobEvents).mock.calls[0][1];
+    let recovery: void | Promise<void>;
+    await act(async () => {
+      recovery = options.onRetry?.();
+      await jest.advanceTimersByTimeAsync(0);
+    });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(15_000);
+      await recovery;
+    });
+    expect(options.signal.aborted).toBe(true);
+    expect(result.current.connectionIssue).toContain('첨삭 결과를 불러오지 못했습니다');
+    expect(getCoverLetterDetail).toHaveBeenCalledTimes(1);
   });
 });

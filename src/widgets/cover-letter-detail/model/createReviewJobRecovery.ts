@@ -1,5 +1,6 @@
 import type { CoverLetterDetailResponse } from '@/entities/cover-letter';
 import { getLlmJobStatus, llmJobQueryKeys, type LlmJobStateResponse } from '@/entities/llm-job';
+import { withStreamRecoveryTimeout } from '@/shared/api/stream/withStreamRecoveryTimeout';
 
 import type { QueryClient } from '@tanstack/react-query';
 
@@ -28,6 +29,18 @@ export function createReviewJobRecovery({
   let hasStreamClosed = false;
   let recoveryPromise: Promise<void> | undefined;
 
+  const finishTerminalRecovery = async () => {
+    try {
+      await refreshDetail();
+    } catch {
+      if (!controller.signal.aborted)
+        onConnectionIssue('첨삭 결과를 불러오지 못했습니다. 상태를 새로고침해 주세요.');
+    } finally {
+      // 결과 조회가 시간 초과돼도 종료가 확인된 Job에 다시 연결하지 않습니다.
+      controller.abort();
+    }
+  };
+
   return (isStreamClosed: boolean) => {
     // 요청을 공유하더라도 뒤늦게 전달된 연결 종료 사실은 유지합니다.
     hasStreamClosed ||= isStreamClosed;
@@ -35,15 +48,16 @@ export function createReviewJobRecovery({
     let hasRecoveredRunningJob = false;
     recoveryPromise = (async () => {
       try {
-        const state = await getLlmJobStatus(jobId, { signal: controller.signal });
+        const state = await withStreamRecoveryTimeout(controller.signal, (signal) =>
+          getLlmJobStatus(jobId, { signal })
+        );
         if (controller.signal.aborted) return;
         queryClient.setQueryData(llmJobQueryKeys.status(jobId), state);
-        if (isTerminalJobStatus(state.status)) {
-          await refreshDetail();
-          controller.abort();
-        } else {
+        if (!isTerminalJobStatus(state.status)) {
           hasRecoveredRunningJob = true;
+          return;
         }
+        await finishTerminalRecovery();
       } catch {
         if (controller.signal.aborted) return;
         try {

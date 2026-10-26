@@ -15,6 +15,7 @@ import {
 } from '@/entities/llm-job';
 import { reviewVersionQueryKeys } from '@/entities/review-version';
 import { refreshAuthTokens } from '@/entities/user';
+import { withStreamRecoveryTimeout } from '@/shared/api/stream/withStreamRecoveryTimeout';
 
 import { createReviewJobRecovery, isTerminalJobStatus } from '../model/createReviewJobRecovery';
 
@@ -60,10 +61,8 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
 
     const refreshDetail = async () => {
       // 완료·복구 시에는 신선한 REVIEWING 캐시가 있어도 서버의 최신 결과를 조회합니다.
-      const detail = await fetchLatestCoverLetterDetail(
-        queryClient,
-        coverLetterId,
-        controller.signal
+      const detail = await withStreamRecoveryTimeout(controller.signal, (signal) =>
+        fetchLatestCoverLetterDetail(queryClient, coverLetterId, signal)
       );
       if (controller.signal.aborted) return;
       void queryClient.invalidateQueries({ queryKey: coverLetterQueryKeys.lists() });

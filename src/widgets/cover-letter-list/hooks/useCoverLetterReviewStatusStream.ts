@@ -11,6 +11,7 @@ import {
 } from '@/entities/cover-letter';
 import type { CoverLetterListResponse } from '@/entities/cover-letter';
 import { refreshAuthTokens } from '@/entities/user';
+import { withStreamRecoveryTimeout } from '@/shared/api/stream/withStreamRecoveryTimeout';
 
 import { isRetryableRefreshError } from '../utils/isRetryableRefreshError';
 import { waitForRefreshRetry } from '../utils/waitForRefreshRetry';
@@ -38,14 +39,22 @@ export const useCoverLetterReviewStatusStream = () => {
     let refreshRequested = false;
 
     const refreshOnce = async () => {
+      const filters = { queryKey: coverLetterQueryKeys.lists() };
       // 이벤트 이전에 시작한 응답이 최신 상태를 덮어쓰지 않도록 먼저 취소합니다.
-      await queryClient.cancelQueries({ queryKey: coverLetterQueryKeys.lists() });
-      if (!controller.signal.aborted) {
-        await queryClient.invalidateQueries(
-          { queryKey: coverLetterQueryKeys.lists() },
-          { throwOnError: true }
-        );
-      }
+      await queryClient.cancelQueries(filters);
+      if (controller.signal.aborted) return;
+
+      await withStreamRecoveryTimeout(controller.signal, async (signal) => {
+        const handleAbort = () => {
+          void queryClient.cancelQueries(filters);
+        };
+        signal.addEventListener('abort', handleAbort, { once: true });
+        try {
+          await queryClient.invalidateQueries(filters, { throwOnError: true });
+        } finally {
+          signal.removeEventListener('abort', handleAbort);
+        }
+      });
     };
 
     const refreshLists = () => {
