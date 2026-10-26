@@ -1,10 +1,15 @@
+import type { QuestionResponse } from '@/entities/cover-letter';
 import type { LlmJobStateResponse, ReviewQuestionSnapshot } from '@/entities/llm-job';
 import { Button } from '@/shared/ui/button';
 import { PageHeader } from '@/shared/ui/page-header';
 
+import { CoverLetterContentSection } from './CoverLetterContentSection';
+import { CoverLetterQuestionCard } from './CoverLetterQuestionCard';
+
 interface CoverLetterReviewProgressProps {
   title: string;
   progress?: LlmJobStateResponse['progress'];
+  questions: QuestionResponse[];
   questionResults: ReviewQuestionSnapshot[];
   hasJobId: boolean;
   connectionIssue?: string;
@@ -16,12 +21,15 @@ interface CoverLetterReviewProgressProps {
 export function CoverLetterReviewProgress({
   title,
   progress,
+  questions,
   questionResults,
   hasJobId,
   connectionIssue,
   isFetching,
   onRefresh,
 }: CoverLetterReviewProgressProps) {
+  const resultsByQuestionId = new Map(questionResults.map((result) => [result.questionId, result]));
+
   return (
     <section className="writing-detail-content">
       <PageHeader title={title} description="AI가 자기소개서를 첨삭하고 있습니다." />
@@ -51,14 +59,37 @@ export function CoverLetterReviewProgress({
           </div>
         ) : null}
       </div>
-      {questionResults.map((item) => (
-        <article key={item.questionId} className="mt-6 rounded-2xl bg-gray-800 p-6 text-white">
-          <h2 className="body-18">문항 {item.order} 첨삭 결과</h2>
-          <p className="mt-3 whitespace-pre-wrap">
-            {item.rewrittenAnswer ?? item.aiReport ?? '문항 결과를 준비하고 있습니다.'}
-          </p>
-        </article>
-      ))}
+      <div className="mt-8 flex flex-col gap-6">
+        {[...questions]
+          .sort((first, second) => first.order - second.order)
+          .map((question, index) => {
+            const result = resultsByQuestionId.get(question.questionId);
+
+            return (
+              <CoverLetterQuestionCard
+                key={question.questionId}
+                question={question}
+                questionNumber={index + 1}
+              >
+                {result?.aiReport != null ? (
+                  <CoverLetterContentSection title="AI 리포트">
+                    {result.aiReport}
+                  </CoverLetterContentSection>
+                ) : null}
+                {result?.rewrittenAnswer != null ? (
+                  <CoverLetterContentSection title="AI 첨삭 결과">
+                    {result.rewrittenAnswer}
+                  </CoverLetterContentSection>
+                ) : null}
+                {result?.finalAnswer != null ? (
+                  <CoverLetterContentSection title="최종 작성본">
+                    {result.finalAnswer}
+                  </CoverLetterContentSection>
+                ) : null}
+              </CoverLetterQuestionCard>
+            );
+          })}
+      </div>
     </section>
   );
 }
