@@ -1,8 +1,10 @@
+import AlertCircleIcon from './ic-alert-circle.svg';
 import AltArrowDownIcon from './ic-alt-arrow-down.svg';
 import AltArrowRightIcon from './ic-alt-arrow-right.svg';
 import ArrowRightCircleIcon from './ic-arrow-right-circle.svg';
 import BackIcon from './ic-back.svg';
 import CancelIcon from './ic-cancel.svg';
+import CheckMarkIcon from './ic-check-mark.svg';
 import CheckIcon from './ic-check.svg';
 import ChevronLeftIcon from './ic-chevron-left.svg';
 import ChevronRightIcon from './ic-chevron-right.svg';
@@ -13,12 +15,14 @@ import LogoutIcon from './ic-logout.svg';
 import SearchIcon from './ic-search.svg';
 
 export {
+  AlertCircleIcon,
   AltArrowDownIcon,
   AltArrowRightIcon,
   ArrowRightCircleIcon,
   BackIcon,
   CancelIcon,
   CheckIcon,
+  CheckMarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   EditIcon,
