@@ -145,12 +145,24 @@ export function CoverLetterList({ requestedPage }: CoverLetterListProps) {
         onOpenChange={(open) => {
           if (!open && !deleteMutation.isPending) setDeleteTarget(null);
         }}
-        title="자기소개서를 삭제할까요?"
-        description={
+        title={
           <>
-            <span className="mb-2 block break-all font-semibold text-white">
+            <span
+              className="body-16 mb-2 block wrap-break-word font-medium text-white"
+              style={{
+                display: '-webkit-box',
+                WebkitBoxOrient: 'vertical',
+                WebkitLineClamp: 1,
+                overflow: 'hidden',
+              }}
+            >
               {deleteTarget?.title?.trim() || '제목 없는 자기소개서'}
             </span>
+            이 자기소개서를 삭제할까요?
+          </>
+        }
+        description={
+          <>
             삭제 후에는 복구할 수 없습니다.
             {deleteTarget?.displayStatus === 'REVIEWING' ? (
               <>
