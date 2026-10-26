@@ -24,6 +24,7 @@ type SidebarVariant = 'compact' | 'full';
 
 interface SidebarProps extends ComponentPropsWithoutRef<'aside'> {
   writingId: string;
+  coverLetterTitle?: string | null;
   isReviewing?: boolean;
   isVersionPanelOpen?: boolean;
   isDeletePending?: boolean;
@@ -64,6 +65,7 @@ const handlePendingVersionClick = () => {
  */
 export function Sidebar({
   className,
+  coverLetterTitle,
   isReviewing = false,
   isVersionPanelOpen = false,
   isDeletePending = false,
@@ -280,7 +282,7 @@ export function Sidebar({
         confirmLabel="삭제하기"
         description={
           <>
-            삭제 후 복구할 수 없습니다.
+            삭제 후에는 복구할 수 없습니다.
             {isReviewing ? (
               <>
                 <br />
@@ -295,7 +297,22 @@ export function Sidebar({
           setIsDeleteModalOpen(open);
         }}
         open={isDeleteModalOpen}
-        title="해당 자기소개서 삭제하시겠습니까?"
+        title={
+          <>
+            <span
+              className="body-16 mb-2 block wrap-break-word font-medium text-white"
+              style={{
+                display: '-webkit-box',
+                WebkitBoxOrient: 'vertical',
+                WebkitLineClamp: 1,
+                overflow: 'hidden',
+              }}
+            >
+              {coverLetterTitle?.trim() || '제목 없는 자기소개서'}
+            </span>
+            이 자기소개서를 삭제할까요?
+          </>
+        }
         isLoading={isDeletePending}
       />
     </>

@@ -17,6 +17,7 @@ import { Sidebar } from '@/widgets/common/sidebar';
 
 interface WritingDetailLayoutClientProps {
   children: ReactNode;
+  coverLetterTitle?: string | null;
   isReviewing?: boolean;
   initialSelectedVersionId: string;
   versions: ReviewVersionSummary[];
@@ -38,6 +39,7 @@ interface WritingDetailLayoutContentProps extends WritingDetailLayoutClientProps
 
 function WritingDetailLayoutContent({
   children,
+  coverLetterTitle,
   isReviewing = false,
   initialSelectedVersionId,
   pathname,
@@ -94,6 +96,7 @@ function WritingDetailLayoutContent({
       <div className="mx-auto flex min-h-full w-full max-w-275 flex-1">
         <Sidebar
           className="fixed right-5 bottom-5 lg:sticky lg:top-39.5 lg:right-auto lg:bottom-auto lg:self-start"
+          coverLetterTitle={coverLetterTitle}
           isDeletePending={deleteMutation.isPending}
           isReviewing={isReviewing}
           isVersionPanelOpen={isDetailPage && isVersionPanelOpen}
