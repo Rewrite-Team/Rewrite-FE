@@ -125,7 +125,7 @@ describe('CoverLetterDetailScreen', () => {
     expect(screen.queryByRole('textbox', { name: '최종 작성본' })).not.toBeInTheDocument();
   });
 
-  it('첨삭 실패를 조회 실패와 구분하고 서버 실패 사유를 표시한다', () => {
+  it('첨삭 실패 시 서버 내부 오류 대신 사용자 안내 문구를 표시한다', () => {
     renderDetail({
       ...DETAIL,
       coverLetter: { ...DETAIL.coverLetter, displayStatus: 'REVIEW_FAILED' },
@@ -136,8 +136,12 @@ describe('CoverLetterDetailScreen', () => {
         error: { code: 'LLM_PROVIDER_ERROR', message: 'AI 서비스 응답이 없습니다.' },
       },
     });
-    expect(screen.getByRole('alert')).toHaveTextContent('AI 서비스 응답이 없습니다.');
-    expect(screen.getByRole('button', { name: '결과 다시 확인하기' })).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'AI 첨삭을 완료하지 못했어요. 잠시 후 다시 시도해 주세요.'
+    );
+    expect(
+      screen.getByRole('button', { name: '실패한 문항 결과 다시 불러오기' })
+    ).toBeInTheDocument();
   });
 
   it('선택한 이전 버전을 API로 조회해서 표시한다', async () => {
@@ -166,7 +170,7 @@ describe('CoverLetterDetailScreen', () => {
         error: { code: 'LLM_PROVIDER_ERROR', message: '기존 실패 사유' },
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: '결과 다시 확인하기' }));
+    fireEvent.click(screen.getByRole('button', { name: '실패한 문항 결과 다시 불러오기' }));
     await waitFor(() =>
       expect(appToast.error).toHaveBeenCalledWith(
         '자기소개서 상태를 새로 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'

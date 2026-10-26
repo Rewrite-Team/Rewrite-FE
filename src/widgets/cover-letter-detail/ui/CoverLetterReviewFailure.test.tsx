@@ -56,7 +56,6 @@ describe('CoverLetterReviewFailure', () => {
   it('닫힌 실패 문항을 연 다음 펼침 전환이 끝나면 같은 위치로 스크롤한다', () => {
     const { container } = render(
       <CoverLetterReviewFailure
-        errorMessage="첨삭에 실패했어요."
         isFetching={false}
         onRefresh={jest.fn()}
         questions={QUESTIONS}

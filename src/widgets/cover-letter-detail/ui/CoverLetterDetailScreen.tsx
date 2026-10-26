@@ -130,11 +130,6 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
         title={data.coverLetter.title ?? '자기소개서'}
         questions={data.questions}
         questionResults={reviewJob.questionResults}
-        errorMessage={
-          reviewJob.jobState?.error?.message ??
-          data.reviewJob?.error?.message ??
-          '첨삭 작업이 중단되었습니다.'
-        }
         progress={reviewJob.jobState?.progress ?? data.reviewJob?.progress}
         isFetching={isFetching}
         onRefresh={handleRefresh}

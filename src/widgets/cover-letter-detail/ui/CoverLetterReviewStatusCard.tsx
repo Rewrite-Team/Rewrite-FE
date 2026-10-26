@@ -50,7 +50,7 @@ export function CoverLetterReviewStatusCard(props: CoverLetterReviewStatusCardPr
     <div
       className={`mt-8 rounded-3xl border p-5 shadow-sm sm:p-7 ${isFailed ? 'border-error-500/30 bg-gray-800' : isCompleted ? 'border-primary-500/30 bg-gray-800' : 'border-gray-700 bg-gray-800'}`}
     >
-      <div className="flex items-start gap-4">
+      <div className="flex flex-wrap items-start gap-4">
         <span
           className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${isFailed ? 'bg-error-500/10 text-error-500' : isCompleted ? 'bg-primary-500 text-white' : 'bg-primary-500/10 text-primary-300'}`}
         >
@@ -84,6 +84,16 @@ export function CoverLetterReviewStatusCard(props: CoverLetterReviewStatusCardPr
           <p className="m-0 shrink-0 rounded-full bg-gray-700 px-3 py-1 body-14 font-semibold text-primary-300">
             {progressSummary.percentage}%
           </p>
+        ) : null}
+        {isFailed ? (
+          <Button
+            className="h-10 w-full min-w-32 shrink-0 px-4 sm:w-auto"
+            onClick={onRefresh}
+            isLoading={isFetching}
+            size="sm"
+          >
+            실패한 문항 결과 다시 불러오기
+          </Button>
         ) : null}
       </div>
       {!isFailed ? (
@@ -131,18 +141,6 @@ export function CoverLetterReviewStatusCard(props: CoverLetterReviewStatusCardPr
               </a>
             ))}
           </div>
-        </div>
-      ) : null}
-      {isFailed && !isPartialFailure ? (
-        <div className="mt-6 flex justify-end">
-          <Button
-            className="h-10 w-full min-w-32 px-4 sm:w-auto"
-            onClick={onRefresh}
-            isLoading={isFetching}
-            size="sm"
-          >
-            결과 다시 확인하기
-          </Button>
         </div>
       ) : null}
       {!isFailed && (!hasJobId || connectionIssue) ? (

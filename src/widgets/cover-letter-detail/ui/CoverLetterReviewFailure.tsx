@@ -11,9 +11,12 @@ import { ErrorState } from '@/shared/ui/state-feedback';
 import { CoverLetterQuestionCard } from './CoverLetterQuestionCard';
 import { CoverLetterReviewQuestion } from './CoverLetterReviewQuestion';
 import { CoverLetterReviewStatusCard } from './CoverLetterReviewStatusCard';
+import {
+  REVIEW_FAILURE_USER_MESSAGE,
+  REVIEW_QUESTION_FAILURE_USER_MESSAGE,
+} from '../model/reviewJobMessages';
 
 interface CoverLetterReviewFailureProps {
-  errorMessage: string;
   isFetching: boolean;
   onRefresh: () => void;
   questions: QuestionResponse[];
@@ -24,7 +27,6 @@ interface CoverLetterReviewFailureProps {
 
 /** 전체 실패는 공통 오류를, 부분 실패는 완료 결과와 실패 문항을 함께 표시합니다. */
 export function CoverLetterReviewFailure({
-  errorMessage,
   isFetching,
   onRefresh,
   questions,
@@ -101,7 +103,7 @@ export function CoverLetterReviewFailure({
         progress={progress}
         questionCount={questions.length}
         {...statusCardProps}
-        errorMessage={errorMessage}
+        errorMessage={REVIEW_FAILURE_USER_MESSAGE}
         isFetching={isFetching}
         onRefresh={onRefresh}
       />
@@ -142,12 +144,7 @@ export function CoverLetterReviewFailure({
                       animationData={null}
                       className="mx-auto"
                       title={`문항 ${questionNumber} 첨삭에 실패했어요`}
-                      description={errorMessage}
-                      retry={{
-                        label: '결과 다시 확인하기',
-                        onClick: onRefresh,
-                        isLoading: isFetching,
-                      }}
+                      description={REVIEW_QUESTION_FAILURE_USER_MESSAGE}
                     />
                   </CoverLetterQuestionCard>
                 </article>
