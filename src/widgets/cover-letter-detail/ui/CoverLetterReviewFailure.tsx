@@ -4,6 +4,7 @@ import { getCoverLetterQuestionDomId, type QuestionResponse } from '@/entities/c
 import type { LlmJobStateResponse, ReviewQuestionSnapshot } from '@/entities/llm-job';
 import { ROUTES } from '@/shared/constants/routes';
 import { getPreferredScrollBehavior, prefersReducedMotion } from '@/shared/lib/motionPreferences';
+import { scrollWindowToTop } from '@/shared/lib/scrollWindowToTop';
 import { LinkButton } from '@/shared/ui/button';
 import { PageHeader } from '@/shared/ui/page-header';
 import { ErrorState } from '@/shared/ui/state-feedback';
@@ -161,7 +162,12 @@ export function CoverLetterReviewFailure({
           })}
         </div>
       ) : null}
-      <LinkButton className="mt-8 w-full" href={ROUTES.WRITING} variant="outline">
+      <LinkButton
+        className="mt-8 w-full"
+        href={ROUTES.WRITING}
+        onClick={scrollWindowToTop}
+        variant="outline"
+      >
         목록으로 이동
       </LinkButton>
     </section>
