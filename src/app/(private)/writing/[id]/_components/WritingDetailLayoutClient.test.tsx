@@ -32,6 +32,7 @@ jest.mock('next/navigation', () => {
       window.history.pushState({}, '', url);
       notify();
     },
+    useRouter: () => ({ replace: jest.fn() }),
     useSearchParams: () => {
       const search = useSyncExternalStore(
         subscribe,
