@@ -20,10 +20,14 @@ import { CoverLetterReviewQuestion } from './CoverLetterReviewQuestion';
 
 interface CoverLetterReviewResultProps {
   detail: CoverLetterDetailResponse;
+  showCompletionNotice?: boolean;
 }
 
 /** 선택한 첨삭 버전의 기본 정보와 완료된 문항을 표시합니다. */
-export function CoverLetterReviewResult({ detail }: CoverLetterReviewResultProps) {
+export function CoverLetterReviewResult({
+  detail,
+  showCompletionNotice = false,
+}: CoverLetterReviewResultProps) {
   const router = useRouter();
   const [answerOverrides, setAnswerOverrides] = useState<Record<string, string>>({});
   const [draftAnswers, setDraftAnswers] = useState<Record<string, string>>({});
@@ -134,6 +138,22 @@ export function CoverLetterReviewResult({ detail }: CoverLetterReviewResultProps
           />
         }
       />
+      {showCompletionNotice && detail.reviewVersion?.isLatestReviewed ? (
+        <div
+          className="mt-6 flex flex-col gap-3 rounded-3xl border border-primary-500/30 bg-primary-500/10 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+          role="status"
+        >
+          <div>
+            <p className="m-0 body-16 font-semibold text-white">AI 첨삭이 완료됐어요</p>
+            <p className="mt-1 mb-0 body-14 text-gray-100">
+              문항별 첨삭 결과와 최종 작성본을 확인해 보세요.
+            </p>
+          </div>
+          <span className="w-fit rounded-full bg-primary-500/15 px-3 py-1 body-12 font-semibold text-primary-200">
+            완료
+          </span>
+        </div>
+      ) : null}
       <div className="flex flex-col gap-15">
         {[...detail.questions]
           .sort((a, b) => a.order - b.order)

@@ -93,6 +93,7 @@ describe('CoverLetterDetailScreen', () => {
       jobState: undefined,
       questionResults: [],
       connectionIssue: undefined,
+      hasCompletedReview: false,
       retry: jest.fn(),
     });
   });
@@ -182,6 +183,7 @@ describe('CoverLetterDetailScreen', () => {
       jobState: undefined,
       questionResults: [],
       connectionIssue: '연결 끊김',
+      hasCompletedReview: false,
       retry: jest.fn(),
     });
     renderDetail({ ...DETAIL, coverLetter: { ...DETAIL.coverLetter, displayStatus: 'REVIEWING' } });

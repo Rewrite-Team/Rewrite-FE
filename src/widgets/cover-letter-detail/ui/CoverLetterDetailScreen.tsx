@@ -130,6 +130,7 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
         questions={data.questions}
         questionResults={reviewJob.questionResults}
         hasJobId={Boolean(jobId)}
+        isCompleted={reviewJob.jobState?.status === 'COMPLETED'}
         connectionIssue={reviewJob.connectionIssue}
         isFetching={isFetching}
         onRefresh={handleRefresh}
@@ -162,5 +163,10 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
       </section>
     );
 
-  return <CoverLetterReviewResult detail={displayedDetail} />;
+  return (
+    <CoverLetterReviewResult
+      detail={displayedDetail}
+      showCompletionNotice={reviewJob.hasCompletedReview}
+    />
+  );
 }
