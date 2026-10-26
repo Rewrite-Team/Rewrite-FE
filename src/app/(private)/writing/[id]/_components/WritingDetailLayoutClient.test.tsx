@@ -9,6 +9,13 @@ import { WritingDetailLayoutClient } from './WritingDetailLayoutClient';
 
 jest.mock('@/shared/lib/toast', () => ({ appToast: { error: jest.fn() } }));
 
+jest.mock('@/features/cover-letter/delete', () => ({
+  useDeleteCoverLetter: () => ({
+    isPending: false,
+    mutateAsync: jest.fn(),
+  }),
+}));
+
 jest.mock('next/navigation', () => {
   const { useSyncExternalStore } = jest.requireActual<typeof import('react')>('react');
   const listeners = new Set<() => void>();
