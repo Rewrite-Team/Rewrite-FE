@@ -1,5 +1,4 @@
-import { BadgeGroup } from '@/shared/ui/badge';
-import { PageHeader } from '@/shared/ui/page-header';
+import { CoverLetterMetadataHeader } from '@/widgets/cover-letter-detail';
 import { InterviewSession } from '@/widgets/interview';
 
 /**
@@ -19,18 +18,9 @@ export default async function WritingInterviewSessionPage({
 
   return (
     <div className="writing-detail-content" data-layout-footer="hidden">
-      {/* TODO: 자기소개서 상세 API 연결 후 회사, 직무, 제목 정보를 교체합니다. */}
-      <PageHeader
+      <CoverLetterMetadataHeader
+        coverLetterId={id}
         className="w-full gap-2.5 sm:gap-3"
-        eyebrow={
-          <BadgeGroup
-            companyBadgeClassName="h-5 px-2.5"
-            companyName="회사명"
-            jobBadgeClassName="h-5 px-2.5"
-            jobName="직무"
-          />
-        }
-        title="자기소개서 제목"
         titleClassName="heading-18"
       />
       <InterviewSession key={id} writingId={id} />

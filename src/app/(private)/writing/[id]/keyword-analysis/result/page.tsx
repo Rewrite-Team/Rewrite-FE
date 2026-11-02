@@ -1,7 +1,6 @@
 import { ROUTES } from '@/shared/constants/routes';
-import { BadgeGroup } from '@/shared/ui/badge';
 import { LinkButton } from '@/shared/ui/button';
-import { PageHeader } from '@/shared/ui/page-header';
+import { CoverLetterMetadataHeader } from '@/widgets/cover-letter-detail';
 import { KeywordAnalysisResult } from '@/widgets/keyword-analysis';
 
 /**
@@ -20,13 +19,11 @@ export default async function KeywordAnalysisResultPage({
   return (
     <section className="writing-detail-content">
       <header className="flex flex-col items-start gap-5 sm:flex-row sm:items-end sm:justify-between">
-        {/* TODO: 자기소개서 상세 API 연결 후 회사, 직무, 제목과 버전 정보를 교체합니다. */}
-        <PageHeader
+        <CoverLetterMetadataHeader
+          coverLetterId={id}
           className="min-w-0 gap-3"
-          eyebrow={<BadgeGroup companyName="회사명" jobName="직무" />}
-          title="자기소개서 제목"
           titleClassName="truncate body-20"
-          version="V0.1"
+          showVersion
         />
 
         <LinkButton

@@ -16,6 +16,7 @@ import { appToast } from '@/shared/lib/toast';
 import { BadgeGroup } from '@/shared/ui/badge';
 import { PageHeader } from '@/shared/ui/page-header';
 
+import { CoverLetterJobPostingLink } from './CoverLetterJobPostingLink';
 import { CoverLetterReviewQuestion } from './CoverLetterReviewQuestion';
 
 interface CoverLetterReviewResultProps {
@@ -132,6 +133,7 @@ export function CoverLetterReviewResult({
       <PageHeader
         className="mb-10"
         title={detail.coverLetter.title ?? '자기소개서'}
+        titleAddon={<CoverLetterJobPostingLink href={detail.coverLetter.jobPostingUrl} />}
         version={detail.reviewVersion?.version}
         eyebrow={
           <BadgeGroup

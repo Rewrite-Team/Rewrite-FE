@@ -5,8 +5,8 @@ import { cn } from '@/shared/styles/utils/cn';
 import { Badge } from './Badge';
 
 interface BadgeGroupProps extends ComponentPropsWithoutRef<'ul'> {
-  companyName: string;
-  jobName: string;
+  companyName?: string | null;
+  jobName?: string | null;
   companyBadgeClassName?: string;
   jobBadgeClassName?: string;
 }
@@ -47,22 +47,31 @@ export function BadgeGroup({
   'aria-label': ariaLabel = '지원 회사와 직무',
   ...props
 }: BadgeGroupProps) {
+  const displayCompanyName = companyName?.trim() ? companyName : null;
+  const displayJobName = jobName?.trim() ? jobName : null;
+
+  if (!displayCompanyName && !displayJobName) return null;
+
   return (
     <ul
       className={cn('m-0 flex list-none flex-wrap gap-1 p-0', className)}
       aria-label={ariaLabel}
       {...props}
     >
-      <li>
-        <Badge variant="company" className={companyBadgeClassName}>
-          {companyName}
-        </Badge>
-      </li>
-      <li>
-        <Badge variant="job" className={jobBadgeClassName}>
-          {jobName}
-        </Badge>
-      </li>
+      {displayCompanyName ? (
+        <li>
+          <Badge variant="company" className={companyBadgeClassName}>
+            {displayCompanyName}
+          </Badge>
+        </li>
+      ) : null}
+      {displayJobName ? (
+        <li>
+          <Badge variant="job" className={jobBadgeClassName}>
+            {displayJobName}
+          </Badge>
+        </li>
+      ) : null}
     </ul>
   );
 }

@@ -9,6 +9,7 @@ import CheckIcon from './ic-check.svg';
 import ChevronLeftIcon from './ic-chevron-left.svg';
 import ChevronRightIcon from './ic-chevron-right.svg';
 import EditIcon from './ic-edit.svg';
+import ExternalLinkIcon from './ic-external-link.svg';
 import GithubIcon from './ic-github.svg';
 import KakaoSymbolIcon from './ic-kakao.svg';
 import LogoutIcon from './ic-logout.svg';
@@ -26,6 +27,7 @@ export {
   ChevronLeftIcon,
   ChevronRightIcon,
   EditIcon,
+  ExternalLinkIcon,
   GithubIcon,
   LogoutIcon,
   SearchIcon,

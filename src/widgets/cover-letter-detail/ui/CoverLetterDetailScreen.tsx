@@ -128,6 +128,9 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
     return (
       <CoverLetterReviewFailure
         title={data.coverLetter.title ?? '자기소개서'}
+        companyName={data.coverLetter.companyName}
+        positionTitle={data.coverLetter.positionTitle}
+        jobPostingUrl={data.coverLetter.jobPostingUrl}
         questions={data.questions}
         questionResults={reviewJob.questionResults}
         progress={reviewJob.jobState?.progress ?? data.reviewJob?.progress}
@@ -141,6 +144,9 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
     return (
       <CoverLetterReviewProgress
         title={data.coverLetter.title ?? '자기소개서'}
+        companyName={data.coverLetter.companyName}
+        positionTitle={data.coverLetter.positionTitle}
+        jobPostingUrl={data.coverLetter.jobPostingUrl}
         progress={progress}
         questions={data.questions}
         questionResults={reviewJob.questionResults}

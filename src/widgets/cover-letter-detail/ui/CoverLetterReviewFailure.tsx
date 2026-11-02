@@ -5,10 +5,12 @@ import type { LlmJobStateResponse, ReviewQuestionSnapshot } from '@/entities/llm
 import { ROUTES } from '@/shared/constants/routes';
 import { getPreferredScrollBehavior, prefersReducedMotion } from '@/shared/lib/motionPreferences';
 import { scrollWindowToTop } from '@/shared/lib/scrollWindowToTop';
+import { BadgeGroup } from '@/shared/ui/badge';
 import { LinkButton } from '@/shared/ui/button';
 import { PageHeader } from '@/shared/ui/page-header';
 import { ErrorState } from '@/shared/ui/state-feedback';
 
+import { CoverLetterJobPostingLink } from './CoverLetterJobPostingLink';
 import { CoverLetterQuestionCard } from './CoverLetterQuestionCard';
 import { CoverLetterReviewQuestion } from './CoverLetterReviewQuestion';
 import { CoverLetterReviewStatusCard } from './CoverLetterReviewStatusCard';
@@ -18,21 +20,27 @@ import {
 } from '../model/reviewJobMessages';
 
 interface CoverLetterReviewFailureProps {
+  companyName?: string | null;
+  jobPostingUrl?: string | null;
   isFetching: boolean;
   onRefresh: () => void;
   questions: QuestionResponse[];
   questionResults: ReviewQuestionSnapshot[];
   progress?: LlmJobStateResponse['progress'];
+  positionTitle?: string | null;
   title: string;
 }
 
 /** 전체 실패는 공통 오류를, 부분 실패는 완료 결과와 실패 문항을 함께 표시합니다. */
 export function CoverLetterReviewFailure({
+  companyName,
+  jobPostingUrl,
   isFetching,
   onRefresh,
   questions,
   questionResults,
   progress,
+  positionTitle,
   title,
 }: CoverLetterReviewFailureProps) {
   const resultsByQuestionId = new Map(questionResults.map((result) => [result.questionId, result]));
@@ -99,7 +107,11 @@ export function CoverLetterReviewFailure({
 
   return (
     <section className="writing-detail-content">
-      <PageHeader title={title} />
+      <PageHeader
+        title={title}
+        titleAddon={<CoverLetterJobPostingLink href={jobPostingUrl} />}
+        eyebrow={<BadgeGroup companyName={companyName ?? ''} jobName={positionTitle ?? ''} />}
+      />
       <CoverLetterReviewStatusCard
         progress={progress}
         questionCount={questions.length}
