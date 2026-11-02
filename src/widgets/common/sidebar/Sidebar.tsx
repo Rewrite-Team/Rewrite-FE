@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { ComponentPropsWithoutRef } from 'react';
+import type { ComponentPropsWithoutRef, MouseEvent } from 'react';
 
 import { usePathname } from 'next/navigation';
 
@@ -14,6 +14,7 @@ import {
   WritingDetailIcon,
 } from '@/shared/assets/icons/side-menu';
 import { ROUTES } from '@/shared/constants/routes';
+import { appToast } from '@/shared/lib/toast';
 import { cn } from '@/shared/styles/utils/cn';
 import { ConfirmModal } from '@/shared/ui/confirm-modal';
 
@@ -103,6 +104,14 @@ export function Sidebar({
 
   const handleSidebarClose = () => {
     setIsExpanded(false);
+  };
+
+  const handleAiFeatureSelect = (event: MouseEvent<HTMLAnchorElement>) => {
+    handleSidebarClose();
+    if (!isReviewing) return;
+
+    event.preventDefault();
+    appToast.warning('다른 AI 작업이 진행 중이에요. 완료 후 이용할 수 있어요.');
   };
 
   const handleDeleteClick = () => {
@@ -246,7 +255,7 @@ export function Sidebar({
                 isActive={isKeywordActive}
                 isExpanded={isExpanded}
                 label="키워드 분석"
-                onSelect={handleSidebarClose}
+                onSelect={handleAiFeatureSelect}
                 showMobileLabel={shouldShowMobileLabel}
               />
             </li>
@@ -258,7 +267,7 @@ export function Sidebar({
                 isActive={isInterviewActive}
                 isExpanded={isExpanded}
                 label="AI 면접"
-                onSelect={handleSidebarClose}
+                onSelect={handleAiFeatureSelect}
                 showMobileLabel={shouldShowMobileLabel}
               />
             </li>
