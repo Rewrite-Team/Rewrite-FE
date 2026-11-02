@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { coverLetterQueryKeys } from '@/entities/cover-letter';
+import { coverLetterQueryKeys, type CoverLetterDetailResponse } from '@/entities/cover-letter';
 import { reviewVersionQueryKeys, saveFinalAnswers } from '@/entities/review-version';
 import { appToast } from '@/shared/lib/toast';
 
@@ -14,7 +14,33 @@ export function useSaveFinalAnswers(coverLetterId: string, versionId: string) {
     mutationFn: (answers: Parameters<typeof saveFinalAnswers>[2]) =>
       saveFinalAnswers(coverLetterId, versionId, answers),
     retry: false,
-    onSuccess: async () => {
+    onSuccess: async (_data, { answers }) => {
+      const finalAnswersByResultId = new Map(
+        answers.map(({ questionResultId, finalAnswer }) => [questionResultId, finalAnswer])
+      );
+      const updateDetail = (detail: CoverLetterDetailResponse | undefined) => {
+        if (!detail) return detail;
+
+        return {
+          ...detail,
+          questions: detail.questions.map((question) => {
+            if (!question.questionResultId) return question;
+
+            const finalAnswer = finalAnswersByResultId.get(question.questionResultId);
+            return finalAnswer === undefined ? question : { ...question, finalAnswer };
+          }),
+        };
+      };
+
+      queryClient.setQueryData<CoverLetterDetailResponse>(
+        coverLetterQueryKeys.detail(coverLetterId),
+        updateDetail
+      );
+      queryClient.setQueryData<CoverLetterDetailResponse>(
+        reviewVersionQueryKeys.detail(coverLetterId, versionId),
+        updateDetail
+      );
+
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: coverLetterQueryKeys.detail(coverLetterId),
