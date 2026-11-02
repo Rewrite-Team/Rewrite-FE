@@ -11,6 +11,7 @@ import {
   useRequestReReview,
   useSaveFinalAnswers,
 } from '@/features/cover-letter/detail-actions';
+import { INPUT_LIMITS } from '@/shared/constants/limits';
 import { ROUTES } from '@/shared/constants/routes';
 import { appToast } from '@/shared/lib/toast';
 
@@ -78,13 +79,18 @@ export function CoverLetterReviewResult({
         question.finalAnswer ??
         question.rewrittenAnswer ??
         '';
-      if (!finalAnswer.trim()) {
+      const normalizedFinalAnswer = finalAnswer.trim();
+      if (!normalizedFinalAnswer) {
         appToast.error('최종 작성본을 입력한 뒤 저장해 주세요.');
+        return undefined;
+      }
+      if (normalizedFinalAnswer.length > INPUT_LIMITS.COVER_LETTER_ANSWER) {
+        appToast.error(`최종 작성본은 ${INPUT_LIMITS.COVER_LETTER_ANSWER}자 이하로 입력해 주세요.`);
         return undefined;
       }
       answers.push({
         questionResultId: question.questionResultId,
-        finalAnswer,
+        finalAnswer: normalizedFinalAnswer,
       });
     }
     return answers;
