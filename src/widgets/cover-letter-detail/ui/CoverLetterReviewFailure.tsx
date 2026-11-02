@@ -21,7 +21,7 @@ interface CoverLetterReviewFailureProps {
   companyName?: string | null;
   jobPostingUrl?: string | null;
   isFetching: boolean;
-  onRefresh: () => void;
+  onRetry: () => void;
   questions: QuestionResponse[];
   questionResults: ReviewQuestionSnapshot[];
   progress?: LlmJobStateResponse['progress'];
@@ -34,7 +34,7 @@ export function CoverLetterReviewFailure({
   companyName,
   jobPostingUrl,
   isFetching,
-  onRefresh,
+  onRetry,
   questions,
   questionResults,
   progress,
@@ -99,8 +99,9 @@ export function CoverLetterReviewFailure({
         status: 'partial-failure' as const,
         failedQuestionNumbers,
         onFailedQuestionClick: handleFailedQuestionClick,
+        onRetry,
       }
-    : { status: 'failed' as const };
+    : { status: 'failed' as const, onRetry };
 
   return (
     <section className="writing-detail-content">
@@ -116,13 +117,12 @@ export function CoverLetterReviewFailure({
         {...statusCardProps}
         errorMessage={REVIEW_FAILURE_USER_MESSAGE}
         isFetching={isFetching}
-        onRefresh={onRefresh}
+        onRefresh={onRetry}
       />
       {hasAnyResult ? (
         <div className="mt-8 flex flex-col gap-6">
           {questionEntries.map(({ hasResult, question, questionNumber }) => {
             if (!hasResult) {
-              // TODO: 재시도 API가 준비되면 questionId를 전달하고 요청 중인 문항만 로딩·비활성화한다.
               return (
                 <article
                   id={getCoverLetterQuestionDomId(questionNumber)}

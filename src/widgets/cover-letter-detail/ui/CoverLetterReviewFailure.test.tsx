@@ -57,7 +57,7 @@ describe('CoverLetterReviewFailure', () => {
     const { container } = render(
       <CoverLetterReviewFailure
         isFetching={false}
-        onRefresh={jest.fn()}
+        onRetry={jest.fn()}
         questions={QUESTIONS}
         questionResults={[]}
         title="자기소개서"

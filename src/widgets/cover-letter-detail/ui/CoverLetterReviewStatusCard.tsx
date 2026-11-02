@@ -20,12 +20,13 @@ type CoverLetterReviewStatusCardProps = CoverLetterReviewStatusCardBaseProps &
   (
     | { status: 'processing'; hasJobId: boolean; connectionIssue?: string }
     | { status: 'completed' }
-    | { status: 'failed'; errorMessage?: string }
+    | { status: 'failed'; errorMessage?: string; onRetry: () => void }
     | {
         status: 'partial-failure';
         failedQuestionNumbers: number[];
         onFailedQuestionClick: (questionNumber: number) => void;
         errorMessage?: string;
+        onRetry: () => void;
       }
   );
 
@@ -38,6 +39,7 @@ export function CoverLetterReviewStatusCard(props: CoverLetterReviewStatusCardPr
   const errorMessage = isFailed ? props.errorMessage : undefined;
   const failedQuestionNumbers = isPartialFailure ? props.failedQuestionNumbers : [];
   const onFailedQuestionClick = isPartialFailure ? props.onFailedQuestionClick : undefined;
+  const onRetry = isFailed ? props.onRetry : undefined;
   const connectionIssue = status === 'processing' ? props.connectionIssue : undefined;
   const hasJobId = status === 'processing' ? props.hasJobId : true;
   const progressSummary = getCoverLetterReviewProgressSummary({
@@ -88,11 +90,11 @@ export function CoverLetterReviewStatusCard(props: CoverLetterReviewStatusCardPr
         {isFailed ? (
           <Button
             className="h-10 w-full min-w-32 shrink-0 px-4 sm:w-auto"
-            onClick={onRefresh}
+            onClick={onRetry}
             isLoading={isFetching}
             size="sm"
           >
-            실패한 문항 결과 다시 불러오기
+            실패한 문항 다시 첨삭하기
           </Button>
         ) : null}
       </div>

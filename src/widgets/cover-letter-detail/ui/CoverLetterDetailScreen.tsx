@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { coverLetterDetailQueryOptions } from '@/entities/cover-letter';
 import { reviewVersionDetailQueryOptions } from '@/entities/review-version';
+import { useRetryCoverLetterReview } from '@/features/cover-letter/retry-review';
 import { useReviewVersion } from '@/features/review-version/version-management';
 import { ApiError } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
@@ -44,6 +45,7 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
       : undefined;
   const completedJobId = searchParams.get('jobId');
   const reviewJob = useCoverLetterReviewJob(coverLetterId, jobId);
+  const retryReviewMutation = useRetryCoverLetterReview(coverLetterId);
   const shouldFetchVersion = Boolean(
     data?.coverLetter.displayStatus === 'REVIEWED' &&
     selectedVersionId &&
@@ -119,11 +121,11 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
     reviewJob.retry();
     void handleDetailRetry();
   };
+  const handleReviewRetry = () => retryReviewMutation.mutate();
   const hasReviewFailed =
     data.coverLetter.displayStatus === 'REVIEW_FAILED' ||
     reviewJob.jobState?.status === 'FAILED' ||
     reviewJob.jobState?.status === 'CANCELED';
-  // TODO: 문항별 재시도 mutation을 연결해 실패 카드에 questionId를 전달하고, 성공한 문항 결과만 갱신한다.
   if (hasReviewFailed)
     return (
       <CoverLetterReviewFailure
@@ -134,8 +136,8 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
         questions={data.questions}
         questionResults={reviewJob.questionResults}
         progress={reviewJob.jobState?.progress ?? data.reviewJob?.progress}
-        isFetching={isFetching}
-        onRefresh={handleRefresh}
+        isFetching={isFetching || retryReviewMutation.isPending}
+        onRetry={handleReviewRetry}
       />
     );
 

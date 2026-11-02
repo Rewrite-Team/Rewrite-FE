@@ -17,6 +17,7 @@ import { CoverLetterDetailScreen } from './CoverLetterDetailScreen';
 import { useCoverLetterReviewJob } from '../hooks/useCoverLetterReviewJob';
 
 const mockReplace = jest.fn();
+const mockRetryReview = jest.fn();
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ replace: mockReplace }),
   useSearchParams: () => new URLSearchParams('jobId=returned-job'),
@@ -26,6 +27,9 @@ jest.mock('@/entities/cover-letter/api/api', () => ({ getCoverLetterDetail: jest
 jest.mock('@/shared/lib/toast', () => ({ appToast: { error: jest.fn() } }));
 jest.mock('../hooks/useCoverLetterReviewJob', () => ({ useCoverLetterReviewJob: jest.fn() }));
 jest.mock('@/entities/review-version/api/api', () => ({ getReviewVersionDetail: jest.fn() }));
+jest.mock('@/features/cover-letter/retry-review', () => ({
+  useRetryCoverLetterReview: () => ({ mutate: mockRetryReview, isPending: false }),
+}));
 jest.mock('@/shared/ui/lottie-animation', () => ({ LottieAnimation: () => null }));
 jest.mock('@/shared/assets/icons/common', () => ({
   AltArrowDownIcon: (props: ComponentPropsWithoutRef<'svg'>) => <svg {...props} />,
@@ -88,6 +92,7 @@ const renderDetail = (detail: CoverLetterDetailResponse, selectedVersionId = 've
 describe('CoverLetterDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRetryReview.mockClear();
     jest.mocked(getCoverLetterDetail).mockResolvedValue(DETAIL);
     jest.mocked(useCoverLetterReviewJob).mockReturnValue({
       jobState: undefined,
@@ -139,9 +144,7 @@ describe('CoverLetterDetailScreen', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(
       'AI 첨삭을 완료하지 못했어요. 잠시 후 다시 시도해 주세요.'
     );
-    expect(
-      screen.getByRole('button', { name: '실패한 문항 결과 다시 불러오기' })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '실패한 문항 다시 첨삭하기' })).toBeInTheDocument();
   });
 
   it('선택한 이전 버전을 API로 조회해서 표시한다', async () => {
@@ -158,8 +161,7 @@ describe('CoverLetterDetailScreen', () => {
     );
   });
 
-  it('상태 새로고침의 403 오류는 토스트로 안내하고 기존 화면을 유지한다', async () => {
-    jest.mocked(getCoverLetterDetail).mockRejectedValue(new ApiError(403));
+  it('첨삭 실패 화면에서 Job 단위 재요청 mutation을 호출한다', () => {
     renderDetail({
       ...DETAIL,
       coverLetter: { ...DETAIL.coverLetter, displayStatus: 'REVIEW_FAILED' },
@@ -170,12 +172,8 @@ describe('CoverLetterDetailScreen', () => {
         error: { code: 'LLM_PROVIDER_ERROR', message: '기존 실패 사유' },
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: '실패한 문항 결과 다시 불러오기' }));
-    await waitFor(() =>
-      expect(appToast.error).toHaveBeenCalledWith(
-        '자기소개서 상태를 새로 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
-      )
-    );
+    fireEvent.click(screen.getByRole('button', { name: '실패한 문항 다시 첨삭하기' }));
+    expect(mockRetryReview).toHaveBeenCalledTimes(1);
     expect(screen.getByText('서버 자기소개서')).toBeInTheDocument();
     expect(screen.getByRole('alert')).toHaveTextContent('기존 실패 사유');
     expect(mockReplace).not.toHaveBeenCalled();
