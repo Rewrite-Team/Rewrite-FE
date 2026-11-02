@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { ComponentPropsWithoutRef, MouseEvent } from 'react';
+import type { ComponentPropsWithoutRef } from 'react';
 
 import { usePathname } from 'next/navigation';
 
@@ -106,11 +106,7 @@ export function Sidebar({
     setIsExpanded(false);
   };
 
-  const handleAiFeatureSelect = (event: MouseEvent<HTMLAnchorElement>) => {
-    handleSidebarClose();
-    if (!isReviewing) return;
-
-    event.preventDefault();
+  const handleBlockedAiFeatureSelect = () => {
     appToast.warning('다른 AI 작업이 진행 중이에요. 완료 후 이용할 수 있어요.');
   };
 
@@ -249,27 +245,49 @@ export function Sidebar({
             ) : null}
 
             <li className={mobileMenuItemClassName}>
-              <SidebarItem
-                href={routes.keywordAnalysis}
-                icon={KeywordIcon}
-                isActive={isKeywordActive}
-                isExpanded={isExpanded}
-                label="키워드 분석"
-                onSelect={handleAiFeatureSelect}
-                showMobileLabel={shouldShowMobileLabel}
-              />
+              {isReviewing ? (
+                <SidebarItem
+                  icon={KeywordIcon}
+                  isActive={isKeywordActive}
+                  isExpanded={isExpanded}
+                  label="키워드 분석"
+                  onClick={handleBlockedAiFeatureSelect}
+                  showMobileLabel={shouldShowMobileLabel}
+                />
+              ) : (
+                <SidebarItem
+                  href={routes.keywordAnalysis}
+                  icon={KeywordIcon}
+                  isActive={isKeywordActive}
+                  isExpanded={isExpanded}
+                  label="키워드 분석"
+                  onSelect={handleSidebarClose}
+                  showMobileLabel={shouldShowMobileLabel}
+                />
+              )}
             </li>
 
             <li className={mobileMenuItemClassName}>
-              <SidebarItem
-                href={routes.interview}
-                icon={InterviewIcon}
-                isActive={isInterviewActive}
-                isExpanded={isExpanded}
-                label="AI 면접"
-                onSelect={handleAiFeatureSelect}
-                showMobileLabel={shouldShowMobileLabel}
-              />
+              {isReviewing ? (
+                <SidebarItem
+                  icon={InterviewIcon}
+                  isActive={isInterviewActive}
+                  isExpanded={isExpanded}
+                  label="AI 면접"
+                  onClick={handleBlockedAiFeatureSelect}
+                  showMobileLabel={shouldShowMobileLabel}
+                />
+              ) : (
+                <SidebarItem
+                  href={routes.interview}
+                  icon={InterviewIcon}
+                  isActive={isInterviewActive}
+                  isExpanded={isExpanded}
+                  label="AI 면접"
+                  onSelect={handleSidebarClose}
+                  showMobileLabel={shouldShowMobileLabel}
+                />
+              )}
             </li>
 
             <li className="self-center lg:order-first lg:self-stretch">
