@@ -7,8 +7,7 @@ import { Badge } from './Badge';
 interface BadgeGroupProps extends ComponentPropsWithoutRef<'ul'> {
   companyName?: string | null;
   jobName?: string | null;
-  companyBadgeClassName?: string;
-  jobBadgeClassName?: string;
+  badgeClassName?: string;
 }
 
 /**
@@ -30,8 +29,7 @@ interface BadgeGroupProps extends ComponentPropsWithoutRef<'ul'> {
  * @param companyName - 회사명 배지에 표시할 텍스트
  * @param jobName - 직무 배지에 표시할 텍스트
  * @param className - 배지 그룹 레이아웃을 확장할 때 사용하는 클래스 이름
- * @param companyBadgeClassName - 회사명 배지 스타일을 확장할 때 사용하는 클래스 이름
- * @param jobBadgeClassName - 직무 배지 스타일을 확장할 때 사용하는 클래스 이름
+ * @param badgeClassName - 회사명과 직무 배지에 공통으로 적용할 클래스 이름
  *
  * @example
  * ```tsx
@@ -42,8 +40,7 @@ export function BadgeGroup({
   companyName,
   jobName,
   className,
-  companyBadgeClassName,
-  jobBadgeClassName,
+  badgeClassName,
   'aria-label': ariaLabel = '지원 회사와 직무',
   ...props
 }: BadgeGroupProps) {
@@ -60,14 +57,14 @@ export function BadgeGroup({
     >
       {displayCompanyName ? (
         <li>
-          <Badge variant="company" className={companyBadgeClassName}>
+          <Badge variant="company" className={badgeClassName}>
             {displayCompanyName}
           </Badge>
         </li>
       ) : null}
       {displayJobName ? (
         <li>
-          <Badge variant="job" className={jobBadgeClassName}>
+          <Badge variant="job" className={badgeClassName}>
             {displayJobName}
           </Badge>
         </li>

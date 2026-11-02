@@ -13,10 +13,8 @@ import {
 } from '@/features/cover-letter/detail-actions';
 import { ROUTES } from '@/shared/constants/routes';
 import { appToast } from '@/shared/lib/toast';
-import { BadgeGroup } from '@/shared/ui/badge';
-import { PageHeader } from '@/shared/ui/page-header';
 
-import { CoverLetterJobPostingLink } from './CoverLetterJobPostingLink';
+import { CoverLetterPageHeader } from './CoverLetterPageHeader';
 import { CoverLetterReviewQuestion } from './CoverLetterReviewQuestion';
 
 interface CoverLetterReviewResultProps {
@@ -130,17 +128,13 @@ export function CoverLetterReviewResult({
 
   return (
     <section className="writing-detail-content">
-      <PageHeader
+      <CoverLetterPageHeader
         className="mb-10"
+        companyName={detail.coverLetter.companyName}
+        jobPostingUrl={detail.coverLetter.jobPostingUrl}
+        positionTitle={detail.coverLetter.positionTitle}
         title={detail.coverLetter.title ?? '자기소개서'}
-        titleAddon={<CoverLetterJobPostingLink href={detail.coverLetter.jobPostingUrl} />}
         version={detail.reviewVersion?.version}
-        eyebrow={
-          <BadgeGroup
-            companyName={detail.coverLetter.companyName ?? ''}
-            jobName={detail.coverLetter.positionTitle ?? ''}
-          />
-        }
       />
       {showCompletionNotice && detail.reviewVersion?.isLatestReviewed ? (
         <div

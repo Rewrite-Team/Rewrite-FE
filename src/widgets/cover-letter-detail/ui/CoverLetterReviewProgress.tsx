@@ -1,9 +1,7 @@
 import type { QuestionResponse } from '@/entities/cover-letter';
 import type { LlmJobStateResponse, ReviewQuestionSnapshot } from '@/entities/llm-job';
-import { BadgeGroup } from '@/shared/ui/badge';
-import { PageHeader } from '@/shared/ui/page-header';
 
-import { CoverLetterJobPostingLink } from './CoverLetterJobPostingLink';
+import { CoverLetterPageHeader } from './CoverLetterPageHeader';
 import { CoverLetterReviewQuestionProgress } from './CoverLetterReviewQuestionProgress';
 import { CoverLetterReviewStatusCard } from './CoverLetterReviewStatusCard';
 
@@ -40,10 +38,11 @@ export function CoverLetterReviewProgress({
   const resultsByQuestionId = new Map(questionResults.map((result) => [result.questionId, result]));
   return (
     <section className="writing-detail-content">
-      <PageHeader
+      <CoverLetterPageHeader
+        companyName={companyName}
+        jobPostingUrl={jobPostingUrl}
+        positionTitle={positionTitle}
         title={title}
-        titleAddon={<CoverLetterJobPostingLink href={jobPostingUrl} />}
-        eyebrow={<BadgeGroup companyName={companyName ?? ''} jobName={positionTitle ?? ''} />}
         description="문항별 진행 상황과 첨삭 결과를 확인할 수 있어요."
       />
       <CoverLetterReviewStatusCard
