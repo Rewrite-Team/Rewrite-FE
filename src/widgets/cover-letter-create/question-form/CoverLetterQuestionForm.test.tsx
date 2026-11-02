@@ -77,7 +77,7 @@ describe('CoverLetterQuestionForm', () => {
 
     expect(form).toHaveAttribute('id', COVER_LETTER_STEP_FORM_ID);
     expect(form).toHaveAttribute('novalidate');
-    expect(screen.getAllByRole('textbox', { name: '질문' })).toHaveLength(1);
+    expect(screen.getAllByRole('textbox', { name: /문항/ })).toHaveLength(1);
     expect(firstTrigger).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByRole('textbox', { name: '자기소개서 내용' })).toBeVisible();
     expect(
@@ -108,7 +108,7 @@ describe('CoverLetterQuestionForm', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
 
-    expect(screen.getAllByRole('textbox', { name: '질문' })).toHaveLength(2);
+    expect(screen.getAllByRole('textbox', { name: /문항/ })).toHaveLength(2);
     expect(
       screen.getByRole('button', { name: '2번 자기소개서 문항 접기 또는 펼치기' })
     ).toHaveAttribute('aria-expanded', 'true');
@@ -123,15 +123,15 @@ describe('CoverLetterQuestionForm', () => {
   it('내용이 있는 문항은 확인 후 삭제하고 폼 값과 순서를 함께 업데이트한다', async () => {
     renderForm();
 
-    fireEvent.change(screen.getByRole('textbox', { name: '질문' }), {
+    fireEvent.change(screen.getByRole('textbox', { name: /문항/ }), {
       target: { value: '첫 번째 질문' },
     });
     fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
-    fireEvent.change(screen.getAllByRole('textbox', { name: '질문' })[1], {
+    fireEvent.change(screen.getAllByRole('textbox', { name: /문항/ })[1], {
       target: { value: '두 번째 질문' },
     });
     fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
-    fireEvent.change(screen.getAllByRole('textbox', { name: '질문' })[2], {
+    fireEvent.change(screen.getAllByRole('textbox', { name: /문항/ })[2], {
       target: { value: '세 번째 질문' },
     });
 
@@ -145,9 +145,9 @@ describe('CoverLetterQuestionForm', () => {
     expect(await screen.findByRole('dialog')).toHaveTextContent('2번 문항을 삭제할까요?');
     fireEvent.click(await screen.findByRole('button', { name: '삭제하기' }));
 
-    expect(screen.getAllByRole('textbox', { name: '질문' })).toHaveLength(2);
-    expect(screen.getAllByRole('textbox', { name: '질문' })[0]).toHaveValue('첫 번째 질문');
-    expect(screen.getAllByRole('textbox', { name: '질문' })[1]).toHaveValue('세 번째 질문');
+    expect(screen.getAllByRole('textbox', { name: /문항/ })).toHaveLength(2);
+    expect(screen.getAllByRole('textbox', { name: /문항/ })[0]).toHaveValue('첫 번째 질문');
+    expect(screen.getAllByRole('textbox', { name: /문항/ })[1]).toHaveValue('세 번째 질문');
     const remainingSecondTrigger = screen.getByRole('button', {
       name: '2번 자기소개서 문항 접기 또는 펼치기',
     });
@@ -210,7 +210,7 @@ describe('CoverLetterQuestionForm', () => {
     expect(await screen.findAllByText('자기소개서 질문을 입력해주세요.')).toHaveLength(2);
 
     fireEvent.click(screen.getByRole('button', { name: '2번 자기소개서 문항 삭제' }));
-    fireEvent.change(screen.getByRole('textbox', { name: '질문' }), {
+    fireEvent.change(screen.getByRole('textbox', { name: /문항/ }), {
       target: { value: '지원 동기를 작성해주세요.' },
     });
     fireEvent.change(screen.getByRole('textbox', { name: '자기소개서 내용' }), {
@@ -262,7 +262,7 @@ describe('CoverLetterQuestionForm', () => {
 
   it('모든 필수 항목을 입력하고 제출하면 STEP4로 이동한다', async () => {
     const { container } = renderForm();
-    const questionFields = screen.getAllByRole('textbox', { name: '질문' });
+    const questionFields = screen.getAllByRole('textbox', { name: /문항/ });
     const answerFields = container.querySelectorAll<HTMLTextAreaElement>('textarea');
 
     fireEvent.change(questionFields[0], { target: { value: '지원 동기를 작성해주세요.' } });
@@ -285,11 +285,11 @@ describe('CoverLetterQuestionForm', () => {
 
   it('추가·삭제 후 남은 문항 전체를 화면 순서로 임시 저장한다', async () => {
     renderForm();
-    fireEvent.change(screen.getByRole('textbox', { name: '질문' }), {
+    fireEvent.change(screen.getByRole('textbox', { name: /문항/ }), {
       target: { value: ' 첫 질문 ' },
     });
     fireEvent.click(screen.getByRole('button', { name: '문항 추가' }));
-    fireEvent.change(screen.getAllByRole('textbox', { name: '질문' })[1], {
+    fireEvent.change(screen.getAllByRole('textbox', { name: /문항/ })[1], {
       target: { value: '둘째 질문' },
     });
     fireEvent.change(screen.getByRole('spinbutton', { name: '자기소개서 글자 수' }), {

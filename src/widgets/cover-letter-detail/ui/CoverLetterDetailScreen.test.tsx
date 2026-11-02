@@ -32,7 +32,10 @@ jest.mock('@/features/cover-letter/retry-review', () => ({
 }));
 jest.mock('@/shared/ui/lottie-animation', () => ({ LottieAnimation: () => null }));
 jest.mock('@/shared/assets/icons/common', () => ({
+  AlertCircleIcon: (props: ComponentPropsWithoutRef<'svg'>) => <svg {...props} />,
   AltArrowDownIcon: (props: ComponentPropsWithoutRef<'svg'>) => <svg {...props} />,
+  CheckMarkIcon: (props: ComponentPropsWithoutRef<'svg'>) => <svg {...props} />,
+  EditIcon: (props: ComponentPropsWithoutRef<'svg'>) => <svg {...props} />,
 }));
 
 const DETAIL: CoverLetterDetailResponse = {
@@ -106,7 +109,7 @@ describe('CoverLetterDetailScreen', () => {
   it('완료된 자기소개서의 실제 서버 결과를 읽기 전용으로 표시한다', () => {
     renderDetail(DETAIL);
     expect(screen.getByText('서버 자기소개서')).toBeInTheDocument();
-    expect(screen.getByText('서버 질문')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: '문항 1' })).toHaveValue('서버 질문');
     expect(screen.getByText('서버 분석')).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: '최종 작성본' })).toHaveValue('서버 최종본');
     expect(screen.getByRole('textbox', { name: '최종 작성본' })).toHaveAttribute('readonly');
@@ -125,8 +128,8 @@ describe('CoverLetterDetailScreen', () => {
       },
     });
     expect(useCoverLetterReviewJob).toHaveBeenCalledWith('letter-id', 'server-job');
-    expect(screen.getByRole('progressbar')).toHaveAttribute('value', '1');
-    expect(screen.getByRole('status')).toHaveTextContent('두 번째 문항 첨삭 중');
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '50');
+    expect(screen.getByText('두 번째 문항 첨삭 중')).toBeInTheDocument();
     expect(screen.queryByRole('textbox', { name: '최종 작성본' })).not.toBeInTheDocument();
   });
 
@@ -175,7 +178,9 @@ describe('CoverLetterDetailScreen', () => {
     fireEvent.click(screen.getByRole('button', { name: '실패한 문항 다시 첨삭하기' }));
     expect(mockRetryReview).toHaveBeenCalledTimes(1);
     expect(screen.getByText('서버 자기소개서')).toBeInTheDocument();
-    expect(screen.getByRole('alert')).toHaveTextContent('기존 실패 사유');
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'AI 첨삭을 완료하지 못했어요. 잠시 후 다시 시도해 주세요.'
+    );
     expect(mockReplace).not.toHaveBeenCalled();
   });
 

@@ -114,7 +114,7 @@ describe('CoverLetterReviewForm', () => {
   it('문항과 답변 및 적용된 글자 수를 표시한다', () => {
     renderReviewForm();
 
-    expect(screen.getByRole('textbox', { name: '질문' })).toHaveValue('이름이 무엇입니까?');
+    expect(screen.getByRole('textbox', { name: /문항/ })).toHaveValue('이름이 무엇입니까?');
     expect(screen.getByRole('textbox', { name: '자기소개서 글자 수' })).toHaveValue('700');
     expect(screen.getByRole('textbox', { name: '자기소개서 내용' })).toHaveValue(
       '이서정입니다람쥐~'
