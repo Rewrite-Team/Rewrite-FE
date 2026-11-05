@@ -48,9 +48,8 @@ export function CoverLetterCard({ coverLetter, actions }: CoverLetterCardProps) 
 
         <BadgeGroup
           className={cn(styles.badges, 'min-w-0 flex-nowrap gap-0')}
-          companyBadgeClassName={cn(styles.folderBadge, 'max-w-36 truncate body-14')}
+          badgeClassName={cn(styles.folderBadge, 'max-w-36 truncate body-14')}
           companyName={companyName?.trim() || '회사 미입력'}
-          jobBadgeClassName={cn(styles.folderBadge, 'max-w-36 truncate body-14')}
           jobName={positionTitle?.trim() || '직무 미입력'}
         />
 

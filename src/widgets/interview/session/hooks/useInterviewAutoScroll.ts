@@ -1,13 +1,12 @@
 import { useEffect, useRef } from 'react';
 
+import { getPreferredScrollBehavior } from '@/shared/lib/motionPreferences';
+
 interface UseInterviewAutoScrollParams {
   activeMessageCount: number;
   activeQuestionId: number;
   questionCount: number;
 }
-
-const getPreferredScrollBehavior = (): ScrollBehavior =>
-  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
 
 /**
  * ## useInterviewAutoScroll

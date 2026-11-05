@@ -7,6 +7,7 @@ interface PageHeaderProps extends Omit<ComponentPropsWithoutRef<'div'>, 'title'>
   title: string;
   description?: string;
   eyebrow?: ReactNode;
+  titleAddon?: ReactNode;
   version?: string;
   titleClassName?: string;
   descriptionClassName?: string;
@@ -27,6 +28,7 @@ interface PageHeaderProps extends Omit<ComponentPropsWithoutRef<'div'>, 'title'>
  * @param title - 페이지의 대표 제목
  * @param description - 페이지 목적을 설명하는 선택적 보조 문구
  * @param eyebrow - 제목 위에 배지처럼 배치할 선택적 콘텐츠
+ * @param titleAddon - 제목 옆에 배치할 링크나 액션
  * @param version - 제목 옆에 표시할 선택적 버전 문자열
  * @param className - 헤더 레이아웃을 확장할 때 사용하는 클래스 이름
  * @param titleClassName - 제목 스타일을 확장할 때 사용하는 클래스 이름
@@ -45,6 +47,7 @@ export function PageHeader({
   title,
   description,
   eyebrow,
+  titleAddon,
   version,
   className,
   titleClassName,
@@ -55,13 +58,18 @@ export function PageHeader({
   return (
     <div className={cn('flex flex-col gap-2', className)} {...props}>
       {eyebrow}
-      <div className="flex min-w-0 items-baseline gap-2">
-        <Title className={cn('min-w-0 heading-24', titleClassName)} title={title}>
-          {title}
-        </Title>
-        {version ? (
-          <span className={cn('shrink-0 body-12 text-gray-100', versionClassName)}>{version}</span>
-        ) : null}
+      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+        <div className="flex min-w-0 items-baseline gap-2">
+          <Title className={cn('min-w-0 heading-24', titleClassName)} title={title}>
+            {title}
+          </Title>
+          {version ? (
+            <span className={cn('shrink-0 body-12 text-gray-100', versionClassName)}>
+              {version}
+            </span>
+          ) : null}
+        </div>
+        {titleAddon ? <div className="ml-auto shrink-0">{titleAddon}</div> : null}
       </div>
       {description ? (
         <p

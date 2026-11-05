@@ -5,10 +5,9 @@ import { cn } from '@/shared/styles/utils/cn';
 import { Badge } from './Badge';
 
 interface BadgeGroupProps extends ComponentPropsWithoutRef<'ul'> {
-  companyName: string;
-  jobName: string;
-  companyBadgeClassName?: string;
-  jobBadgeClassName?: string;
+  companyName?: string | null;
+  jobName?: string | null;
+  badgeClassName?: string;
 }
 
 /**
@@ -30,8 +29,7 @@ interface BadgeGroupProps extends ComponentPropsWithoutRef<'ul'> {
  * @param companyName - 회사명 배지에 표시할 텍스트
  * @param jobName - 직무 배지에 표시할 텍스트
  * @param className - 배지 그룹 레이아웃을 확장할 때 사용하는 클래스 이름
- * @param companyBadgeClassName - 회사명 배지 스타일을 확장할 때 사용하는 클래스 이름
- * @param jobBadgeClassName - 직무 배지 스타일을 확장할 때 사용하는 클래스 이름
+ * @param badgeClassName - 회사명과 직무 배지에 공통으로 적용할 클래스 이름
  *
  * @example
  * ```tsx
@@ -42,27 +40,35 @@ export function BadgeGroup({
   companyName,
   jobName,
   className,
-  companyBadgeClassName,
-  jobBadgeClassName,
+  badgeClassName,
   'aria-label': ariaLabel = '지원 회사와 직무',
   ...props
 }: BadgeGroupProps) {
+  const displayCompanyName = companyName?.trim() ? companyName : null;
+  const displayJobName = jobName?.trim() ? jobName : null;
+
+  if (!displayCompanyName && !displayJobName) return null;
+
   return (
     <ul
       className={cn('m-0 flex list-none flex-wrap gap-1 p-0', className)}
       aria-label={ariaLabel}
       {...props}
     >
-      <li>
-        <Badge variant="company" className={companyBadgeClassName}>
-          {companyName}
-        </Badge>
-      </li>
-      <li>
-        <Badge variant="job" className={jobBadgeClassName}>
-          {jobName}
-        </Badge>
-      </li>
+      {displayCompanyName ? (
+        <li>
+          <Badge variant="company" className={badgeClassName}>
+            {displayCompanyName}
+          </Badge>
+        </li>
+      ) : null}
+      {displayJobName ? (
+        <li>
+          <Badge variant="job" className={badgeClassName}>
+            {displayJobName}
+          </Badge>
+        </li>
+      ) : null}
     </ul>
   );
 }

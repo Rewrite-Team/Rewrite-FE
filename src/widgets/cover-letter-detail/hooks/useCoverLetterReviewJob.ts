@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -16,8 +16,10 @@ import {
 import { reviewVersionQueryKeys } from '@/entities/review-version';
 import { refreshAuthTokens } from '@/entities/user';
 import { withStreamRecoveryTimeout } from '@/shared/api/stream/withStreamRecoveryTimeout';
+import { appToast } from '@/shared/lib/toast';
 
 import { createReviewJobRecovery, isTerminalJobStatus } from '../model/createReviewJobRecovery';
+import { REVIEW_RESULT_REFRESH_ERROR_MESSAGE } from '../model/reviewJobMessages';
 
 /**
  * ## useCoverLetterReviewJob
@@ -46,6 +48,11 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
     jobId: string;
     items: ReviewQuestionSnapshot[];
   }>();
+  const [completedReview, setCompletedReview] = useState<{
+    coverLetterId: string;
+    jobId: string;
+  }>();
+  const notifiedCompletionJobsRef = useRef(new Set<string>());
   const queryKey = llmJobQueryKeys.status(jobId ?? '');
   const { data: jobState } = useQuery<LlmJobStateResponse>({
     queryKey,
@@ -58,6 +65,11 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
     const controller = new AbortController();
     const jobQueryKey = llmJobQueryKeys.status(jobId);
     let hasReceivedTerminalState = false;
+    const notifyCompletion = () => {
+      if (notifiedCompletionJobsRef.current.has(jobId)) return;
+      notifiedCompletionJobsRef.current.add(jobId);
+      appToast.success('AI 첨삭이 완료됐어요.');
+    };
 
     const refreshDetail = async () => {
       // 완료·복구 시에는 신선한 REVIEWING 캐시가 있어도 서버의 최신 결과를 조회합니다.
@@ -67,6 +79,10 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
       if (controller.signal.aborted) return;
       void queryClient.invalidateQueries({ queryKey: coverLetterQueryKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: reviewVersionQueryKeys.list(coverLetterId) });
+      if (detail.reviewJob?.id === jobId && detail.reviewJob.status === 'COMPLETED') {
+        setCompletedReview({ coverLetterId, jobId });
+        notifyCompletion();
+      }
       if (detail.coverLetter.displayStatus === 'REVIEWING') {
         setConnectionIssue({
           jobId,
@@ -94,6 +110,7 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
         if (message.event === 'job.state') {
           queryClient.setQueryData(jobQueryKey, message.data);
           hasReceivedTerminalState = isTerminalJobStatus(message.data.status);
+          if (message.data.status === 'COMPLETED') notifyCompletion();
         } else {
           setPartialQuestionResults((previous) => {
             const previousQuestions = previous?.jobId === jobId ? previous.items : [];
@@ -118,7 +135,7 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
             if (!controller.signal.aborted)
               setConnectionIssue({
                 jobId,
-                message: '첨삭 결과를 불러오지 못했습니다. 상태를 새로고침해 주세요.',
+                message: REVIEW_RESULT_REFRESH_ERROR_MESSAGE,
               });
           }
         } else {
@@ -145,6 +162,10 @@ export function useCoverLetterReviewJob(coverLetterId: string, jobId?: string) {
         : [],
     connectionIssue:
       connectionIssue && connectionIssue.jobId === jobId ? connectionIssue.message : undefined,
+    hasCompletedReview: Boolean(
+      completedReview?.coverLetterId === coverLetterId &&
+      (!jobId || completedReview.jobId === jobId)
+    ),
     retry,
   };
 }

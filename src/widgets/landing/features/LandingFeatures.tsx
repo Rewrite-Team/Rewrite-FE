@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 
 import { InterviewImage } from '@/shared/assets/images';
+import { prefersReducedMotion } from '@/shared/lib/motionPreferences';
 
 import styles from './LandingFeatures.module.css';
 
@@ -47,7 +48,7 @@ export function LandingFeatures() {
   useEffect(() => {
     const section = sectionRef.current;
 
-    if (!section || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (!section || prefersReducedMotion()) {
       return;
     }
 

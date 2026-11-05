@@ -58,7 +58,7 @@ export function CoverLetterQuestionFields({
                     ref={triggerRef}
                   />
                   <Accordion.Label asChild>
-                    <Input.Label>질문</Input.Label>
+                    <Input.Label>문항 {questionNumber}</Input.Label>
                   </Accordion.Label>
                 </div>
 
@@ -78,7 +78,7 @@ export function CoverLetterQuestionFields({
                 <Input.Field
                   {...field}
                   autoComplete="off"
-                  placeholder={`자기소개서 질문을 입력해주세요 (최대 ${INPUT_LIMITS.COVER_LETTER_QUESTION}자)`}
+                  placeholder={`자기소개서 문항을 입력해주세요 (최대 ${INPUT_LIMITS.COVER_LETTER_QUESTION}자)`}
                 />
                 <Input.ErrorMessage>{errorMessage}</Input.ErrorMessage>
               </div>

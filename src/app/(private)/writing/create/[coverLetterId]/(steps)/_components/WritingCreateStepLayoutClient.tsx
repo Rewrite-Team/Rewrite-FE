@@ -11,6 +11,7 @@ import {
 } from '@/features/cover-letter/create-flow';
 import { ApiError } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
+import { scrollWindowToTop } from '@/shared/lib/scrollWindowToTop';
 import { appToast } from '@/shared/lib/toast';
 import { ErrorState } from '@/shared/ui/state-feedback';
 import { COVER_LETTER_STEP_CONFIG, CoverLetterCreateSkeleton } from '@/widgets/cover-letter-create';
@@ -44,7 +45,7 @@ export function WritingCreateStepLayoutClient({ children }: WritingCreateStepLay
 
   useEffect(() => {
     // 목록의 스크롤을 이어받지 않도록 진입 시 초기화하며, 단계 이동·재조회 시에는 유지합니다.
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    scrollWindowToTop();
   }, [coverLetterId]);
 
   const handleRetry = () => {

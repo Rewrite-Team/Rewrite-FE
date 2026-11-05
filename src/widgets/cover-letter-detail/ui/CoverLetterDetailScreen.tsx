@@ -1,20 +1,23 @@
 'use client';
 
+import { startTransition, useEffect, useState } from 'react';
+
 import { redirect, useRouter, useSearchParams } from 'next/navigation';
 
 import { useQuery } from '@tanstack/react-query';
 
 import { coverLetterDetailQueryOptions } from '@/entities/cover-letter';
 import { reviewVersionDetailQueryOptions } from '@/entities/review-version';
+import { useRetryCoverLetterReview } from '@/features/cover-letter/retry-review';
 import { useReviewVersion } from '@/features/review-version/version-management';
 import { ApiError } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
 import { appToast } from '@/shared/lib/toast';
 import { LinkButton } from '@/shared/ui/button';
-import { PageHeader } from '@/shared/ui/page-header';
-import { ErrorState } from '@/shared/ui/state-feedback';
+import { EmptyState, ErrorState } from '@/shared/ui/state-feedback';
 
 import { CoverLetterDetailSkeleton } from './CoverLetterDetailSkeleton';
+import { CoverLetterReviewFailure } from './CoverLetterReviewFailure';
 import { CoverLetterReviewProgress } from './CoverLetterReviewProgress';
 import { CoverLetterReviewResult } from './CoverLetterReviewResult';
 import { useCoverLetterReviewJob } from '../hooks/useCoverLetterReviewJob';
@@ -27,8 +30,12 @@ interface CoverLetterDetailScreenProps {
 export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScreenProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [firstEntryCompletion, setFirstEntryCompletion] = useState<{
+    coverLetterId: string;
+    jobId: string;
+  } | null>(null);
   const { selectedVersionId } = useReviewVersion();
-  const { data, isPending, isFetching, refetch } = useQuery({
+  const { data, error, isError, isPending, isFetching, refetch } = useQuery({
     ...coverLetterDetailQueryOptions(coverLetterId),
     refetchOnMount: false,
   });
@@ -36,7 +43,9 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
     data?.coverLetter.displayStatus === 'REVIEWING'
       ? (data.reviewJob?.id ?? searchParams.get('jobId') ?? undefined)
       : undefined;
+  const completedJobId = searchParams.get('jobId');
   const reviewJob = useCoverLetterReviewJob(coverLetterId, jobId);
+  const retryReviewMutation = useRetryCoverLetterReview(coverLetterId);
   const shouldFetchVersion = Boolean(
     data?.coverLetter.displayStatus === 'REVIEWED' &&
     selectedVersionId &&
@@ -48,15 +57,32 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
     refetchOnMount: false,
   });
 
+  useEffect(() => {
+    if (!(error instanceof ApiError) || error.status !== 404) return;
+
+    appToast.error('자기소개서가 없거나 접근할 수 없습니다.');
+    router.replace(ROUTES.WRITING);
+  }, [error, router]);
+
+  useEffect(() => {
+    if (
+      !completedJobId ||
+      data?.coverLetter.displayStatus !== 'REVIEWED' ||
+      data.reviewJob?.id !== completedJobId ||
+      data.reviewJob.status !== 'COMPLETED'
+    )
+      return;
+
+    startTransition(() => setFirstEntryCompletion({ coverLetterId, jobId: completedJobId }));
+    router.replace(ROUTES.WRITING_DETAIL(coverLetterId), { scroll: false });
+  }, [completedJobId, coverLetterId, data, router]);
+
   const handleDetailRetry = async () => {
     const refreshedDetail = await refetch();
     if (!refreshedDetail.isError) return;
-    if (refreshedDetail.error instanceof ApiError && refreshedDetail.error.status === 404) {
-      appToast.error('자기소개서가 없거나 접근할 수 없습니다.');
-      router.replace(ROUTES.WRITING);
-    } else {
-      appToast.error('자기소개서 상태를 새로 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
-    }
+    if (refreshedDetail.error instanceof ApiError && refreshedDetail.error.status === 404) return;
+
+    appToast.error('자기소개서 상태를 새로 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
   };
 
   const handleVersionRetry = async () => {
@@ -66,13 +92,27 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
   };
 
   if (isPending) return <CoverLetterDetailSkeleton />;
+  if (!data && isError)
+    return (
+      <section className="writing-detail-content writing-detail-feedback">
+        <ErrorState
+          title="자기소개서를 불러오지 못했어요"
+          description="잠시 후 다시 시도해 주세요."
+          retry={{ onClick: () => void handleDetailRetry(), isLoading: isFetching }}
+        />
+      </section>
+    );
   if (!data)
     return (
-      <ErrorState
-        title="자기소개서를 불러오지 못했어요"
-        description="잠시 후 다시 시도해 주세요."
-        retry={{ onClick: () => void handleDetailRetry(), isLoading: isFetching }}
-      />
+      <section className="writing-detail-content writing-detail-feedback">
+        <EmptyState
+          title="자기소개서 데이터를 찾을 수 없어요"
+          description="목록으로 돌아가 다시 선택해 주세요."
+        />
+        <LinkButton href={ROUTES.WRITING} variant="outline">
+          목록으로 이동
+        </LinkButton>
+      </section>
     );
   if (data.coverLetter.displayStatus === 'WRITING')
     redirect(ROUTES.WRITING_CREATE_STEP(coverLetterId, 1));
@@ -81,27 +121,24 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
     reviewJob.retry();
     void handleDetailRetry();
   };
+  const handleReviewRetry = () => retryReviewMutation.mutate();
   const hasReviewFailed =
     data.coverLetter.displayStatus === 'REVIEW_FAILED' ||
     reviewJob.jobState?.status === 'FAILED' ||
     reviewJob.jobState?.status === 'CANCELED';
   if (hasReviewFailed)
     return (
-      <section className="writing-detail-content">
-        <PageHeader title={data.coverLetter.title ?? '자기소개서'} />
-        <ErrorState
-          title="AI 첨삭을 완료하지 못했어요"
-          description={
-            reviewJob.jobState?.error?.message ??
-            data.reviewJob?.error?.message ??
-            '첨삭 작업이 중단되었습니다.'
-          }
-          retry={{ label: '상태 새로고침', onClick: handleRefresh, isLoading: isFetching }}
-        />
-        <LinkButton href={ROUTES.WRITING} variant="outline">
-          목록으로 이동
-        </LinkButton>
-      </section>
+      <CoverLetterReviewFailure
+        title={data.coverLetter.title ?? '자기소개서'}
+        companyName={data.coverLetter.companyName}
+        positionTitle={data.coverLetter.positionTitle}
+        jobPostingUrl={data.coverLetter.jobPostingUrl}
+        questions={data.questions}
+        questionResults={reviewJob.questionResults}
+        progress={reviewJob.jobState?.progress ?? data.reviewJob?.progress}
+        isFetching={isFetching || retryReviewMutation.isPending}
+        onRetry={handleReviewRetry}
+      />
     );
 
   if (data.coverLetter.displayStatus === 'REVIEWING') {
@@ -109,9 +146,14 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
     return (
       <CoverLetterReviewProgress
         title={data.coverLetter.title ?? '자기소개서'}
+        companyName={data.coverLetter.companyName}
+        positionTitle={data.coverLetter.positionTitle}
+        jobPostingUrl={data.coverLetter.jobPostingUrl}
         progress={progress}
+        questions={data.questions}
         questionResults={reviewJob.questionResults}
         hasJobId={Boolean(jobId)}
+        isCompleted={reviewJob.jobState?.status === 'COMPLETED'}
         connectionIssue={reviewJob.connectionIssue}
         isFetching={isFetching}
         onRefresh={handleRefresh}
@@ -123,11 +165,35 @@ export function CoverLetterDetailScreen({ coverLetterId }: CoverLetterDetailScre
   const displayedDetail = shouldFetchVersion ? versionQuery.data : data;
   if (!displayedDetail)
     return (
-      <ErrorState
-        title="선택한 버전을 불러오지 못했어요"
-        retry={{ onClick: () => void handleVersionRetry(), isLoading: versionQuery.isFetching }}
-      />
+      <section className="writing-detail-content writing-detail-feedback">
+        <ErrorState
+          title="선택한 버전을 불러오지 못했어요"
+          retry={{ onClick: () => void handleVersionRetry(), isLoading: versionQuery.isFetching }}
+        />
+      </section>
     );
 
-  return <CoverLetterReviewResult detail={displayedDetail} />;
+  if (displayedDetail.questions.length === 0)
+    return (
+      <section className="writing-detail-content writing-detail-feedback">
+        <EmptyState
+          title="표시할 자기소개서 문항이 없어요"
+          description="자기소개서 목록에서 다른 항목을 선택해 주세요."
+        />
+        <LinkButton href={ROUTES.WRITING} variant="outline">
+          목록으로 이동
+        </LinkButton>
+      </section>
+    );
+
+  return (
+    <CoverLetterReviewResult
+      detail={displayedDetail}
+      showCompletionNotice={
+        reviewJob.hasCompletedReview ||
+        (firstEntryCompletion?.coverLetterId === coverLetterId &&
+          firstEntryCompletion.jobId === data.reviewJob?.id)
+      }
+    />
+  );
 }

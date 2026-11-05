@@ -1,4 +1,4 @@
-import type { ComponentType, Ref, SVGProps } from 'react';
+import type { ComponentType, MouseEvent, Ref, SVGProps } from 'react';
 
 import { cva } from 'class-variance-authority';
 
@@ -18,7 +18,7 @@ interface SidebarItemLinkProps extends SidebarItemBaseProps {
   buttonRef?: never;
   href: string;
   onClick?: never;
-  onSelect?: () => void;
+  onSelect?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }
 
 interface SidebarItemActionProps extends SidebarItemBaseProps {
@@ -78,7 +78,7 @@ const sidebarItemVariants = cva(
  * @param ariaExpanded - 메뉴 토글이 제어하는 영역의 펼침 상태
  * @param buttonRef - 액션 버튼 DOM 요소에 접근할 때 사용하는 ref
  * @param onClick - 액션 버튼 선택 시 실행할 콜백
- * @param onSelect - 링크 선택 직전에 실행할 콜백
+ * @param onSelect - 링크 선택 직전에 실행하며 `event.preventDefault()`로 이동을 막을 수 있습니다.
  */
 export function SidebarItem({
   ariaExpanded,
